@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import BookingModal from '../components/BookingModal';
 import './Marketplace.css';
 
 const Marketplace = () => {
@@ -8,7 +10,10 @@ const Marketplace = () => {
   const [selectedPetType, setSelectedPetType] = useState('all');
   const [priceSort, setPriceSort] = useState('');
   const [ratingFilter, setRatingFilter] = useState('');
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   // Mock data for categories
   const categories = [
@@ -134,13 +139,34 @@ const Marketplace = () => {
   });
 
   const handleBookService = (serviceId) => {
-    // Navigate to booking page (placeholder)
-    navigate(`/booking/${serviceId}`);
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+      navigate('/signin');
+      return;
+    }
+
+    // Find the service and open booking modal
+    const service = mockServices.find(s => s.id === serviceId);
+    if (service) {
+      setSelectedService(service);
+      setBookingModalOpen(true);
+    }
   };
 
   const handleCompanyClick = (companyId) => {
     // Navigate to company page (placeholder)
     navigate(`/company/${companyId}`);
+  };
+
+  const handleBookingSuccess = (bookingData) => {
+    console.log('Booking successful:', bookingData);
+    // Could show a success notification or redirect to bookings page
+    // navigate('/pet-owner/dashboard?tab=bookings');
+  };
+
+  const closeBookingModal = () => {
+    setBookingModalOpen(false);
+    setSelectedService(null);
   };
 
   return (
@@ -345,6 +371,14 @@ const Marketplace = () => {
           </div>
         </div>
       </div>
+
+      {/* Booking Modal */}
+      <BookingModal
+        isOpen={bookingModalOpen}
+        onClose={closeBookingModal}
+        service={selectedService}
+        onBookingSuccess={handleBookingSuccess}
+      />
     </div>
   );
 };
