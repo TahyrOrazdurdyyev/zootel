@@ -710,6 +710,7 @@ const EmployeeManagement = () => {
                         <label>Full Name *</label>
                         <input
                           type="text"
+                          name="name"
                           value={formData.name}
                           onChange={(e) => handleInputChange('name', e.target.value)}
                           required
@@ -720,6 +721,7 @@ const EmployeeManagement = () => {
                         <label>Email Address *</label>
                         <input
                           type="email"
+                          name="email"
                           value={formData.email}
                           onChange={(e) => handleInputChange('email', e.target.value)}
                           required
@@ -739,6 +741,7 @@ const EmployeeManagement = () => {
                       <div className="form-group">
                         <label>Role *</label>
                         <select
+                          name="role"
                           value={formData.role}
                           onChange={(e) => handleInputChange('role', e.target.value)}
                           required
