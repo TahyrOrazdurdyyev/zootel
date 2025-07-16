@@ -118,11 +118,7 @@ const Pricing = () => {
     <div className="pricing">
       {/* Hero Section */}
       <div className="pricing-hero">
-        <div className="hero-background">
-          <div className="hero-image-placeholder">
-            💼📊📈💰🚀⚡
-          </div>
-        </div>
+        <div className="hero-background"></div>
         
         <div className="hero-content">
           <h1 className="hero-title">Zootel CRM Pricing</h1>

@@ -25,19 +25,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  opacity: 0.1;
-}
-
-.hero-image-placeholder {
-  font-size: 8rem;
-  text-align: center;
-  line-height: 1.2;
-  animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+  background-image: url('/images/hero.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.3;
 }
 
 .hero-content {
@@ -298,9 +290,7 @@
     font-size: 1.3rem;
   }
   
-  .hero-image-placeholder {
-    font-size: 4rem;
-  }
+
   
   .stats-grid {
     grid-template-columns: 1fr;

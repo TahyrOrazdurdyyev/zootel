@@ -96,12 +96,7 @@ const Home = () => {
     <div className="home">
       {/* Hero Section */}
       <section className="hero">
-        <div className="hero-background">
-          {/* Placeholder for hero background image */}
-          <div className="hero-image-placeholder">
-            🏡🐕🐱🐰🦎🐦
-          </div>
-        </div>
+        <div className="hero-background"></div>
         
         <div className="hero-content">
           <div className="hero-text">

@@ -20,14 +20,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  opacity: 0.1;
-}
-
-.hero-image-placeholder {
-  font-size: 6rem;
-  text-align: center;
-  line-height: 1.2;
-  animation: float 8s ease-in-out infinite;
+  background-image: url('/images/hero.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.3;
 }
 
 .hero-content {
@@ -425,9 +422,7 @@
     font-size: 1.1rem;
   }
   
-  .hero-image-placeholder {
-    font-size: 3rem;
-  }
+
   
   .plans-grid {
     grid-template-columns: 1fr;
