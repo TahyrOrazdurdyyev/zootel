@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import BookingModal from '../components/BookingModal';
@@ -12,10 +12,41 @@ const Marketplace = () => {
   const [ratingFilter, setRatingFilter] = useState('');
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
-  // Mock data for categories
+  // Fetch services from API
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      // Use full backend URL in production, relative URL in development
+      const apiBaseUrl = import.meta.env.DEV ? '' : 'https://zootel.shop';
+      const response = await fetch(`${apiBaseUrl}/api/services/public`);
+
+      if (response.ok) {
+        const data = await response.json();
+        setServices(data.data || []);
+      } else {
+        setError('Failed to load services');
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      setError('Error loading services. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Categories data
   const categories = [
     { id: 'all', name: 'All Services', emoji: '🏪' },
     { id: 'grooming', name: 'Grooming', emoji: '✂️' },
@@ -23,99 +54,42 @@ const Marketplace = () => {
     { id: 'boarding', name: 'Boarding', emoji: '🏠' },
     { id: 'training', name: 'Training', emoji: '🎓' },
     { id: 'walking', name: 'Walking', emoji: '🚶' },
-    { id: 'sitting', name: 'Pet Sitting', emoji: '👥' },
+    { id: 'pet sitting', name: 'Pet Sitting', emoji: '👥' },
   ];
 
-  // Mock data for services
-  const mockServices = [
-    {
-      id: 1,
-      name: 'Premium Dog Grooming',
-      description: 'Complete grooming service including bath, nail trim, and styling',
-      price: 75,
-      rating: 4.8,
-      reviewCount: 127,
-      category: 'grooming',
-      petTypes: ['🐕', '🐩'],
-      image: '🐕‍🦺',
-      companyName: 'Paws & Claws Spa',
-      companyId: 'company1',
-      location: 'Downtown',
-    },
-    {
-      id: 2,
-      name: 'Cat Health Checkup',
-      description: 'Comprehensive health examination for your feline friend',
-      price: 120,
-      rating: 4.9,
-      reviewCount: 89,
-      category: 'veterinary',
-      petTypes: ['🐱'],
-      image: '🐱',
-      companyName: 'City Vet Clinic',
-      companyId: 'company2',
-      location: 'Medical District',
-    },
-    {
-      id: 3,
-      name: 'Weekend Pet Boarding',
-      description: 'Safe and comfortable boarding for your pets while you travel',
-      price: 45,
-      rating: 4.7,
-      reviewCount: 203,
-      category: 'boarding',
-      petTypes: ['🐕', '🐱', '🐰'],
-      image: '🏠',
-      companyName: 'Happy Tails Lodge',
-      companyId: 'company3',
-      location: 'Suburbs',
-    },
-    {
-      id: 4,
-      name: 'Basic Obedience Training',
-      description: 'Foundation training for puppies and young dogs',
-      price: 200,
-      rating: 4.6,
-      reviewCount: 156,
-      category: 'training',
-      petTypes: ['🐕', '🐩'],
-      image: '🎓',
-      companyName: 'Smart Paws Academy',
-      companyId: 'company4',
-      location: 'Park Area',
-    },
-    {
-      id: 5,
-      name: 'Daily Dog Walking',
-      description: '30-minute walks to keep your dog active and healthy',
-      price: 25,
-      rating: 4.5,
-      reviewCount: 342,
-      category: 'walking',
-      petTypes: ['🐕'],
-      image: '🚶‍♂️',
-      companyName: 'Active Paws Service',
-      companyId: 'company5',
-      location: 'All Areas',
-    },
-    {
-      id: 6,
-      name: 'Exotic Pet Care',
-      description: 'Specialized care for birds, reptiles, and small mammals',
-      price: 90,
-      rating: 4.8,
-      reviewCount: 67,
-      category: 'veterinary',
-      petTypes: ['🦎', '🐦', '🐰'],
-      image: '🦎',
-      companyName: 'Exotic Animal Hospital',
-      companyId: 'company6',
-      location: 'University Area',
-    },
-  ];
+  // Helper function to convert pet types to emojis
+  const getPetTypeEmoji = (petType) => {
+    const emojiMap = {
+      'Dog': '🐕',
+      'Cat': '🐱', 
+      'Bird': '🐦',
+      'Rabbit': '🐰',
+      'Fish': '🐠',
+      'Reptile': '🦎',
+      'Other': '🐾'
+    };
+    return emojiMap[petType] || '🐾';
+  };
+
+  // Helper function to get service icon based on category
+  const getServiceIcon = (category) => {
+    const iconMap = {
+      'grooming': '✂️',
+      'veterinary': '🏥',
+      'boarding': '🏠',
+      'training': '🎓',
+      'walking': '🚶‍♂️',
+      'pet sitting': '👥',
+      'exercise': '🏃‍♂️',
+      'transportation': '🚗',
+      'photography': '📸',
+      'other': '🐾'
+    };
+    return iconMap[category.toLowerCase()] || '🐾';
+  };
 
   // Filter services based on search and filters
-  const filteredServices = mockServices.filter(service => {
+  const filteredServices = services.filter(service => {
     const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          service.companyName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -123,7 +97,7 @@ const Marketplace = () => {
     const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
     
     const matchesPetType = selectedPetType === 'all' || 
-                          service.petTypes.some(pet => pet === selectedPetType);
+                          service.petTypes.some(pet => getPetTypeEmoji(pet) === selectedPetType);
     
     const matchesRating = ratingFilter === '' || service.rating >= parseFloat(ratingFilter);
     
@@ -146,7 +120,7 @@ const Marketplace = () => {
     }
 
     // Find the service and open booking modal
-    const service = mockServices.find(s => s.id === serviceId);
+    const service = services.find(s => s.id === serviceId);
     if (service) {
       setSelectedService(service);
       setBookingModalOpen(true);
@@ -168,6 +142,48 @@ const Marketplace = () => {
     setBookingModalOpen(false);
     setSelectedService(null);
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="marketplace">
+        <div className="search-header">
+          <div className="container">
+            <h1 className="page-title">Pet Services Marketplace</h1>
+            <p className="page-subtitle">Loading services...</p>
+          </div>
+        </div>
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Finding the best pet services for you...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="marketplace">
+        <div className="search-header">
+          <div className="container">
+            <h1 className="page-title">Pet Services Marketplace</h1>
+            <p className="page-subtitle">Oops! Something went wrong</p>
+          </div>
+        </div>
+        <div className="error-container">
+          <div className="error-message">
+            <span className="error-icon">⚠️</span>
+            <h3>Unable to load services</h3>
+            <p>{error}</p>
+            <button onClick={fetchServices} className="retry-button">
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="marketplace">
@@ -315,7 +331,7 @@ const Marketplace = () => {
                 {sortedServices.map(service => (
                   <div key={service.id} className="service-card">
                     <div className="service-image">
-                      <span className="service-icon">{service.image}</span>
+                      <span className="service-icon">{getServiceIcon(service.category)}</span>
                     </div>
                     
                     <div className="service-content">
@@ -324,14 +340,16 @@ const Marketplace = () => {
                       
                       <div className="service-meta">
                         <div className="pet-types">
-                          {service.petTypes.map((pet, index) => (
-                            <span key={index} className="pet-icon">{pet}</span>
+                          {service.petTypes.map((petType, index) => (
+                            <span key={index} className="pet-icon" title={petType}>
+                              {getPetTypeEmoji(petType)}
+                            </span>
                           ))}
                         </div>
                         
                         <div className="service-rating">
                           <span className="rating-star">⭐</span>
-                          <span className="rating-value">{service.rating}</span>
+                          <span className="rating-value">{service.rating.toFixed(1)}</span>
                           <span className="rating-count">({service.reviewCount})</span>
                         </div>
                       </div>
@@ -346,13 +364,14 @@ const Marketplace = () => {
                       <div className="service-footer">
                         <div className="service-price">
                           <span className="price-value">${service.price}</span>
+                          <span className="price-duration">/{service.duration}min</span>
                         </div>
                         
                         <button 
                           className="book-button"
                           onClick={() => handleBookService(service.id)}
                         >
-                          {service.category === 'training' || service.category === 'boarding' ? 'Order' : 'Book'}
+                          Book Now
                         </button>
                       </div>
                     </div>

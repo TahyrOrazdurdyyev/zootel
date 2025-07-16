@@ -284,4 +284,66 @@ router.get('/categories/list', verifyToken, async (req, res) => {
   }
 });
 
+// GET /api/services/public - Get all active services for marketplace (no authentication required)
+router.get('/public', async (req, res) => {
+  try {
+    // Filter only active services for public display
+    const publicServices = servicesData.filter(service => service.isActive);
+
+    // Transform services for marketplace display
+    const marketplaceServices = publicServices.map(service => ({
+      id: service.id,
+      name: service.name,
+      description: service.description,
+      category: service.category.toLowerCase(),
+      price: service.price,
+      duration: service.duration,
+      petTypes: service.petTypes,
+      images: service.images,
+      // Mock additional marketplace data (in a real app, this would come from company/review tables)
+      rating: 4.5 + Math.random() * 0.5, // Random rating between 4.5-5.0
+      reviewCount: Math.floor(Math.random() * 300) + 50, // Random reviews 50-350
+      companyName: getCompanyName(service.companyId),
+      companyId: service.companyId,
+      location: getCompanyLocation(service.companyId),
+      verified: true
+    }));
+
+    res.json({
+      success: true,
+      data: marketplaceServices,
+      count: marketplaceServices.length
+    });
+  } catch (error) {
+    console.error('Error getting public services:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get public services'
+    });
+  }
+});
+
+// Helper functions for mock company data
+function getCompanyName(companyId) {
+  const companyNames = {
+    'company_1': 'Happy Paws Pet Services',
+    'company_2': 'Pet Care Excellence', 
+    'company_3': 'Furry Friends Care',
+    'company_4': 'Premium Pet Services',
+    'company_5': 'Pet Paradise'
+  };
+  return companyNames[companyId] || 'Pet Service Provider';
+}
+
+function getCompanyLocation(companyId) {
+  const locations = {
+    'company_1': 'Downtown',
+    'company_2': 'Medical District',
+    'company_3': 'Suburbs', 
+    'company_4': 'Park Area',
+    'company_5': 'City Center'
+  };
+  return locations[companyId] || 'Local Area';
+}
+
 export default router; 
