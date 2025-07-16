@@ -183,14 +183,12 @@ const MyPets = () => {
     setError('');
 
     try {
-      const token = await currentUser.getIdToken();
       const url = showEditModal ? `/api/pet-owners/pets/${selectedPet.id}` : '/api/pet-owners/pets';
       const method = showEditModal ? 'PUT' : 'POST';
 
-      const response = await fetch(url, {
+      const response = await authenticatedApiCall(currentUser, url, {
         method,
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
@@ -214,13 +212,8 @@ const MyPets = () => {
   const handleDelete = async () => {
     setFormLoading(true);
     try {
-      const token = await currentUser.getIdToken();
-      const response = await fetch(`/api/pet-owners/pets/${selectedPet.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await authenticatedApiCall(currentUser, `/api/pet-owners/pets/${selectedPet.id}`, {
+        method: 'DELETE'
       });
 
       if (response.ok) {
