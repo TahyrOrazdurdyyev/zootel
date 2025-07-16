@@ -184,8 +184,7 @@ router.get('/companies', verifyToken, requireSuperadmin, async (req, res) => {
       
       // Add pagination
       const offset = (page - 1) * limit;
-      query += ' LIMIT ? OFFSET ?';
-      queryParams.push(parseInt(limit), offset);
+      query += ` LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
       
       const [companiesResult] = await connection.execute(query, queryParams);
       
