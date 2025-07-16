@@ -67,7 +67,7 @@ const ServicesManagement = () => {
   const fetchServices = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await authenticatedApiCall(currentUser, '/api/companies/services');
+      const response = await authenticatedApiCall(currentUser, '/api/services');
 
       if (response.ok) {
         const data = await response.json();
@@ -184,7 +184,7 @@ const ServicesManagement = () => {
 
     try {
       const token = await currentUser.getIdToken();
-      const url = showEditModal ? `/api/companies/services/${selectedService.id}` : '/api/companies/services';
+      const url = showEditModal ? `/api/services/${selectedService.id}` : '/api/services';
       const method = showEditModal ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -215,7 +215,7 @@ const ServicesManagement = () => {
     setFormLoading(true);
     try {
       const token = await currentUser.getIdToken();
-      const response = await fetch(`/api/companies/services/${selectedService.id}`, {
+      const response = await fetch(`/api/services/${selectedService.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -241,12 +241,15 @@ const ServicesManagement = () => {
   const toggleServiceStatus = async (service) => {
     try {
       const token = await currentUser.getIdToken();
-      const response = await fetch(`/api/companies/services/${service.id}/toggle-status`, {
+      const response = await fetch(`/api/services/${service.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          isActive: !service.isActive
+        })
       });
 
       if (response.ok) {
