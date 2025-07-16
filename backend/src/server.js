@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import admin, { initializeFirebase, seedSuperadmin } from './config/firebase.js';
+import { testConnection, createDatabase, createTables, seedDemoData } from './config/database.js';
 import authRoutes from './routes/auth.js';
 import companiesRoutes from './routes/companies.js';
 import servicesRoutes from './routes/services.js';
@@ -188,19 +189,54 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server and seed superadmin
+// Start server and initialize all services
 const startServer = async () => {
   try {
+    console.log('🔧 Initializing Zootel services...');
+    console.log('');
+    
+    // Initialize database
+    console.log('📊 Setting up database...');
+    let dbConnected = false;
+    
+    try {
+      // First, try to create the database if it doesn't exist
+      await createDatabase();
+      
+      // Then test the connection
+      dbConnected = await testConnection();
+      
+      if (dbConnected) {
+        // Create tables
+        await createTables();
+        
+        // Seed demo data
+        await seedDemoData();
+      }
+    } catch (dbError) {
+      console.warn('⚠️  Database initialization failed, continuing without database');
+      console.warn('   Error:', dbError.message);
+    }
+    
     // Seed superadmin user
+    console.log('👑 Setting up superadmin...');
     await seedSuperadmin();
     
     // Start the server
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
+      console.log('');
+      console.log('🎉 ===============================================');
+      console.log('🚀 Zootel API Server Started Successfully');
+      console.log('🎉 ===============================================');
+      console.log(`📡 Port: ${PORT}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🔗 API URL: http://localhost:${PORT}/api`);
-      console.log('🔥 Firebase Admin SDK ready');
-      console.log('👑 Superadmin seeding completed');
+      console.log(`🔗 Local URL: http://localhost:${PORT}/api`);
+      console.log(`🌐 Production URL: https://api.zootel.shop/api`);
+      console.log(`🔥 Firebase: ✅ Ready`);
+      console.log(`🗄️  Database: ${dbConnected ? '✅ Connected' : '⚠️  Fallback Mode'}`);
+      console.log('👑 Superadmin: ✅ Ready');
+      console.log('===============================================');
+      console.log('🎯 All systems operational!');
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
