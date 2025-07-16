@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import './BookingModal.css';
 
@@ -25,29 +25,7 @@ const BookingModal = ({ isOpen, onClose, service, onBookingSuccess }) => {
     '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'
   ];
 
-  // Fetch user's pets when modal opens
-  useEffect(() => {
-    if (isOpen && currentUser) {
-      fetchUserPets();
-    }
-  }, [isOpen, currentUser]);
-
-  // Reset form when modal opens/closes
-  useEffect(() => {
-    if (isOpen) {
-      setFormData({
-        selectedPet: '',
-        selectedDate: '',
-        selectedTime: '',
-        notes: '',
-        specialRequirements: ''
-      });
-      setError('');
-      setSuccess('');
-    }
-  }, [isOpen, service]);
-
-  const fetchUserPets = async () => {
+  const fetchUserPets = useCallback(async () => {
     setPetsLoading(true);
     try {
       const token = await currentUser.getIdToken();
@@ -71,7 +49,29 @@ const BookingModal = ({ isOpen, onClose, service, onBookingSuccess }) => {
     } finally {
       setPetsLoading(false);
     }
-  };
+  }, [currentUser]);
+
+  // Fetch user's pets when modal opens
+  useEffect(() => {
+    if (isOpen && currentUser) {
+      fetchUserPets();
+    }
+  }, [isOpen, currentUser, fetchUserPets]);
+
+  // Reset form when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        selectedPet: '',
+        selectedDate: '',
+        selectedTime: '',
+        notes: '',
+        specialRequirements: ''
+      });
+      setError('');
+      setSuccess('');
+    }
+  }, [isOpen, service]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

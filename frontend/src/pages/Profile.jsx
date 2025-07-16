@@ -1,58 +1,72 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import './Profile.css';
 
 const Profile = () => {
-  const { currentUser, userRole, getIdToken } = useAuth();
+  const { currentUser } = useAuth();
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('profile');
-  const [loading, setLoading] = useState(false);
-  const [pets, setPets] = useState([]);
-  const [bookings, setBookings] = useState([]);
+
   const [profileData, setProfileData] = useState({
     name: '',
-    surname: '',
-    gender: '',
-    age: '',
-    photo: ''
+    email: '',
+    phone: '',
+    address: '',
+    dateOfBirth: ''
   });
 
-  useEffect(() => {
-    if (currentUser) {
-      setProfileData({
-        name: currentUser.displayName?.split(' ')[0] || '',
-        surname: currentUser.displayName?.split(' ')[1] || '',
-        gender: '',
-        age: '',
-        photo: currentUser.photoURL || ''
-      });
-      fetchUserData();
-    }
-  }, [currentUser]);
+  const [petData, setPetData] = useState({
+    name: '',
+    species: 'Dog',
+    breed: '',
+    age: '',
+    weight: '',
+    gender: 'male'
+  });
 
-  const fetchUserData = async () => {
+  const [pets, setPets] = useState([]);
+  const [bookingHistory, setBookingHistory] = useState([]);
+
+  const fetchUserData = useCallback(async () => {
     try {
       setLoading(true);
-      const token = await getIdToken();
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
+      if (currentUser) {
+        // Fetch user profile
+        setProfileData({
+          name: currentUser.displayName || '',
+          email: currentUser.email || '',
+          phone: currentUser.phoneNumber || '',
+          address: '',
+          dateOfBirth: ''
+        });
 
-      // Fetch pets and bookings for pet owners
-      if (userRole === 'pet_owner') {
-        const [petsResponse, bookingsResponse] = await Promise.all([
-          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/pet-owners/pets`, { headers }),
-          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/pet-owners/bookings`, { headers })
-        ]);
-
+        // Fetch pets and booking history
+        const token = await currentUser.getIdToken();
+        
+        // Fetch pets
+        const petsResponse = await fetch('/api/pet-owners/pets', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
         if (petsResponse.ok) {
-          const petsResult = await petsResponse.json();
-          setPets(petsResult.data || []);
+          const petsData = await petsResponse.json();
+          setPets(petsData.data || []);
         }
 
+        // Fetch booking history
+        const bookingsResponse = await fetch('/api/pet-owners/bookings', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
         if (bookingsResponse.ok) {
-          const bookingsResult = await bookingsResponse.json();
-          setBookings(bookingsResult.data || []);
+          const bookingsData = await bookingsResponse.json();
+          setBookingHistory(bookingsData.data || []);
         }
       }
     } catch (error) {
@@ -60,13 +74,11 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
 
-  const handleProfileUpdate = async (e) => {
-    e.preventDefault();
-    // Profile update logic will be implemented later
-    console.log('Profile update:', profileData);
-  };
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
 
   const tabs = [
     { id: 'profile', name: 'My Profile', icon: '👤' },
@@ -204,7 +216,7 @@ const Profile = () => {
     <div className="profile-section">
       <h2>Booking History</h2>
       
-      {bookings.length === 0 ? (
+      {bookingHistory.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📅</div>
           <h3>No bookings yet</h3>
@@ -212,7 +224,7 @@ const Profile = () => {
         </div>
       ) : (
         <div className="bookings-list">
-          {bookings.map((booking) => (
+          {bookingHistory.map((booking) => (
             <div key={booking.id} className="booking-card">
               <div className="booking-header">
                 <h4>{booking.serviceName}</h4>

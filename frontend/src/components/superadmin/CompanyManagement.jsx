@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './CompanyManagement.css';
 
 const CompanyManagement = () => {
@@ -17,15 +17,7 @@ const CompanyManagement = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [showCompanyModal, setShowCompanyModal] = useState(false);
 
-  useEffect(() => {
-    fetchCompanies();
-  }, [filters.page, filters.limit]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [companies, filters.status, filters.search, filters.verified]);
-
-  const fetchCompanies = async () => {
+  const fetchCompanies = useCallback(async () => {
     try {
       setLoading(true);
       const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -55,9 +47,9 @@ const CompanyManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters.page, filters.limit]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...companies];
 
     // Apply status filter
@@ -85,7 +77,15 @@ const CompanyManagement = () => {
     }
 
     setFilteredCompanies(filtered);
-  };
+  }, [companies, filters.status, filters.search, filters.verified]);
+
+  useEffect(() => {
+    fetchCompanies();
+  }, [fetchCompanies]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import './MyPets.css';
 
@@ -41,11 +41,7 @@ const MyPets = () => {
   const petTypes = ['Dog', 'Cat', 'Bird', 'Rabbit', 'Hamster', 'Guinea Pig', 'Fish', 'Reptile', 'Other'];
   const genders = ['Male', 'Female', 'Unknown'];
 
-  useEffect(() => {
-    fetchPets();
-  }, []);
-
-  const fetchPets = async () => {
+  const fetchPets = useCallback(async () => {
     setLoading(true);
     try {
       const token = await currentUser.getIdToken();
@@ -68,7 +64,11 @@ const MyPets = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
+
+  useEffect(() => {
+    fetchPets();
+  }, [fetchPets]);
 
   const resetForm = () => {
     setFormData({

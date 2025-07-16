@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import FeatureGate from '../FeatureGate';
@@ -38,14 +38,6 @@ const BookingsManagement = () => {
 
   const hasAdvancedAnalytics = hasFeature('advancedAnalytics');
 
-  useEffect(() => {
-    fetchAppointments();
-  }, []);
-
-  useEffect(() => {
-    filterAppointments();
-  }, [appointments, selectedStatus, selectedDate, searchTerm]);
-
   // Transform backend data to frontend format
   const transformBookingData = (bookings) => {
     return bookings.map(booking => ({
@@ -56,7 +48,7 @@ const BookingsManagement = () => {
     }));
   };
 
-  const fetchAppointments = async () => {
+  const fetchAppointments = useCallback(async () => {
     setLoading(true);
     try {
       const token = await currentUser.getIdToken();
@@ -81,9 +73,9 @@ const BookingsManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
 
-  const filterAppointments = () => {
+  const filterAppointments = useCallback(() => {
     let filtered = appointments;
 
     // Filter by status
@@ -100,12 +92,12 @@ const BookingsManagement = () => {
 
     // Filter by search term
     if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
+      const term = searchTerm.toLowerCase();
       filtered = filtered.filter(appointment => 
-        appointment.customerName.toLowerCase().includes(searchLower) ||
-        appointment.petName.toLowerCase().includes(searchLower) ||
-        appointment.serviceName.toLowerCase().includes(searchLower) ||
-        appointment.customerEmail.toLowerCase().includes(searchLower)
+        appointment.customerName?.toLowerCase().includes(term) ||
+        appointment.customerEmail?.toLowerCase().includes(term) ||
+        appointment.petName?.toLowerCase().includes(term) ||
+        appointment.serviceName?.toLowerCase().includes(term)
       );
     }
 
@@ -117,7 +109,15 @@ const BookingsManagement = () => {
     });
 
     setFilteredAppointments(filtered);
-  };
+  }, [appointments, selectedStatus, selectedDate, searchTerm]);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
+
+  useEffect(() => {
+    filterAppointments();
+  }, [filterAppointments]);
 
   const getStatusCounts = () => {
     const counts = {};

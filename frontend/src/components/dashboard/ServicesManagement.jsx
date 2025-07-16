@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import FeatureGate, { UsageLimitGate } from '../FeatureGate';
@@ -63,11 +63,7 @@ const ServicesManagement = () => {
   const maxServices = getFeatureLimit('maxServices');
   const unlimitedServices = isFeatureUnlimited('maxServices');
 
-  useEffect(() => {
-    fetchServices();
-  }, []);
-
-  const fetchServices = async () => {
+  const fetchServices = useCallback(async () => {
     setLoading(true);
     try {
       const token = await currentUser.getIdToken();
@@ -90,7 +86,11 @@ const ServicesManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
+
+  useEffect(() => {
+    fetchServices();
+  }, [fetchServices]);
 
   const resetForm = () => {
     setFormData({

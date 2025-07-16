@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './UserManagement.css';
 
 const UserManagement = () => {
@@ -17,15 +17,7 @@ const UserManagement = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
 
-  useEffect(() => {
-    fetchUsers();
-  }, [filters.page, filters.limit]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [users, filters.role, filters.search, filters.status]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -55,9 +47,9 @@ const UserManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters.page, filters.limit]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...users];
 
     // Apply role filter
@@ -89,7 +81,15 @@ const UserManagement = () => {
     }
 
     setFilteredUsers(filtered);
-  };
+  }, [users, filters.role, filters.search, filters.status]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({

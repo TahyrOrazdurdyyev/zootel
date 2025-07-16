@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import FeatureGate, { UsageLimitGate } from '../FeatureGate';
@@ -83,17 +83,16 @@ const EmployeeManagement = () => {
 
   const maxEmployees = getFeatureLimit('maxEmployees');
 
-  useEffect(() => {
-    fetchEmployees();
-    fetchEmployeeOptions();
-    fetchStats();
-  }, []);
+  const clearModals = () => {
+    setShowAddModal(false);
+    setShowEditModal(false);
+    setShowDeleteConfirm(false);
+    setSelectedEmployee(null);
+    setError('');
+    setSuccess('');
+  };
 
-  useEffect(() => {
-    filterEmployees();
-  }, [employees, statusFilter, roleFilter, searchTerm]);
-
-  const fetchEmployees = async () => {
+  const fetchEmployees = useCallback(async () => {
     setLoading(true);
     try {
       const token = await currentUser.getIdToken();
@@ -117,9 +116,9 @@ const EmployeeManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
 
-  const fetchEmployeeOptions = async () => {
+  const fetchEmployeeOptions = useCallback(async () => {
     try {
       const token = await currentUser.getIdToken();
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -142,9 +141,9 @@ const EmployeeManagement = () => {
     } catch (error) {
       console.error('Error fetching employee options:', error);
     }
-  };
+  }, [currentUser]);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const token = await currentUser.getIdToken();
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -162,9 +161,9 @@ const EmployeeManagement = () => {
     } catch (error) {
       console.error('Error fetching employee stats:', error);
     }
-  };
+  }, [currentUser]);
 
-  const filterEmployees = () => {
+  const filterEmployees = useCallback(() => {
     let filtered = employees;
 
     // Filter by status
@@ -190,7 +189,17 @@ const EmployeeManagement = () => {
     }
 
     setFilteredEmployees(filtered);
-  };
+  }, [employees, statusFilter, roleFilter, searchTerm]);
+
+  useEffect(() => {
+    fetchEmployees();
+    fetchEmployeeOptions();
+    fetchStats();
+  }, [fetchEmployees, fetchEmployeeOptions, fetchStats]);
+
+  useEffect(() => {
+    filterEmployees();
+  }, [filterEmployees]);
 
   const resetForm = () => {
     setFormData({
@@ -274,7 +283,7 @@ const EmployeeManagement = () => {
         await fetchEmployees();
         await fetchStats();
         setSuccess(selectedEmployee ? 'Employee updated successfully!' : 'Employee added successfully!');
-        closeModals();
+        clearModals();
         setTimeout(() => setSuccess(''), 3000);
       } else {
         const errorData = await response.json();
@@ -305,7 +314,7 @@ const EmployeeManagement = () => {
         await fetchEmployees();
         await fetchStats();
         setSuccess('Employee removed successfully!');
-        closeModals();
+        clearModals();
         setTimeout(() => setSuccess(''), 3000);
       } else {
         const errorData = await response.json();
