@@ -283,6 +283,90 @@ const BookingsManagement = () => {
     };
   };
 
+  // Calendar rendering function
+  const renderCalendar = () => {
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    
+    // Get first day of month and number of days
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+    const firstDayWeekday = firstDay.getDay();
+    const daysInMonth = lastDay.getDate();
+    
+    // Create calendar days array
+    const days = [];
+    
+    // Empty cells for days before month starts
+    for (let i = 0; i < firstDayWeekday; i++) {
+      days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+    }
+    
+    // Days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(currentYear, currentMonth, day);
+      const dateString = date.toISOString().split('T')[0];
+      const dayAppointments = filteredAppointments.filter(apt => apt.date === dateString);
+      const isToday = dateString === today.toISOString().split('T')[0];
+      
+      days.push(
+        <div 
+          key={day} 
+          className={`calendar-day ${isToday ? 'today' : ''} ${dayAppointments.length > 0 ? 'has-appointments' : ''}`}
+        >
+          <div className="calendar-date">{day}</div>
+          {dayAppointments.length > 0 && (
+            <div className="appointment-indicators">
+              {dayAppointments.slice(0, 3).map((apt, index) => (
+                <div 
+                  key={apt.id}
+                  className={`appointment-indicator status-${apt.status}`}
+                  title={`${apt.time} - ${apt.customerName} (${apt.serviceName})`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openDetailsModal(apt);
+                  }}
+                >
+                  <span className="appointment-time">{apt.time}</span>
+                  <span className="appointment-name">{apt.customerName}</span>
+                </div>
+              ))}
+              {dayAppointments.length > 3 && (
+                <div className="more-appointments">
+                  +{dayAppointments.length - 3} more
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+    
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    return (
+      <div className="calendar-container">
+        <div className="calendar-header">
+          <h3>{monthNames[currentMonth]} {currentYear}</h3>
+        </div>
+        <div className="calendar-grid">
+          <div className="calendar-weekdays">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+              <div key={day} className="calendar-weekday">{day}</div>
+            ))}
+          </div>
+          <div className="calendar-days">
+            {days}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const statusCounts = getStatusCounts();
   const todaysAppointments = getTodaysAppointments();
   const upcomingAppointments = getUpcomingAppointments();
@@ -412,7 +496,7 @@ const BookingsManagement = () => {
           </div>
         </div>
 
-        {/* Appointments List */}
+        {/* Appointments List or Calendar */}
         {filteredAppointments.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">📅</div>
@@ -430,6 +514,10 @@ const BookingsManagement = () => {
                 : 'Try adjusting your search or filter criteria.'
               }
             </p>
+          </div>
+        ) : viewMode === 'calendar' ? (
+          <div className="calendar-view">
+            {renderCalendar()}
           </div>
         ) : (
           <div className="appointments-list">

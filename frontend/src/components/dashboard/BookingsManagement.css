@@ -950,4 +950,240 @@
 .submit-btn:focus {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
+}
+
+/* Calendar View Styles */
+.calendar-view {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  padding: 1.5rem;
+}
+
+.calendar-container {
+  width: 100%;
+}
+
+.calendar-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.calendar-header h3 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.calendar-grid {
+  width: 100%;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  margin-bottom: 1px;
+  background: var(--border-color);
+}
+
+.calendar-weekday {
+  background: var(--background-color);
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--border-color);
+}
+
+.calendar-day {
+  background: white;
+  min-height: 120px;
+  padding: 0.5rem;
+  border: 1px solid transparent;
+  transition: var(--transition);
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-day:hover {
+  border-color: var(--primary-color);
+  background: #fff8f0;
+}
+
+.calendar-day.empty {
+  background: var(--background-color);
+  cursor: default;
+}
+
+.calendar-day.empty:hover {
+  border-color: transparent;
+  background: var(--background-color);
+}
+
+.calendar-day.today {
+  background: #fff8f0;
+  border-color: var(--primary-color);
+}
+
+.calendar-day.today .calendar-date {
+  background: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+}
+
+.calendar-day.has-appointments {
+  background: #f0f8ff;
+}
+
+.calendar-date {
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+.appointment-indicators {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.appointment-indicator {
+  background: var(--primary-color);
+  color: white;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: var(--transition);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appointment-indicator:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-light);
+}
+
+.appointment-indicator.status-pending {
+  background: var(--warning-color);
+  color: #856404;
+}
+
+.appointment-indicator.status-confirmed {
+  background: var(--info-color);
+  color: white;
+}
+
+.appointment-indicator.status-in_progress {
+  background: #fd7e14;
+  color: white;
+}
+
+.appointment-indicator.status-completed {
+  background: var(--success-color);
+  color: white;
+}
+
+.appointment-indicator.status-cancelled {
+  background: var(--error-color);
+  color: white;
+}
+
+.appointment-indicator.status-no_show {
+  background: var(--text-muted);
+  color: white;
+}
+
+.appointment-time {
+  font-weight: 600;
+  display: block;
+}
+
+.appointment-name {
+  display: block;
+  opacity: 0.9;
+}
+
+.more-appointments {
+  background: var(--text-muted);
+  color: white;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* Calendar Responsive Design */
+@media (max-width: 1200px) {
+  .calendar-day {
+    min-height: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-view {
+    padding: 1rem;
+  }
+  
+  .calendar-day {
+    min-height: 80px;
+    padding: 0.25rem;
+  }
+  
+  .calendar-date {
+    width: 20px;
+    height: 20px;
+    font-size: 0.8rem;
+  }
+  
+  .appointment-indicator {
+    font-size: 0.65rem;
+    padding: 1px 3px;
+  }
+  
+  .appointment-name {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-day {
+    min-height: 60px;
+  }
+  
+  .calendar-weekday {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.8rem;
+  }
+  
+  .appointment-indicator {
+    font-size: 0.6rem;
+    padding: 1px 2px;
+  }
+  
+  .appointment-time {
+    font-size: 0.6rem;
+  }
 } 

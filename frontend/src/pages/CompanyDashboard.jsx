@@ -12,6 +12,7 @@ import ProfileManagement from '../components/dashboard/ProfileManagement';
 import ServicesManagement from '../components/dashboard/ServicesManagement';
 import BookingsManagement from '../components/dashboard/BookingsManagement';
 import EmployeeManagement from '../components/dashboard/EmployeeManagement';
+import CustomerManagement from '../components/dashboard/CustomerManagement';
 import AnalyticsDashboard from '../components/dashboard/AnalyticsDashboard';
 
 const CompanyDashboard = () => {
@@ -53,9 +54,15 @@ const CompanyDashboard = () => {
       component: BookingsManagement
     },
     {
+      id: 'customers',
+      name: 'Customers',
+      icon: '👥',
+      component: CustomerManagement
+    },
+    {
       id: 'employees',
       name: 'Employees',
-      icon: '👥',
+      icon: '👤',
       component: EmployeeManagement
     },
     {

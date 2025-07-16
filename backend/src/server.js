@@ -9,6 +9,7 @@ import companiesRoutes from './routes/companies.js';
 import servicesRoutes from './routes/services.js';
 import bookingsRoutes from './routes/bookings.js';
 import employeesRoutes from './routes/employees.js';
+import customersRoutes from './routes/customers.js';
 import analyticsRoutes from './routes/analytics.js';
 import petOwnersRoutes from './routes/pet-owners.js';
 import superadminRoutes from './routes/superadmin.js';
@@ -118,6 +119,7 @@ app.use('/api/companies', companiesRoutes);
 app.use('/api/services', servicesRoutes);
 app.use('/api/bookings', bookingsRoutes);
 app.use('/api/employees', employeesRoutes);
+app.use('/api/customers', customersRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
 // Pet owner routes

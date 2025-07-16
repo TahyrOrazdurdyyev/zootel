@@ -48,7 +48,7 @@ export const useSubscription = () => {
 };
 
 export const SubscriptionProvider = ({ children }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, userRole } = useAuth();
   const [subscriptionData, setSubscriptionData] = useState({
     plan: 'free',
     status: 'active',
@@ -177,6 +177,9 @@ export const SubscriptionProvider = ({ children }) => {
 
   // Feature access checking
   const hasFeature = (featureName) => {
+    // Service providers (pet_company) get all features unlimited
+    if (userRole === 'pet_company') return true;
+    
     if (!subscriptionData.plan) return false;
     
     const plan = PLAN_CONFIGS[subscriptionData.plan];
@@ -186,6 +189,9 @@ export const SubscriptionProvider = ({ children }) => {
   };
 
   const getFeatureLimit = (featureName) => {
+    // Service providers (pet_company) get unlimited access to all features
+    if (userRole === 'pet_company') return -1;
+    
     if (!subscriptionData.plan) return 0;
     
     const plan = PLAN_CONFIGS[subscriptionData.plan];
@@ -195,11 +201,17 @@ export const SubscriptionProvider = ({ children }) => {
   };
 
   const isFeatureUnlimited = (featureName) => {
+    // Service providers (pet_company) get unlimited access to all features
+    if (userRole === 'pet_company') return true;
+    
     return getFeatureLimit(featureName) === -1;
   };
 
   const canAccessFeature = (featureName, currentUsage = 0) => {
     if (!hasAccess()) return false;
+    
+    // Service providers (pet_company) get unlimited access to all features
+    if (userRole === 'pet_company') return true;
     
     const limit = getFeatureLimit(featureName);
     if (limit === -1) return true; // unlimited
@@ -210,10 +222,11 @@ export const SubscriptionProvider = ({ children }) => {
 
   // Subscription status checks
   const hasAccess = () => {
-    // Assuming 'pet_company' role means a company user
-    // For now, everyone has access to features, as the subscription context is for companies
-    // This might need refinement based on actual role-based access control
-    return true; 
+    // Service providers (pet_company) always have access to all features
+    if (userRole === 'pet_company') return true;
+    
+    // For other users, check subscription status
+    return subscriptionData.status === 'active' || subscriptionData.status === 'trial';
   };
 
   const isTrialActive = () => {
