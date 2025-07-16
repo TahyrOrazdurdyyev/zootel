@@ -27,15 +27,7 @@ const MyBookings = () => {
     { value: 'cancelled', label: 'Cancelled', count: 0 }
   ];
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
-
-  useEffect(() => {
-    filterBookings();
-  }, [bookings, selectedStatus, searchTerm]);
-
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     setLoading(true);
     try {
       const token = await currentUser.getIdToken();
@@ -53,36 +45,30 @@ const MyBookings = () => {
         setError('Failed to load bookings');
       }
     } catch (error) {
-      console.error('Error fetching bookings:', error);
       setError('Error loading bookings');
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
 
-  const filterBookings = () => {
+  const filterBookings = useCallback(() => {
     let filtered = bookings;
-
-    // Filter by status
+    
     if (selectedStatus !== 'all') {
       filtered = filtered.filter(booking => booking.status === selectedStatus);
     }
-
-    // Filter by search term
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(booking => 
-        booking.serviceName.toLowerCase().includes(searchLower) ||
-        booking.companyName.toLowerCase().includes(searchLower) ||
-        booking.petName.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Sort by date (most recent first)
-    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-
+    
     setFilteredBookings(filtered);
-  };
+  }, [bookings, selectedStatus]);
+
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
+
+  useEffect(() => {
+    filterBookings();
+  }, [filterBookings]);
 
   const getStatusCounts = () => {
     const counts = {

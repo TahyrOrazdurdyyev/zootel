@@ -4,7 +4,6 @@ import './Profile.css';
 
 const Profile = () => {
   const { currentUser } = useAuth();
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('profile');
 
   const [profileData, setProfileData] = useState({
@@ -15,21 +14,11 @@ const Profile = () => {
     dateOfBirth: ''
   });
 
-  const [petData, setPetData] = useState({
-    name: '',
-    species: 'Dog',
-    breed: '',
-    age: '',
-    weight: '',
-    gender: 'male'
-  });
-
   const [pets, setPets] = useState([]);
   const [bookingHistory, setBookingHistory] = useState([]);
 
   const fetchUserData = useCallback(async () => {
     try {
-      setLoading(true);
       if (currentUser) {
         // Fetch user profile
         setProfileData({
@@ -71,14 +60,22 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-    } finally {
-      setLoading(false);
     }
   }, [currentUser]);
 
   useEffect(() => {
     fetchUserData();
   }, [fetchUserData]);
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      // Add profile update logic here
+      console.log('Profile update:', profileData);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
+  };
 
   const tabs = [
     { id: 'profile', name: 'My Profile', icon: '👤' },
@@ -263,7 +260,7 @@ const Profile = () => {
           <div className="profile-info">
             <h1>{profileData.name} {profileData.surname}</h1>
             <p>{currentUser?.email}</p>
-            <span className="profile-role">{userRole?.replace('_', ' ')}</span>
+            <span className="profile-role">Pet Owner</span>
           </div>
         </div>
 
@@ -281,18 +278,9 @@ const Profile = () => {
         </div>
 
         <div className="profile-content">
-          {loading ? (
-            <div className="loading">
-              <div className="loading-spinner"></div>
-              <p>Loading...</p>
-            </div>
-          ) : (
-            <>
-              {activeTab === 'profile' && renderMyProfile()}
-              {activeTab === 'pets' && renderMyPets()}
-              {activeTab === 'history' && renderBookingHistory()}
-            </>
-          )}
+          {activeTab === 'profile' && renderMyProfile()}
+          {activeTab === 'pets' && renderMyPets()}
+          {activeTab === 'history' && renderBookingHistory()}
         </div>
       </div>
     </div>
