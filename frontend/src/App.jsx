@@ -18,6 +18,7 @@ import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import ForgotPassword from './pages/ForgotPassword';
 import EmailVerification from './pages/EmailVerification';
+import Profile from './pages/Profile';
 import './App.css';
 
 // Layout wrapper component
@@ -34,13 +35,6 @@ const Layout = ({ children }) => {
 };
 
 // Placeholder components for future implementation
-const Profile = () => (
-  <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-    <h1 style={{ color: '#FFA500' }}>User Profile</h1>
-    <p>Profile page coming soon...</p>
-  </div>
-);
-
 const Settings = () => (
   <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
     <h1 style={{ color: '#FFA500' }}>Settings</h1>
