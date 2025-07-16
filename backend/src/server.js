@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import { initializeFirebase, seedSuperadmin } from './config/firebase.js';
+import admin, { initializeFirebase, seedSuperadmin } from './config/firebase.js';
 import authRoutes from './routes/auth.js';
 import companiesRoutes from './routes/companies.js';
 import servicesRoutes from './routes/services.js';
@@ -41,6 +41,73 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     firebase: 'initialized'
   });
+});
+
+// Set role endpoint for pending role assignment
+app.post('/api/setRole', verifyToken, async (req, res) => {
+  try {
+    const { role } = req.body;
+    const uid = req.user.uid;
+
+    if (!role) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Role is required',
+      });
+    }
+
+    // Only allow specific roles
+    const allowedRoles = ['pet_company', 'pet_owner'];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: `Invalid role. Must be one of: ${allowedRoles.join(', ')}`,
+      });
+    }
+
+    // admin is imported at the top of the file
+    
+    // Set custom claims
+    await admin.auth().setCustomUserClaims(uid, { role });
+
+    res.json({
+      success: true,
+      role: role
+    });
+  } catch (error) {
+    console.error('Error setting user role:', error);
+    res.status(500).json({
+      error: 'Internal Server Error', 
+      message: 'Failed to set user role',
+    });
+  }
+});
+
+// Subscription endpoint
+app.get('/api/subscription', verifyToken, async (req, res) => {
+  try {
+    // For now, return basic subscription data
+    // This can be expanded with real subscription logic later
+    const subscriptionData = {
+      plan: 'free',
+      status: 'active',
+      trialEndsAt: null,
+      currentPeriodEnd: null,
+      usage: {
+        services: 0,
+        employees: 0,
+        bookingsThisMonth: 0
+      }
+    };
+
+    res.json(subscriptionData);
+  } catch (error) {
+    console.error('Error fetching subscription:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to fetch subscription data',
+    });
+  }
 });
 
 // Authentication routes
