@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.js';
 import companiesRoutes from './routes/companies.js';
 import servicesRoutes from './routes/services.js';
 import bookingsRoutes from './routes/bookings.js';
+import employeesRoutes from './routes/employees.js';
 import analyticsRoutes from './routes/analytics.js';
 import petOwnersRoutes from './routes/pet-owners.js';
 import superadminRoutes from './routes/superadmin.js';
@@ -49,6 +50,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/companies', companiesRoutes);
 app.use('/api/services', servicesRoutes);
 app.use('/api/bookings', bookingsRoutes);
+app.use('/api/employees', employeesRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
 // Pet owner routes
@@ -87,6 +89,7 @@ app.get('/api', (req, res) => {
       companies: '/api/companies/*',
       services: '/api/services/*',
       bookings: '/api/bookings/*',
+      employees: '/api/employees/*',
       analytics: '/api/analytics/*',
       petOwners: '/api/pet-owners/*',
       superadmin: '/api/superadmin/*',
