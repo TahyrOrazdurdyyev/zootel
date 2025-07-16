@@ -25,6 +25,9 @@ export const AuthProvider = ({ children }) => {
 
   // Sign up function
   const signup = async (email, password, role = 'pet_owner') => {
+    console.log('Signup called with role:', role);
+    alert(`DEBUG: Signing up with role: ${role}`); // Debug alert
+    
     const result = await createUserWithEmailAndPassword(auth, email, password);
     
     // Send email verification
@@ -34,6 +37,8 @@ export const AuthProvider = ({ children }) => {
     
     // Store the selected role for later use
     sessionStorage.setItem('pendingUserRole', role);
+    console.log('Stored pendingUserRole in sessionStorage:', role);
+    alert(`DEBUG: Stored role in sessionStorage: ${role}`); // Debug alert
     
     // Sign out the user immediately after account creation
     // so they don't appear signed in during email verification
@@ -82,14 +87,19 @@ export const AuthProvider = ({ children }) => {
   // Check and set pending role on authentication
   const checkAndSetPendingRole = async (user) => {
     const pendingRole = sessionStorage.getItem('pendingUserRole');
+    console.log('checkAndSetPendingRole called with user:', user?.email, 'pendingRole:', pendingRole);
+    
     if (pendingRole && user) {
       try {
         console.log('Setting pending role:', pendingRole);
+        alert(`DEBUG: Attempting to set role to: ${pendingRole}`); // Debug alert
         
         // Wait for user to be fully authenticated
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         const token = await user.getIdToken(true); // Force refresh token
+        console.log('Token obtained, making API call...');
+        
         const response = await fetch('/api/auth/register-role', {
           method: 'POST',
           headers: {
@@ -99,9 +109,14 @@ export const AuthProvider = ({ children }) => {
           body: JSON.stringify({ role: pendingRole }),
         });
 
+        console.log('API response status:', response.status);
+        const responseData = await response.text();
+        console.log('API response data:', responseData);
+
         if (response.ok) {
-          const data = await response.json();
+          const data = JSON.parse(responseData);
           console.log('Role set successfully:', data.role);
+          alert(`DEBUG: Role set successfully to: ${data.role}`); // Debug alert
           
           // Force refresh the user's token to get updated custom claims
           await user.getIdToken(true);
@@ -111,11 +126,12 @@ export const AuthProvider = ({ children }) => {
           
           return true;
         } else {
-          const errorData = await response.json();
-          console.error('Error setting role:', errorData);
+          console.error('Error setting role, response:', responseData);
+          alert(`DEBUG: Error setting role: ${responseData}`); // Debug alert
         }
       } catch (error) {
         console.error('Error setting pending user role:', error);
+        alert(`DEBUG: Exception in role setting: ${error.message}`); // Debug alert
       }
     }
     return false;
@@ -157,15 +173,20 @@ export const AuthProvider = ({ children }) => {
     try {
       if (!user) return null;
       
+      console.log('Getting user role for:', user.email);
+      
       // Force refresh token to get latest custom claims
       const tokenResult = await user.getIdTokenResult(true);
       const role = tokenResult.claims.role;
       
-      console.log('Retrieved user role:', role);
+      console.log('Retrieved user role from custom claims:', role);
+      console.log('All custom claims:', tokenResult.claims);
+      alert(`DEBUG: Retrieved role from Firebase: ${role || 'NO ROLE'}`); // Debug alert
       
       return role || 'pet_owner';
     } catch (error) {
       console.error('Error getting user role:', error);
+      alert(`DEBUG: Error getting role: ${error.message}`); // Debug alert
       return 'pet_owner';
     }
   };
