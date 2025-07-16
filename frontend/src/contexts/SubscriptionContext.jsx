@@ -68,7 +68,9 @@ export const SubscriptionProvider = ({ children }) => {
 
     try {
       const token = await currentUser.getIdToken();
-      const response = await fetch('/api/subscription', {
+      // Use full backend URL in production, relative URL in development
+      const apiBaseUrl = import.meta.env.DEV ? '' : 'https://31.187.72.39:5000';
+      const response = await fetch(`${apiBaseUrl}/api/subscription`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -93,7 +95,9 @@ export const SubscriptionProvider = ({ children }) => {
   const startTrial = async (planId) => {
     try {
       const token = await currentUser.getIdToken();
-      const response = await fetch('/api/companies/subscription/trial', {
+      // Use full backend URL in production, relative URL in development
+      const apiBaseUrl = import.meta.env.DEV ? '' : 'https://31.187.72.39:5000';
+      const response = await fetch(`${apiBaseUrl}/api/companies/subscription/trial`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -118,7 +122,9 @@ export const SubscriptionProvider = ({ children }) => {
   const subscribe = async (planId, billingPeriod = 'monthly') => {
     try {
       const token = await currentUser.getIdToken();
-      const response = await fetch('/api/companies/subscription/subscribe', {
+      // Use full backend URL in production, relative URL in development
+      const apiBaseUrl = import.meta.env.DEV ? '' : 'https://31.187.72.39:5000';
+      const response = await fetch(`${apiBaseUrl}/api/companies/subscription/subscribe`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -143,7 +149,9 @@ export const SubscriptionProvider = ({ children }) => {
   const cancelSubscription = async () => {
     try {
       const token = await currentUser.getIdToken();
-      const response = await fetch('/api/companies/subscription/cancel', {
+      // Use full backend URL in production, relative URL in development
+      const apiBaseUrl = import.meta.env.DEV ? '' : 'https://31.187.72.39:5000';
+      const response = await fetch(`${apiBaseUrl}/api/companies/subscription/cancel`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

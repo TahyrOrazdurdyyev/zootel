@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { authenticatedApiCall } from '../utils/api';
 import './BookingModal.css';
 
 const BookingModal = ({ isOpen, onClose, service, onBookingSuccess }) => {
@@ -28,13 +29,7 @@ const BookingModal = ({ isOpen, onClose, service, onBookingSuccess }) => {
   const fetchUserPets = useCallback(async () => {
     setPetsLoading(true);
     try {
-      const token = await currentUser.getIdToken();
-      const response = await fetch('/api/pet-owners/pets', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await authenticatedApiCall(currentUser, '/api/pet-owners/pets');
 
       if (response.ok) {
         const data = await response.json();
@@ -118,8 +113,6 @@ const BookingModal = ({ isOpen, onClose, service, onBookingSuccess }) => {
     setError('');
 
     try {
-      const token = await currentUser.getIdToken();
-      
       const bookingData = {
         companyId: service.companyId,
         serviceId: service.id,
@@ -130,12 +123,8 @@ const BookingModal = ({ isOpen, onClose, service, onBookingSuccess }) => {
         specialRequirements: formData.specialRequirements
       };
 
-      const response = await fetch('/api/pet-owners/bookings', {
+      const response = await authenticatedApiCall(currentUser, '/api/pet-owners/bookings', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify(bookingData)
       });
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { authenticatedApiCall } from '../utils/api';
 import './Profile.css';
 
 const Profile = () => {
@@ -30,15 +31,9 @@ const Profile = () => {
         });
 
         // Fetch pets and booking history
-        const token = await currentUser.getIdToken();
         
         // Fetch pets
-        const petsResponse = await fetch('/api/pet-owners/pets', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        const petsResponse = await authenticatedApiCall(currentUser, '/api/pet-owners/pets');
         
         if (petsResponse.ok) {
           const petsData = await petsResponse.json();
@@ -46,12 +41,7 @@ const Profile = () => {
         }
 
         // Fetch booking history
-        const bookingsResponse = await fetch('/api/pet-owners/bookings', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        const bookingsResponse = await authenticatedApiCall(currentUser, '/api/pet-owners/bookings');
         
         if (bookingsResponse.ok) {
           const bookingsData = await bookingsResponse.json();

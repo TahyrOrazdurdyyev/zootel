@@ -56,8 +56,9 @@ export const AuthProvider = ({ children }) => {
       }
 
       const token = await currentUser.getIdToken();
-      // Use relative URLs - should work if reverse proxy is set up
-      const response = await fetch('/api/auth/register-role', {
+              // Use full backend URL in production, relative URL in development
+        const apiBaseUrl = import.meta.env.DEV ? '' : 'https://31.187.72.39:5000';
+        const response = await fetch(`${apiBaseUrl}/api/auth/register-role`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -114,8 +115,9 @@ export const AuthProvider = ({ children }) => {
         const token = await user.getIdToken(true); // Force refresh token
         console.log('Token obtained, making API call...');
         
-        // Use relative URLs - should work if reverse proxy is set up
-        const response = await fetch('/api/auth/register-role', {
+              // Use full backend URL in production, relative URL in development
+      const apiBaseUrl = import.meta.env.DEV ? '' : 'https://31.187.72.39:5000';
+      const response = await fetch(`${apiBaseUrl}/api/auth/register-role`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
+import { authenticatedApiCall } from '../../utils/api';
 import FeatureGate, { UsageLimitGate } from '../FeatureGate';
 import './ServicesManagement.css';
 
@@ -66,13 +67,7 @@ const ServicesManagement = () => {
   const fetchServices = useCallback(async () => {
     setLoading(true);
     try {
-      const token = await currentUser.getIdToken();
-      const response = await fetch('/api/companies/services', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await authenticatedApiCall(currentUser, '/api/companies/services');
 
       if (response.ok) {
         const data = await response.json();

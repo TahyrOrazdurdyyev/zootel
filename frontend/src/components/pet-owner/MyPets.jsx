@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { authenticatedApiCall } from '../../utils/api';
 import './MyPets.css';
 
 const MyPets = () => {
@@ -44,13 +45,7 @@ const MyPets = () => {
   const fetchPets = useCallback(async () => {
     setLoading(true);
     try {
-      const token = await currentUser.getIdToken();
-      const response = await fetch('/api/pet-owners/pets', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await authenticatedApiCall(currentUser, '/api/pet-owners/pets');
 
       if (response.ok) {
         const data = await response.json();

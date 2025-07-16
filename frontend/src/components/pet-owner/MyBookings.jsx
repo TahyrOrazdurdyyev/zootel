@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { authenticatedApiCall } from '../../utils/api';
 import './MyBookings.css';
 
 const MyBookings = () => {
@@ -30,13 +31,7 @@ const MyBookings = () => {
   const fetchBookings = useCallback(async () => {
     setLoading(true);
     try {
-      const token = await currentUser.getIdToken();
-      const response = await fetch('/api/pet-owners/bookings', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await authenticatedApiCall(currentUser, '/api/pet-owners/bookings');
 
       if (response.ok) {
         const data = await response.json();
