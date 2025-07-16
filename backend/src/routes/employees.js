@@ -203,8 +203,8 @@ router.put('/:id/availability', verifyToken, requireCompany, async (req, res) =>
   }
 });
 
-// GET /api/employees/stats/overview - Get employee statistics
-router.get('/stats/overview', verifyToken, requireCompany, async (req, res) => {
+// GET /api/employees/stats - Get employee statistics (main endpoint)
+router.get('/stats', verifyToken, requireCompany, async (req, res) => {
   try {
     // TODO: Implement database query to get employee statistics
     // For now, return empty statistics
@@ -223,6 +223,32 @@ router.get('/stats/overview', verifyToken, requireCompany, async (req, res) => {
     });
   } catch (error) {
     console.error('Error getting employee stats:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get employee statistics'
+    });
+  }
+});
+
+// GET /api/employees/stats/overview - Alias for backward compatibility
+router.get('/stats/overview', verifyToken, requireCompany, async (req, res) => {
+  try {
+    // Same logic as main stats endpoint
+    const stats = {
+      totalEmployees: 0,
+      activeEmployees: 0,
+      inactiveEmployees: 0,
+      onLeaveEmployees: 0,
+      averageRating: 0.0,
+      totalCompletedAppointments: 0
+    };
+
+    res.json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    console.error('Error getting employee stats overview:', error);
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to get employee statistics'
