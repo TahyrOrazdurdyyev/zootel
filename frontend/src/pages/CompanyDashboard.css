@@ -60,6 +60,18 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.sidebar-logo:hover {
+  transform: scale(1.05);
+}
+
+.sidebar-logo-image {
+  height: 40px;
+  width: auto;
+  transition: all 0.3s ease;
 }
 
 .logo-icon {

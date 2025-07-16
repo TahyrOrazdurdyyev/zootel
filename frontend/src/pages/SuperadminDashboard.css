@@ -16,6 +16,24 @@
   border-right: 1px solid #424242;
 }
 
+.superadmin-dashboard .sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.superadmin-dashboard .sidebar-logo:hover {
+  transform: scale(1.05);
+}
+
+.superadmin-dashboard .sidebar-logo-image {
+  height: 40px;
+  width: auto;
+  transition: all 0.3s ease;
+}
+
 .superadmin-dashboard .logo-icon {
   color: var(--admin-primary);
 }

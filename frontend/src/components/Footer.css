@@ -228,6 +228,18 @@
 .footer-logo {
   text-decoration: none;
   margin-bottom: 0.5rem;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.footer-logo:hover {
+  transform: scale(1.05);
+}
+
+.footer-logo-image {
+  height: 40px;
+  width: auto;
+  transition: all 0.3s ease;
 }
 
 .footer-logo-text {

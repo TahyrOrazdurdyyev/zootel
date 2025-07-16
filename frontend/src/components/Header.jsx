@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Header.css';
+import logoImage from '../assets/images/2.png';
 
 const Header = () => {
   const { currentUser, userRole, logout, isAuthenticated } = useAuth();
@@ -26,7 +27,7 @@ const Header = () => {
       <div className="header-container">
         {/* Logo */}
         <Link to="/" className="logo">
-          <span className="logo-text">Zootel</span>
+          <img src={logoImage} alt="Zootel" className="logo-image" />
         </Link>
 
         {/* Navigation */}

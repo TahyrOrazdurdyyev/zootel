@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import './SuperadminDashboard.css';
+import logoImage from '../assets/images/2.png';
 
 // Dashboard components
 import AdminOverview from '../components/superadmin/AdminOverview';
@@ -80,10 +82,9 @@ const SuperadminDashboard = () => {
       <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         {/* Logo/Brand */}
         <div className="sidebar-header">
-          <div className="sidebar-logo">
-            <span className="logo-icon">👑</span>
-            {sidebarOpen && <span className="logo-text">Zootel Admin</span>}
-          </div>
+          <Link to="/" className="sidebar-logo">
+            <img src={logoImage} alt="Zootel" className="sidebar-logo-image" />
+          </Link>
           <button 
             className="sidebar-toggle"
             onClick={() => setSidebarOpen(!sidebarOpen)}

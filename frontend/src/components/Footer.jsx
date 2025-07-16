@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Footer.css';
+import logoImage from '../assets/images/2.png';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -112,7 +113,7 @@ const Footer = () => {
         <div className="footer-bottom">
           <div className="footer-brand">
             <Link to="/" className="footer-logo">
-              <span className="footer-logo-text">Zootel</span>
+              <img src={logoImage} alt="Zootel" className="footer-logo-image" />
             </Link>
             <p className="footer-description">
               Connecting pet owners with trusted service providers
