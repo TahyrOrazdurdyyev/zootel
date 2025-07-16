@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 
-// eslint-disable-next-line react-refresh/only-export-components
 // Plan configurations - moved outside component to avoid fast refresh warning
 const PLAN_CONFIGS = {
   free: {
