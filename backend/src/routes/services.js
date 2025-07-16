@@ -6,104 +6,30 @@ const router = express.Router();
 // Middleware to require pet_company role for most routes
 const requireCompany = requireRole(['pet_company', 'superadmin']);
 
-// Helper functions for mock company data
-function getCompanyName(companyId) {
-  const companyNames = {
-    'company_1': 'Happy Paws Pet Services',
-    'company_2': 'Pet Care Excellence', 
-    'company_3': 'Furry Friends Care',
-    'company_4': 'Premium Pet Services',
-    'company_5': 'Pet Paradise'
-  };
-  return companyNames[companyId] || 'Pet Service Provider';
-}
-
-function getCompanyLocation(companyId) {
-  const locations = {
-    'company_1': 'Downtown',
-    'company_2': 'Medical District',
-    'company_3': 'Suburbs', 
-    'company_4': 'Park Area',
-    'company_5': 'City Center'
-  };
-  return locations[companyId] || 'Local Area';
-}
-
-// Mock services data (in a real app, this would be in a database)
-const servicesData = [
-  {
-    id: 'service_1',
-    companyId: 'company_1',
-    name: 'Premium Dog Grooming',
-    description: 'Full service grooming including bath, nail trim, ear cleaning, and styling',
-    category: 'Grooming',
-    price: 85.00,
-    duration: 120, // minutes
-    petTypes: ['Dog'],
-    isActive: true,
-    images: ['https://via.placeholder.com/300x200?text=Dog+Grooming'],
-    createdAt: '2023-01-15T10:00:00.000Z',
-    updatedAt: '2023-01-15T10:00:00.000Z'
-  },
-  {
-    id: 'service_2',
-    companyId: 'company_1',
-    name: 'Pet Sitting - Full Day',
-    description: 'Professional pet sitting service in your home for up to 8 hours',
-    category: 'Pet Sitting',
-    price: 120.00,
-    duration: 480, // minutes
-    petTypes: ['Dog', 'Cat', 'Bird'],
-    isActive: true,
-    images: ['https://via.placeholder.com/300x200?text=Pet+Sitting'],
-    createdAt: '2023-01-20T14:30:00.000Z',
-    updatedAt: '2023-01-20T14:30:00.000Z'
-  },
-  {
-    id: 'service_3',
-    companyId: 'company_1',
-    name: 'Dog Walking',
-    description: '30-minute energetic walk for your furry friend',
-    category: 'Exercise',
-    price: 45.00,
-    duration: 30, // minutes
-    petTypes: ['Dog'],
-    isActive: true,
-    images: ['https://via.placeholder.com/300x200?text=Dog+Walking'],
-    createdAt: '2023-02-01T09:15:00.000Z',
-    updatedAt: '2023-02-01T09:15:00.000Z'
-  }
-];
-
-// GET /api/services/public - Get all active services for marketplace (no authentication required)
+// GET /api/services/public - Get all public services (for marketplace)
 router.get('/public', async (req, res) => {
   try {
-    // Filter only active services for public display
-    const publicServices = servicesData.filter(service => service.isActive);
+    const { category, petType, location, page = 1, limit = 20 } = req.query;
 
-    // Transform services for marketplace display
-    const marketplaceServices = publicServices.map(service => ({
-      id: service.id,
-      name: service.name,
-      description: service.description,
-      category: service.category.toLowerCase(),
-      price: service.price,
-      duration: service.duration,
-      petTypes: service.petTypes,
-      images: service.images,
-      // Mock additional marketplace data (in a real app, this would come from company/review tables)
-      rating: 4.5 + Math.random() * 0.5, // Random rating between 4.5-5.0
-      reviewCount: Math.floor(Math.random() * 300) + 50, // Random reviews 50-350
-      companyName: getCompanyName(service.companyId),
-      companyId: service.companyId,
-      location: getCompanyLocation(service.companyId),
-      verified: true
-    }));
+    // TODO: Implement database query to get public services
+    // For now, return empty array
+    const marketplaceServices = [];
+
+    // Pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedServices = marketplaceServices.slice(startIndex, endIndex);
 
     res.json({
       success: true,
-      data: marketplaceServices,
-      count: marketplaceServices.length
+      data: paginatedServices,
+      count: paginatedServices.length,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(marketplaceServices.length / limit),
+        totalServices: marketplaceServices.length,
+        limit: parseInt(limit)
+      }
     });
   } catch (error) {
     console.error('Error getting public services:', error);
@@ -117,10 +43,9 @@ router.get('/public', async (req, res) => {
 // GET /api/services - Get all services for the company
 router.get('/', verifyToken, requireCompany, async (req, res) => {
   try {
-    // Filter services by company (in a real app, this would be a database query)
-    const companyServices = servicesData.filter(service => 
-      service.companyId === req.user.uid || req.user.role === 'superadmin'
-    );
+    // TODO: Implement database query to get company services
+    // For now, return empty array
+    const companyServices = [];
 
     res.json({
       success: true,
@@ -140,20 +65,11 @@ router.get('/', verifyToken, requireCompany, async (req, res) => {
 router.get('/:id', verifyToken, requireCompany, async (req, res) => {
   try {
     const { id } = req.params;
-    const service = servicesData.find(s => 
-      s.id === id && (s.companyId === req.user.uid || req.user.role === 'superadmin')
-    );
-
-    if (!service) {
-      return res.status(404).json({
-        error: 'Not Found',
-        message: 'Service not found'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: service
+    
+    // TODO: Implement database query to get specific service
+    res.status(404).json({
+      error: 'Not Found',
+      message: 'Service not found'
     });
   } catch (error) {
     console.error('Error getting service:', error);
@@ -178,22 +94,14 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!name || !description || !category || !price || !duration || !petTypes?.length) {
+    if (!name || !description || !category || !price || !duration) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'Name, description, category, price, duration, and pet types are required'
+        message: 'Name, description, category, price, and duration are required'
       });
     }
 
-    // Validate price and duration
-    if (price <= 0 || duration <= 0) {
-      return res.status(400).json({
-        error: 'Bad Request',
-        message: 'Price and duration must be positive numbers'
-      });
-    }
-
-    // Create new service
+    // TODO: Implement database insertion for new service
     const newService = {
       id: `service_${Date.now()}`,
       companyId: req.user.uid,
@@ -202,15 +110,12 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
       category,
       price: parseFloat(price),
       duration: parseInt(duration),
-      petTypes: Array.isArray(petTypes) ? petTypes : [petTypes],
+      petTypes: petTypes || ['Dog', 'Cat'],
       isActive: true,
       images: images || [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-
-    // Add to mock data (in a real app, this would be saved to database)
-    servicesData.push(newService);
 
     res.status(201).json({
       success: true,
@@ -230,49 +135,11 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
 router.put('/:id', verifyToken, requireCompany, async (req, res) => {
   try {
     const { id } = req.params;
-    const {
-      name,
-      description,
-      category,
-      price,
-      duration,
-      petTypes,
-      images,
-      isActive
-    } = req.body;
-
-    // Find service
-    const serviceIndex = servicesData.findIndex(s => 
-      s.id === id && (s.companyId === req.user.uid || req.user.role === 'superadmin')
-    );
-
-    if (serviceIndex === -1) {
-      return res.status(404).json({
-        error: 'Not Found',
-        message: 'Service not found'
-      });
-    }
-
-    // Update service
-    const updatedService = {
-      ...servicesData[serviceIndex],
-      ...(name && { name }),
-      ...(description && { description }),
-      ...(category && { category }),
-      ...(price && { price: parseFloat(price) }),
-      ...(duration && { duration: parseInt(duration) }),
-      ...(petTypes && { petTypes: Array.isArray(petTypes) ? petTypes : [petTypes] }),
-      ...(images && { images }),
-      ...(isActive !== undefined && { isActive }),
-      updatedAt: new Date().toISOString()
-    };
-
-    servicesData[serviceIndex] = updatedService;
-
-    res.json({
-      success: true,
-      message: 'Service updated successfully',
-      data: updatedService
+    
+    // TODO: Implement database update for service
+    res.status(404).json({
+      error: 'Not Found',
+      message: 'Service not found'
     });
   } catch (error) {
     console.error('Error updating service:', error);
@@ -287,61 +154,17 @@ router.put('/:id', verifyToken, requireCompany, async (req, res) => {
 router.delete('/:id', verifyToken, requireCompany, async (req, res) => {
   try {
     const { id } = req.params;
-
-    // Find service
-    const serviceIndex = servicesData.findIndex(s => 
-      s.id === id && (s.companyId === req.user.uid || req.user.role === 'superadmin')
-    );
-
-    if (serviceIndex === -1) {
-      return res.status(404).json({
-        error: 'Not Found',
-        message: 'Service not found'
-      });
-    }
-
-    // Remove service
-    const deletedService = servicesData.splice(serviceIndex, 1)[0];
-
-    res.json({
-      success: true,
-      message: 'Service deleted successfully',
-      data: deletedService
+    
+    // TODO: Implement database deletion for service
+    res.status(404).json({
+      error: 'Not Found',
+      message: 'Service not found'
     });
   } catch (error) {
     console.error('Error deleting service:', error);
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to delete service'
-    });
-  }
-});
-
-// GET /api/services/categories/list - Get available service categories
-router.get('/categories/list', verifyToken, async (req, res) => {
-  try {
-    const categories = [
-      'Grooming',
-      'Pet Sitting',
-      'Dog Walking',
-      'Veterinary',
-      'Training',
-      'Exercise',
-      'Boarding',
-      'Transportation',
-      'Photography',
-      'Other'
-    ];
-
-    res.json({
-      success: true,
-      data: categories
-    });
-  } catch (error) {
-    console.error('Error getting categories:', error);
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to get categories'
     });
   }
 });
