@@ -33,9 +33,11 @@ export const AuthProvider = ({ children }) => {
     }
     
     // Store the selected role for later use
-    if (role !== 'pet_owner') {
-      sessionStorage.setItem('pendingUserRole', role);
-    }
+    sessionStorage.setItem('pendingUserRole', role);
+    
+    // Sign out the user immediately after account creation
+    // so they don't appear signed in during email verification
+    await signOut(auth);
     
     return result;
   };
@@ -82,8 +84,12 @@ export const AuthProvider = ({ children }) => {
     const pendingRole = sessionStorage.getItem('pendingUserRole');
     if (pendingRole && user) {
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for user to be fully authenticated
-        const token = await user.getIdToken();
+        console.log('Setting pending role:', pendingRole);
+        
+        // Wait for user to be fully authenticated
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const token = await user.getIdToken(true); // Force refresh token
         const response = await fetch('/api/auth/register-role', {
           method: 'POST',
           headers: {
@@ -95,13 +101,24 @@ export const AuthProvider = ({ children }) => {
 
         if (response.ok) {
           const data = await response.json();
+          console.log('Role set successfully:', data.role);
+          
+          // Force refresh the user's token to get updated custom claims
+          await user.getIdToken(true);
+          
           setUserRole(data.role);
           sessionStorage.removeItem('pendingUserRole');
+          
+          return true;
+        } else {
+          const errorData = await response.json();
+          console.error('Error setting role:', errorData);
         }
       } catch (error) {
         console.error('Error setting pending user role:', error);
       }
     }
+    return false;
   };
 
   // Sign in function
@@ -140,8 +157,13 @@ export const AuthProvider = ({ children }) => {
     try {
       if (!user) return null;
       
-      const tokenResult = await user.getIdTokenResult();
-      return tokenResult.claims.role || 'pet_owner';
+      // Force refresh token to get latest custom claims
+      const tokenResult = await user.getIdTokenResult(true);
+      const role = tokenResult.claims.role;
+      
+      console.log('Retrieved user role:', role);
+      
+      return role || 'pet_owner';
     } catch (error) {
       console.error('Error getting user role:', error);
       return 'pet_owner';
@@ -180,12 +202,22 @@ export const AuthProvider = ({ children }) => {
         setCurrentUser(user);
         
         if (user) {
-          // Check for pending role first
-          await checkAndSetPendingRole(user);
+          console.log('User authenticated:', user.email, 'Email verified:', user.emailVerified);
+          
+          // Check for pending role first and wait for it to complete
+          const roleWasSet = await checkAndSetPendingRole(user);
           
           // Get user role and ID token
-          const role = await getUserRole(user);
+          let role;
+          if (roleWasSet) {
+            // If we just set the role, wait a bit more for it to propagate
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+          
+          role = await getUserRole(user);
           const token = await user.getIdToken();
+          
+          console.log('Final user role set to:', role);
           
           setUserRole(role);
           setIdToken(token);
