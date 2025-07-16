@@ -85,7 +85,7 @@ router.get('/profile', verifyToken, requireCompany, async (req, res) => {
           state: company.state || '',
           zipCode: company.zipCode || '',
           description: company.description || '',
-          businessHours: company.businessHours ? JSON.parse(company.businessHours) : {},
+          businessHours: typeof company.businessHours === 'string' ? JSON.parse(company.businessHours) : (company.businessHours || {}),
           logoUrl: company.logoUrl || '',
           verified: Boolean(company.verified),
           subscriptionPlan: company.subscriptionPlan || 'basic',
@@ -310,8 +310,8 @@ router.get('/dashboard-data', verifyToken, requireCompany, async (req, res) => {
       // Get monthly earnings data (last 6 months)
       const [monthlyEarningsResult] = await connection.execute(
         `SELECT 
-           DATE_FORMAT(createdAt, '%b %Y') as month,
-           MONTH(createdAt) as monthNum,
+           DATE_FORMAT(MAX(createdAt), '%b %Y') as month,
+           MONTH(MAX(createdAt)) as monthNum,
            SUM(CASE WHEN status = 'completed' THEN totalAmount ELSE 0 END) as earnings
          FROM bookings 
          WHERE companyId = ? AND createdAt >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
