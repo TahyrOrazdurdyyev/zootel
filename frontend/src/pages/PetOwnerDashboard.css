@@ -35,12 +35,13 @@
 
 /* Sidebar */
 .dashboard-sidebar {
-  background-color: #ffffff;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 50%, #ffa726 100%);
+  box-shadow: 2px 0 20px rgba(255, 107, 53, 0.3);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   z-index: 100;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .dashboard-sidebar.open {
@@ -53,10 +54,12 @@
 
 .sidebar-header {
   padding: 1.5rem 1rem;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .sidebar-logo {
@@ -85,14 +88,15 @@
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-toggle {
   background: none;
   border: none;
   font-size: 1.25rem;
-  color: #6c757d;
+  color: white;
   cursor: pointer;
   padding: 0.25rem;
   border-radius: 4px;
@@ -100,23 +104,27 @@
 }
 
 .sidebar-toggle:hover {
-  background-color: #f8f9fa;
-  color: var(--primary-color);
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: scale(1.1);
 }
 
 .sidebar-user {
   padding: 1.5rem 1rem;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   gap: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .user-avatar {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+  border: 2px solid rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -124,6 +132,7 @@
   font-weight: 600;
   font-size: 1.1rem;
   flex-shrink: 0;
+  backdrop-filter: blur(10px);
 }
 
 .user-avatar.small {
@@ -139,15 +148,16 @@
 
 .user-name {
   font-weight: 600;
-  color: #2c3e50;
+  color: white;
   font-size: 0.95rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .user-email {
-  color: #6c757d;
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.8rem;
   white-space: nowrap;
   overflow: hidden;
@@ -155,11 +165,15 @@
 }
 
 .user-role {
-  color: var(--secondary-color);
+  color: white;
   font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  display: inline-block;
 }
 
 /* Navigation */
@@ -180,7 +194,7 @@
   background: none;
   border: none;
   border-radius: 8px;
-  color: #6c757d;
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -190,14 +204,18 @@
 }
 
 .nav-item:hover {
-  background-color: #f8f9fa;
-  color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  transform: translateX(5px);
+  backdrop-filter: blur(10px);
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-  color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
   font-weight: 600;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .nav-icon {
