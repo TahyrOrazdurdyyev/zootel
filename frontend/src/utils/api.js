@@ -6,8 +6,8 @@
 // Get the appropriate base URL for API calls
 export const getApiBaseUrl = () => {
   // In development, use relative URLs (proxy handles it)
-  // In production, use the full HTTPS backend URL
-  return import.meta.env.DEV ? '' : 'https://31.187.72.39:5000';
+  // In production, use domain-based URLs (Nginx proxy handles it)
+  return import.meta.env.DEV ? '' : 'https://zootel.shop';
 };
 
 // Helper function to make authenticated API calls

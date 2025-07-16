@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
 
       const token = await currentUser.getIdToken();
               // Use full backend URL in production, relative URL in development
-        const apiBaseUrl = import.meta.env.DEV ? '' : 'https://31.187.72.39:5000';
+        const apiBaseUrl = import.meta.env.DEV ? '' : 'https://zootel.shop';
         const response = await fetch(`${apiBaseUrl}/api/auth/register-role`, {
         method: 'POST',
         headers: {
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }) => {
         console.log('Token obtained, making API call...');
         
               // Use full backend URL in production, relative URL in development
-      const apiBaseUrl = import.meta.env.DEV ? '' : 'https://31.187.72.39:5000';
+      const apiBaseUrl = import.meta.env.DEV ? '' : 'https://zootel.shop';
       const response = await fetch(`${apiBaseUrl}/api/auth/register-role`, {
           method: 'POST',
           headers: {
