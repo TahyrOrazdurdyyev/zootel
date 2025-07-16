@@ -1,0 +1,173 @@
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import './CompanyDashboard.css';
+
+// Dashboard components
+import DashboardOverview from '../components/dashboard/DashboardOverview';
+import ProfileManagement from '../components/dashboard/ProfileManagement';
+import ServicesManagement from '../components/dashboard/ServicesManagement';
+import BookingsManagement from '../components/dashboard/BookingsManagement';
+import AnalyticsDashboard from '../components/dashboard/AnalyticsDashboard';
+
+const CompanyDashboard = () => {
+  const { currentUser, userRole, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Redirect if not a pet company
+  useEffect(() => {
+    if (userRole && userRole !== 'pet_company' && userRole !== 'superadmin') {
+      window.location.href = '/';
+    }
+  }, [userRole]);
+
+  const navigationItems = [
+    {
+      id: 'overview',
+      name: 'Overview',
+      icon: '📊',
+      component: DashboardOverview
+    },
+    {
+      id: 'profile',
+      name: 'Profile',
+      icon: '🏢',
+      component: ProfileManagement
+    },
+    {
+      id: 'services',
+      name: 'Services',
+      icon: '🐕',
+      component: ServicesManagement
+    },
+    {
+      id: 'bookings',
+      name: 'Bookings',
+      icon: '📅',
+      component: BookingsManagement
+    },
+    {
+      id: 'analytics',
+      name: 'Analytics',
+      icon: '📈',
+      component: AnalyticsDashboard
+    }
+  ];
+
+  const ActiveComponent = navigationItems.find(item => item.id === activeTab)?.component || DashboardOverview;
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  if (!currentUser) {
+    return (
+      <div className="dashboard-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="company-dashboard">
+      {/* Sidebar */}
+      <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
+        {/* Logo/Brand */}
+        <div className="sidebar-header">
+          <div className="sidebar-logo">
+            <span className="logo-icon">🐾</span>
+            {sidebarOpen && <span className="logo-text">Zootel</span>}
+          </div>
+          <button 
+            className="sidebar-toggle"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            {sidebarOpen ? '‹' : '›'}
+          </button>
+        </div>
+
+        {/* User info */}
+        <div className="sidebar-user">
+          <div className="user-avatar">
+            {currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : currentUser.email.charAt(0).toUpperCase()}
+          </div>
+          {sidebarOpen && (
+            <div className="user-info">
+              <div className="user-name">
+                {currentUser.displayName || 'Pet Company'}
+              </div>
+              <div className="user-email">{currentUser.email}</div>
+              <div className="user-role">{userRole}</div>
+            </div>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <nav className="sidebar-nav">
+          {navigationItems.map((item) => (
+            <button
+              key={item.id}
+              className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
+              onClick={() => setActiveTab(item.id)}
+            >
+              <span className="nav-icon">{item.icon}</span>
+              {sidebarOpen && <span className="nav-text">{item.name}</span>}
+            </button>
+          ))}
+        </nav>
+
+        {/* Sidebar footer */}
+        <div className="sidebar-footer">
+          <button className="logout-btn" onClick={handleLogout}>
+            <span className="nav-icon">🚪</span>
+            {sidebarOpen && <span className="nav-text">Logout</span>}
+          </button>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="dashboard-main">
+        {/* Top bar */}
+        <header className="dashboard-header">
+          <div className="header-left">
+            <h1 className="page-title">
+              {navigationItems.find(item => item.id === activeTab)?.name || 'Dashboard'}
+            </h1>
+          </div>
+          <div className="header-right">
+            <div className="header-actions">
+              <button className="header-btn">
+                <span>🔔</span>
+                <span className="notification-badge">3</span>
+              </button>
+              <button className="header-btn">
+                <span>❓</span>
+              </button>
+            </div>
+            <div className="user-menu">
+              <button className="user-menu-btn">
+                <div className="user-avatar small">
+                  {currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : currentUser.email.charAt(0).toUpperCase()}
+                </div>
+                <span>⌄</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <div className="dashboard-content">
+          <ActiveComponent />
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default CompanyDashboard; 

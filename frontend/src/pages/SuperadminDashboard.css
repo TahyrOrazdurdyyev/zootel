@@ -1,0 +1,177 @@
+.superadmin-dashboard {
+  display: flex;
+  height: 100vh;
+  background-color: #1a1a2e;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --admin-primary: #7C4DFF;
+  --admin-secondary: #BB86FC;
+  --admin-accent: #03DAC6;
+  --admin-danger: #CF6679;
+  color: #ffffff;
+}
+
+/* Sidebar */
+.superadmin-dashboard .dashboard-sidebar {
+  background: linear-gradient(180deg, #16213e 0%, #0f0f23 100%);
+  border-right: 1px solid #424242;
+}
+
+.superadmin-dashboard .logo-icon {
+  color: var(--admin-primary);
+}
+
+.superadmin-dashboard .logo-text {
+  background: linear-gradient(45deg, var(--admin-primary), var(--admin-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.superadmin-dashboard .sidebar-toggle:hover {
+  background-color: rgba(124, 77, 255, 0.1);
+  color: var(--admin-primary);
+}
+
+.superadmin-dashboard .user-avatar.admin {
+  background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+  border: 2px solid var(--admin-accent);
+}
+
+.superadmin-dashboard .user-name {
+  color: #ffffff;
+}
+
+.superadmin-dashboard .user-role.admin-role {
+  color: var(--admin-accent);
+  font-weight: 600;
+}
+
+.superadmin-dashboard .nav-item {
+  color: #b3b3b3;
+}
+
+.superadmin-dashboard .nav-item:hover {
+  background: rgba(124, 77, 255, 0.15);
+  color: var(--admin-secondary);
+}
+
+.superadmin-dashboard .nav-item.active {
+  background: linear-gradient(135deg, rgba(124, 77, 255, 0.3), rgba(187, 134, 252, 0.2));
+  color: var(--admin-secondary);
+  border-left: 3px solid var(--admin-primary);
+}
+
+/* Quick Actions */
+.superadmin-dashboard .quick-action-btn.emergency {
+  background: linear-gradient(135deg, var(--admin-danger), #ff5252);
+  color: white;
+}
+
+.superadmin-dashboard .quick-action-btn.emergency:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(207, 102, 121, 0.4);
+}
+
+.superadmin-dashboard .quick-action-btn.primary {
+  background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+  color: white;
+}
+
+.superadmin-dashboard .quick-action-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 77, 255, 0.4);
+}
+
+/* Main Content */
+.superadmin-dashboard .dashboard-main {
+  background-color: #1a1a2e;
+}
+
+.superadmin-dashboard .dashboard-header {
+  background: linear-gradient(135deg, #16213e, #0f0f23);
+  border-bottom: 1px solid #424242;
+}
+
+.superadmin-dashboard .page-title {
+  color: #ffffff;
+}
+
+.admin-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  margin-left: 1rem;
+}
+
+.badge-icon {
+  font-size: 1rem;
+}
+
+.superadmin-dashboard .header-btn {
+  color: #b3b3b3;
+}
+
+.superadmin-dashboard .header-btn:hover {
+  background-color: rgba(124, 77, 255, 0.15);
+  color: var(--admin-secondary);
+}
+
+.notification-badge.critical {
+  background-color: var(--admin-danger);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.superadmin-dashboard .dashboard-content {
+  background-color: #1a1a2e;
+  color: #ffffff;
+}
+
+/* Loading State */
+.superadmin-dashboard .dashboard-loading {
+  background-color: #1a1a2e;
+  color: #ffffff;
+}
+
+.superadmin-dashboard .loading-spinner {
+  border-top-color: var(--admin-primary);
+}
+
+/* Scrollbar */
+.superadmin-dashboard .dashboard-content::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-primary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-badge {
+    display: none;
+  }
+}
+
+/* Additional admin-specific styles */
+.superadmin-dashboard .sidebar-header,
+.superadmin-dashboard .sidebar-user,
+.superadmin-dashboard .sidebar-quick-actions,
+.superadmin-dashboard .sidebar-footer {
+  border-color: #424242;
+}
+
+.superadmin-dashboard .logout-btn:hover {
+  background-color: rgba(207, 102, 121, 0.2);
+}
+
+.superadmin-dashboard .user-menu-btn:hover {
+  background-color: rgba(124, 77, 255, 0.15);
+} 

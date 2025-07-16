@@ -5,6 +5,12 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { initializeFirebase, seedSuperadmin } from './config/firebase.js';
 import authRoutes from './routes/auth.js';
+import companiesRoutes from './routes/companies.js';
+import servicesRoutes from './routes/services.js';
+import bookingsRoutes from './routes/bookings.js';
+import analyticsRoutes from './routes/analytics.js';
+import petOwnersRoutes from './routes/pet-owners.js';
+import superadminRoutes from './routes/superadmin.js';
 import { verifyToken, optionalAuth } from './middleware/auth.js';
 
 // Load environment variables
@@ -39,6 +45,18 @@ app.get('/api/health', (req, res) => {
 // Authentication routes
 app.use('/api/auth', authRoutes);
 
+// Pet company dashboard routes
+app.use('/api/companies', companiesRoutes);
+app.use('/api/services', servicesRoutes);
+app.use('/api/bookings', bookingsRoutes);
+app.use('/api/analytics', analyticsRoutes);
+
+// Pet owner routes
+app.use('/api/pet-owners', petOwnersRoutes);
+
+// Superadmin routes
+app.use('/api/superadmin', superadminRoutes);
+
 // Protected route example
 app.get('/api/protected', verifyToken, (req, res) => {
   res.json({
@@ -66,6 +84,12 @@ app.get('/api', (req, res) => {
     endpoints: {
       health: '/api/health',
       auth: '/api/auth/*',
+      companies: '/api/companies/*',
+      services: '/api/services/*',
+      bookings: '/api/bookings/*',
+      analytics: '/api/analytics/*',
+      petOwners: '/api/pet-owners/*',
+      superadmin: '/api/superadmin/*',
       protected: '/api/protected',
       public: '/api/public',
     }
