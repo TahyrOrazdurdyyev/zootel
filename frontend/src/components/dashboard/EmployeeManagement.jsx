@@ -713,7 +713,7 @@ const EmployeeManagement = () => {
                           name="name"
                           value={formData.name}
                           onChange={(e) => handleInputChange('name', e.target.value)}
-                          required
+                          required={showAddModal || showEditModal}
                         />
                       </div>
 
@@ -724,7 +724,7 @@ const EmployeeManagement = () => {
                           name="email"
                           value={formData.email}
                           onChange={(e) => handleInputChange('email', e.target.value)}
-                          required
+                          required={showAddModal || showEditModal}
                         />
                       </div>
 
@@ -732,9 +732,10 @@ const EmployeeManagement = () => {
                         <label>Phone Number *</label>
                         <input
                           type="tel"
+                          name="phone"
                           value={formData.phone}
                           onChange={(e) => handleInputChange('phone', e.target.value)}
-                          required
+                          required={showAddModal || showEditModal}
                         />
                       </div>
 
@@ -744,7 +745,7 @@ const EmployeeManagement = () => {
                           name="role"
                           value={formData.role}
                           onChange={(e) => handleInputChange('role', e.target.value)}
-                          required
+                          required={showAddModal || showEditModal}
                         >
                           <option value="">Select Role</option>
                           {roles.map(role => (
