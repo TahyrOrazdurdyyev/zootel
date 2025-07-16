@@ -35,10 +35,11 @@ export const AuthProvider = ({ children }) => {
       await sendEmailVerification(result.user);
     }
     
-    // Store the selected role for later use
+    // Store the selected role for later use (both sessionStorage and localStorage for redundancy)
     sessionStorage.setItem('pendingUserRole', role);
-    console.log('Stored pendingUserRole in sessionStorage:', role);
-    alert(`DEBUG: Stored role in sessionStorage: ${role}`); // Debug alert
+    localStorage.setItem(`pendingUserRole_${result.user.uid}`, role);
+    console.log('Stored pendingUserRole in sessionStorage and localStorage:', role);
+    alert(`DEBUG: Stored role in sessionStorage and localStorage: ${role}`); // Debug alert
     
     // Sign out the user immediately after account creation
     // so they don't appear signed in during email verification
@@ -86,7 +87,19 @@ export const AuthProvider = ({ children }) => {
 
   // Check and set pending role on authentication
   const checkAndSetPendingRole = async (user) => {
-    const pendingRole = sessionStorage.getItem('pendingUserRole');
+    let pendingRole = sessionStorage.getItem('pendingUserRole');
+    
+    // If not found in sessionStorage, check localStorage as backup
+    if (!pendingRole && user) {
+      pendingRole = localStorage.getItem(`pendingUserRole_${user.uid}`);
+      if (pendingRole) {
+        console.log('Found pending role in localStorage backup:', pendingRole);
+        alert(`DEBUG: Found role in localStorage backup: ${pendingRole}`);
+        // Restore to sessionStorage for consistency
+        sessionStorage.setItem('pendingUserRole', pendingRole);
+      }
+    }
+    
     console.log('checkAndSetPendingRole called with user:', user?.email, 'pendingRole:', pendingRole);
     
     if (pendingRole && user) {
@@ -123,6 +136,7 @@ export const AuthProvider = ({ children }) => {
           
           setUserRole(data.role);
           sessionStorage.removeItem('pendingUserRole');
+          localStorage.removeItem(`pendingUserRole_${user.uid}`); // Clean up localStorage too
           
           return true;
         } else {
@@ -139,6 +153,13 @@ export const AuthProvider = ({ children }) => {
 
   // Sign in function
   const signin = async (email, password) => {
+    console.log('Sign in called for:', email);
+    
+    // Check if there's a pending role before signing in
+    const pendingRole = sessionStorage.getItem('pendingUserRole');
+    console.log('Pending role found during signin:', pendingRole);
+    alert(`DEBUG: Pending role during signin: ${pendingRole || 'NONE'}`);
+    
     const result = await signInWithEmailAndPassword(auth, email, password);
     return result;
   };
@@ -220,6 +241,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       try {
+        console.log('onAuthStateChanged triggered, user:', user?.email);
+        alert(`DEBUG: Auth state changed for user: ${user?.email || 'SIGNED OUT'}`);
+        
         setCurrentUser(user);
         
         if (user) {
@@ -227,6 +251,7 @@ export const AuthProvider = ({ children }) => {
           
           // Check for pending role first and wait for it to complete
           const roleWasSet = await checkAndSetPendingRole(user);
+          console.log('Role was set during auth state change:', roleWasSet);
           
           // Get user role and ID token
           let role;
@@ -248,6 +273,7 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         console.error('Error in auth state change:', error);
+        alert(`DEBUG: Error in auth state change: ${error.message}`);
       } finally {
         setLoading(false);
       }

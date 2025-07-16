@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Auth.css';
@@ -6,9 +6,19 @@ import './Auth.css';
 const EmailVerification = () => {
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email') || '';
+  const role = searchParams.get('role') || '';
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const { resendEmailVerification } = useAuth();
+
+  // Store role in sessionStorage if it exists in URL parameters
+  useEffect(() => {
+    if (role) {
+      console.log('EmailVerification: Storing role from URL:', role);
+      sessionStorage.setItem('pendingUserRole', role);
+      alert(`DEBUG: Email verification page stored role: ${role}`);
+    }
+  }, [role]);
 
   const handleResendVerification = async () => {
     try {
