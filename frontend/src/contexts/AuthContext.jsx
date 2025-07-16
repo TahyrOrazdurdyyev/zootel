@@ -26,7 +26,6 @@ export const AuthProvider = ({ children }) => {
   // Sign up function
   const signup = async (email, password, role = 'pet_owner') => {
     console.log('Signup called with role:', role);
-    alert(`DEBUG: Signing up with role: ${role}`); // Debug alert
     
     const result = await createUserWithEmailAndPassword(auth, email, password);
     
@@ -39,7 +38,6 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.setItem('pendingUserRole', role);
     localStorage.setItem(`pendingUserRole_${result.user.uid}`, role);
     console.log('Stored pendingUserRole in sessionStorage and localStorage:', role);
-    alert(`DEBUG: Stored role in sessionStorage and localStorage: ${role}`); // Debug alert
     
     // Sign out the user immediately after account creation
     // so they don't appear signed in during email verification
@@ -96,7 +94,6 @@ export const AuthProvider = ({ children }) => {
       pendingRole = localStorage.getItem(`pendingUserRole_${user.uid}`);
       if (pendingRole) {
         console.log('Found pending role in localStorage backup:', pendingRole);
-        alert(`DEBUG: Found role in localStorage backup: ${pendingRole}`);
         // Restore to sessionStorage for consistency
         sessionStorage.setItem('pendingUserRole', pendingRole);
       }
@@ -104,20 +101,17 @@ export const AuthProvider = ({ children }) => {
     
     console.log('checkAndSetPendingRole called with user:', user?.email, 'pendingRole:', pendingRole);
     
-    if (pendingRole && user) {
+    // Only set role if user is email verified and has pending role
+    if (pendingRole && user && user.emailVerified) {
       try {
         console.log('Setting pending role:', pendingRole);
-        alert(`DEBUG: Attempting to set role to: ${pendingRole}`); // Debug alert
-        
-        // Wait for user to be fully authenticated
-        await new Promise(resolve => setTimeout(resolve, 1000));
         
         const token = await user.getIdToken(true); // Force refresh token
         console.log('Token obtained, making API call...');
         
-              // Use full backend URL in production, relative URL in development
-      const apiBaseUrl = import.meta.env.DEV ? '' : 'https://zootel.shop';
-      const response = await fetch(`${apiBaseUrl}/api/auth/register-role`, {
+        // Use full backend URL in production, relative URL in development
+        const apiBaseUrl = import.meta.env.DEV ? '' : 'https://zootel.shop';
+        const response = await fetch(`${apiBaseUrl}/api/setRole`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -127,29 +121,27 @@ export const AuthProvider = ({ children }) => {
         });
 
         console.log('API response status:', response.status);
-        const responseData = await response.text();
-        console.log('API response data:', responseData);
 
         if (response.ok) {
-          const data = JSON.parse(responseData);
+          const data = await response.json();
           console.log('Role set successfully:', data.role);
-          alert(`DEBUG: Role set successfully to: ${data.role}`); // Debug alert
           
           // Force refresh the user's token to get updated custom claims
           await user.getIdToken(true);
           
           setUserRole(data.role);
           sessionStorage.removeItem('pendingUserRole');
-          localStorage.removeItem(`pendingUserRole_${user.uid}`); // Clean up localStorage too
+          localStorage.removeItem(`pendingUserRole_${user.uid}`);
           
           return true;
         } else {
-          console.error('Error setting role, response:', responseData);
-          alert(`DEBUG: Error setting role: ${responseData}`); // Debug alert
+          const errorData = await response.json();
+          console.error('Error setting role:', errorData);
+          throw new Error(errorData.message || 'Failed to set role');
         }
       } catch (error) {
         console.error('Error setting pending user role:', error);
-        alert(`DEBUG: Exception in role setting: ${error.message}`); // Debug alert
+        throw error;
       }
     }
     return false;
@@ -162,7 +154,6 @@ export const AuthProvider = ({ children }) => {
     // Check if there's a pending role before signing in
     const pendingRole = sessionStorage.getItem('pendingUserRole');
     console.log('Pending role found during signin:', pendingRole);
-    alert(`DEBUG: Pending role during signin: ${pendingRole || 'NONE'}`);
     
     const result = await signInWithEmailAndPassword(auth, email, password);
     return result;
@@ -206,12 +197,10 @@ export const AuthProvider = ({ children }) => {
       
       console.log('Retrieved user role from custom claims:', role);
       console.log('All custom claims:', tokenResult.claims);
-      alert(`DEBUG: Retrieved role from Firebase: ${role || 'NO ROLE'}`); // Debug alert
       
       return role || 'pet_owner';
     } catch (error) {
       console.error('Error getting user role:', error);
-      alert(`DEBUG: Error getting role: ${error.message}`); // Debug alert
       return 'pet_owner';
     }
   };
@@ -246,7 +235,6 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       try {
         console.log('onAuthStateChanged triggered, user:', user?.email);
-        alert(`DEBUG: Auth state changed for user: ${user?.email || 'SIGNED OUT'}`);
         
         setCurrentUser(user);
         
@@ -277,7 +265,6 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         console.error('Error in auth state change:', error);
-        alert(`DEBUG: Error in auth state change: ${error.message}`);
       } finally {
         setLoading(false);
       }

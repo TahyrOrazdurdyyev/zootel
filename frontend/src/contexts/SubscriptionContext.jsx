@@ -81,10 +81,13 @@ export const SubscriptionProvider = ({ children }) => {
         const data = await response.json();
         setSubscriptionData(prev => ({ ...prev, ...data }));
       } else {
-        console.error('Failed to fetch subscription data');
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        console.error('Failed to fetch subscription data:', errorData);
+        throw new Error(errorData.message || 'Failed to fetch subscription data');
       }
     } catch (error) {
       console.error('Error fetching subscription:', error);
+      // Don't throw here to prevent crashes, just log the error
     }
   }, [currentUser]);
 
