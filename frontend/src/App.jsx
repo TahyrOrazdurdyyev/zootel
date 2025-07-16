@@ -17,6 +17,7 @@ import SuperadminDashboard from './pages/SuperadminDashboard';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import ForgotPassword from './pages/ForgotPassword';
+import EmailVerification from './pages/EmailVerification';
 import './App.css';
 
 // Layout wrapper component
@@ -84,6 +85,7 @@ function App() {
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/email-verification" element={<EmailVerification />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />
                 {/* Placeholder routes for future implementation */}

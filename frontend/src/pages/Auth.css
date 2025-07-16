@@ -428,4 +428,57 @@
   .auth-button {
     padding: 0.875rem;
   }
+}
+
+/* Email Verification Page */
+.verification-content {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.verification-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.verification-content h2 {
+  color: var(--primary-color, #f75815);
+  margin-bottom: 1rem;
+}
+
+.verification-content p {
+  margin-bottom: 1rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.verification-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.verification-actions .btn {
+  flex: 1;
+  max-width: 150px;
+}
+
+.info-message {
+  background-color: #e8f5e8;
+  color: #2d7738;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  border-left: 4px solid #4caf50;
+}
+
+@media (max-width: 480px) {
+  .verification-actions {
+    flex-direction: column;
+  }
+  
+  .verification-actions .btn {
+    max-width: none;
+  }
 } 

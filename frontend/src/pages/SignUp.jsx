@@ -52,13 +52,8 @@ const SignUp = () => {
     try {
       await signup(formData.email, formData.password);
       
-      // Redirect based on role
-      const redirectPaths = {
-        'pet_company': '/company/dashboard',
-        'pet_owner': '/pet-owner/dashboard'
-      };
-      
-      navigate(redirectPaths[formData.role] || '/marketplace');
+      // Redirect to email verification page
+      navigate(`/email-verification?email=${encodeURIComponent(formData.email)}`);
     } catch (error) {
       console.error('Sign up error:', error);
       setError(getErrorMessage(error.code));

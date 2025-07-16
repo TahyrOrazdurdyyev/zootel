@@ -4,7 +4,8 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  sendEmailVerification
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
@@ -25,6 +26,12 @@ export const AuthProvider = ({ children }) => {
   // Sign up function
   const signup = async (email, password) => {
     const result = await createUserWithEmailAndPassword(auth, email, password);
+    
+    // Send email verification
+    if (result.user) {
+      await sendEmailVerification(result.user);
+    }
+    
     return result;
   };
 
@@ -45,6 +52,18 @@ export const AuthProvider = ({ children }) => {
   // Reset password function
   const resetPassword = async (email) => {
     await sendPasswordResetEmail(auth, email);
+  };
+
+  // Resend email verification
+  const resendEmailVerification = async () => {
+    if (currentUser && !currentUser.emailVerified) {
+      await sendEmailVerification(currentUser);
+    }
+  };
+
+  // Check if email is verified
+  const isEmailVerified = () => {
+    return currentUser?.emailVerified || false;
   };
 
   // Get user role from custom claims
@@ -140,6 +159,8 @@ export const AuthProvider = ({ children }) => {
     signin,
     logout,
     resetPassword,
+    resendEmailVerification,
+    isEmailVerified,
     getIdToken,
     isAuthenticated,
     hasRole,
