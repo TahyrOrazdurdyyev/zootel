@@ -22,7 +22,7 @@ const Home = () => {
         navigate('/company/dashboard');
         break;
       case 'pet_owner':
-        navigate('/marketplace');
+        navigate('/pet-owner/dashboard');
         break;
       default:
         navigate('/marketplace');
