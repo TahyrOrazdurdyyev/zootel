@@ -11,7 +11,7 @@ const TermsOfService = () => {
         <h3 style={{ color: '#FFA500' }}>Use License</h3>
         <p>Permission is granted to temporarily use Zootel for personal, non-commercial transitory viewing only.</p>
         <h3 style={{ color: '#FFA500' }}>Disclaimer</h3>
-        <p>The materials on Zootel are provided on an 'as is' basis. Zootel makes no warranties, expressed or implied.</p>
+        <p>The materials on Zootel are provided on an &apos;as is&apos; basis. Zootel makes no warranties, expressed or implied.</p>
       </div>
     </div>
   );

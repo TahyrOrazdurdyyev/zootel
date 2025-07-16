@@ -101,10 +101,6 @@ const Pricing = () => {
     navigate(`/company/subscribe/${planId}`);
   };
 
-  const getPrice = (plan) => {
-    return billingPeriod === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
-  };
-
   const getPriceLabel = (plan) => {
     if (billingPeriod === 'monthly') {
       return `$${plan.monthlyPrice}/month`;

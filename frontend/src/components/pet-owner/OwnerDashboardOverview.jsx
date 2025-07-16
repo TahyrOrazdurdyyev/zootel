@@ -104,7 +104,7 @@ const OwnerDashboardOverview = () => {
       {/* Welcome Section */}
       <div className="welcome-section">
         <h2>Welcome back! 👋</h2>
-        <p>Here's what's happening with your pets today.</p>
+        <p>Here&apos;s what&apos;s happening with your pets today.</p>
       </div>
 
       {/* Key Metrics */}

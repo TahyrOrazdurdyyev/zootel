@@ -189,7 +189,7 @@ const DashboardOverview = () => {
                         {'⭐'.repeat(review.rating)}
                       </div>
                     </div>
-                    <div className="review-comment">"{review.comment}"</div>
+                    <div className="review-comment">&ldquo;{review.comment}&rdquo;</div>
                     <div className="review-meta">
                       {review.serviceName} • {review.date}
                     </div>

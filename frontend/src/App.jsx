@@ -104,7 +104,7 @@ function App() {
                 <Route path="*" element={
                   <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
                     <h1 style={{ color: '#FFA500' }}>404 - Page Not Found</h1>
-                    <p>The page you're looking for doesn't exist.</p>
+                    <p>The page you&apos;re looking for doesn&apos;t exist.</p>
                   </div>
                 } />
               </Routes>

@@ -26,43 +26,27 @@ export const AuthProvider = ({ children }) => {
 
   // Sign up function
   const signup = async (email, password) => {
-    try {
-      const result = await createUserWithEmailAndPassword(auth, email, password);
-      return result;
-    } catch (error) {
-      throw error;
-    }
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    return result;
   };
 
   // Sign in function
   const signin = async (email, password) => {
-    try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      return result;
-    } catch (error) {
-      throw error;
-    }
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    return result;
   };
 
   // Sign out function
   const logout = async () => {
-    try {
-      await signOut(auth);
-      setCurrentUser(null);
-      setUserRole(null);
-      setIdToken(null);
-    } catch (error) {
-      throw error;
-    }
+    await signOut(auth);
+    setCurrentUser(null);
+    setUserRole(null);
+    setIdToken(null);
   };
 
   // Reset password function
   const resetPassword = async (email) => {
-    try {
-      await sendPasswordResetEmail(auth, email);
-    } catch (error) {
-      throw error;
-    }
+    await sendPasswordResetEmail(auth, email);
   };
 
   // Get user role from custom claims

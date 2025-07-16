@@ -100,7 +100,7 @@ const ForgotPassword = () => {
             </Link>
           </p>
           <p>
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link to="/signup" className="auth-link">
               Sign up here
             </Link>

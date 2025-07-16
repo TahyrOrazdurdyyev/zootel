@@ -31,5 +31,8 @@
     "concurrently": "^8.2.2"
   },
   "author": "Zootel Team",
-  "license": "MIT"
-} 
+  "license": "MIT",
+  "dependencies": {
+    "date-fns": "^4.1.0"
+  }
+}

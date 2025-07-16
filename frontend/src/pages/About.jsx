@@ -9,7 +9,7 @@ const About = () => {
         Our mission is to make pet care accessible, reliable, and convenient for everyone.
       </p>
       <p style={{ fontSize: '1rem', lineHeight: '1.6', color: '#666' }}>
-        Founded in 2024, we've helped thousands of pet owners find the perfect services for their furry friends.
+        Founded in 2024, we&apos;ve helped thousands of pet owners find the perfect services for their furry friends.
       </p>
     </div>
   );

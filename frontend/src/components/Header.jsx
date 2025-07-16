@@ -19,27 +19,7 @@ const Header = () => {
     }
   };
 
-  const handleGetStarted = () => {
-    if (!isAuthenticated()) {
-      navigate('/signin');
-      return;
-    }
 
-    // Route based on user role
-    switch (userRole) {
-      case 'superadmin':
-        navigate('/admin/dashboard');
-        break;
-      case 'pet_company':
-        navigate('/company/dashboard');
-        break;
-      case 'pet_owner':
-        navigate('/profile');
-        break;
-      default:
-        navigate('/marketplace');
-    }
-  };
 
   return (
     <header className="header">
