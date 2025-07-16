@@ -106,6 +106,7 @@ app.use('/api/*', (req, res) => {
 });
 
 // Error handling middleware
+// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({

@@ -7,7 +7,7 @@ const router = express.Router();
 const requirePetOwner = requireRole(['pet_owner', 'superadmin']);
 
 // Mock pet owner profiles data
-let petOwnerProfiles = [
+const petOwnerProfiles = [
   {
     id: 'owner_1',
     userId: 'user_1',
@@ -35,7 +35,7 @@ let petOwnerProfiles = [
 ];
 
 // Mock pets data
-let petsData = [
+const petsData = [
   {
     id: 'pet_1',
     ownerId: 'owner_1',

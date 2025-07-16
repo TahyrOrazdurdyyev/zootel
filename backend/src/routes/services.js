@@ -7,7 +7,7 @@ const router = express.Router();
 const requireCompany = requireRole(['pet_company', 'superadmin']);
 
 // Mock services data (in a real app, this would be in a database)
-let servicesData = [
+const servicesData = [
   {
     id: 'service_1',
     companyId: 'company_1',
