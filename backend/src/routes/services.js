@@ -1,5 +1,6 @@
 import express from 'express';
 import { verifyToken, requireRole } from '../middleware/auth.js';
+import { pool } from '../config/database.js';
 
 const router = express.Router();
 
@@ -43,15 +44,47 @@ router.get('/public', async (req, res) => {
 // GET /api/services - Get all services for the company
 router.get('/', verifyToken, requireCompany, async (req, res) => {
   try {
-    // TODO: Implement database query to get company services
-    // For now, return empty array
-    const companyServices = [];
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
+    
+    try {
+      // Get all services for the company with booking counts
+      const [servicesResult] = await connection.execute(
+        `SELECT s.*, 
+                COUNT(b.id) as totalBookings,
+                SUM(CASE WHEN b.status = 'completed' THEN b.totalAmount ELSE 0 END) as totalRevenue
+         FROM services s 
+         LEFT JOIN bookings b ON s.id = b.serviceId 
+         WHERE s.companyId = ? 
+         GROUP BY s.id
+         ORDER BY s.createdAt DESC`,
+        [companyId]
+      );
+      
+      const companyServices = servicesResult.map(service => ({
+        id: service.id,
+        name: service.name,
+        description: service.description || '',
+        price: parseFloat(service.price),
+        duration: service.duration,
+        category: service.category || '',
+        imageUrl: service.imageUrl || '',
+        active: Boolean(service.active),
+        totalBookings: service.totalBookings || 0,
+        totalRevenue: parseFloat(service.totalRevenue) || 0.00,
+        createdAt: service.createdAt,
+        updatedAt: service.updatedAt
+      }));
 
-    res.json({
-      success: true,
-      data: companyServices,
-      count: companyServices.length
-    });
+      res.json({
+        success: true,
+        data: companyServices,
+        count: companyServices.length
+      });
+      
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error('Error getting services:', error);
     res.status(500).json({
@@ -89,39 +122,68 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
       category,
       price,
       duration,
-      petTypes,
-      images
+      imageUrl
     } = req.body;
 
     // Validate required fields
-    if (!name || !description || !category || !price || !duration) {
+    if (!name || !price || !duration) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'Name, description, category, price, and duration are required'
+        message: 'Name, price, and duration are required'
       });
     }
 
-    // TODO: Implement database insertion for new service
-    const newService = {
-      id: `service_${Date.now()}`,
-      companyId: req.user.uid,
-      name,
-      description,
-      category,
-      price: parseFloat(price),
-      duration: parseInt(duration),
-      petTypes: petTypes || ['Dog', 'Cat'],
-      isActive: true,
-      images: images || [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    res.status(201).json({
-      success: true,
-      message: 'Service created successfully',
-      data: newService
-    });
+    const companyId = req.user.uid;
+    const serviceId = `service_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const connection = await pool.getConnection();
+    
+    try {
+      // Insert new service into database
+      await connection.execute(
+        `INSERT INTO services (id, companyId, name, description, price, duration, category, imageUrl, active) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          serviceId,
+          companyId,
+          name,
+          description || '',
+          parseFloat(price),
+          parseInt(duration),
+          category || '',
+          imageUrl || '',
+          true
+        ]
+      );
+      
+      // Get the created service
+      const [serviceResult] = await connection.execute(
+        'SELECT * FROM services WHERE id = ?',
+        [serviceId]
+      );
+      
+      const newService = serviceResult[0];
+      
+      res.status(201).json({
+        success: true,
+        message: 'Service created successfully',
+        data: {
+          id: newService.id,
+          companyId: newService.companyId,
+          name: newService.name,
+          description: newService.description,
+          price: parseFloat(newService.price),
+          duration: newService.duration,
+          category: newService.category,
+          imageUrl: newService.imageUrl,
+          active: Boolean(newService.active),
+          createdAt: newService.createdAt,
+          updatedAt: newService.updatedAt
+        }
+      });
+      
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error('Error creating service:', error);
     res.status(500).json({

@@ -1,5 +1,6 @@
 import express from 'express';
 import { verifyToken, requireRole } from '../middleware/auth.js';
+import { pool } from '../config/database.js';
 
 const router = express.Router();
 
@@ -11,36 +12,99 @@ router.get('/profile', verifyToken, requireCompany, async (req, res) => {
   try {
     const companyId = req.user.uid;
     
-    // TODO: Implement database query to get company profile and bookings
-    // For now, return empty profile for new companies
-    const companyProfile = {
-      id: req.user.uid,
-      name: '', // Empty - they need to set their company name
-      email: req.user.email,
-      phone: '', // Empty - they need to add their phone
-      address: '', // Empty - they need to add their address
-      description: '', // Empty - they need to add description
-      services: [], // Empty - no services added yet
-      rating: 0.0, // No rating yet
-      totalBookings: 0, // No bookings yet
-      businessHours: {
-        monday: '9:00 AM - 5:00 PM',
-        tuesday: '9:00 AM - 5:00 PM',
-        wednesday: '9:00 AM - 5:00 PM',
-        thursday: '9:00 AM - 5:00 PM',
-        friday: '9:00 AM - 5:00 PM',
-        saturday: 'Closed',
-        sunday: 'Closed'
-      },
-      images: [], // No images uploaded yet
-      verified: false, // Not verified yet
-      joinedDate: new Date().toISOString().split('T')[0] // Today's date
-    };
-
-    res.json({
-      success: true,
-      data: companyProfile
-    });
+    // Get company profile from database
+    const connection = await pool.getConnection();
+    
+    try {
+      // Get company details
+      const [companyRows] = await connection.execute(
+        'SELECT * FROM companies WHERE id = ?',
+        [companyId]
+      );
+      
+      let companyProfile;
+      
+      if (companyRows.length === 0) {
+        // Company doesn't exist in database yet - create new profile
+        const defaultBusinessHours = JSON.stringify({
+          monday: { open: '09:00', close: '17:00' },
+          tuesday: { open: '09:00', close: '17:00' },
+          wednesday: { open: '09:00', close: '17:00' },
+          thursday: { open: '09:00', close: '17:00' },
+          friday: { open: '09:00', close: '17:00' },
+          saturday: { closed: true },
+          sunday: { closed: true }
+        });
+        
+        await connection.execute(
+          `INSERT INTO companies (id, name, email, businessHours, verified, subscriptionPlan) 
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [companyId, '', req.user.email, defaultBusinessHours, false, 'basic']
+        );
+        
+        companyProfile = {
+          id: companyId,
+          name: '',
+          email: req.user.email,
+          phone: '',
+          address: '',
+          city: '',
+          state: '',
+          zipCode: '',
+          description: '',
+          businessHours: JSON.parse(defaultBusinessHours),
+          logoUrl: '',
+          verified: false,
+          subscriptionPlan: 'basic',
+          subscriptionStatus: 'active',
+          totalBookings: 0,
+          rating: 0.0,
+          joinedDate: new Date().toISOString().split('T')[0]
+        };
+      } else {
+        const company = companyRows[0];
+        
+        // Get booking count and rating
+        const [bookingStats] = await connection.execute(
+          'SELECT COUNT(*) as totalBookings FROM bookings WHERE companyId = ?',
+          [companyId]
+        );
+        
+        const [ratingStats] = await connection.execute(
+          'SELECT AVG(rating) as avgRating, COUNT(*) as totalReviews FROM reviews WHERE companyId = ?',
+          [companyId]
+        );
+        
+        companyProfile = {
+          id: company.id,
+          name: company.name || '',
+          email: company.email,
+          phone: company.phone || '',
+          address: company.address || '',
+          city: company.city || '',
+          state: company.state || '',
+          zipCode: company.zipCode || '',
+          description: company.description || '',
+          businessHours: company.businessHours ? JSON.parse(company.businessHours) : {},
+          logoUrl: company.logoUrl || '',
+          verified: Boolean(company.verified),
+          subscriptionPlan: company.subscriptionPlan || 'basic',
+          subscriptionStatus: company.subscriptionStatus || 'active',
+          totalBookings: bookingStats[0].totalBookings || 0,
+          rating: parseFloat(ratingStats[0].avgRating) || 0.0,
+          totalReviews: ratingStats[0].totalReviews || 0,
+          joinedDate: company.createdAt ? company.createdAt.toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+        };
+      }
+      
+      res.json({
+        success: true,
+        data: companyProfile
+      });
+      
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error('Error getting company profile:', error);
     res.status(500).json({
@@ -104,23 +168,86 @@ router.put('/profile', verifyToken, requireCompany, async (req, res) => {
 // GET /api/companies/analytics/overview - Get company analytics overview
 router.get('/analytics/overview', verifyToken, requireCompany, async (req, res) => {
   try {
-    // TODO: Implement database query to get company analytics
-    // For now, return empty analytics
-    const analytics = {
-      totalBookings: 0,
-      monthlyBookings: 0,
-      totalRevenue: 0.00,
-      monthlyRevenue: 0.00,
-      averageRating: 0.0,
-      totalReviews: 0,
-      newCustomers: 0,
-      returningCustomers: 0
-    };
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
+    
+    try {
+      // Get current date ranges
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfYear = new Date(now.getFullYear(), 0, 1);
+      
+      // Get total bookings
+      const [totalBookingsResult] = await connection.execute(
+        'SELECT COUNT(*) as total FROM bookings WHERE companyId = ?',
+        [companyId]
+      );
+      
+      // Get monthly bookings
+      const [monthlyBookingsResult] = await connection.execute(
+        'SELECT COUNT(*) as total FROM bookings WHERE companyId = ? AND createdAt >= ?',
+        [companyId, startOfMonth]
+      );
+      
+      // Get total revenue
+      const [totalRevenueResult] = await connection.execute(
+        'SELECT SUM(totalAmount) as total FROM bookings WHERE companyId = ? AND status = "completed"',
+        [companyId]
+      );
+      
+      // Get monthly revenue
+      const [monthlyRevenueResult] = await connection.execute(
+        'SELECT SUM(totalAmount) as total FROM bookings WHERE companyId = ? AND status = "completed" AND createdAt >= ?',
+        [companyId, startOfMonth]
+      );
+      
+      // Get average rating and total reviews
+      const [ratingResult] = await connection.execute(
+        'SELECT AVG(rating) as avgRating, COUNT(*) as totalReviews FROM reviews WHERE companyId = ?',
+        [companyId]
+      );
+      
+      // Get new customers (customers who booked for the first time this month)
+      const [newCustomersResult] = await connection.execute(
+        `SELECT COUNT(DISTINCT petOwnerId) as total FROM bookings 
+         WHERE companyId = ? AND createdAt >= ? 
+         AND petOwnerId NOT IN (
+           SELECT DISTINCT petOwnerId FROM bookings 
+           WHERE companyId = ? AND createdAt < ?
+         )`,
+        [companyId, startOfMonth, companyId, startOfMonth]
+      );
+      
+      // Get returning customers (customers who have booked before)
+      const [returningCustomersResult] = await connection.execute(
+        `SELECT COUNT(DISTINCT petOwnerId) as total FROM bookings 
+         WHERE companyId = ? AND createdAt >= ? 
+         AND petOwnerId IN (
+           SELECT DISTINCT petOwnerId FROM bookings 
+           WHERE companyId = ? AND createdAt < ?
+         )`,
+        [companyId, startOfMonth, companyId, startOfMonth]
+      );
+      
+      const analytics = {
+        totalBookings: totalBookingsResult[0].total || 0,
+        monthlyBookings: monthlyBookingsResult[0].total || 0,
+        totalRevenue: parseFloat(totalRevenueResult[0].total) || 0.00,
+        monthlyRevenue: parseFloat(monthlyRevenueResult[0].total) || 0.00,
+        averageRating: parseFloat(ratingResult[0].avgRating) || 0.0,
+        totalReviews: ratingResult[0].totalReviews || 0,
+        newCustomers: newCustomersResult[0].total || 0,
+        returningCustomers: returningCustomersResult[0].total || 0
+      };
 
-    res.json({
-      success: true,
-      data: analytics
-    });
+      res.json({
+        success: true,
+        data: analytics
+      });
+      
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error('Error getting company analytics:', error);
     res.status(500).json({

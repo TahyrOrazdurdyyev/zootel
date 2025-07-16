@@ -1,5 +1,6 @@
 import express from 'express';
 import { verifyToken, requireRole } from '../middleware/auth.js';
+import { pool } from '../config/database.js';
 
 const router = express.Router();
 
@@ -206,21 +207,61 @@ router.put('/:id/availability', verifyToken, requireCompany, async (req, res) =>
 // GET /api/employees/stats - Get employee statistics (main endpoint)
 router.get('/stats', verifyToken, requireCompany, async (req, res) => {
   try {
-    // TODO: Implement database query to get employee statistics
-    // For now, return empty statistics
-    const stats = {
-      totalEmployees: 0,
-      activeEmployees: 0,
-      inactiveEmployees: 0,
-      onLeaveEmployees: 0,
-      averageRating: 0.0,
-      totalCompletedAppointments: 0
-    };
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
+    
+    try {
+      // Get total employees
+      const [totalEmployeesResult] = await connection.execute(
+        'SELECT COUNT(*) as total FROM employees WHERE companyId = ?',
+        [companyId]
+      );
+      
+      // Get active employees
+      const [activeEmployeesResult] = await connection.execute(
+        'SELECT COUNT(*) as total FROM employees WHERE companyId = ? AND active = true',
+        [companyId]
+      );
+      
+      // Get inactive employees
+      const [inactiveEmployeesResult] = await connection.execute(
+        'SELECT COUNT(*) as total FROM employees WHERE companyId = ? AND active = false',
+        [companyId]
+      );
+      
+      // Get total completed appointments by all employees
+      const [completedAppointmentsResult] = await connection.execute(
+        `SELECT COUNT(*) as total FROM bookings 
+         WHERE companyId = ? AND status = 'completed' AND employeeId IS NOT NULL`,
+        [companyId]
+      );
+      
+      // Calculate average employee rating based on bookings they handled
+      const [employeeRatingResult] = await connection.execute(
+        `SELECT AVG(r.rating) as avgRating 
+         FROM reviews r 
+         JOIN bookings b ON r.bookingId = b.id 
+         WHERE b.companyId = ? AND b.employeeId IS NOT NULL`,
+        [companyId]
+      );
+      
+      const stats = {
+        totalEmployees: totalEmployeesResult[0].total || 0,
+        activeEmployees: activeEmployeesResult[0].total || 0,
+        inactiveEmployees: inactiveEmployeesResult[0].total || 0,
+        onLeaveEmployees: 0, // Could be implemented with a separate status field
+        averageRating: parseFloat(employeeRatingResult[0].avgRating) || 0.0,
+        totalCompletedAppointments: completedAppointmentsResult[0].total || 0
+      };
 
-    res.json({
-      success: true,
-      data: stats
-    });
+      res.json({
+        success: true,
+        data: stats
+      });
+      
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error('Error getting employee stats:', error);
     res.status(500).json({
