@@ -204,7 +204,69 @@ router.put('/:id/availability', verifyToken, requireCompany, async (req, res) =>
   }
 });
 
-// GET /api/employees/stats - Get employee statistics (main endpoint)
+// GET /api/employees/roles/list - Get list of available employee roles
+router.get('/roles/list', verifyToken, requireCompany, async (req, res) => {
+  try {
+    // Standard employee roles for pet service companies
+    const roles = [
+      { id: 'groomer', name: 'Pet Groomer', description: 'Professional pet grooming services' },
+      { id: 'veterinarian', name: 'Veterinarian', description: 'Licensed veterinary care' },
+      { id: 'trainer', name: 'Pet Trainer', description: 'Animal behavior and training specialist' },
+      { id: 'sitter', name: 'Pet Sitter', description: 'Pet sitting and care services' },
+      { id: 'walker', name: 'Pet Walker', description: 'Dog walking and exercise services' },
+      { id: 'receptionist', name: 'Receptionist', description: 'Front desk and customer service' },
+      { id: 'manager', name: 'Manager', description: 'Operations and team management' },
+      { id: 'assistant', name: 'Assistant', description: 'General support and assistance' }
+    ];
+
+    res.json({
+      success: true,
+      data: roles
+    });
+  } catch (error) {
+    console.error('Error getting employee roles:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get employee roles'
+    });
+  }
+});
+
+// GET /api/employees/skills/list - Get list of available skills
+router.get('/skills/list', verifyToken, requireCompany, async (req, res) => {
+  try {
+    // Standard skills for pet service professionals
+    const skills = [
+      { id: 'dog_grooming', name: 'Dog Grooming', category: 'Grooming' },
+      { id: 'cat_grooming', name: 'Cat Grooming', category: 'Grooming' },
+      { id: 'nail_trimming', name: 'Nail Trimming', category: 'Grooming' },
+      { id: 'teeth_cleaning', name: 'Teeth Cleaning', category: 'Health' },
+      { id: 'vaccinations', name: 'Vaccinations', category: 'Health' },
+      { id: 'first_aid', name: 'Pet First Aid', category: 'Health' },
+      { id: 'obedience_training', name: 'Obedience Training', category: 'Training' },
+      { id: 'behavior_modification', name: 'Behavior Modification', category: 'Training' },
+      { id: 'agility_training', name: 'Agility Training', category: 'Training' },
+      { id: 'large_dogs', name: 'Large Dog Handling', category: 'Specialization' },
+      { id: 'exotic_pets', name: 'Exotic Pet Care', category: 'Specialization' },
+      { id: 'senior_pets', name: 'Senior Pet Care', category: 'Specialization' },
+      { id: 'customer_service', name: 'Customer Service', category: 'Communication' },
+      { id: 'appointment_scheduling', name: 'Appointment Scheduling', category: 'Administration' }
+    ];
+
+    res.json({
+      success: true,
+      data: skills
+    });
+  } catch (error) {
+    console.error('Error getting employee skills:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get employee skills'
+    });
+  }
+});
+
+// GET /api/employees/stats - Get employee statistics
 router.get('/stats', verifyToken, requireCompany, async (req, res) => {
   try {
     const companyId = req.user.uid;
@@ -213,45 +275,52 @@ router.get('/stats', verifyToken, requireCompany, async (req, res) => {
     try {
       // Get total employees
       const [totalEmployeesResult] = await connection.execute(
-        'SELECT COUNT(*) as total FROM employees WHERE companyId = ?',
-        [companyId]
-      );
-      
-      // Get active employees
-      const [activeEmployeesResult] = await connection.execute(
         'SELECT COUNT(*) as total FROM employees WHERE companyId = ? AND active = true',
         [companyId]
       );
       
-      // Get inactive employees
-      const [inactiveEmployeesResult] = await connection.execute(
-        'SELECT COUNT(*) as total FROM employees WHERE companyId = ? AND active = false',
+      // Get employees by role
+      const [roleStatsResult] = await connection.execute(
+        'SELECT role, COUNT(*) as count FROM employees WHERE companyId = ? AND active = true GROUP BY role',
         [companyId]
       );
       
-      // Get total completed appointments by all employees
-      const [completedAppointmentsResult] = await connection.execute(
-        `SELECT COUNT(*) as total FROM bookings 
-         WHERE companyId = ? AND status = 'completed' AND employeeId IS NOT NULL`,
+      // Get new employees this month
+      const [newEmployeesResult] = await connection.execute(
+        'SELECT COUNT(*) as total FROM employees WHERE companyId = ? AND active = true AND createdAt >= DATE_SUB(NOW(), INTERVAL 1 MONTH)',
         [companyId]
       );
       
-      // Calculate average employee rating based on bookings they handled
-      const [employeeRatingResult] = await connection.execute(
-        `SELECT AVG(r.rating) as avgRating 
-         FROM reviews r 
-         JOIN bookings b ON r.bookingId = b.id 
-         WHERE b.companyId = ? AND b.employeeId IS NOT NULL`,
+      // Get employee performance (based on bookings)
+      const [performanceResult] = await connection.execute(
+        `SELECT 
+           e.id, e.name, e.role,
+           COUNT(b.id) as totalBookings,
+           AVG(r.rating) as averageRating
+         FROM employees e
+         LEFT JOIN bookings b ON e.id = b.employeeId
+         LEFT JOIN reviews r ON b.id = r.bookingId
+         WHERE e.companyId = ? AND e.active = true
+         GROUP BY e.id
+         ORDER BY totalBookings DESC
+         LIMIT 5`,
         [companyId]
       );
-      
+
       const stats = {
         totalEmployees: totalEmployeesResult[0].total || 0,
-        activeEmployees: activeEmployeesResult[0].total || 0,
-        inactiveEmployees: inactiveEmployeesResult[0].total || 0,
-        onLeaveEmployees: 0, // Could be implemented with a separate status field
-        averageRating: parseFloat(employeeRatingResult[0].avgRating) || 0.0,
-        totalCompletedAppointments: completedAppointmentsResult[0].total || 0
+        newEmployeesThisMonth: newEmployeesResult[0].total || 0,
+        roleDistribution: roleStatsResult.map(role => ({
+          role: role.role,
+          count: role.count
+        })),
+        topPerformers: performanceResult.map(emp => ({
+          id: emp.id,
+          name: emp.name,
+          role: emp.role,
+          totalBookings: emp.totalBookings || 0,
+          averageRating: parseFloat(emp.averageRating) || 0.0
+        }))
       };
 
       res.json({
@@ -266,7 +335,7 @@ router.get('/stats', verifyToken, requireCompany, async (req, res) => {
     console.error('Error getting employee stats:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to get employee statistics'
+      message: 'Failed to get employee stats'
     });
   }
 });

@@ -300,4 +300,152 @@ router.get('/customers', verifyToken, requireCompany, async (req, res) => {
   }
 });
 
+// GET /api/companies/dashboard-data - Get dashboard data for charts and recent bookings
+router.get('/dashboard-data', verifyToken, requireCompany, async (req, res) => {
+  try {
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
+    
+    try {
+      // Get monthly earnings data (last 6 months)
+      const [monthlyEarningsResult] = await connection.execute(
+        `SELECT 
+           DATE_FORMAT(createdAt, '%b %Y') as month,
+           MONTH(createdAt) as monthNum,
+           SUM(CASE WHEN status = 'completed' THEN totalAmount ELSE 0 END) as earnings
+         FROM bookings 
+         WHERE companyId = ? AND createdAt >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+         GROUP BY YEAR(createdAt), MONTH(createdAt)
+         ORDER BY YEAR(createdAt), MONTH(createdAt)`,
+        [companyId]
+      );
+
+      // Get recent bookings (last 10)
+      const [recentBookingsResult] = await connection.execute(
+        `SELECT b.*, 
+               s.name as serviceName, 
+               s.price as servicePrice,
+               po.name as petOwnerName,
+               p.name as petName
+         FROM bookings b
+         LEFT JOIN services s ON b.serviceId = s.id
+         LEFT JOIN pet_owners po ON b.petOwnerId = po.id
+         LEFT JOIN pets p ON b.petId = p.id
+         WHERE b.companyId = ?
+         ORDER BY b.createdAt DESC
+         LIMIT 10`,
+        [companyId]
+      );
+
+      const dashboardData = {
+        monthlyEarnings: monthlyEarningsResult.map(row => ({
+          month: row.month,
+          earnings: parseFloat(row.earnings) || 0
+        })),
+        recentBookings: recentBookingsResult.map(booking => ({
+          id: booking.id,
+          petOwnerName: booking.petOwnerName || 'Unknown Customer',
+          serviceName: booking.serviceName || 'Unknown Service',
+          petName: booking.petName || 'Unknown Pet',
+          date: booking.date,
+          time: booking.time,
+          status: booking.status,
+          amount: parseFloat(booking.totalAmount) || 0
+        }))
+      };
+
+      res.json({
+        success: true,
+        data: dashboardData
+      });
+      
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Error getting dashboard data:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get dashboard data'
+    });
+  }
+});
+
+// GET /api/companies/stats - Get company statistics  
+router.get('/stats', verifyToken, requireCompany, async (req, res) => {
+  try {
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
+    
+    try {
+      // Get current date ranges
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      // Get total bookings
+      const [totalBookingsResult] = await connection.execute(
+        'SELECT COUNT(*) as total FROM bookings WHERE companyId = ?',
+        [companyId]
+      );
+      
+      // Get monthly revenue
+      const [monthlyRevenueResult] = await connection.execute(
+        'SELECT SUM(totalAmount) as total FROM bookings WHERE companyId = ? AND status = "completed" AND createdAt >= ?',
+        [companyId, startOfMonth]
+      );
+      
+      // Get average rating and total reviews
+      const [ratingResult] = await connection.execute(
+        'SELECT AVG(rating) as avgRating, COUNT(*) as totalReviews FROM reviews WHERE companyId = ?',
+        [companyId]
+      );
+      
+      // Get new customers this month
+      const [newCustomersResult] = await connection.execute(
+        `SELECT COUNT(DISTINCT petOwnerId) as total FROM bookings 
+         WHERE companyId = ? AND createdAt >= ? 
+         AND petOwnerId NOT IN (
+           SELECT DISTINCT petOwnerId FROM bookings 
+           WHERE companyId = ? AND createdAt < ?
+         )`,
+        [companyId, startOfMonth, companyId, startOfMonth]
+      );
+      
+      // Get returning customers this month
+      const [returningCustomersResult] = await connection.execute(
+        `SELECT COUNT(DISTINCT petOwnerId) as total FROM bookings 
+         WHERE companyId = ? AND createdAt >= ? 
+         AND petOwnerId IN (
+           SELECT DISTINCT petOwnerId FROM bookings 
+           WHERE companyId = ? AND createdAt < ?
+         )`,
+        [companyId, startOfMonth, companyId, startOfMonth]
+      );
+
+      const stats = {
+        totalBookings: totalBookingsResult[0].total || 0,
+        monthlyRevenue: parseFloat(monthlyRevenueResult[0].total) || 0.00,
+        averageRating: parseFloat(ratingResult[0].avgRating) || 0.0,
+        totalReviews: ratingResult[0].totalReviews || 0,
+        newCustomers: newCustomersResult[0].total || 0,
+        returningCustomers: returningCustomersResult[0].total || 0
+      };
+
+      res.json({
+        success: true,
+        data: stats
+      });
+      
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Error getting company stats:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get company stats'
+    });
+  }
+});
+
 export default router; 
