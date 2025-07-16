@@ -96,7 +96,7 @@ const EmployeeManagement = () => {
     setLoading(true);
     try {
       const token = await currentUser.getIdToken();
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://zootel.shop';
       const response = await fetch(`${baseUrl}/api/employees`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -121,7 +121,7 @@ const EmployeeManagement = () => {
   const fetchEmployeeOptions = useCallback(async () => {
     try {
       const token = await currentUser.getIdToken();
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://zootel.shop';
       
       const [rolesResponse, skillsResponse] = await Promise.all([
         fetch(`${baseUrl}/api/employees/roles/list`, {
@@ -146,7 +146,7 @@ const EmployeeManagement = () => {
   const fetchStats = useCallback(async () => {
     try {
       const token = await currentUser.getIdToken();
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://zootel.shop';
       const response = await fetch(`${baseUrl}/api/employees/stats`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -262,7 +262,7 @@ const EmployeeManagement = () => {
 
     try {
       const token = await currentUser.getIdToken();
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://zootel.shop';
       
       const url = selectedEmployee 
         ? `${baseUrl}/api/employees/${selectedEmployee.id}`
@@ -301,7 +301,7 @@ const EmployeeManagement = () => {
     setFormLoading(true);
     try {
       const token = await currentUser.getIdToken();
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://zootel.shop';
       const response = await fetch(`${baseUrl}/api/employees/${selectedEmployee.id}`, {
         method: 'DELETE',
         headers: {

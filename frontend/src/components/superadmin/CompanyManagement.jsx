@@ -28,7 +28,7 @@ const CompanyManagement = () => {
         limit: filters.limit.toString()
       });
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/superadmin/companies?${queryParams}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://zootel.shop'}/api/superadmin/companies?${queryParams}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -106,7 +106,7 @@ const CompanyManagement = () => {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const token = await user.getIdToken?.();
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/superadmin/companies/${companyId}/verify`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://zootel.shop'}/api/superadmin/companies/${companyId}/verify`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -142,7 +142,7 @@ const CompanyManagement = () => {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const token = await user.getIdToken?.();
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/superadmin/companies/${companyId}/status`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://zootel.shop'}/api/superadmin/companies/${companyId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

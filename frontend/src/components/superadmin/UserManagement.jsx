@@ -28,7 +28,7 @@ const UserManagement = () => {
         limit: filters.limit.toString()
       });
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/superadmin/users?${queryParams}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://zootel.shop'}/api/superadmin/users?${queryParams}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -104,7 +104,7 @@ const UserManagement = () => {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const token = await user.getIdToken?.();
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/superadmin/users/${uid}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://zootel.shop'}/api/superadmin/users/${uid}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -129,7 +129,7 @@ const UserManagement = () => {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const token = await user.getIdToken?.();
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/superadmin/users/${uid}/role`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://zootel.shop'}/api/superadmin/users/${uid}/role`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -165,7 +165,7 @@ const UserManagement = () => {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const token = await user.getIdToken?.();
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/superadmin/users/${uid}/disable`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://zootel.shop'}/api/superadmin/users/${uid}/disable`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

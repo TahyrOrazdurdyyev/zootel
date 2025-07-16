@@ -19,7 +19,7 @@ const PlatformAnalytics = () => {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const token = await user.getIdToken?.();
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/superadmin/analytics`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://zootel.shop'}/api/superadmin/analytics`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -44,7 +44,7 @@ const PlatformAnalytics = () => {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const token = await user.getIdToken?.();
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/superadmin/reports?type=${reportType}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://zootel.shop'}/api/superadmin/reports?type=${reportType}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

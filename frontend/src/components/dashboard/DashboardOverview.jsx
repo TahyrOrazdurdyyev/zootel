@@ -1,32 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { authenticatedApiCall } from '../../utils/api';
 import './DashboardOverview.css';
 
 const DashboardOverview = () => {
+  const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [currentUser]);
 
   const fetchDashboardData = async () => {
+    if (!currentUser) return;
+    
     try {
       setLoading(true);
-      
-      // Get authentication token
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const token = await user.getIdToken?.();
-      
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
 
       // Fetch dashboard data and stats in parallel
       const [dashboardResponse, statsResponse] = await Promise.all([
-        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/companies/dashboard-data`, { headers }),
-        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/companies/stats`, { headers })
+        authenticatedApiCall(currentUser, '/api/companies/dashboard-data'),
+        authenticatedApiCall(currentUser, '/api/companies/stats')
       ]);
 
       if (dashboardResponse.ok && statsResponse.ok) {

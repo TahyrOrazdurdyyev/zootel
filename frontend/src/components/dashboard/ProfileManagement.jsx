@@ -53,7 +53,7 @@ const ProfileManagement = () => {
     setError('');
     try {
       const token = await currentUser.getIdToken();
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://zootel.shop';
       const response = await fetch(`${baseUrl}/api/companies/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -102,7 +102,7 @@ const ProfileManagement = () => {
 
     try {
       const token = await currentUser.getIdToken();
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://zootel.shop';
       const response = await fetch(`${baseUrl}/api/companies/profile`, {
         method: 'PUT',
         headers: {
