@@ -58,7 +58,7 @@ const DashboardOverview = () => {
           <div className="metric-icon">📊</div>
           <div className="metric-content">
             <div className="metric-value">{stats?.totalBookings || 0}</div>
-            <div className="metric-label">Total Bookings</div>
+            <div className="metric-label">TOTAL BOOKINGS</div>
             <div className="metric-change positive">+12% from last month</div>
           </div>
         </div>
@@ -67,7 +67,7 @@ const DashboardOverview = () => {
           <div className="metric-icon">💰</div>
           <div className="metric-content">
             <div className="metric-value">${stats?.monthlyRevenue?.toFixed(2) || '0.00'}</div>
-            <div className="metric-label">Monthly Revenue</div>
+            <div className="metric-label">MONTHLY REVENUE</div>
             <div className="metric-change positive">+8% from last month</div>
           </div>
         </div>
@@ -76,7 +76,7 @@ const DashboardOverview = () => {
           <div className="metric-icon">⭐</div>
           <div className="metric-content">
             <div className="metric-value">{stats?.averageRating || '0.0'}</div>
-            <div className="metric-label">Average Rating</div>
+            <div className="metric-label">AVERAGE RATING</div>
             <div className="metric-change neutral">Based on {stats?.totalReviews || 0} reviews</div>
           </div>
         </div>
@@ -85,147 +85,114 @@ const DashboardOverview = () => {
           <div className="metric-icon">👥</div>
           <div className="metric-content">
             <div className="metric-value">{stats?.newCustomers || 0}</div>
-            <div className="metric-label">New Customers</div>
+            <div className="metric-label">NEW CUSTOMERS</div>
             <div className="metric-change positive">+{stats?.returningCustomers || 0} returning</div>
           </div>
         </div>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="overview-grid">
-        {/* Recent Bookings */}
-        <div className="overview-card recent-bookings">
-          <div className="card-header">
-            <h3>Recent Bookings</h3>
-            <a href="#" className="view-all-link">View All</a>
-          </div>
-          <div className="card-content">
-            {dashboardData?.recentBookings?.length > 0 ? (
-              <div className="bookings-list">
-                {dashboardData.recentBookings.slice(0, 5).map((booking) => (
-                  <div key={booking.id} className="booking-item">
-                    <div className="booking-avatar">
-                      {booking.petOwnerName.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="booking-details">
-                      <div className="booking-name">{booking.petOwnerName}</div>
-                      <div className="booking-service">{booking.serviceName}</div>
-                      <div className="booking-meta">
-                        {booking.petName} • {booking.date} at {booking.time}
-                      </div>
-                    </div>
-                    <div className="booking-status">
-                      <span className={`status-badge ${booking.status}`}>
-                        {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                      </span>
-                      <div className="booking-amount">${booking.amount}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-state">
-                <div className="empty-icon">📅</div>
-                <p>No recent bookings</p>
-              </div>
-            )}
-          </div>
+      {/* Revenue Line Chart */}
+      <div className="revenue-chart-container">
+        <div className="chart-header">
+          <h3>Monthly Earnings</h3>
+          <select className="chart-period">
+            <option value="6">Last 6 months</option>
+            <option value="12">Last 12 months</option>
+          </select>
         </div>
-
-        {/* Revenue Chart */}
-        <div className="overview-card revenue-chart">
-          <div className="card-header">
-            <h3>Monthly Earnings</h3>
-            <select className="chart-period">
-              <option value="6">Last 6 months</option>
-              <option value="12">Last 12 months</option>
-            </select>
-          </div>
-          <div className="card-content">
-            <div className="chart-container">
-              {dashboardData?.monthlyEarnings?.length > 0 ? (
-                <div className="simple-chart">
-                  {dashboardData.monthlyEarnings.map((item, index) => (
-                    <div key={index} className="chart-bar">
-                      <div 
-                        className="bar" 
-                        style={{ 
-                          height: `${(item.earnings / Math.max(...dashboardData.monthlyEarnings.map(e => e.earnings))) * 100}%` 
-                        }}
-                      ></div>
-                      <div className="bar-label">{item.month}</div>
-                      <div className="bar-value">${item.earnings}</div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="empty-state">
-                  <div className="empty-icon">📈</div>
-                  <p>No earnings data available</p>
-                </div>
-              )}
+        <div className="line-chart">
+          {dashboardData?.monthlyEarnings?.length > 0 ? (
+            <div className="chart-wrapper">
+              <svg className="line-chart-svg" viewBox="0 0 800 300">
+                {/* Chart grid lines */}
+                <defs>
+                  <pattern id="grid" width="100" height="60" patternUnits="userSpaceOnUse">
+                    <path d="M 100 0 L 0 0 0 60" fill="none" stroke="#f0f0f0" strokeWidth="1"/>
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+                
+                {/* Chart line */}
+                <polyline
+                  fill="none"
+                  stroke="#ff6b35"
+                  strokeWidth="3"
+                  points={dashboardData.monthlyEarnings.map((item, index) => {
+                    const x = (index + 1) * (800 / (dashboardData.monthlyEarnings.length + 1));
+                    const maxEarnings = Math.max(...dashboardData.monthlyEarnings.map(e => e.earnings));
+                    const y = 250 - (item.earnings / maxEarnings) * 200;
+                    return `${x},${y}`;
+                  }).join(' ')}
+                />
+                
+                {/* Data points */}
+                {dashboardData.monthlyEarnings.map((item, index) => {
+                  const x = (index + 1) * (800 / (dashboardData.monthlyEarnings.length + 1));
+                  const maxEarnings = Math.max(...dashboardData.monthlyEarnings.map(e => e.earnings));
+                  const y = 250 - (item.earnings / maxEarnings) * 200;
+                  return (
+                    <g key={index}>
+                      <circle cx={x} cy={y} r="6" fill="#ff6b35" />
+                      <text x={x} y="280" textAnchor="middle" fontSize="12" fill="#666">
+                        {item.month}
+                      </text>
+                      <text x={x} y={y - 15} textAnchor="middle" fontSize="11" fill="#333">
+                        ${item.earnings}
+                      </text>
+                    </g>
+                  );
+                })}
+              </svg>
             </div>
-          </div>
-        </div>
-
-        {/* Recent Reviews */}
-        <div className="overview-card recent-reviews">
-          <div className="card-header">
-            <h3>Recent Reviews</h3>
-            <a href="#" className="view-all-link">View All</a>
-          </div>
-          <div className="card-content">
-            {dashboardData?.recentReviews?.length > 0 ? (
-              <div className="reviews-list">
-                {dashboardData.recentReviews.map((review) => (
-                  <div key={review.id} className="review-item">
-                    <div className="review-header">
-                      <div className="reviewer-name">{review.petOwnerName}</div>
-                      <div className="review-rating">
-                        {'⭐'.repeat(review.rating)}
-                      </div>
-                    </div>
-                    <div className="review-comment">&ldquo;{review.comment}&rdquo;</div>
-                    <div className="review-meta">
-                      {review.serviceName} • {review.date}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-state">
-                <div className="empty-icon">⭐</div>
-                <p>No recent reviews</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="overview-card quick-actions">
-          <div className="card-header">
-            <h3>Quick Actions</h3>
-          </div>
-          <div className="card-content">
-            <div className="actions-grid">
-              <button className="action-btn">
-                <span className="action-icon">🐕</span>
-                <span className="action-text">Add Service</span>
-              </button>
-              <button className="action-btn">
-                <span className="action-icon">📅</span>
-                <span className="action-text">View Calendar</span>
-              </button>
-              <button className="action-btn">
-                <span className="action-icon">💰</span>
-                <span className="action-text">Revenue Report</span>
-              </button>
-              <button className="action-btn">
-                <span className="action-icon">👥</span>
-                <span className="action-text">Customer List</span>
-              </button>
+          ) : (
+            <div className="empty-state">
+              <div className="empty-icon">📈</div>
+              <p>No earnings data available</p>
             </div>
-          </div>
+          )}
+        </div>
+      </div>
+
+      {/* Recent Bookings - Simple List */}
+      <div className="recent-bookings-section">
+        <div className="section-header">
+          <h3>Recent</h3>
+          <a href="#" className="view-all-link">View All</a>
+        </div>
+        <div className="bookings-list">
+          {dashboardData?.recentBookings?.length > 0 ? (
+            dashboardData.recentBookings.slice(0, 5).map((booking) => (
+              <div key={booking.id} className="booking-list-item">
+                <div className="booking-avatar">
+                  <span className="avatar-initial">
+                    {booking.petOwnerName.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="booking-info">
+                  <div className="booking-header">
+                    <span className="customer-name">{booking.petOwnerName}</span>
+                    <span className={`booking-status ${booking.status}`}>
+                      {booking.status.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="booking-details">
+                    <span className="service-name">{booking.serviceName}</span>
+                  </div>
+                  <div className="booking-meta">
+                    {booking.petName} • {booking.date} at {booking.time}
+                  </div>
+                </div>
+                <div className="booking-amount">
+                  ${booking.amount}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="empty-state">
+              <div className="empty-icon">📅</div>
+              <p>No recent bookings</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
