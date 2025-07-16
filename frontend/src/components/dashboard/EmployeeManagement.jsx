@@ -6,7 +6,7 @@ import './EmployeeManagement.css';
 
 const EmployeeManagement = () => {
   const { currentUser } = useAuth();
-  const { getFeatureLimit, hasFeature } = useSubscription();
+  const { getFeatureLimit } = useSubscription();
   const [employees, setEmployees] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +18,6 @@ const EmployeeManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
 
@@ -324,7 +323,6 @@ const EmployeeManagement = () => {
     setShowAddModal(false);
     setShowEditModal(false);
     setShowDeleteConfirm(false);
-    setShowAssignModal(false);
     setSelectedEmployee(null);
     setError('');
   };

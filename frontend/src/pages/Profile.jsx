@@ -74,16 +74,6 @@ const Profile = () => {
     { id: 'history', name: 'Booking History', icon: '📅' }
   ];
 
-  const petTypes = ['Dog', 'Cat', 'Bird', 'Rabbit', 'Fish', 'Hamster', 'Guinea Pig', 'Reptile', 'Other'];
-  const dogBreeds = ['Golden Retriever', 'Labrador', 'German Shepherd', 'Bulldog', 'Poodle', 'Beagle', 'Rottweiler', 'Yorkshire Terrier'];
-  const catBreeds = ['Persian', 'Siamese', 'Maine Coon', 'British Shorthair', 'Ragdoll', 'Bengal', 'Russian Blue', 'Scottish Fold'];
-
-  const getBreedOptions = (petType) => {
-    if (petType === 'Dog') return dogBreeds;
-    if (petType === 'Cat') return catBreeds;
-    return ['Mixed', 'Unknown', 'Other'];
-  };
-
   const renderMyProfile = () => (
     <div className="profile-section">
       <h2>My Profile</h2>

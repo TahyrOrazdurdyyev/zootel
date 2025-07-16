@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
-import FeatureGate, { UsageLimitGate } from '../FeatureGate';
+import FeatureGate from '../FeatureGate';
 import './BookingsManagement.css';
 
 const BookingsManagement = () => {
   const { currentUser } = useAuth();
-  const { getFeatureLimit, hasFeature } = useSubscription();
+  const { hasFeature } = useSubscription();
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +36,6 @@ const BookingsManagement = () => {
     { value: 'no_show', label: 'No Show', color: '#6c757d' }
   ];
 
-  const maxBookingsPerMonth = getFeatureLimit('maxBookingsPerMonth');
   const hasAdvancedAnalytics = hasFeature('advancedAnalytics');
 
   useEffect(() => {

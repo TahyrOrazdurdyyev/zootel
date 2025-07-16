@@ -28,14 +28,14 @@ const EmailVerification = () => {
       <div className="auth-card verification">
         <div className="auth-header">
           <h1>Verify Your Email</h1>
-          <p>We've sent you a verification link</p>
+          <p>We&apos;ve sent you a verification link</p>
         </div>
 
         <div className="verification-content">
           <div className="verification-icon">📧</div>
           <h2>Check Your Email</h2>
           <p>
-            We've sent a verification link to <strong>{email}</strong>
+            We&apos;ve sent a verification link to <strong>{email}</strong>
           </p>
           <p>
             Please check your email and click the verification link to activate your account.

@@ -6,7 +6,6 @@ import './FeatureGate.css';
 const FeatureGate = ({ 
   feature, 
   children, 
-  fallback = null,
   showUpgradePrompt = true,
   requiredPlan = null,
   customMessage = null
@@ -14,17 +13,15 @@ const FeatureGate = ({
   const { 
     hasAccess, 
     hasFeature, 
-    canAccessFeature, 
     subscriptionData,
     planConfigs,
-    getUpgradeMessage,
-    getSubscriptionStatus 
+    getUpgradeMessage 
   } = useSubscription();
   const navigate = useNavigate();
 
   // Check if user has general access
   if (!hasAccess()) {
-    if (!showUpgradePrompt) return fallback;
+    if (!showUpgradePrompt) return null;
     
     return (
       <div className="feature-gate">
@@ -52,20 +49,16 @@ const FeatureGate = ({
 
   // Check specific feature access
   if (feature && !hasFeature(feature)) {
-    if (!showUpgradePrompt) return fallback;
+    if (!showUpgradePrompt) return null;
     
-    const upgradeMessage = customMessage || getUpgradeMessage();
+    const upgradeMessage = customMessage || getUpgradeMessage(feature);
     
     return (
       <div className="feature-gate">
         <div className="feature-locked">
-          <div className="lock-icon">⭐</div>
+          <div className="feature-icon">✨</div>
           <h3>Premium Feature</h3>
           <p>{upgradeMessage}</p>
-          <div className="current-plan">
-            <span className="plan-label">Current Plan:</span>
-            <span className="plan-name">{getSubscriptionStatus()}</span>
-          </div>
           <div className="upgrade-actions">
             <button 
               className="upgrade-button"
@@ -81,7 +74,7 @@ const FeatureGate = ({
 
   // Check if specific plan is required
   if (requiredPlan && subscriptionData.plan !== requiredPlan) {
-    if (!showUpgradePrompt) return fallback;
+    if (!showUpgradePrompt) return null;
     
     const requiredPlanConfig = planConfigs[requiredPlan];
     
@@ -104,7 +97,7 @@ const FeatureGate = ({
               className="upgrade-button"
               onClick={() => navigate('/pricing')}
             >
-              Upgrade to {requiredPlanConfig?.name}
+              Upgrade Plan
             </button>
           </div>
         </div>
@@ -112,24 +105,21 @@ const FeatureGate = ({
     );
   }
 
-  // User has access, render children
   return children;
 };
 
-// Usage limit component
+// Usage limit gate component
 export const UsageLimitGate = ({ 
+  children, 
   feature, 
   currentUsage, 
-  children, 
   showUpgradePrompt = true,
   warningThreshold = 0.8 
 }) => {
   const { 
     getFeatureLimit, 
     isFeatureUnlimited, 
-    canAccessFeature,
-    planConfigs,
-    subscriptionData 
+    canAccessFeature 
   } = useSubscription();
   const navigate = useNavigate();
 
@@ -149,7 +139,7 @@ export const UsageLimitGate = ({
           <div className="limit-icon">📊</div>
           <h3>Usage Limit Reached</h3>
           <p>
-            You've reached your {feature.replace(/([A-Z])/g, ' $1').toLowerCase()} limit of {limit}.
+            You&apos;ve reached your {feature.replace(/([A-Z])/g, ' $1').toLowerCase()} limit of {limit}.
           </p>
           <div className="usage-stats">
             <div className="usage-bar">
@@ -198,8 +188,7 @@ export const TrialBanner = () => {
   const { 
     isTrialActive, 
     isTrialExpired, 
-    getTrialDaysRemaining,
-    subscriptionData 
+    getTrialDaysRemaining 
   } = useSubscription();
   const navigate = useNavigate();
 
@@ -237,8 +226,6 @@ export const TrialBanner = () => {
 export const SubscriptionStatus = () => {
   const { 
     getSubscriptionStatus, 
-    subscriptionData, 
-    planConfigs,
     hasAccess 
   } = useSubscription();
   const navigate = useNavigate();

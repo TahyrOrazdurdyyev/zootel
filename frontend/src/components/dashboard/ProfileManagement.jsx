@@ -244,7 +244,7 @@ const ProfileManagement = () => {
                     disabled
                     className="readonly"
                   />
-                  <small>Email cannot be changed as it's linked to your account</small>
+                  <small>Email cannot be changed as it&apos;s linked to your account</small>
                 </div>
 
                 <div className="form-group">
