@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -46,7 +47,8 @@ const Careers = () => (
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <SubscriptionProvider>
+        <Router>
         <Routes>
           {/* Company Dashboard - No layout wrapper */}
           <Route path="/company/dashboard" element={<CompanyDashboard />} />
@@ -102,6 +104,7 @@ function App() {
           } />
         </Routes>
       </Router>
+      </SubscriptionProvider>
     </AuthProvider>
   );
 }

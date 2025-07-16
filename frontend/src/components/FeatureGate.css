@@ -1,0 +1,514 @@
+/* FeatureGate.css */
+
+:root {
+  --primary-color: #f75815;
+  --secondary-color: #fff;
+  --text-color: #2c3e50;
+  --text-muted: #6c757d;
+  --border-color: #e9ecef;
+  --success-color: #28a745;
+  --error-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --background-color: #f8f9fa;
+  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --border-radius: 12px;
+  --transition: all 0.3s ease;
+}
+
+/* Feature Gate Container */
+.feature-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  min-height: 200px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: var(--border-radius);
+  border: 2px dashed var(--border-color);
+}
+
+/* Access Denied */
+.access-denied {
+  text-align: center;
+  max-width: 400px;
+  padding: 2rem;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--error-color);
+}
+
+.access-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--error-color);
+}
+
+.access-denied h3 {
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.access-denied p {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+/* Feature Locked */
+.feature-locked {
+  text-align: center;
+  max-width: 400px;
+  padding: 2rem;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--warning-color);
+}
+
+.lock-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--warning-color);
+}
+
+.feature-locked h3 {
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.feature-locked p {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.current-plan {
+  background-color: var(--background-color);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.plan-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.plan-name {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+/* Plan Required */
+.plan-required {
+  text-align: center;
+  max-width: 450px;
+  padding: 2rem;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--info-color);
+}
+
+.plan-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--info-color);
+}
+
+.plan-required h3 {
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.plan-required p {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.plan-comparison {
+  background-color: var(--background-color);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.plan-comparison div {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.plan-comparison div:last-child {
+  margin-bottom: 0;
+}
+
+.current-plan span,
+.required-plan span {
+  font-weight: 600;
+}
+
+.required-plan span {
+  color: var(--primary-color);
+}
+
+/* Action Buttons */
+.access-actions,
+.upgrade-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.upgrade-button {
+  background: linear-gradient(135deg, var(--primary-color), #ff7a47);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-light);
+}
+
+.upgrade-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Usage Limit */
+.usage-limit-reached {
+  text-align: center;
+  max-width: 400px;
+  padding: 2rem;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--warning-color);
+}
+
+.limit-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--warning-color);
+}
+
+.usage-limit-reached h3 {
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.usage-limit-reached p {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.usage-stats {
+  margin-bottom: 2rem;
+}
+
+.usage-bar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.usage-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--warning-color), var(--error-color));
+  transition: var(--transition);
+}
+
+.usage-text {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Usage Warning */
+.usage-warning {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  border: 1px solid var(--warning-color);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.warning-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.warning-icon {
+  font-size: 1.2rem;
+  color: #856404;
+}
+
+.warning-text {
+  flex: 1;
+  color: #856404;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.warning-upgrade-btn {
+  background-color: var(--warning-color);
+  color: #856404;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.warning-upgrade-btn:hover {
+  background-color: #e0a800;
+  color: white;
+}
+
+/* Trial Banner */
+.trial-banner {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid;
+}
+
+.trial-banner.info {
+  background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+  border-color: var(--info-color);
+}
+
+.trial-banner.warning {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  border-color: var(--warning-color);
+}
+
+.trial-banner.expired {
+  background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+  border-color: var(--error-color);
+}
+
+.trial-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.trial-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.trial-icon {
+  font-size: 1.2rem;
+}
+
+.trial-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.trial-banner.info .trial-text {
+  color: #0c5460;
+}
+
+.trial-banner.warning .trial-text {
+  color: #856404;
+}
+
+.trial-banner.expired .trial-text {
+  color: #721c24;
+}
+
+.trial-action-btn {
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.trial-banner.info .trial-action-btn {
+  background-color: var(--info-color);
+  color: white;
+}
+
+.trial-banner.warning .trial-action-btn {
+  background-color: var(--warning-color);
+  color: #856404;
+}
+
+.trial-banner.expired .trial-action-btn {
+  background-color: var(--error-color);
+  color: white;
+}
+
+.trial-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-light);
+}
+
+/* Subscription Status */
+.subscription-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--background-color);
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-indicator.active .status-dot {
+  background-color: var(--success-color);
+  box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+}
+
+.status-indicator.inactive .status-dot {
+  background-color: var(--error-color);
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+}
+
+.status-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.status-action-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.status-action-btn:hover {
+  background-color: #e69500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .feature-gate {
+    padding: 1rem;
+    min-height: 150px;
+  }
+
+  .access-denied,
+  .feature-locked,
+  .plan-required,
+  .usage-limit-reached {
+    padding: 1.5rem;
+    max-width: none;
+  }
+
+  .trial-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .trial-info {
+    justify-content: center;
+  }
+
+  .warning-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .subscription-status {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .status-indicator {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .access-actions,
+  .upgrade-actions {
+    flex-direction: column;
+  }
+
+  .upgrade-button {
+    width: 100%;
+  }
+
+  .plan-comparison {
+    text-align: center;
+  }
+
+  .current-plan {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .upgrade-button,
+  .trial-action-btn,
+  .warning-upgrade-btn,
+  .status-action-btn {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.upgrade-button:focus,
+.trial-action-btn:focus,
+.warning-upgrade-btn:focus,
+.status-action-btn:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+} 

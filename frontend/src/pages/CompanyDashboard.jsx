@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import { Link } from 'react-router-dom';
 import './CompanyDashboard.css';
 import logoImage from '../assets/images/2.png';
+import { TrialBanner, SubscriptionStatus } from '../components/FeatureGate';
 
 // Dashboard components
 import DashboardOverview from '../components/dashboard/DashboardOverview';
@@ -13,6 +15,7 @@ import AnalyticsDashboard from '../components/dashboard/AnalyticsDashboard';
 
 const CompanyDashboard = () => {
   const { currentUser, userRole, logout } = useAuth();
+  const { hasAccess, subscriptionData } = useSubscription();
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -105,6 +108,10 @@ const CompanyDashboard = () => {
               </div>
               <div className="user-email">{currentUser.email}</div>
               <div className="user-role">{userRole}</div>
+              {/* Subscription Status */}
+              <div className="sidebar-subscription">
+                <SubscriptionStatus />
+              </div>
             </div>
           )}
         </div>
@@ -164,7 +171,34 @@ const CompanyDashboard = () => {
 
         {/* Page content */}
         <div className="dashboard-content">
-          <ActiveComponent />
+          {/* Trial Banner */}
+          <TrialBanner />
+          
+          {/* Access Control - Show content only if has access */}
+          {hasAccess() ? (
+            <ActiveComponent />
+          ) : (
+            <div className="access-required">
+              <div className="access-required-content">
+                <div className="access-icon">🔒</div>
+                <h2>Subscription Required</h2>
+                <p>You need an active subscription to access the company dashboard.</p>
+                {subscriptionData.status === 'inactive' ? (
+                  <p>Start your free trial to begin managing your pet service business.</p>
+                ) : (
+                  <p>Your subscription has expired. Please renew to continue using the dashboard.</p>
+                )}
+                <div className="access-actions">
+                  <button 
+                    className="start-trial-btn"
+                    onClick={() => window.location.href = '/pricing'}
+                  >
+                    {subscriptionData.status === 'inactive' ? 'Start Free Trial' : 'Renew Subscription'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>

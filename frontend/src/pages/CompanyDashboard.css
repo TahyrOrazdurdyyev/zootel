@@ -159,6 +159,26 @@
   letter-spacing: 0.5px;
 }
 
+.sidebar-subscription {
+  margin-top: 0.75rem;
+}
+
+.sidebar-subscription .subscription-status {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  padding: 0.4rem 0.75rem;
+  border-radius: 15px;
+}
+
+.sidebar-subscription .status-text {
+  font-size: 0.75rem;
+}
+
+.sidebar-subscription .status-action-btn {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+}
+
 /* Navigation */
 .sidebar-nav {
   flex: 1;
@@ -377,6 +397,65 @@
   .sidebar-user {
     justify-content: center;
   }
+}
+
+/* Access Required */
+.access-required {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 2rem;
+}
+
+.access-required-content {
+  text-align: center;
+  max-width: 500px;
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+}
+
+.access-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  color: #dc3545;
+}
+
+.access-required-content h2 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.access-required-content p {
+  color: #6c757d;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.access-actions {
+  margin-top: 2rem;
+}
+
+.start-trial-btn {
+  background: linear-gradient(135deg, var(--orange-color, #FFA500), #ff8c00);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+}
+
+.start-trial-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
 }
 
 /* Custom scrollbar */
