@@ -480,7 +480,7 @@ const EmployeeManagement = () => {
                   >
                     <option value="all">All Roles</option>
                     {roles.map(role => (
-                      <option key={role} value={role}>{role}</option>
+                      <option key={role.id} value={role.name}>{role.name}</option>
                     ))}
                   </select>
                 </div>
@@ -745,7 +745,7 @@ const EmployeeManagement = () => {
                         >
                           <option value="">Select Role</option>
                           {roles.map(role => (
-                            <option key={role} value={role}>{role}</option>
+                            <option key={role.id} value={role.name}>{role.name}</option>
                           ))}
                         </select>
                       </div>
@@ -757,13 +757,13 @@ const EmployeeManagement = () => {
                     <h4>Skills & Specializations</h4>
                     <div className="skills-grid">
                       {skills.map(skill => (
-                        <label key={skill} className="skill-checkbox">
+                        <label key={skill.id} className="skill-checkbox">
                           <input
                             type="checkbox"
-                            checked={formData.skills.includes(skill)}
-                            onChange={() => handleSkillToggle(skill)}
+                            checked={formData.skills.includes(skill.name)}
+                            onChange={() => handleSkillToggle(skill.name)}
                           />
-                          <span className="skill-name">{skill}</span>
+                          <span className="skill-name">{skill.name}</span>
                         </label>
                       ))}
                     </div>
