@@ -50,10 +50,10 @@ const SignUp = () => {
     }
 
     try {
-      await signup(formData.email, formData.password);
+      const result = await signup(formData.email, formData.password, formData.role);
       
       // Redirect to email verification page
-      navigate(`/email-verification?email=${encodeURIComponent(formData.email)}`);
+      navigate(`/email-verification?email=${encodeURIComponent(formData.email)}&role=${formData.role}`);
     } catch (error) {
       console.error('Sign up error:', error);
       setError(getErrorMessage(error.code));

@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
   const [idToken, setIdToken] = useState(null);
 
   // Sign up function
-  const signup = async (email, password) => {
+  const signup = async (email, password, role = 'pet_owner') => {
     const result = await createUserWithEmailAndPassword(auth, email, password);
     
     // Send email verification
@@ -32,7 +32,76 @@ export const AuthProvider = ({ children }) => {
       await sendEmailVerification(result.user);
     }
     
+    // Store the selected role for later use
+    if (role !== 'pet_owner') {
+      sessionStorage.setItem('pendingUserRole', role);
+    }
+    
     return result;
+  };
+
+  // Set user role during registration (to be called after authentication)
+  const setUserRoleOnRegistration = async (role) => {
+    try {
+      if (!currentUser) {
+        throw new Error('No authenticated user');
+      }
+
+      const token = await currentUser.getIdToken();
+      const response = await fetch('/api/auth/register-role', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to set user role');
+      }
+
+      const data = await response.json();
+      
+      // Update local role state
+      setUserRole(data.role);
+      
+      // Clear pending role from session storage
+      sessionStorage.removeItem('pendingUserRole');
+      
+      return data;
+    } catch (error) {
+      console.error('Error setting user role:', error);
+      throw error;
+    }
+  };
+
+  // Check and set pending role on authentication
+  const checkAndSetPendingRole = async (user) => {
+    const pendingRole = sessionStorage.getItem('pendingUserRole');
+    if (pendingRole && user) {
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for user to be fully authenticated
+        const token = await user.getIdToken();
+        const response = await fetch('/api/auth/register-role', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ role: pendingRole }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserRole(data.role);
+          sessionStorage.removeItem('pendingUserRole');
+        }
+      } catch (error) {
+        console.error('Error setting pending user role:', error);
+      }
+    }
   };
 
   // Sign in function
@@ -111,6 +180,9 @@ export const AuthProvider = ({ children }) => {
         setCurrentUser(user);
         
         if (user) {
+          // Check for pending role first
+          await checkAndSetPendingRole(user);
+          
           // Get user role and ID token
           const role = await getUserRole(user);
           const token = await user.getIdToken();
@@ -165,6 +237,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated,
     hasRole,
     hasAnyRole,
+    setUserRoleOnRegistration
   };
 
   return (

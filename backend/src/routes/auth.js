@@ -20,6 +20,62 @@ router.get('/me', verifyToken, async (req, res) => {
   }
 });
 
+// POST /api/auth/register-role - Set user role during registration (self-service)
+router.post('/register-role', verifyToken, async (req, res) => {
+  try {
+    const { role } = req.body;
+    const uid = req.user.uid;
+
+    if (!role) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Role is required',
+      });
+    }
+
+    // Only allow specific roles for self-registration
+    const allowedRoles = ['pet_company', 'pet_owner'];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: `Invalid role. Must be one of: ${allowedRoles.join(', ')}`,
+      });
+    }
+
+    // Check if user already has a role set (prevent role changes after initial setup)
+    const userRecord = await admin.auth().getUser(uid);
+    if (userRecord.customClaims?.role) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'User role has already been set',
+      });
+    }
+
+    // Set custom claims
+    await admin.auth().setCustomUserClaims(uid, { role });
+
+    res.json({
+      success: true,
+      message: `Role '${role}' set successfully`,
+      role: role
+    });
+  } catch (error) {
+    console.error('Error setting user role during registration:', error);
+    
+    if (error.code === 'auth/user-not-found') {
+      return res.status(404).json({
+        error: 'User Not Found',
+        message: 'User does not exist',
+      });
+    }
+
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to set user role',
+    });
+  }
+});
+
 // POST /api/auth/set-role - Set user role (superadmin only)
 router.post('/set-role', verifyToken, requireSuperadmin, async (req, res) => {
   try {
