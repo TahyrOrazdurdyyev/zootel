@@ -229,6 +229,7 @@
 .profile-role {
   color: #666;
   font-size: 0.8rem;
+  display: none;
 }
 
 .profile-menu {

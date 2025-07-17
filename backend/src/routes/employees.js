@@ -4,6 +4,22 @@ import { pool } from '../config/database.js';
 
 const router = express.Router();
 
+// Helper function to safely parse JSON
+const safeJSONParse = (jsonString, defaultValue) => {
+  // Handle null, undefined, or non-string values
+  if (!jsonString || typeof jsonString !== 'string' || jsonString.trim() === '') {
+    return defaultValue;
+  }
+  try {
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.error('JSON parse error:', error.message);
+    console.error('Problematic JSON string:', JSON.stringify(jsonString));
+    console.error('String length:', jsonString?.length);
+    return defaultValue;
+  }
+};
+
 // Middleware to require pet_company role for most routes
 const requireCompany = requireRole(['pet_company', 'superadmin']);
 
@@ -40,19 +56,43 @@ router.get('/', verifyToken, requireCompany, async (req, res) => {
 
       const [employeesResult] = await connection.execute(query, queryParams);
 
-      const employees = employeesResult.map(employee => ({
-        id: employee.id,
-        companyId: employee.companyId,
-        name: employee.name,
-        email: employee.email,
-        phone: employee.phone || '',
-        position: employee.position,
-        specialties: employee.specialties ? JSON.parse(employee.specialties) : [],
-        workingHours: employee.workingHours ? JSON.parse(employee.workingHours) : {},
-        active: Boolean(employee.active),
-        createdAt: employee.createdAt,
-        updatedAt: employee.updatedAt
-      }));
+      const employees = employeesResult.map(employee => {
+        try {
+          return {
+            id: employee.id,
+            companyId: employee.companyId,
+            name: employee.name,
+            email: employee.email,
+            phone: employee.phone || '',
+            position: employee.position,
+            specialties: safeJSONParse(employee.specialties, []),
+            workingHours: safeJSONParse(employee.workingHours, {}),
+            active: Boolean(employee.active),
+            createdAt: employee.createdAt,
+            updatedAt: employee.updatedAt
+          };
+        } catch (error) {
+          console.error('Error processing employee:', employee.id, error);
+          console.error('Employee data:', {
+            specialties: employee.specialties,
+            workingHours: employee.workingHours
+          });
+          // Return a safe version of the employee
+          return {
+            id: employee.id,
+            companyId: employee.companyId,
+            name: employee.name,
+            email: employee.email,
+            phone: employee.phone || '',
+            position: employee.position,
+            specialties: [],
+            workingHours: {},
+            active: Boolean(employee.active),
+            createdAt: employee.createdAt,
+            updatedAt: employee.updatedAt
+          };
+        }
+      });
 
     res.json({
       success: true,
@@ -238,7 +278,7 @@ router.get('/available', verifyToken, requireCompany, async (req, res) => {
           id: employee.id,
           name: employee.name,
           position: employee.position,
-          specialties: employee.specialties ? JSON.parse(employee.specialties) : []
+          specialties: safeJSONParse(employee.specialties, [])
         }));
 
         return res.json({
@@ -276,7 +316,7 @@ router.get('/available', verifyToken, requireCompany, async (req, res) => {
         id: employee.id,
         name: employee.name,
         position: employee.position,
-        specialties: employee.specialties ? JSON.parse(employee.specialties) : []
+        specialties: safeJSONParse(employee.specialties, [])
       }));
 
       res.json({
@@ -325,8 +365,8 @@ router.get('/:id', verifyToken, requireCompany, async (req, res) => {
         email: employee.email,
         phone: employee.phone || '',
         position: employee.position,
-        specialties: employee.specialties ? JSON.parse(employee.specialties) : [],
-        workingHours: employee.workingHours ? JSON.parse(employee.workingHours) : {},
+        specialties: safeJSONParse(employee.specialties, []),
+        workingHours: safeJSONParse(employee.workingHours, {}),
         active: Boolean(employee.active),
         createdAt: employee.createdAt,
         updatedAt: employee.updatedAt
@@ -417,8 +457,8 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
         email: newEmployeeResult[0].email,
         phone: newEmployeeResult[0].phone,
         position: newEmployeeResult[0].position,
-        specialties: newEmployeeResult[0].specialties ? JSON.parse(newEmployeeResult[0].specialties) : [],
-        workingHours: newEmployeeResult[0].workingHours ? JSON.parse(newEmployeeResult[0].workingHours) : {},
+        specialties: safeJSONParse(newEmployeeResult[0].specialties, []),
+        workingHours: safeJSONParse(newEmployeeResult[0].workingHours, {}),
         active: Boolean(newEmployeeResult[0].active),
         createdAt: newEmployeeResult[0].createdAt,
         updatedAt: newEmployeeResult[0].updatedAt
@@ -524,8 +564,8 @@ router.put('/:id', verifyToken, requireCompany, async (req, res) => {
         email: updatedEmployee.email,
         phone: updatedEmployee.phone || '',
         position: updatedEmployee.position,
-        specialties: updatedEmployee.specialties ? JSON.parse(updatedEmployee.specialties) : [],
-        workingHours: updatedEmployee.workingHours ? JSON.parse(updatedEmployee.workingHours) : {},
+        specialties: safeJSONParse(updatedEmployee.specialties, []),
+        workingHours: safeJSONParse(updatedEmployee.workingHours, {}),
         active: Boolean(updatedEmployee.active),
         createdAt: updatedEmployee.createdAt,
         updatedAt: updatedEmployee.updatedAt

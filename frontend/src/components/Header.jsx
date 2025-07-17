@@ -84,9 +84,6 @@ const Header = () => {
               onMouseLeave={() => setShowProfileDropdown(false)}
             >
               <button className="profile-button">
-                <span className="profile-avatar">
-                  {currentUser?.email?.charAt(0).toUpperCase() || 'U'}
-                </span>
                 <span className="profile-name">
                   {currentUser?.displayName || currentUser?.email?.split('@')[0]}
                 </span>
