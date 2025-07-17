@@ -29,9 +29,29 @@ const DashboardOverview = () => {
         setStats(statsResult.data);
       } else {
         console.error('Failed to fetch dashboard data');
+        // Set safe fallback data when API calls fail
+        setDashboardData({ monthlyEarnings: [] });
+        setStats({
+          totalBookings: 0,
+          monthlyRevenue: 0,
+          averageRating: 0,
+          newCustomers: 0,
+          returningCustomers: 0,
+          totalReviews: 0
+        });
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      // Set safe fallback data when network/other errors occur
+      setDashboardData({ monthlyEarnings: [] });
+      setStats({
+        totalBookings: 0,
+        monthlyRevenue: 0,
+        averageRating: 0,
+        newCustomers: 0,
+        returningCustomers: 0,
+        totalReviews: 0
+      });
     } finally {
       setLoading(false);
     }
@@ -101,7 +121,7 @@ const DashboardOverview = () => {
           </select>
         </div>
         <div className="line-chart">
-          {dashboardData?.monthlyEarnings?.length > 0 ? (
+          {dashboardData?.monthlyEarnings?.length > 0 && Array.isArray(dashboardData.monthlyEarnings) ? (
             <div className="chart-wrapper">
               <svg className="line-chart-svg" viewBox="0 0 800 300">
                 {/* Chart grid lines */}
@@ -117,56 +137,67 @@ const DashboardOverview = () => {
                   fill="none"
                   stroke="#ff6b35"
                   strokeWidth="3"
-                  points={dashboardData.monthlyEarnings.map((item, index) => {
-                    const x = (index + 1) * (800 / (dashboardData.monthlyEarnings.length + 1));
+                  points={dashboardData.monthlyEarnings.filter(item => item && typeof item === 'object').map((item, index) => {
+                    // Safely calculate x coordinate
+                    const totalItems = dashboardData.monthlyEarnings.length;
+                    const rawX = (index + 1) * (800 / (totalItems + 1));
+                    const x = isFinite(rawX) && !isNaN(rawX) ? rawX : 100;
                     
                     // Safely get earnings values and handle null/undefined
                     const validEarnings = dashboardData.monthlyEarnings
+                      .filter(e => e && typeof e === 'object' && e.earnings !== undefined)
                       .map(e => Number(e.earnings) || 0)
-                      .filter(val => !isNaN(val) && isFinite(val));
+                      .filter(val => isFinite(val) && !isNaN(val));
                     
                     const maxEarnings = validEarnings.length > 0 ? Math.max(...validEarnings) : 1;
-                    const safeEarnings = Number(item.earnings) || 0;
+                    const safeEarnings = Number(item?.earnings) || 0;
                     
                     // Prevent division by zero and ensure valid coordinates
-                    const normalizedValue = maxEarnings > 0 ? (safeEarnings / maxEarnings) : 0;
-                    const y = 250 - (normalizedValue * 200);
+                    const normalizedValue = maxEarnings > 0 && isFinite(maxEarnings) ? (safeEarnings / maxEarnings) : 0;
+                    const rawY = 250 - (normalizedValue * 200);
+                    const y = isFinite(rawY) && !isNaN(rawY) ? rawY : 250;
                     
-                    // Ensure coordinates are valid numbers
-                    const safeX = isNaN(x) ? 0 : x;
-                    const safeY = isNaN(y) ? 250 : y;
+                    // Double check coordinates are valid before returning
+                    const safeX = isFinite(x) && !isNaN(x) ? x : 100;
+                    const safeY = isFinite(y) && !isNaN(y) ? y : 250;
                     
                     return `${safeX},${safeY}`;
                   }).join(' ')}
                 />
                 
                 {/* Data points */}
-                {dashboardData.monthlyEarnings.map((item, index) => {
-                  const x = (index + 1) * (800 / (dashboardData.monthlyEarnings.length + 1));
+                {dashboardData.monthlyEarnings.filter(item => item && typeof item === 'object').map((item, index) => {
+                  // Safely calculate x coordinate
+                  const totalItems = dashboardData.monthlyEarnings.length;
+                  const rawX = (index + 1) * (800 / (totalItems + 1));
+                  const x = isFinite(rawX) && !isNaN(rawX) ? rawX : 100;
                   
                   // Safely get earnings values and handle null/undefined
                   const validEarnings = dashboardData.monthlyEarnings
+                    .filter(e => e && typeof e === 'object' && e.earnings !== undefined)
                     .map(e => Number(e.earnings) || 0)
-                    .filter(val => !isNaN(val) && isFinite(val));
+                    .filter(val => isFinite(val) && !isNaN(val));
                   
                   const maxEarnings = validEarnings.length > 0 ? Math.max(...validEarnings) : 1;
-                  const safeEarnings = Number(item.earnings) || 0;
+                  const safeEarnings = Number(item?.earnings) || 0;
                   
                   // Prevent division by zero and ensure valid coordinates
-                  const normalizedValue = maxEarnings > 0 ? (safeEarnings / maxEarnings) : 0;
-                  const y = 250 - (normalizedValue * 200);
+                  const normalizedValue = maxEarnings > 0 && isFinite(maxEarnings) ? (safeEarnings / maxEarnings) : 0;
+                  const rawY = 250 - (normalizedValue * 200);
+                  const y = isFinite(rawY) && !isNaN(rawY) ? rawY : 250;
                   
-                  // Ensure coordinates are valid numbers
-                  const safeX = isNaN(x) ? 0 : x;
-                  const safeY = isNaN(y) ? 250 : y;
+                  // Double check coordinates are valid before returning
+                  const safeX = isFinite(x) && !isNaN(x) ? x : 100;
+                  const safeY = isFinite(y) && !isNaN(y) ? y : 250;
+                  const safeTextY = isFinite(safeY - 15) && !isNaN(safeY - 15) ? safeY - 15 : 235;
                   
                   return (
                     <g key={index}>
                       <circle cx={safeX} cy={safeY} r="6" fill="#ff6b35" />
                       <text x={safeX} y="280" textAnchor="middle" fontSize="12" fill="#666">
-                        {item.month || 'N/A'}
+                        {item?.month || 'N/A'}
                       </text>
-                      <text x={safeX} y={safeY - 15} textAnchor="middle" fontSize="11" fill="#333">
+                      <text x={safeX} y={safeTextY} textAnchor="middle" fontSize="11" fill="#333">
                         ${safeEarnings.toFixed(2)}
                       </text>
                     </g>
