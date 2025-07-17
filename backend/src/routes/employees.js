@@ -11,31 +11,63 @@ const requireCompany = requireRole(['pet_company', 'superadmin']);
 router.get('/', verifyToken, requireCompany, async (req, res) => {
   try {
     const { status, page = 1, limit = 20 } = req.query;
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
 
-    // TODO: Implement database query to get company employees
-    // For now, return empty array
-    let companyEmployees = [];
+    try {
+      // Build query with optional status filter
+      let query = 'SELECT * FROM employees WHERE companyId = ?';
+      const queryParams = [companyId];
 
-    // Apply status filter (when implementing database queries)
-    if (status) {
-      companyEmployees = companyEmployees.filter(employee => employee.status === status);
-    }
-
-    // Pagination
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + parseInt(limit);
-    const paginatedEmployees = companyEmployees.slice(startIndex, endIndex);
-
-    res.json({
-      success: true,
-      data: paginatedEmployees,
-      pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(companyEmployees.length / limit),
-        totalEmployees: companyEmployees.length,
-        limit: parseInt(limit)
+      if (status && status !== 'all') {
+        query += ' AND active = ?';
+        queryParams.push(status === 'active' ? 1 : 0);
       }
-    });
+
+      query += ' ORDER BY createdAt DESC';
+
+      // Get total count for pagination
+      const countQuery = status && status !== 'all' 
+        ? 'SELECT COUNT(*) as total FROM employees WHERE companyId = ? AND active = ?'
+        : 'SELECT COUNT(*) as total FROM employees WHERE companyId = ?';
+      
+      const [countResult] = await connection.execute(countQuery, queryParams);
+      const totalEmployees = countResult[0].total;
+
+      // Add pagination
+      const offset = (page - 1) * limit;
+      query += ` LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
+
+      const [employeesResult] = await connection.execute(query, queryParams);
+
+      const employees = employeesResult.map(employee => ({
+        id: employee.id,
+        companyId: employee.companyId,
+        name: employee.name,
+        email: employee.email,
+        phone: employee.phone || '',
+        role: employee.role,
+        specialties: employee.specialties ? JSON.parse(employee.specialties) : [],
+        workingHours: employee.workingHours ? JSON.parse(employee.workingHours) : {},
+        active: Boolean(employee.active),
+        createdAt: employee.createdAt,
+        updatedAt: employee.updatedAt
+      }));
+
+      res.json({
+        success: true,
+        data: employees,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(totalEmployees / limit),
+          totalEmployees: totalEmployees,
+          limit: parseInt(limit)
+        }
+      });
+
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error('Error getting employees:', error);
     res.status(500).json({
@@ -49,12 +81,45 @@ router.get('/', verifyToken, requireCompany, async (req, res) => {
 router.get('/:id', verifyToken, requireCompany, async (req, res) => {
   try {
     const { id } = req.params;
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
     
-    // TODO: Implement database query to get specific employee
-    res.status(404).json({
-      error: 'Not Found',
-      message: 'Employee not found'
-    });
+    try {
+      const [employeeResult] = await connection.execute(
+        'SELECT * FROM employees WHERE id = ? AND companyId = ?',
+        [id, companyId]
+      );
+
+      if (employeeResult.length === 0) {
+        return res.status(404).json({
+          error: 'Not Found',
+          message: 'Employee not found'
+        });
+      }
+
+      const employee = employeeResult[0];
+      const employeeData = {
+        id: employee.id,
+        companyId: employee.companyId,
+        name: employee.name,
+        email: employee.email,
+        phone: employee.phone || '',
+        role: employee.role,
+        specialties: employee.specialties ? JSON.parse(employee.specialties) : [],
+        workingHours: employee.workingHours ? JSON.parse(employee.workingHours) : {},
+        active: Boolean(employee.active),
+        createdAt: employee.createdAt,
+        updatedAt: employee.updatedAt
+      };
+
+      res.json({
+        success: true,
+        data: employeeData
+      });
+
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error('Error getting employee:', error);
     res.status(500).json({
@@ -72,11 +137,8 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
       email,
       phone,
       role,
-      skills,
-      specializations,
-      availability,
-      emergencyContact,
-      notes
+      specialties,
+      workingHours
     } = req.body;
 
     // Validate required fields
@@ -87,49 +149,72 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
       });
     }
 
-    // TODO: Implement database insertion for new employee
-    const newEmployee = {
-      id: `employee_${Date.now()}`,
-      companyId: req.user.uid,
-      name,
-      email,
-      phone: phone || '',
-      role,
-      skills: skills || [],
-      specializations: specializations || [],
-      hireDate: new Date().toISOString().split('T')[0],
-      status: 'active',
-      availability: availability || {
-        monday: { start: '09:00', end: '17:00', available: true },
-        tuesday: { start: '09:00', end: '17:00', available: true },
-        wednesday: { start: '09:00', end: '17:00', available: true },
-        thursday: { start: '09:00', end: '17:00', available: true },
-        friday: { start: '09:00', end: '17:00', available: true },
-        saturday: { start: '', end: '', available: false },
-        sunday: { start: '', end: '', available: false }
-      },
-      performance: {
-        rating: 0.0,
-        completedAppointments: 0,
-        customerRating: 0.0,
-        punctualityScore: 100
-      },
-      profileImage: '',
-      emergencyContact: emergencyContact || {
-        name: '',
-        phone: '',
-        relationship: ''
-      },
-      notes: notes || '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    const companyId = req.user.uid;
+    const employeeId = `emp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const connection = await pool.getConnection();
+    
+    try {
+      // Check if email already exists for this company
+      const [existingEmployee] = await connection.execute(
+        'SELECT id FROM employees WHERE email = ? AND companyId = ?',
+        [email, companyId]
+      );
 
-    res.status(201).json({
-      success: true,
-      message: 'Employee added successfully',
-      data: newEmployee
-    });
+      if (existingEmployee.length > 0) {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'Employee with this email already exists'
+        });
+      }
+
+      // Insert new employee
+      await connection.execute(
+        `INSERT INTO employees (id, companyId, firebaseUid, name, email, phone, role, specialties, workingHours, active, createdAt, updatedAt) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+        [
+          employeeId,
+          companyId,
+          '', // No Firebase UID - employees are not user accounts
+          name,
+          email,
+          phone || '',
+          role,
+          JSON.stringify(specialties || []),
+          JSON.stringify(workingHours || {}),
+          true
+        ]
+      );
+
+      // Get the created employee
+      const [newEmployeeResult] = await connection.execute(
+        'SELECT * FROM employees WHERE id = ?',
+        [employeeId]
+      );
+
+      const newEmployee = newEmployeeResult[0];
+      const employeeData = {
+        id: newEmployee.id,
+        companyId: newEmployee.companyId,
+        name: newEmployee.name,
+        email: newEmployee.email,
+        phone: newEmployee.phone || '',
+        role: newEmployee.role,
+        specialties: newEmployee.specialties ? JSON.parse(newEmployee.specialties) : [],
+        workingHours: newEmployee.workingHours ? JSON.parse(newEmployee.workingHours) : {},
+        active: Boolean(newEmployee.active),
+        createdAt: newEmployee.createdAt,
+        updatedAt: newEmployee.updatedAt
+      };
+
+      res.status(201).json({
+        success: true,
+        message: 'Employee added successfully',
+        data: employeeData
+      });
+
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error('Error adding employee:', error);
     res.status(500).json({
@@ -143,12 +228,100 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
 router.put('/:id', verifyToken, requireCompany, async (req, res) => {
   try {
     const { id } = req.params;
+    const companyId = req.user.uid;
+    const updateData = req.body;
+    const connection = await pool.getConnection();
     
-    // TODO: Implement database update for employee
-    res.status(404).json({
-      error: 'Not Found',
-      message: 'Employee not found'
-    });
+    try {
+      // Check if employee exists and belongs to company
+      const [existingEmployee] = await connection.execute(
+        'SELECT * FROM employees WHERE id = ? AND companyId = ?',
+        [id, companyId]
+      );
+
+      if (existingEmployee.length === 0) {
+        return res.status(404).json({
+          error: 'Not Found',
+          message: 'Employee not found'
+        });
+      }
+
+      // Build update query
+      const updateFields = [];
+      const updateValues = [];
+
+      if (updateData.name !== undefined) {
+        updateFields.push('name = ?');
+        updateValues.push(updateData.name);
+      }
+      if (updateData.email !== undefined) {
+        updateFields.push('email = ?');
+        updateValues.push(updateData.email);
+      }
+      if (updateData.phone !== undefined) {
+        updateFields.push('phone = ?');
+        updateValues.push(updateData.phone);
+      }
+      if (updateData.role !== undefined) {
+        updateFields.push('role = ?');
+        updateValues.push(updateData.role);
+      }
+      if (updateData.specialties !== undefined) {
+        updateFields.push('specialties = ?');
+        updateValues.push(JSON.stringify(updateData.specialties));
+      }
+      if (updateData.workingHours !== undefined) {
+        updateFields.push('workingHours = ?');
+        updateValues.push(JSON.stringify(updateData.workingHours));
+      }
+      if (updateData.active !== undefined) {
+        updateFields.push('active = ?');
+        updateValues.push(Boolean(updateData.active));
+      }
+
+      if (updateFields.length === 0) {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'No valid fields provided for update'
+        });
+      }
+
+      updateFields.push('updatedAt = NOW()');
+      updateValues.push(id, companyId);
+
+      const updateQuery = `UPDATE employees SET ${updateFields.join(', ')} WHERE id = ? AND companyId = ?`;
+      await connection.execute(updateQuery, updateValues);
+
+      // Get updated employee
+      const [updatedEmployeeResult] = await connection.execute(
+        'SELECT * FROM employees WHERE id = ? AND companyId = ?',
+        [id, companyId]
+      );
+
+      const updatedEmployee = updatedEmployeeResult[0];
+      const employeeData = {
+        id: updatedEmployee.id,
+        companyId: updatedEmployee.companyId,
+        name: updatedEmployee.name,
+        email: updatedEmployee.email,
+        phone: updatedEmployee.phone || '',
+        role: updatedEmployee.role,
+        specialties: updatedEmployee.specialties ? JSON.parse(updatedEmployee.specialties) : [],
+        workingHours: updatedEmployee.workingHours ? JSON.parse(updatedEmployee.workingHours) : {},
+        active: Boolean(updatedEmployee.active),
+        createdAt: updatedEmployee.createdAt,
+        updatedAt: updatedEmployee.updatedAt
+      };
+
+      res.json({
+        success: true,
+        message: 'Employee updated successfully',
+        data: employeeData
+      });
+
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error('Error updating employee:', error);
     res.status(500).json({
@@ -158,110 +331,127 @@ router.put('/:id', verifyToken, requireCompany, async (req, res) => {
   }
 });
 
-// DELETE /api/employees/:id - Remove employee
+// DELETE /api/employees/:id - Remove employee (soft delete)
 router.delete('/:id', verifyToken, requireCompany, async (req, res) => {
   try {
     const { id } = req.params;
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
     
-    // TODO: Implement employee removal (soft delete)
-    res.status(404).json({
-      error: 'Not Found',
-      message: 'Employee not found'
-    });
+    try {
+      // Check if employee exists and belongs to company
+      const [existingEmployee] = await connection.execute(
+        'SELECT * FROM employees WHERE id = ? AND companyId = ?',
+        [id, companyId]
+      );
+
+      if (existingEmployee.length === 0) {
+        return res.status(404).json({
+          error: 'Not Found',
+          message: 'Employee not found'
+        });
+      }
+
+      // Check if employee has pending bookings
+      const [pendingBookings] = await connection.execute(
+        'SELECT COUNT(*) as count FROM bookings WHERE employeeId = ? AND status IN ("pending", "confirmed")',
+        [id]
+      );
+
+      if (pendingBookings[0].count > 0) {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'Cannot delete employee with pending bookings. Please reassign or complete bookings first.'
+        });
+      }
+
+      // Soft delete - set active to false
+      await connection.execute(
+        'UPDATE employees SET active = false, updatedAt = NOW() WHERE id = ? AND companyId = ?',
+        [id, companyId]
+      );
+
+      res.json({
+        success: true,
+        message: 'Employee removed successfully'
+      });
+
+    } finally {
+      connection.release();
+    }
   } catch (error) {
-    console.error('Error removing employee:', error);
+    console.error('Error deleting employee:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to remove employee'
+      message: 'Failed to delete employee'
     });
   }
 });
 
-// PUT /api/employees/:id/availability - Update employee availability
-router.put('/:id/availability', verifyToken, requireCompany, async (req, res) => {
+// GET /api/employees/available - Get available employees for booking assignment
+router.get('/available', verifyToken, requireCompany, async (req, res) => {
   try {
-    const { id } = req.params;
-    const { availability } = req.body;
+    const { date, time, duration = 60 } = req.query;
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
 
-    if (!availability) {
+    if (!date || !time) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'Availability data is required'
+        message: 'Date and time are required'
       });
     }
 
-    // TODO: Implement database update for employee availability
-    res.status(404).json({
-      error: 'Not Found',
-      message: 'Employee not found'
-    });
+    try {
+      // Get all active employees
+      const [employeesResult] = await connection.execute(
+        'SELECT * FROM employees WHERE companyId = ? AND active = true',
+        [companyId]
+      );
+
+      // Calculate end time
+      const [hours, minutes] = time.split(':').map(Number);
+      const startMinutes = hours * 60 + minutes;
+      const endMinutes = startMinutes + parseInt(duration);
+      const endTime = `${Math.floor(endMinutes / 60).toString().padStart(2, '0')}:${(endMinutes % 60).toString().padStart(2, '0')}`;
+
+      // Check for conflicts with existing bookings
+      const availableEmployees = [];
+      
+      for (const employee of employeesResult) {
+        const [conflictingBookings] = await connection.execute(
+          `SELECT COUNT(*) as count FROM bookings 
+           WHERE employeeId = ? AND date = ? AND status IN ('confirmed', 'in_progress')
+           AND (
+             (time <= ? AND ADDTIME(time, SEC_TO_TIME(60 * (SELECT duration FROM services WHERE id = serviceId))) > ?) OR
+             (time < ? AND ADDTIME(time, SEC_TO_TIME(60 * (SELECT duration FROM services WHERE id = serviceId))) >= ?)
+           )`,
+          [employee.id, date, time, time, endTime, endTime]
+        );
+
+        if (conflictingBookings[0].count === 0) {
+          availableEmployees.push({
+            id: employee.id,
+            name: employee.name,
+            role: employee.role,
+            specialties: employee.specialties ? JSON.parse(employee.specialties) : []
+          });
+        }
+      }
+
+      res.json({
+        success: true,
+        data: availableEmployees
+      });
+
+    } finally {
+      connection.release();
+    }
   } catch (error) {
-    console.error('Error updating availability:', error);
+    console.error('Error getting available employees:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to update availability'
-    });
-  }
-});
-
-// GET /api/employees/roles/list - Get list of available employee roles
-router.get('/roles/list', verifyToken, requireCompany, async (req, res) => {
-  try {
-    // Standard employee roles for pet service companies
-    const roles = [
-      { id: 'groomer', name: 'Pet Groomer', description: 'Professional pet grooming services' },
-      { id: 'veterinarian', name: 'Veterinarian', description: 'Licensed veterinary care' },
-      { id: 'trainer', name: 'Pet Trainer', description: 'Animal behavior and training specialist' },
-      { id: 'sitter', name: 'Pet Sitter', description: 'Pet sitting and care services' },
-      { id: 'walker', name: 'Pet Walker', description: 'Dog walking and exercise services' },
-      { id: 'receptionist', name: 'Receptionist', description: 'Front desk and customer service' },
-      { id: 'manager', name: 'Manager', description: 'Operations and team management' },
-      { id: 'assistant', name: 'Assistant', description: 'General support and assistance' }
-    ];
-
-    res.json({
-      success: true,
-      data: roles
-    });
-  } catch (error) {
-    console.error('Error getting employee roles:', error);
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to get employee roles'
-    });
-  }
-});
-
-// GET /api/employees/skills/list - Get list of available skills
-router.get('/skills/list', verifyToken, requireCompany, async (req, res) => {
-  try {
-    // Standard skills for pet service professionals
-    const skills = [
-      { id: 'dog_grooming', name: 'Dog Grooming', category: 'Grooming' },
-      { id: 'cat_grooming', name: 'Cat Grooming', category: 'Grooming' },
-      { id: 'nail_trimming', name: 'Nail Trimming', category: 'Grooming' },
-      { id: 'teeth_cleaning', name: 'Teeth Cleaning', category: 'Health' },
-      { id: 'vaccinations', name: 'Vaccinations', category: 'Health' },
-      { id: 'first_aid', name: 'Pet First Aid', category: 'Health' },
-      { id: 'obedience_training', name: 'Obedience Training', category: 'Training' },
-      { id: 'behavior_modification', name: 'Behavior Modification', category: 'Training' },
-      { id: 'agility_training', name: 'Agility Training', category: 'Training' },
-      { id: 'large_dogs', name: 'Large Dog Handling', category: 'Specialization' },
-      { id: 'exotic_pets', name: 'Exotic Pet Care', category: 'Specialization' },
-      { id: 'senior_pets', name: 'Senior Pet Care', category: 'Specialization' },
-      { id: 'customer_service', name: 'Customer Service', category: 'Communication' },
-      { id: 'appointment_scheduling', name: 'Appointment Scheduling', category: 'Administration' }
-    ];
-
-    res.json({
-      success: true,
-      data: skills
-    });
-  } catch (error) {
-    console.error('Error getting employee skills:', error);
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to get employee skills'
+      message: 'Failed to get available employees'
     });
   }
 });
@@ -336,32 +526,6 @@ router.get('/stats', verifyToken, requireCompany, async (req, res) => {
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to get employee stats'
-    });
-  }
-});
-
-// GET /api/employees/stats/overview - Alias for backward compatibility
-router.get('/stats/overview', verifyToken, requireCompany, async (req, res) => {
-  try {
-    // Same logic as main stats endpoint
-    const stats = {
-      totalEmployees: 0,
-      activeEmployees: 0,
-      inactiveEmployees: 0,
-      onLeaveEmployees: 0,
-      averageRating: 0.0,
-      totalCompletedAppointments: 0
-    };
-
-    res.json({
-      success: true,
-      data: stats
-    });
-  } catch (error) {
-    console.error('Error getting employee stats overview:', error);
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to get employee statistics'
     });
   }
 });

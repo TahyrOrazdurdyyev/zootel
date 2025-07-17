@@ -139,11 +139,147 @@ router.get('/:id', verifyToken, requireCompany, async (req, res) => {
   }
 });
 
+// PUT /api/bookings/:id/assign - Assign employee to booking
+router.put('/:id/assign', verifyToken, requireCompany, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { employeeId } = req.body;
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
+
+    try {
+      // Get booking details
+      const [bookingResult] = await connection.execute(
+        `SELECT b.*, s.duration 
+         FROM bookings b 
+         LEFT JOIN services s ON b.serviceId = s.id 
+         WHERE b.id = ? AND b.companyId = ?`,
+        [id, companyId]
+      );
+
+      if (bookingResult.length === 0) {
+        return res.status(404).json({
+          error: 'Not Found',
+          message: 'Booking not found'
+        });
+      }
+
+      const booking = bookingResult[0];
+
+      if (employeeId) {
+        // Verify employee exists and belongs to company
+        const [employeeResult] = await connection.execute(
+          'SELECT * FROM employees WHERE id = ? AND companyId = ? AND active = true',
+          [employeeId, companyId]
+        );
+
+        if (employeeResult.length === 0) {
+          return res.status(400).json({
+            error: 'Bad Request',
+            message: 'Invalid employee or employee not active'
+          });
+        }
+
+        // Check for time conflicts
+        const [hours, minutes] = booking.time.split(':').map(Number);
+        const startMinutes = hours * 60 + minutes;
+        const endMinutes = startMinutes + (booking.duration || 60);
+        const endTime = `${Math.floor(endMinutes / 60).toString().padStart(2, '0')}:${(endMinutes % 60).toString().padStart(2, '0')}`;
+
+        const [conflictingBookings] = await connection.execute(
+          `SELECT COUNT(*) as count FROM bookings b
+           LEFT JOIN services s ON b.serviceId = s.id
+           WHERE b.employeeId = ? AND b.date = ? AND b.id != ? AND b.status IN ('confirmed', 'in_progress')
+           AND (
+             (b.time <= ? AND ADDTIME(b.time, SEC_TO_TIME(60 * COALESCE(s.duration, 60))) > ?) OR
+             (b.time < ? AND ADDTIME(b.time, SEC_TO_TIME(60 * COALESCE(s.duration, 60))) >= ?)
+           )`,
+          [employeeId, booking.date, id, booking.time, booking.time, endTime, endTime]
+        );
+
+        if (conflictingBookings[0].count > 0) {
+          return res.status(400).json({
+            error: 'Schedule Conflict',
+            message: 'Employee has a conflicting booking at this time'
+          });
+        }
+      }
+
+      // Update booking with employee assignment
+      await connection.execute(
+        'UPDATE bookings SET employeeId = ?, updatedAt = NOW() WHERE id = ? AND companyId = ?',
+        [employeeId || null, id, companyId]
+      );
+
+      // Get updated booking with employee info
+      const [updatedBookingResult] = await connection.execute(
+        `SELECT b.*, 
+               s.name as serviceName, 
+               s.price as servicePrice,
+               po.name as customerName,
+               po.email as customerEmail,
+               po.phone as customerPhone,
+               p.name as petName,
+               p.type as petType,
+               e.name as employeeName
+         FROM bookings b
+         LEFT JOIN services s ON b.serviceId = s.id
+         LEFT JOIN pet_owners po ON b.petOwnerId = po.id
+         LEFT JOIN pets p ON b.petId = p.id
+         LEFT JOIN employees e ON b.employeeId = e.id
+         WHERE b.id = ? AND b.companyId = ?`,
+        [id, companyId]
+      );
+
+      const updatedBooking = updatedBookingResult[0];
+      const bookingData = {
+        id: updatedBooking.id,
+        companyId: updatedBooking.companyId,
+        serviceId: updatedBooking.serviceId,
+        serviceName: updatedBooking.serviceName,
+        servicePrice: parseFloat(updatedBooking.servicePrice),
+        petOwnerId: updatedBooking.petOwnerId,
+        customerName: updatedBooking.customerName,
+        customerEmail: updatedBooking.customerEmail,
+        customerPhone: updatedBooking.customerPhone,
+        petId: updatedBooking.petId,
+        petName: updatedBooking.petName,
+        petType: updatedBooking.petType,
+        employeeId: updatedBooking.employeeId,
+        employeeName: updatedBooking.employeeName,
+        date: updatedBooking.date,
+        time: updatedBooking.time,
+        status: updatedBooking.status,
+        notes: updatedBooking.notes,
+        totalAmount: parseFloat(updatedBooking.totalAmount),
+        createdAt: updatedBooking.createdAt,
+        updatedAt: updatedBooking.updatedAt
+      };
+
+      res.json({
+        success: true,
+        message: employeeId ? 'Employee assigned successfully' : 'Employee unassigned successfully',
+        data: bookingData
+      });
+
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Error assigning employee to booking:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to assign employee to booking'
+    });
+  }
+});
+
 // PUT /api/bookings/:id/status - Update booking status
 router.put('/:id/status', verifyToken, requireCompany, async (req, res) => {
   try {
     const { id } = req.params;
     const { status, notes } = req.body;
+    const companyId = req.user.uid;
 
     // Validate status
     const validStatuses = ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'];
@@ -154,11 +290,92 @@ router.put('/:id/status', verifyToken, requireCompany, async (req, res) => {
       });
     }
 
-    // TODO: Implement database update for booking status
-    res.status(404).json({
-      error: 'Not Found',
-      message: 'Booking not found'
-    });
+    const connection = await pool.getConnection();
+    
+    try {
+      // Check if booking exists and belongs to company
+      const [existingBooking] = await connection.execute(
+        'SELECT * FROM bookings WHERE id = ? AND companyId = ?',
+        [id, companyId]
+      );
+
+      if (existingBooking.length === 0) {
+        return res.status(404).json({
+          error: 'Not Found',
+          message: 'Booking not found'
+        });
+      }
+
+      // Update booking status
+      const updateFields = ['status = ?', 'updatedAt = NOW()'];
+      const updateValues = [status];
+
+      if (notes !== undefined) {
+        updateFields.push('notes = ?');
+        updateValues.push(notes);
+      }
+
+      updateValues.push(id, companyId);
+
+      await connection.execute(
+        `UPDATE bookings SET ${updateFields.join(', ')} WHERE id = ? AND companyId = ?`,
+        updateValues
+      );
+
+      // Get updated booking with full details
+      const [updatedBookingResult] = await connection.execute(
+        `SELECT b.*, 
+               s.name as serviceName, 
+               s.price as servicePrice,
+               po.name as customerName,
+               po.email as customerEmail,
+               po.phone as customerPhone,
+               p.name as petName,
+               p.type as petType,
+               e.name as employeeName
+         FROM bookings b
+         LEFT JOIN services s ON b.serviceId = s.id
+         LEFT JOIN pet_owners po ON b.petOwnerId = po.id
+         LEFT JOIN pets p ON b.petId = p.id
+         LEFT JOIN employees e ON b.employeeId = e.id
+         WHERE b.id = ? AND b.companyId = ?`,
+        [id, companyId]
+      );
+
+      const updatedBooking = updatedBookingResult[0];
+      const bookingData = {
+        id: updatedBooking.id,
+        companyId: updatedBooking.companyId,
+        serviceId: updatedBooking.serviceId,
+        serviceName: updatedBooking.serviceName,
+        servicePrice: parseFloat(updatedBooking.servicePrice),
+        petOwnerId: updatedBooking.petOwnerId,
+        customerName: updatedBooking.customerName,
+        customerEmail: updatedBooking.customerEmail,
+        customerPhone: updatedBooking.customerPhone,
+        petId: updatedBooking.petId,
+        petName: updatedBooking.petName,
+        petType: updatedBooking.petType,
+        employeeId: updatedBooking.employeeId,
+        employeeName: updatedBooking.employeeName,
+        date: updatedBooking.date,
+        time: updatedBooking.time,
+        status: updatedBooking.status,
+        notes: updatedBooking.notes,
+        totalAmount: parseFloat(updatedBooking.totalAmount),
+        createdAt: updatedBooking.createdAt,
+        updatedAt: updatedBooking.updatedAt
+      };
+
+      res.json({
+        success: true,
+        message: 'Booking status updated successfully',
+        data: bookingData
+      });
+
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error('Error updating booking status:', error);
     res.status(500).json({
