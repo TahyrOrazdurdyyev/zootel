@@ -27,20 +27,45 @@
 
 /* Error states */
 .error {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: #FFF4F4;
+  color: #D63031;
   padding: 1rem;
   border-radius: 6px;
   margin: 1rem 0;
-  border: 1px solid #f5c6cb;
+  border: 1px solid #FFB8B8;
 }
 
 /* Success states */
 .success {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: #F0FFF4;
+  color: #00B894;
   padding: 1rem;
   border-radius: 6px;
   margin: 1rem 0;
-  border: 1px solid #c3e6cb;
+  border: 1px solid #B8FFD1;
+}
+
+/* Enhanced Mobile Responsiveness */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+  
+  .loading {
+    font-size: 1rem;
+    min-height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  .error,
+  .success {
+    padding: 0.8rem;
+    margin: 0.8rem 0;
+    font-size: 0.9rem;
+  }
 } 
