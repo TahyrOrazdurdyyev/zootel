@@ -7,6 +7,20 @@ const router = express.Router();
 // Middleware to require pet_owner role for most routes
 const requirePetOwner = requireRole(['pet_owner', 'superadmin']);
 
+// Helper function for safe JSON parsing
+const safeJsonParse = (jsonString, defaultValue = {}) => {
+  if (!jsonString) return defaultValue;
+  if (typeof jsonString === 'object') return jsonString;
+  if (typeof jsonString !== 'string') return defaultValue;
+  
+  try {
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.warn('JSON parsing failed:', error.message);
+    return defaultValue;
+  }
+};
+
 // GET /api/pet-owners/profile - Get pet owner profile
 router.get('/profile', verifyToken, requirePetOwner, async (req, res) => {
   try {
@@ -52,7 +66,11 @@ router.get('/profile', verifyToken, requirePetOwner, async (req, res) => {
             phone: '',
             relationship: ''
           },
-          preferences: JSON.parse(defaultPreferences),
+          preferences: safeJsonParse(defaultPreferences, {
+            notifications: { email: true, sms: false, push: false },
+            communication: 'email',
+            autoBooking: false
+          }),
           joinedDate: new Date().toISOString().split('T')[0],
           lastActiveDate: new Date().toISOString()
         };
@@ -62,7 +80,7 @@ router.get('/profile', verifyToken, requirePetOwner, async (req, res) => {
           id: owner.id,
           userId: owner.id,
           name: owner.name || '',
-          email: owner.email,
+          email: owner.email || '',
           phone: owner.phone || '',
           address: owner.address || '',
           emergencyContact: {
@@ -70,11 +88,11 @@ router.get('/profile', verifyToken, requirePetOwner, async (req, res) => {
             phone: owner.emergencyContactPhone || '',
             relationship: owner.emergencyContactRelationship || ''
           },
-          preferences: owner.preferences ? JSON.parse(owner.preferences) : {
+          preferences: safeJsonParse(owner.preferences, {
             notifications: { email: true, sms: false, push: false },
             communication: 'email',
             autoBooking: false
-          },
+          }),
           joinedDate: owner.createdAt ? owner.createdAt.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
           lastActiveDate: owner.lastActiveDate ? owner.lastActiveDate.toISOString() : new Date().toISOString()
         };
@@ -228,14 +246,14 @@ router.get('/pets', verifyToken, requirePetOwner, async (req, res) => {
         gender: pet.gender,
         color: pet.color,
         microchipId: pet.microchipId,
-        photos: pet.photos ? JSON.parse(pet.photos) : [],
-        medicalInfo: pet.medicalInfo ? JSON.parse(pet.medicalInfo) : {
+        photos: safeJsonParse(pet.photos, []),
+        medicalInfo: safeJsonParse(pet.medicalInfo, {
           allergies: [],
           medications: [],
           conditions: [],
           vetInfo: { name: '', phone: '', address: '' },
           lastCheckup: ''
-        },
+        }),
         behaviorNotes: pet.behaviorNotes || '',
         specialNeeds: pet.specialNeeds || '',
         createdAt: pet.createdAt,
@@ -293,8 +311,8 @@ router.get('/pets/:id', verifyToken, requirePetOwner, async (req, res) => {
         gender: pet.gender,
         color: pet.color,
         microchipId: pet.microchipId,
-        photos: pet.photos ? JSON.parse(pet.photos) : [],
-        medicalInfo: pet.medicalInfo ? JSON.parse(pet.medicalInfo) : {},
+        photos: safeJsonParse(pet.photos, []),
+        medicalInfo: safeJsonParse(pet.medicalInfo, {}),
         behaviorNotes: pet.behaviorNotes || '',
         specialNeeds: pet.specialNeeds || '',
         createdAt: pet.createdAt,
@@ -514,8 +532,8 @@ router.put('/pets/:id', verifyToken, requirePetOwner, async (req, res) => {
         gender: updatedPet.gender,
         color: updatedPet.color,
         microchipId: updatedPet.microchipId,
-        photos: updatedPet.photos ? JSON.parse(updatedPet.photos) : [],
-        medicalInfo: updatedPet.medicalInfo ? JSON.parse(updatedPet.medicalInfo) : {},
+        photos: safeJsonParse(updatedPet.photos, []),
+        medicalInfo: safeJsonParse(updatedPet.medicalInfo, {}),
         behaviorNotes: updatedPet.behaviorNotes || '',
         specialNeeds: updatedPet.specialNeeds || '',
         createdAt: updatedPet.createdAt,
