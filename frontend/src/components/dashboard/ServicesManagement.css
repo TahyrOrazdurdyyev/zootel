@@ -1,16 +1,16 @@
 /* ServicesManagement.css */
 
 :root {
-  --primary-color: #f75815;
-  --secondary-color: #fff;
-  --text-color: #2c3e50;
+  --primary-color: #FFA500;
+  --secondary-color: #FFFFFF;
+  --text-color: #333333;
   --text-muted: #6c757d;
   --border-color: #e9ecef;
   --success-color: #28a745;
   --error-color: #dc3545;
   --warning-color: #ffc107;
   --info-color: #17a2b8;
-  --background-color: #f8f9fa;
+  --background-color: #FFFFFF;
   --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.15);
   --border-radius: 12px;
@@ -20,6 +20,7 @@
 /* Main Container */
 .services-management {
   padding: 0;
+  background: #FFFFFF;
 }
 
 /* Header */
@@ -28,6 +29,10 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  background: #FFFFFF;
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
 }
 
 .services-header h2 {
@@ -46,7 +51,7 @@
 .services-count {
   color: var(--text-muted);
   font-size: 0.9rem;
-  background-color: var(--background-color);
+  background-color: #f8f9fa;
   padding: 0.5rem 1rem;
   border-radius: 20px;
   border: 1px solid var(--border-color);
@@ -60,6 +65,8 @@
   justify-content: center;
   padding: 4rem 2rem;
   color: var(--text-muted);
+  background: #FFFFFF;
+  border-radius: var(--border-radius);
 }
 
 .loading-spinner {
@@ -83,8 +90,8 @@
 }
 
 .add-service-btn {
-  background: linear-gradient(135deg, var(--primary-color), #ff7a47);
-  color: white;
+  background: linear-gradient(135deg, var(--primary-color), #FFB84D);
+  color: #FFFFFF;
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: var(--border-radius);

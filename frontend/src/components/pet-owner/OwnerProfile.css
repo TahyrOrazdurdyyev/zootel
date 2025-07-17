@@ -2,14 +2,19 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 0;
+  background: #FFFFFF;
 }
 
 .profile-header {
   margin-bottom: 2rem;
+  background: #FFFFFF;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .profile-header h2 {
-  color: #2c3e50;
+  color: #333333;
   margin-bottom: 0.5rem;
 }
 
@@ -25,13 +30,15 @@
   justify-content: center;
   padding: 4rem 2rem;
   text-align: center;
+  background: #FFFFFF;
+  border-radius: 12px;
 }
 
 .loading-spinner {
   width: 40px;
   height: 40px;
   border: 3px solid #e3e3e3;
-  border-top: 3px solid #4A90E2;
+  border-top: 3px solid #FFA500;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
@@ -62,7 +69,7 @@
 }
 
 .profile-form {
-  background: white;
+  background: #FFFFFF;
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -82,10 +89,13 @@
 }
 
 .form-section h3 {
-  color: #2c3e50;
+  color: #333333;
   margin-bottom: 1.5rem;
   font-size: 1.2rem;
   font-weight: 600;
+  border-bottom: 2px solid #FFA500;
+  padding-bottom: 0.5rem;
+  display: inline-block;
 }
 
 .form-row {
@@ -101,28 +111,31 @@
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #495057;
-  font-weight: 500;
-  font-size: 0.9rem;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
 .form-group input,
-.form-group select,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #374151;
+  background: #FFFFFF;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  border-color: #4A90E2;
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #FFA500;
+  box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
 }
 
 .form-group textarea {

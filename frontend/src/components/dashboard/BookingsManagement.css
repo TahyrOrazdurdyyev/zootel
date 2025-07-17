@@ -1,16 +1,16 @@
 /* BookingsManagement.css */
 
 :root {
-  --primary-color: #ff6b35;
-  --secondary-color: #fff;
-  --text-color: #2c3e50;
+  --primary-color: #FFA500;
+  --secondary-color: #FFFFFF;
+  --text-color: #333333;
   --text-muted: #6c757d;
   --border-color: #e9ecef;
   --success-color: #28a745;
   --error-color: #dc3545;
   --warning-color: #ffc107;
   --info-color: #17a2b8;
-  --background-color: #f8fafc;
+  --background-color: #FFFFFF;
   --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.08);
   --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.15);
   --border-radius: 16px;
@@ -20,17 +20,17 @@
 /* Main Container */
 .bookings-management {
   padding: 0;
-  background: var(--background-color);
+  background: #FFFFFF;
 }
 
 /* Header Section with Gradient */
 .bookings-header {
-  background: linear-gradient(135deg, #ff6b35, #ff8c42, #ffa726);
-  color: white;
+  background: linear-gradient(135deg, var(--primary-color), #FFB84D, #FF8C00);
+  color: #FFFFFF;
   padding: 2.5rem 2rem;
   border-radius: 20px;
   margin-bottom: 2rem;
-  box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3);
+  box-shadow: 0 8px 32px rgba(255, 165, 0, 0.3);
   position: relative;
   overflow: hidden;
 }
@@ -58,7 +58,7 @@
 }
 
 .header-left h2 {
-  color: white;
+  color: #FFFFFF;
   margin: 0 0 0.5rem 0;
   font-size: 2.2rem;
   font-weight: 700;
