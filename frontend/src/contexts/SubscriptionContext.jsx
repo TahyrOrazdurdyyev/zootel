@@ -8,7 +8,7 @@ const PLAN_CONFIGS = {
     maxServices: 3,
     maxEmployees: 2,
     maxBookingsPerMonth: 50,
-    features: ['basicSupport', 'basicAnalytics'],
+    features: ['basicSupport', 'basicAnalytics', 'profileCustomization'],
     price: 0
   },
   basic: {
@@ -16,7 +16,7 @@ const PLAN_CONFIGS = {
     maxServices: 10,
     maxEmployees: 5,
     maxBookingsPerMonth: 200,
-    features: ['basicSupport', 'basicAnalytics', 'employeeManagement'],
+    features: ['basicSupport', 'basicAnalytics', 'employeeManagement', 'profileCustomization'],
     price: 29
   },
   professional: {
@@ -24,7 +24,7 @@ const PLAN_CONFIGS = {
     maxServices: 25,
     maxEmployees: 15,
     maxBookingsPerMonth: 1000,
-    features: ['basicSupport', 'basicAnalytics', 'employeeManagement', 'advancedAnalytics', 'customBranding'],
+    features: ['basicSupport', 'basicAnalytics', 'employeeManagement', 'advancedAnalytics', 'customBranding', 'profileCustomization'],
     price: 79
   },
   enterprise: {
@@ -32,7 +32,7 @@ const PLAN_CONFIGS = {
     maxServices: -1, // unlimited
     maxEmployees: -1, // unlimited
     maxBookingsPerMonth: -1, // unlimited
-    features: ['prioritySupport', 'advancedAnalytics', 'employeeManagement', 'customBranding', 'apiAccess', 'whiteLabel'],
+    features: ['prioritySupport', 'advancedAnalytics', 'employeeManagement', 'customBranding', 'apiAccess', 'whiteLabel', 'profileCustomization'],
     price: 199
   }
 };
