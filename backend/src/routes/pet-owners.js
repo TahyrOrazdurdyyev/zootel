@@ -112,26 +112,53 @@ router.put('/profile', verifyToken, requirePetOwner, async (req, res) => {
     const connection = await pool.getConnection();
     
     try {
-      // Update pet owner profile in database
-      await connection.execute(
-        `UPDATE pet_owners SET 
-         name = ?, phone = ?, address = ?, 
-         emergencyContactName = ?, emergencyContactPhone = ?, emergencyContactRelationship = ?,
-         preferences = ?, lastActiveDate = ?, updatedAt = ?
-         WHERE id = ?`,
-        [
-          name || '',
-          phone || '',
-          address || '',
-          emergencyContact?.name || '',
-          emergencyContact?.phone || '',
-          emergencyContact?.relationship || '',
-          JSON.stringify(preferences || {}),
-          new Date(),
-          new Date(),
-          petOwnerId
-        ]
+      // Check if pet owner record exists
+      const [existingOwner] = await connection.execute(
+        'SELECT id FROM pet_owners WHERE id = ?',
+        [petOwnerId]
       );
+
+      if (existingOwner.length === 0) {
+        // Create new pet owner record if it doesn't exist
+        await connection.execute(
+          `INSERT INTO pet_owners (id, name, email, phone, address, 
+           emergencyContactName, emergencyContactPhone, emergencyContactRelationship,
+           preferences, lastActiveDate, createdAt, updatedAt) 
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+          [
+            petOwnerId,
+            name || '',
+            req.user.email || '',
+            phone || '',
+            address || '',
+            emergencyContact?.name || '',
+            emergencyContact?.phone || '',
+            emergencyContact?.relationship || '',
+            JSON.stringify(preferences || {}),
+            new Date()
+          ]
+        );
+      } else {
+        // Update existing pet owner record
+        await connection.execute(
+          `UPDATE pet_owners SET 
+           name = ?, phone = ?, address = ?, 
+           emergencyContactName = ?, emergencyContactPhone = ?, emergencyContactRelationship = ?,
+           preferences = ?, lastActiveDate = ?, updatedAt = NOW()
+           WHERE id = ?`,
+          [
+            name || '',
+            phone || '',
+            address || '',
+            emergencyContact?.name || '',
+            emergencyContact?.phone || '',
+            emergencyContact?.relationship || '',
+            JSON.stringify(preferences || {}),
+            new Date(),
+            petOwnerId
+          ]
+        );
+      }
 
       const updatedProfile = {
         id: petOwnerId,
@@ -321,20 +348,45 @@ router.post('/pets', verifyToken, requirePetOwner, async (req, res) => {
     const connection = await pool.getConnection();
     
     try {
+      // Ensure pet owner record exists (create if it doesn't)
+      const [existingOwner] = await connection.execute(
+        'SELECT id FROM pet_owners WHERE id = ?',
+        [petOwnerId]
+      );
+
+      if (existingOwner.length === 0) {
+        // Create pet owner record first if it doesn't exist
+        const defaultPreferences = JSON.stringify({
+          notifications: {
+            email: true,
+            sms: false,
+            push: false
+          },
+          communication: 'email',
+          autoBooking: false
+        });
+        
+        await connection.execute(
+          `INSERT INTO pet_owners (id, name, email, preferences, lastActiveDate, createdAt, updatedAt) 
+           VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
+          [petOwnerId, '', req.user.email, defaultPreferences, new Date()]
+        );
+      }
+
       const petId = `pet_${Date.now()}`;
       
       // Insert new pet into database
       await connection.execute(
         `INSERT INTO pets (id, ownerId, name, type, breed, age, weight, gender, color, microchipId, photos, medicalInfo, behaviorNotes, specialNeeds, createdAt, updatedAt)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           petId,
           petOwnerId,
           name,
           type,
           breed,
-          age || 'Unknown',
-          weight || 'Unknown',
+          age || 0,
+          weight || 0.00,
           gender || 'Unknown',
           color || 'Unknown',
           microchipId || '',
@@ -347,9 +399,7 @@ router.post('/pets', verifyToken, requirePetOwner, async (req, res) => {
             lastCheckup: ''
           }),
           behaviorNotes || '',
-          specialNeeds || '',
-          new Date(),
-          new Date()
+          specialNeeds || ''
         ]
       );
 
@@ -359,8 +409,8 @@ router.post('/pets', verifyToken, requirePetOwner, async (req, res) => {
         name,
         type,
         breed,
-        age: age || 'Unknown',
-        weight: weight || 'Unknown',
+        age: age || 0,
+        weight: weight || 0.00,
         gender: gender || 'Unknown',
         color: color || 'Unknown',
         microchipId: microchipId || '',
