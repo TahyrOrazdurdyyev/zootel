@@ -20,7 +20,19 @@ const Header = () => {
     }
   };
 
-
+  // Get the appropriate profile URL based on user role
+  const getProfileUrl = () => {
+    switch (userRole) {
+      case 'pet_owner':
+        return '/pet-owner/dashboard';
+      case 'pet_company':
+        return '/company/dashboard';
+      case 'superadmin':
+        return '/admin/dashboard';
+      default:
+        return '/profile';
+    }
+  };
 
   return (
     <header className="header">
@@ -83,7 +95,7 @@ const Header = () => {
               
               {showProfileDropdown && (
                 <div className="dropdown-menu profile-menu">
-                  <Link to="/profile" className="dropdown-item">
+                  <Link to={getProfileUrl()} className="dropdown-item">
                     👤 Profile
                   </Link>
                   <Link to="/settings" className="dropdown-item">
