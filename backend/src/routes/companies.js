@@ -147,11 +147,14 @@ router.put('/profile', verifyToken, requireCompany, async (req, res) => {
     const connection = await pool.getConnection();
     
     try {
-      // Update company profile in database
+      // Check if profile is complete for auto-verification
+      const isProfileComplete = !!(name && address && city && description);
+      
+      // Update company profile in database (including auto-verification if complete)
       await connection.execute(
         `UPDATE companies SET 
          name = ?, phone = ?, address = ?, city = ?, state = ?, zipCode = ?, 
-         description = ?, businessHours = ?, logoUrl = ?, updatedAt = NOW()
+         description = ?, businessHours = ?, logoUrl = ?, verified = ?, updatedAt = NOW()
          WHERE id = ?`,
         [
           name || '', 
@@ -163,6 +166,7 @@ router.put('/profile', verifyToken, requireCompany, async (req, res) => {
           description || '', 
           JSON.stringify(businessHours || {}), 
           logoUrl || '', 
+          isProfileComplete, // Auto-verify if profile is complete
           companyId
         ]
       );

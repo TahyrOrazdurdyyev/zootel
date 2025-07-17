@@ -123,15 +123,36 @@ const ProfileManagement = () => {
       if (response.ok) {
         const data = await response.json();
         setProfile(prev => ({ ...prev, ...data.data }));
-        setSuccess('Profile updated successfully!');
-        setTimeout(() => setSuccess(''), 3000);
+        
+        // Check if profile is now complete for auto-verification
+        const isComplete = !!(formData.name && formData.address && formData.city && formData.description);
+        if (isComplete) {
+          setSuccess('Profile updated and verified successfully! Your services will now appear in the marketplace.');
+        } else {
+          setSuccess('Profile updated successfully! Complete all required fields (name, address, city, description) to get verified and appear in marketplace.');
+        }
+        setTimeout(() => setSuccess(''), 5000);
       } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Failed to update profile');
+        let errorMessage = 'Failed to update profile';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (parseError) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        setError(errorMessage);
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      setError('Error updating profile');
+      
+      // Provide more specific error messages
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        setError('Cannot connect to server. Please check if the backend is running and try again.');
+      } else if (error.name === 'TypeError' && error.message.includes('NetworkError')) {
+        setError('Network error. Please check your internet connection.');
+      } else {
+        setError(`Error updating profile: ${error.message || 'Unknown error'}`);
+      }
     } finally {
       setSaving(false);
     }
