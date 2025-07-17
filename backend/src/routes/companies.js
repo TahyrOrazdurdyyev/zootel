@@ -300,57 +300,56 @@ router.get('/customers', verifyToken, requireCompany, async (req, res) => {
   }
 });
 
-// GET /api/companies/dashboard-data - Get dashboard data for charts and recent bookings
+// GET /api/companies/dashboard-data - Get dashboard data for overview
 router.get('/dashboard-data', verifyToken, requireCompany, async (req, res) => {
   try {
     const companyId = req.user.uid;
     const connection = await pool.getConnection();
     
     try {
-      // Get monthly earnings data (last 6 months)
-      const [monthlyEarningsResult] = await connection.execute(
-        `SELECT 
-           DATE_FORMAT(MAX(createdAt), '%b %Y') as month,
-           MONTH(MAX(createdAt)) as monthNum,
-           SUM(CASE WHEN status = 'completed' THEN totalAmount ELSE 0 END) as earnings
-         FROM bookings 
-         WHERE companyId = ? AND createdAt >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-         GROUP BY YEAR(createdAt), MONTH(createdAt)
-         ORDER BY YEAR(createdAt), MONTH(createdAt)`,
-        [companyId]
-      );
-
       // Get recent bookings (last 10)
       const [recentBookingsResult] = await connection.execute(
-        `SELECT b.*, 
-               s.name as serviceName, 
-               s.price as servicePrice,
-               po.name as petOwnerName,
-               p.name as petName
+        `SELECT 
+           b.id, b.date, b.time, b.status, b.totalAmount as amount,
+           po.name as petOwnerName,
+           p.name as petName,
+           s.name as serviceName
          FROM bookings b
-         LEFT JOIN services s ON b.serviceId = s.id
          LEFT JOIN pet_owners po ON b.petOwnerId = po.id
          LEFT JOIN pets p ON b.petId = p.id
+         LEFT JOIN services s ON b.serviceId = s.id
          WHERE b.companyId = ?
          ORDER BY b.createdAt DESC
          LIMIT 10`,
         [companyId]
       );
 
+      // Get monthly earnings for the last 6 months
+      const [monthlyEarningsResult] = await connection.execute(
+        `SELECT 
+           DATE_FORMAT(createdAt, '%Y-%m') as month,
+           SUM(CASE WHEN status = 'completed' THEN totalAmount ELSE 0 END) as earnings
+         FROM bookings 
+         WHERE companyId = ? AND createdAt >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+         GROUP BY DATE_FORMAT(createdAt, '%Y-%m')
+         ORDER BY month`,
+        [companyId]
+      );
+
       const dashboardData = {
-        monthlyEarnings: monthlyEarningsResult.map(row => ({
-          month: row.month,
-          earnings: parseFloat(row.earnings) || 0
-        })),
         recentBookings: recentBookingsResult.map(booking => ({
           id: booking.id,
-          petOwnerName: booking.petOwnerName || 'Unknown Customer',
-          serviceName: booking.serviceName || 'Unknown Service',
-          petName: booking.petName || 'Unknown Pet',
           date: booking.date,
           time: booking.time,
           status: booking.status,
-          amount: parseFloat(booking.totalAmount) || 0
+          amount: parseFloat(booking.amount) || 0,
+          petOwnerName: booking.petOwnerName || 'Unknown Customer',
+          petName: booking.petName || 'Unknown Pet',
+          serviceName: booking.serviceName || 'Unknown Service'
+        })),
+        monthlyEarnings: monthlyEarningsResult.map(item => ({
+          month: new Date(item.month + '-01').toLocaleDateString('en-US', { month: 'short' }),
+          earnings: parseFloat(item.earnings) || 0
         }))
       };
 
@@ -371,7 +370,7 @@ router.get('/dashboard-data', verifyToken, requireCompany, async (req, res) => {
   }
 });
 
-// GET /api/companies/stats - Get company statistics  
+// GET /api/companies/stats - Get company stats for dashboard
 router.get('/stats', verifyToken, requireCompany, async (req, res) => {
   try {
     const companyId = req.user.uid;
@@ -400,18 +399,13 @@ router.get('/stats', verifyToken, requireCompany, async (req, res) => {
         [companyId]
       );
       
-      // Get new customers this month
+      // Get customer stats
       const [newCustomersResult] = await connection.execute(
         `SELECT COUNT(DISTINCT petOwnerId) as total FROM bookings 
-         WHERE companyId = ? AND createdAt >= ? 
-         AND petOwnerId NOT IN (
-           SELECT DISTINCT petOwnerId FROM bookings 
-           WHERE companyId = ? AND createdAt < ?
-         )`,
-        [companyId, startOfMonth, companyId, startOfMonth]
+         WHERE companyId = ? AND createdAt >= ?`,
+        [companyId, startOfMonth]
       );
       
-      // Get returning customers this month
       const [returningCustomersResult] = await connection.execute(
         `SELECT COUNT(DISTINCT petOwnerId) as total FROM bookings 
          WHERE companyId = ? AND createdAt >= ? 

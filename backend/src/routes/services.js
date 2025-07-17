@@ -197,12 +197,109 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
 router.put('/:id', verifyToken, requireCompany, async (req, res) => {
   try {
     const { id } = req.params;
+    const {
+      name,
+      description,
+      category,
+      price,
+      duration,
+      imageUrl,
+      active
+    } = req.body;
+
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
     
-    // TODO: Implement database update for service
-    res.status(404).json({
-      error: 'Not Found',
-      message: 'Service not found'
-    });
+    try {
+      // First, check if the service exists and belongs to the company
+      const [existingService] = await connection.execute(
+        'SELECT * FROM services WHERE id = ? AND companyId = ?',
+        [id, companyId]
+      );
+      
+      if (existingService.length === 0) {
+        return res.status(404).json({
+          error: 'Not Found',
+          message: 'Service not found or you do not have permission to update it'
+        });
+      }
+
+      // Update the service
+      const updateFields = [];
+      const updateValues = [];
+      
+      if (name !== undefined) {
+        updateFields.push('name = ?');
+        updateValues.push(name);
+      }
+      if (description !== undefined) {
+        updateFields.push('description = ?');
+        updateValues.push(description);
+      }
+      if (category !== undefined) {
+        updateFields.push('category = ?');
+        updateValues.push(category);
+      }
+      if (price !== undefined) {
+        updateFields.push('price = ?');
+        updateValues.push(parseFloat(price));
+      }
+      if (duration !== undefined) {
+        updateFields.push('duration = ?');
+        updateValues.push(parseInt(duration));
+      }
+      if (imageUrl !== undefined) {
+        updateFields.push('imageUrl = ?');
+        updateValues.push(imageUrl);
+      }
+      if (active !== undefined) {
+        updateFields.push('active = ?');
+        updateValues.push(Boolean(active));
+      }
+      
+      if (updateFields.length === 0) {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'No valid fields provided for update'
+        });
+      }
+      
+      // Add updatedAt field
+      updateFields.push('updatedAt = NOW()');
+      updateValues.push(id, companyId);
+      
+      const updateQuery = `UPDATE services SET ${updateFields.join(', ')} WHERE id = ? AND companyId = ?`;
+      await connection.execute(updateQuery, updateValues);
+      
+      // Get the updated service
+      const [updatedService] = await connection.execute(
+        'SELECT * FROM services WHERE id = ? AND companyId = ?',
+        [id, companyId]
+      );
+      
+      const service = updatedService[0];
+      
+      res.json({
+        success: true,
+        message: 'Service updated successfully',
+        data: {
+          id: service.id,
+          companyId: service.companyId,
+          name: service.name,
+          description: service.description,
+          price: parseFloat(service.price),
+          duration: service.duration,
+          category: service.category,
+          imageUrl: service.imageUrl,
+          active: Boolean(service.active),
+          createdAt: service.createdAt,
+          updatedAt: service.updatedAt
+        }
+      });
+      
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error('Error updating service:', error);
     res.status(500).json({
