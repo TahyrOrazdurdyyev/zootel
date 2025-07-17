@@ -757,8 +757,8 @@ router.post('/bookings', verifyToken, requirePetOwner, async (req, res) => {
 
       // Create new booking
       await connection.execute(
-        `INSERT INTO bookings (id, petOwnerId, companyId, serviceId, petId, date, time, status, notes, specialRequirements, totalAmount, createdAt, updatedAt)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO bookings (id, petOwnerId, companyId, serviceId, petId, date, time, status, notes, totalAmount, createdAt, updatedAt)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           bookingId,
           petOwnerId,
@@ -769,7 +769,6 @@ router.post('/bookings', verifyToken, requirePetOwner, async (req, res) => {
           time,
           'pending',
           notes || '',
-          specialRequirements || '',
           servicePrice,
           new Date(),
           new Date()
@@ -786,7 +785,6 @@ router.post('/bookings', verifyToken, requirePetOwner, async (req, res) => {
         time,
         status: 'pending',
         notes: notes || '',
-        specialRequirements: specialRequirements || '',
         totalAmount: servicePrice,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
