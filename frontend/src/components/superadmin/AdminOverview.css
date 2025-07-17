@@ -117,14 +117,14 @@
 }
 
 /* Metrics Grid */
-.metrics-grid {
+.admin-overview .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
-.metric-card {
+.admin-overview .metric-card {
   background: linear-gradient(135deg, #16213e, #0f0f23);
   border-radius: 12px;
   padding: 1.5rem;
@@ -134,7 +134,7 @@
   overflow: hidden;
 }
 
-.metric-card::before {
+.admin-overview .metric-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -145,33 +145,33 @@
   opacity: 0.8;
 }
 
-.metric-card.primary::before {
+.admin-overview .metric-card.primary::before {
   background: linear-gradient(90deg, var(--admin-primary), var(--admin-secondary));
 }
 
-.metric-card.success::before {
+.admin-overview .metric-card.success::before {
   background: linear-gradient(90deg, var(--admin-success), #66bb6a);
 }
 
-.metric-card.info::before {
+.admin-overview .metric-card.info::before {
   background: linear-gradient(90deg, var(--admin-info), #42a5f5);
 }
 
-.metric-card.warning::before {
+.admin-overview .metric-card.warning::before {
   background: linear-gradient(90deg, var(--admin-warning), #ffb74d);
 }
 
-.metric-card.purple::before {
+.admin-overview .metric-card.purple::before {
   background: linear-gradient(90deg, #9C27B0, #E1BEE7);
 }
 
-.metric-card:hover {
+.admin-overview .metric-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(124, 77, 255, 0.2);
   border-color: var(--admin-primary);
 }
 
-.metric-card {
+.admin-overview .metric-card {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
@@ -182,7 +182,7 @@
   opacity: 0.8;
 }
 
-.metric-content h3 {
+.admin-overview .metric-content h3 {
   margin: 0 0 0.5rem 0;
   font-size: 0.9rem;
   font-weight: 600;
@@ -191,14 +191,14 @@
   letter-spacing: 0.5px;
 }
 
-.metric-value {
+.admin-overview .metric-value {
   font-size: 2.2rem;
   font-weight: 700;
   color: var(--admin-secondary);
   margin-bottom: 0.5rem;
 }
 
-.metric-sub {
+.admin-overview .metric-sub {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -389,13 +389,13 @@
   border: 1px solid rgba(124, 77, 255, 0.3);
 }
 
-.card-header {
+.admin-overview .card-header {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.card-header h3 {
+.admin-overview .card-header h3 {
   margin: 0;
   color: var(--admin-secondary);
   font-size: 1.1rem;
@@ -532,7 +532,7 @@
   font-size: 1.1rem;
 }
 
-.actions-grid {
+.admin-overview .actions-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1rem;

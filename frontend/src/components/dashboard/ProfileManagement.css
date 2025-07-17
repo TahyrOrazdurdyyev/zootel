@@ -141,11 +141,11 @@
 }
 
 /* Form Sections */
-.form-section {
+.profile-management .form-section {
   margin-bottom: 2rem;
 }
 
-.form-section h3 {
+.profile-management .form-section h3 {
   color: #2c3e50;
   font-size: 1.5rem;
   font-weight: 600;
@@ -155,39 +155,39 @@
   display: inline-block;
 }
 
-.form-section p {
+.profile-management .form-section p {
   color: #6b7280;
   margin-bottom: 1.5rem;
   font-size: 1rem;
 }
 
 /* Form Grid Layout */
-.form-grid {
+.profile-management .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
-.form-group {
+.profile-management .form-group {
   display: flex;
   flex-direction: column;
 }
 
-.form-group.full-width {
+.profile-management .form-group.full-width {
   grid-column: 1 / -1;
 }
 
-.form-group label {
+.profile-management .form-group label {
   color: #374151;
   font-weight: 600;
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
+.profile-management .form-group input,
+.profile-management .form-group textarea,
+.profile-management .form-group select {
   background: #FFFFFF;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
@@ -199,34 +199,34 @@
   box-sizing: border-box;
 }
 
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
+.profile-management .form-group input:focus,
+.profile-management .form-group textarea:focus,
+.profile-management .form-group select:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
 }
 
-.form-group input:disabled,
-.form-group textarea:disabled,
-.form-group select:disabled {
+.profile-management .form-group input:disabled,
+.profile-management .form-group textarea:disabled,
+.profile-management .form-group select:disabled {
   background: #f9fafb;
   color: #9ca3af;
   cursor: not-allowed;
 }
 
-.form-group input.readonly {
+.profile-management .form-group input.readonly {
   background: #f3f4f6;
   color: #6b7280;
 }
 
-.form-group small {
+.profile-management .form-group small {
   color: #9ca3af;
   font-size: 0.85rem;
   margin-top: 0.25rem;
 }
 
-.form-group textarea {
+.profile-management .form-group textarea {
   resize: vertical;
   min-height: 120px;
 }
@@ -494,7 +494,7 @@
   color: #6b7280;
 }
 
-.loading-spinner {
+.profile-management .loading-spinner {
   width: 48px;
   height: 48px;
   border: 4px solid #f3f4f6;

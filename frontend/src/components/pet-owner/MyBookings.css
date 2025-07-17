@@ -36,7 +36,7 @@
   font-weight: 600;
 }
 
-.header-stats {
+.my-bookings .header-stats {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -424,7 +424,7 @@
 }
 
 /* Modal Styles */
-.modal-overlay {
+.my-bookings .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -445,7 +445,7 @@
   to { opacity: 1; }
 }
 
-.modal {
+.my-bookings .modal {
   background: white;
   border-radius: var(--border-radius);
   width: 100%;
@@ -467,7 +467,7 @@
   }
 }
 
-.modal-header {
+.my-bookings .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -478,7 +478,7 @@
   border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
-.modal-header h3 {
+.my-bookings .modal-header h3 {
   margin: 0;
   font-size: 1.3rem;
   font-weight: 600;
@@ -504,7 +504,7 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-.modal-content {
+.my-bookings .modal-content {
   padding: 1.5rem;
   text-align: center;
 }
@@ -535,7 +535,7 @@
   margin: 1.5rem 0;
 }
 
-.modal-actions {
+.my-bookings .modal-actions {
   display: flex;
   gap: 1rem;
   justify-content: center;

@@ -16,14 +16,14 @@
   margin: 0;
 }
 
-.metrics-grid {
+.owner-dashboard-overview .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
-.metric-card {
+.owner-dashboard-overview .metric-card {
   background: white;
   border-radius: 12px;
   padding: 1.5rem;
@@ -34,21 +34,21 @@
   transition: transform 0.2s ease;
 }
 
-.metric-card:hover {
+.owner-dashboard-overview .metric-card:hover {
   transform: translateY(-2px);
 }
 
-.metric-icon {
+.owner-dashboard-overview .metric-icon {
   font-size: 2.5rem;
 }
 
-.metric-value {
+.owner-dashboard-overview .metric-value {
   font-size: 2rem;
   font-weight: 700;
   color: #2c3e50;
 }
 
-.metric-label {
+.owner-dashboard-overview .metric-label {
   color: #6c757d;
   font-size: 0.9rem;
 }
@@ -66,7 +66,7 @@
   overflow: hidden;
 }
 
-.card-header {
+.owner-dashboard-overview .card-header {
   padding: 1.5rem 1.5rem 1rem;
   display: flex;
   align-items: center;
@@ -74,7 +74,7 @@
   border-bottom: 1px solid #e9ecef;
 }
 
-.card-header h3 {
+.owner-dashboard-overview .card-header h3 {
   margin: 0;
   color: #2c3e50;
   font-size: 1.1rem;
@@ -86,7 +86,7 @@
   font-size: 0.9rem;
 }
 
-.card-content {
+.owner-dashboard-overview .card-content {
   padding: 1.5rem;
 }
 
@@ -111,7 +111,7 @@
   cursor: pointer;
 }
 
-.actions-grid {
+.owner-dashboard-overview .actions-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;

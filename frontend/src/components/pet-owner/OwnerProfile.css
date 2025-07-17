@@ -77,18 +77,18 @@
   overflow-y: auto;
 }
 
-.form-section {
+.owner-profile .form-section {
   margin-bottom: 2.5rem;
   padding-bottom: 2rem;
   border-bottom: 1px solid #e9ecef;
 }
 
-.form-section:last-of-type {
+.owner-profile .form-section:last-of-type {
   border-bottom: none;
   margin-bottom: 2rem;
 }
 
-.form-section h3 {
+.owner-profile .form-section h3 {
   color: #333333;
   margin-bottom: 1.5rem;
   font-size: 1.2rem;
@@ -98,17 +98,17 @@
   display: inline-block;
 }
 
-.form-row {
+.owner-profile .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
 }
 
-.form-group {
+.owner-profile .form-group {
   margin-bottom: 1.5rem;
 }
 
-.form-group label {
+.owner-profile .form-group label {
   display: block;
   margin-bottom: 0.5rem;
   color: #374151;
@@ -116,9 +116,9 @@
   font-size: 0.95rem;
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
+.owner-profile .form-group input,
+.owner-profile .form-group textarea,
+.owner-profile .form-group select {
   width: 100%;
   padding: 0.75rem 1rem;
   border: 2px solid #e5e7eb;
@@ -130,15 +130,15 @@
   box-sizing: border-box;
 }
 
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
+.owner-profile .form-group input:focus,
+.owner-profile .form-group textarea:focus,
+.owner-profile .form-group select:focus {
   outline: none;
   border-color: #FFA500;
   box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
 }
 
-.form-group textarea {
+.owner-profile .form-group textarea {
   resize: vertical;
   min-height: 80px;
 }
@@ -164,7 +164,7 @@
   margin: 0;
 }
 
-.form-actions {
+.owner-profile .form-actions {
   display: flex;
   justify-content: flex-end;
   padding: 1.5rem;
