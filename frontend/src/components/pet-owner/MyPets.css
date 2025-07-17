@@ -266,11 +266,13 @@
   background: white;
   border-radius: var(--border-radius);
   width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
+  max-width: 700px;
+  max-height: 95vh;
   overflow-y: auto;
   box-shadow: var(--shadow-medium);
   animation: slideIn 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes slideIn {
@@ -324,6 +326,9 @@
 /* Form Styles */
 .pet-form {
   padding: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(95vh - 120px);
 }
 
 .form-row {
@@ -373,7 +378,7 @@
 
 .form-section {
   margin: 2rem 0;
-  padding: 1rem;
+  padding: 1.5rem;
   background-color: var(--background-color);
   border-radius: 8px;
   border: 1px solid var(--border-color);
@@ -403,8 +408,12 @@
   gap: 1rem;
   justify-content: flex-end;
   margin-top: 2rem;
-  padding-top: 1rem;
+  padding: 1.5rem;
   border-top: 1px solid var(--border-color);
+  background: white;
+  position: sticky;
+  bottom: 0;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 
 .cancel-btn {
@@ -527,6 +536,7 @@
 
   .modal {
     max-width: 95vw;
+    max-height: 98vh;
     margin: 0.5rem;
   }
 
@@ -535,6 +545,11 @@
   }
 
   .pet-form {
+    padding: 1rem;
+    max-height: calc(98vh - 140px);
+  }
+
+  .form-actions {
     padding: 1rem;
   }
 }
