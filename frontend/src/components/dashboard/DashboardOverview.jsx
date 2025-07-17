@@ -119,25 +119,55 @@ const DashboardOverview = () => {
                   strokeWidth="3"
                   points={dashboardData.monthlyEarnings.map((item, index) => {
                     const x = (index + 1) * (800 / (dashboardData.monthlyEarnings.length + 1));
-                    const maxEarnings = Math.max(...dashboardData.monthlyEarnings.map(e => e.earnings));
-                    const y = 250 - (item.earnings / maxEarnings) * 200;
-                    return `${x},${y}`;
+                    
+                    // Safely get earnings values and handle null/undefined
+                    const validEarnings = dashboardData.monthlyEarnings
+                      .map(e => Number(e.earnings) || 0)
+                      .filter(val => !isNaN(val) && isFinite(val));
+                    
+                    const maxEarnings = validEarnings.length > 0 ? Math.max(...validEarnings) : 1;
+                    const safeEarnings = Number(item.earnings) || 0;
+                    
+                    // Prevent division by zero and ensure valid coordinates
+                    const normalizedValue = maxEarnings > 0 ? (safeEarnings / maxEarnings) : 0;
+                    const y = 250 - (normalizedValue * 200);
+                    
+                    // Ensure coordinates are valid numbers
+                    const safeX = isNaN(x) ? 0 : x;
+                    const safeY = isNaN(y) ? 250 : y;
+                    
+                    return `${safeX},${safeY}`;
                   }).join(' ')}
                 />
                 
                 {/* Data points */}
                 {dashboardData.monthlyEarnings.map((item, index) => {
                   const x = (index + 1) * (800 / (dashboardData.monthlyEarnings.length + 1));
-                  const maxEarnings = Math.max(...dashboardData.monthlyEarnings.map(e => e.earnings));
-                  const y = 250 - (item.earnings / maxEarnings) * 200;
+                  
+                  // Safely get earnings values and handle null/undefined
+                  const validEarnings = dashboardData.monthlyEarnings
+                    .map(e => Number(e.earnings) || 0)
+                    .filter(val => !isNaN(val) && isFinite(val));
+                  
+                  const maxEarnings = validEarnings.length > 0 ? Math.max(...validEarnings) : 1;
+                  const safeEarnings = Number(item.earnings) || 0;
+                  
+                  // Prevent division by zero and ensure valid coordinates
+                  const normalizedValue = maxEarnings > 0 ? (safeEarnings / maxEarnings) : 0;
+                  const y = 250 - (normalizedValue * 200);
+                  
+                  // Ensure coordinates are valid numbers
+                  const safeX = isNaN(x) ? 0 : x;
+                  const safeY = isNaN(y) ? 250 : y;
+                  
                   return (
                     <g key={index}>
-                      <circle cx={x} cy={y} r="6" fill="#ff6b35" />
-                      <text x={x} y="280" textAnchor="middle" fontSize="12" fill="#666">
-                        {item.month}
+                      <circle cx={safeX} cy={safeY} r="6" fill="#ff6b35" />
+                      <text x={safeX} y="280" textAnchor="middle" fontSize="12" fill="#666">
+                        {item.month || 'N/A'}
                       </text>
-                      <text x={x} y={y - 15} textAnchor="middle" fontSize="11" fill="#333">
-                        ${item.earnings}
+                      <text x={safeX} y={safeY - 15} textAnchor="middle" fontSize="11" fill="#333">
+                        ${safeEarnings.toFixed(2)}
                       </text>
                     </g>
                   );
