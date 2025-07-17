@@ -50,7 +50,7 @@ const SignUp = () => {
     }
 
     try {
-      const result = await signup(formData.email, formData.password, formData.role);
+      await signup(formData.email, formData.password, formData.role);
       
       // Redirect to email verification page
       navigate(`/email-verification?email=${encodeURIComponent(formData.email)}&role=${formData.role}`);

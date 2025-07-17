@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { authenticatedApiCall } from '../../utils/api';
 import './DashboardOverview.css';
@@ -9,11 +9,7 @@ const DashboardOverview = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [stats, setStats] = useState(null);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, [currentUser]);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     if (!currentUser) return;
     
     try {
@@ -39,7 +35,11 @@ const DashboardOverview = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   if (loading) {
     return (

@@ -5,7 +5,6 @@ import './OwnerProfile.css';
 
 const OwnerProfile = () => {
   const { currentUser } = useAuth();
-  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -39,7 +38,6 @@ const OwnerProfile = () => {
       if (response.ok) {
         const data = await response.json();
         const profileData = data.data;
-        setProfile(profileData);
         setFormData({
           name: profileData.name || '',
           phone: profileData.phone || '',
@@ -89,7 +87,7 @@ const OwnerProfile = () => {
         }));
       } else if (parent === 'preferences') {
         if (child === 'notifications') {
-          const [notifParent, notifChild] = e.target.dataset.notif.split('.');
+          const [, notifChild] = e.target.dataset.notif.split('.');
           setFormData(prev => ({
             ...prev,
             preferences: {
@@ -134,8 +132,6 @@ const OwnerProfile = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setProfile(data.data);
         setSuccess('Profile updated successfully!');
         setTimeout(() => setSuccess(''), 3000);
       } else {

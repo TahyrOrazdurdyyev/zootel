@@ -5,7 +5,6 @@ import './CustomerManagement.css';
 
 const CustomerManagement = () => {
   const { currentUser } = useAuth();
-  const [customers, setCustomers] = useState([]);
   const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -48,7 +47,6 @@ const CustomerManagement = () => {
       
       if (response.ok) {
         const data = await response.json();
-        setCustomers(data.data);
         setFilteredCustomers(data.data);
         setPagination(data.pagination);
       } else {

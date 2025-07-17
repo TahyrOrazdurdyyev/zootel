@@ -39,6 +39,7 @@ const PLAN_CONFIGS = {
 
 const SubscriptionContext = createContext();
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (!context) {

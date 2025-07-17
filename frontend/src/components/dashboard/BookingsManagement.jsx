@@ -318,7 +318,7 @@ const BookingsManagement = () => {
           <div className="calendar-date">{day}</div>
           {dayAppointments.length > 0 && (
             <div className="appointment-indicators">
-              {dayAppointments.slice(0, 3).map((apt, index) => (
+              {dayAppointments.slice(0, 3).map((apt) => (
                 <div 
                   key={apt.id}
                   className={`appointment-indicator status-${apt.status}`}
