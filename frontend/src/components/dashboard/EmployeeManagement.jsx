@@ -119,31 +119,63 @@ const EmployeeManagement = () => {
   }, [currentUser]);
 
   const fetchEmployeeOptions = useCallback(async () => {
+    if (!currentUser) {
+      console.log('No current user, skipping employee options fetch');
+      return;
+    }
+    
     try {
       const token = await currentUser.getIdToken();
       const baseUrl = import.meta.env.VITE_API_URL || 'https://zootel.shop';
       
-      const [rolesResponse, skillsResponse] = await Promise.all([
-        fetch(`${baseUrl}/api/employees/roles/list`, {
+      console.log('Fetching employee options with token:', token ? 'Present' : 'Missing');
+      
+      // Fetch roles and skills separately with individual error handling
+      try {
+        const rolesResponse = await fetch(`${baseUrl}/api/employees/roles/list`, {
           headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch(`${baseUrl}/api/employees/skills/list`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-      ]);
-
-      if (rolesResponse.ok && skillsResponse.ok) {
-        const rolesData = await rolesResponse.json();
-        const skillsData = await skillsResponse.json();
-        setRoles(rolesData.data || []);
-        setSkills(skillsData.data || []);
+        });
+        
+        if (rolesResponse.ok) {
+          const rolesData = await rolesResponse.json();
+          console.log('Roles fetched successfully:', rolesData);
+          setRoles(rolesData.data || []);
+        } else {
+          const errorText = await rolesResponse.text();
+          console.error('Roles fetch failed:', rolesResponse.status, errorText);
+        }
+      } catch (rolesError) {
+        console.error('Error fetching roles:', rolesError);
       }
+
+      try {
+        const skillsResponse = await fetch(`${baseUrl}/api/employees/skills/list`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (skillsResponse.ok) {
+          const skillsData = await skillsResponse.json();
+          console.log('Skills fetched successfully:', skillsData);
+          setSkills(skillsData.data || []);
+        } else {
+          const errorText = await skillsResponse.text();
+          console.error('Skills fetch failed:', skillsResponse.status, errorText);
+        }
+      } catch (skillsError) {
+        console.error('Error fetching skills:', skillsError);
+      }
+      
     } catch (error) {
-      console.error('Error fetching employee options:', error);
+      console.error('Error in fetchEmployeeOptions:', error);
     }
   }, [currentUser]);
 
   const fetchStats = useCallback(async () => {
+    if (!currentUser) {
+      console.log('No current user, skipping stats fetch');
+      return;
+    }
+    
     try {
       const token = await currentUser.getIdToken();
       const baseUrl = import.meta.env.VITE_API_URL || 'https://zootel.shop';
@@ -157,6 +189,9 @@ const EmployeeManagement = () => {
       if (response.ok) {
         const data = await response.json();
         setStats(data.data);
+      } else {
+        const errorText = await response.text();
+        console.error('Stats fetch failed:', response.status, errorText);
       }
     } catch (error) {
       console.error('Error fetching employee stats:', error);
@@ -192,10 +227,15 @@ const EmployeeManagement = () => {
   }, [employees, statusFilter, roleFilter, searchTerm]);
 
   useEffect(() => {
-    fetchEmployees();
-    fetchEmployeeOptions();
-    fetchStats();
-  }, [fetchEmployees, fetchEmployeeOptions, fetchStats]);
+    if (currentUser) {
+      console.log('User authenticated, fetching employee data');
+      fetchEmployees();
+      fetchEmployeeOptions();
+      fetchStats();
+    } else {
+      console.log('No user authenticated, waiting...');
+    }
+  }, [currentUser, fetchEmployees, fetchEmployeeOptions, fetchStats]);
 
   useEffect(() => {
     filterEmployees();
