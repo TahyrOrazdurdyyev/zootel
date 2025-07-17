@@ -18,7 +18,11 @@ const ProfileManagement = () => {
     name: '',
     phone: '',
     address: '',
+    city: '',
+    state: '',
+    zipCode: '',
     description: '',
+    logoUrl: '',
     businessHours: {
       monday: '',
       tuesday: '',
@@ -68,7 +72,11 @@ const ProfileManagement = () => {
           name: data.data.name || '',
           phone: data.data.phone || '',
           address: data.data.address || '',
+          city: data.data.city || '',
+          state: data.data.state || '',
+          zipCode: data.data.zipCode || '',
           description: data.data.description || '',
+          logoUrl: data.data.logoUrl || '',
           businessHours: data.data.businessHours || {
             monday: '',
             tuesday: '',
@@ -271,6 +279,57 @@ const ProfileManagement = () => {
                   />
                 </div>
 
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="city">City *</label>
+                    <input
+                      type="text"
+                      id="city"
+                      value={formData.city}
+                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      placeholder="Enter city"
+                      disabled={!hasFeature('profileCustomization')}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="state">State *</label>
+                    <input
+                      type="text"
+                      id="state"
+                      value={formData.state}
+                      onChange={(e) => handleInputChange('state', e.target.value)}
+                      placeholder="Enter state"
+                      disabled={!hasFeature('profileCustomization')}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="zipCode">ZIP Code *</label>
+                    <input
+                      type="text"
+                      id="zipCode"
+                      value={formData.zipCode}
+                      onChange={(e) => handleInputChange('zipCode', e.target.value)}
+                      placeholder="Enter ZIP code"
+                      disabled={!hasFeature('profileCustomization')}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group full-width">
+                  <label htmlFor="logoUrl">Company Logo URL (Optional)</label>
+                  <input
+                    type="url"
+                    id="logoUrl"
+                    value={formData.logoUrl}
+                    onChange={(e) => handleInputChange('logoUrl', e.target.value)}
+                    placeholder="Enter logo image URL"
+                    disabled={!hasFeature('profileCustomization')}
+                  />
+                  <small>Enter a URL to your company logo image</small>
+                </div>
+
                 <div className="form-group full-width">
                   <label htmlFor="description">Business Description</label>
                   <textarea
@@ -367,8 +426,12 @@ const ProfileManagement = () => {
                           const file = e.target.files[0];
                           if (file) {
                             // In a real app, you'd upload this to a cloud storage service
-                            const mockUrl = `https://via.placeholder.com/400x300?text=Photo+${formData.images.length + 1}`;
-                            handleImageAdd(mockUrl);
+                            // For now, we'll use a data URL for the image preview
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                              handleImageAdd(e.target.result);
+                            };
+                            reader.readAsDataURL(file);
                           }
                         }}
                       />

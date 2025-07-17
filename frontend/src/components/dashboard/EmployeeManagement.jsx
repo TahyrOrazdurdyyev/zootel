@@ -505,7 +505,13 @@ const EmployeeManagement = () => {
                         onError={(e) => {
                           const name = employee.name || 'Employee';
                           const initials = name.split(' ').map(n => n[0] || '').join('');
-                          e.target.src = `https://via.placeholder.com/150?text=${initials || 'E'}`;
+                          // Use a data URL for fallback instead of external service
+                          e.target.src = `data:image/svg+xml;base64,${btoa(`
+                            <svg width="150" height="150" xmlns="http://www.w3.org/2000/svg">
+                              <rect width="150" height="150" fill="#FFA500"/>
+                              <text x="75" y="85" font-family="Arial" font-size="48" fill="white" text-anchor="middle" dominant-baseline="middle">${initials || 'E'}</text>
+                            </svg>
+                          `)}`;
                         }}
                       />
                       <div className={`status-indicator ${employee.status || 'inactive'}`}></div>

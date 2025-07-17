@@ -134,41 +134,87 @@ router.put('/profile', verifyToken, requireCompany, async (req, res) => {
       name,
       phone,
       address,
+      city,
+      state,
+      zipCode,
       description,
-      services,
       businessHours,
+      logoUrl,
       images
     } = req.body;
 
-    // TODO: Implement database update for company profile
-    const updatedProfile = {
-      id: req.user.uid,
-      name: name || '',
-      email: req.user.email,
-      phone: phone || '',
-      address: address || '',
-      description: description || '',
-      services: services || [],
-      businessHours: businessHours || {
-        monday: '9:00 AM - 5:00 PM',
-        tuesday: '9:00 AM - 5:00 PM',
-        wednesday: '9:00 AM - 5:00 PM',
-        thursday: '9:00 AM - 5:00 PM',
-        friday: '9:00 AM - 5:00 PM',
-        saturday: 'Closed',
-        sunday: 'Closed'
-      },
-      images: images || [],
-      verified: false,
-      joinedDate: new Date().toISOString().split('T')[0],
-      updatedAt: new Date().toISOString()
-    };
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
+    
+    try {
+      // Update company profile in database
+      await connection.execute(
+        `UPDATE companies SET 
+         name = ?, phone = ?, address = ?, city = ?, state = ?, zipCode = ?, 
+         description = ?, businessHours = ?, logoUrl = ?, updatedAt = NOW()
+         WHERE id = ?`,
+        [
+          name || '', 
+          phone || '', 
+          address || '', 
+          city || '', 
+          state || '', 
+          zipCode || '', 
+          description || '', 
+          JSON.stringify(businessHours || {}), 
+          logoUrl || '', 
+          companyId
+        ]
+      );
 
-    res.json({
-      success: true,
-      message: 'Profile updated successfully',
-      data: updatedProfile
-    });
+      // Get updated profile from database
+      const [updatedRows] = await connection.execute(
+        'SELECT * FROM companies WHERE id = ?',
+        [companyId]
+      );
+
+      if (updatedRows.length === 0) {
+        return res.status(404).json({
+          error: 'Not Found',
+          message: 'Company not found'
+        });
+      }
+
+      const company = updatedRows[0];
+      const updatedProfile = {
+        id: company.id,
+        name: company.name || '',
+        email: company.email,
+        phone: company.phone || '',
+        address: company.address || '',
+        city: company.city || '',
+        state: company.state || '',
+        zipCode: company.zipCode || '',
+        description: company.description || '',
+        businessHours: (() => {
+          try {
+            return JSON.parse(company.businessHours || '{}');
+          } catch {
+            return {};
+          }
+        })(),
+        logoUrl: company.logoUrl || '',
+        images: images || [],
+        verified: Boolean(company.verified),
+        subscriptionPlan: company.subscriptionPlan || 'basic',
+        joinedDate: company.createdAt ? company.createdAt.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        updatedAt: company.updatedAt ? company.updatedAt.toISOString() : new Date().toISOString()
+      };
+
+      res.json({
+        success: true,
+        message: 'Profile updated successfully',
+        data: updatedProfile
+      });
+
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error('Error updating company profile:', error);
     res.status(500).json({
