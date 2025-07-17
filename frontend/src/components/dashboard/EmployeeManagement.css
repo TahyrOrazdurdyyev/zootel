@@ -867,8 +867,8 @@
 .cancel-btn {
   padding: 0.875rem 2rem;
   border: 2px solid #e9ecef;
-  background: #FFFFFF;
-  color: #6c757d;
+  background: orangered;
+  color: white;
   border-radius: 8px;
   font-weight: 600;
   font-size: 1rem;
@@ -879,8 +879,8 @@
 }
 
 .cancel-btn:hover {
-  background: #6c757d;
-  color: #FFFFFF;
+  background: white;
+  color: orangered;
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
 }
@@ -888,8 +888,8 @@
 .save-btn {
   padding: 0.875rem 2rem;
   border: 3px solid #FFA500;
-  background: #FFFFFF;
-  color: #FFA500;
+  background: orangered;
+  color: white;
   border-radius: 8px;
   font-weight: 700;
   font-size: 1rem;
@@ -901,8 +901,8 @@
 }
 
 .save-btn:hover:not(:disabled) {
-  background: #FFA500;
-  color: #FFFFFF;
+  background: white;
+  color: orangered;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
   border-color: #FFA500;
