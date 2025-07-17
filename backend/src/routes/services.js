@@ -12,26 +12,101 @@ router.get('/public', async (req, res) => {
   try {
     const { category, petType, location, page = 1, limit = 20 } = req.query;
 
-    // TODO: Implement database query to get public services
-    // For now, return empty array
-    const marketplaceServices = [];
-
-    // Pagination
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + parseInt(limit);
-    const paginatedServices = marketplaceServices.slice(startIndex, endIndex);
-
-    res.json({
-      success: true,
-      data: paginatedServices,
-      count: paginatedServices.length,
-      pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(marketplaceServices.length / limit),
-        totalServices: marketplaceServices.length,
-        limit: parseInt(limit)
+    const connection = await pool.getConnection();
+    
+    try {
+      // Build the base query to get active services from verified companies
+      let query = `
+        SELECT 
+          s.id, s.name, s.description, s.price, s.duration, s.category, s.imageUrl,
+          c.id as companyId, c.name as companyName, c.address, c.city, c.state, c.phone,
+          c.verified, c.logoUrl,
+          AVG(r.rating) as rating,
+          COUNT(r.id) as reviewCount
+        FROM services s
+        INNER JOIN companies c ON s.companyId = c.id
+        LEFT JOIN reviews r ON c.id = r.companyId
+        WHERE s.active = true AND c.verified = true
+      `;
+      
+      const queryParams = [];
+      
+      // Apply category filter
+      if (category && category !== 'all') {
+        query += ' AND s.category = ?';
+        queryParams.push(category);
       }
-    });
+      
+      // Apply location filter (city or state)
+      if (location) {
+        query += ' AND (c.city LIKE ? OR c.state LIKE ? OR c.address LIKE ?)';
+        const locationPattern = `%${location}%`;
+        queryParams.push(locationPattern, locationPattern, locationPattern);
+      }
+      
+      // Group by service for aggregation
+      query += ' GROUP BY s.id, c.id';
+      
+      // Add ordering (newest first)
+      query += ' ORDER BY s.createdAt DESC';
+      
+      // Get total count for pagination
+      const countQuery = `
+        SELECT COUNT(DISTINCT s.id) as total
+        FROM services s
+        INNER JOIN companies c ON s.companyId = c.id
+        WHERE s.active = true AND c.verified = true
+        ${category && category !== 'all' ? 'AND s.category = ?' : ''}
+        ${location ? 'AND (c.city LIKE ? OR c.state LIKE ? OR c.address LIKE ?)' : ''}
+      `;
+      
+      const [countResult] = await connection.execute(countQuery, queryParams);
+      const totalServices = countResult[0].total;
+      
+      // Add pagination
+      const offset = (page - 1) * limit;
+      query += ` LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
+      
+      const [servicesResult] = await connection.execute(query, queryParams);
+      
+      // Format the services data for marketplace
+      const marketplaceServices = servicesResult.map(service => ({
+        id: service.id,
+        name: service.name,
+        description: service.description || '',
+        price: parseFloat(service.price),
+        duration: service.duration,
+        category: service.category || '',
+        imageUrl: service.imageUrl || '',
+        companyId: service.companyId,
+        companyName: service.companyName || 'Unknown Company',
+        companyAddress: service.address || '',
+        companyCity: service.city || '',
+        companyState: service.state || '',
+        companyPhone: service.phone || '',
+        companyLogoUrl: service.logoUrl || '',
+        companyVerified: Boolean(service.verified),
+        rating: parseFloat(service.rating) || 0.0,
+        reviewCount: service.reviewCount || 0,
+        // Mock data for pet types (could be added to database schema later)
+        petTypes: ['Dog', 'Cat', 'Bird', 'Rabbit', 'Other']
+      }));
+
+      res.json({
+        success: true,
+        data: marketplaceServices,
+        count: marketplaceServices.length,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(totalServices / limit),
+          totalServices: totalServices,
+          limit: parseInt(limit)
+        }
+      });
+      
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error('Error getting public services:', error);
     res.status(500).json({
