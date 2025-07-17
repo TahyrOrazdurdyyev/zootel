@@ -1,5 +1,5 @@
 .footer {
-  background-color: #f8f9fa;
+  background-color: #FFFFFF;
   border-top: 2px solid var(--border-color);
   margin-top: auto;
 }
@@ -175,25 +175,43 @@
   transform: translateX(-50%) translateY(-8px);
 }
 
-/* Responsive Design */
+/* Enhanced Mobile Responsiveness */
 @media (max-width: 768px) {
-  .app-store-button {
-    width: 160px;
-    min-height: 55px;
-    padding: 10px 14px;
+  .footer-container {
+    padding: 2rem 1rem 1.5rem;
   }
   
-  .app-button-icon svg {
-    width: 24px;
-    height: 24px;
+  .footer-content {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
   }
   
-  .app-button-title {
-    font-size: 16px;
+  .footer-title {
+    font-size: 1rem;
   }
   
-  .app-button-subtitle {
-    font-size: 9px;
+  .footer-link {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-container {
+    padding: 1.5rem 0.5rem 1rem;
+  }
+  
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .footer-title {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .footer-link {
+    font-size: 0.8rem;
   }
 }
 

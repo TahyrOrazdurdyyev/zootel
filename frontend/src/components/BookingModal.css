@@ -1,9 +1,9 @@
 /* BookingModal.css */
 
 :root {
-  --primary-color: #f75815;
-  --secondary-color: #fff;
-  --text-color: #2c3e50;
+  --primary-color: #FFA500;
+  --secondary-color: #FFFFFF;
+  --text-color: #333333;
   --text-muted: #6c757d;
   --border-color: #e9ecef;
   --success-color: #28a745;
@@ -44,7 +44,7 @@
 
 /* Modal Container */
 .booking-modal {
-  background: white;
+  background: #FFFFFF;
   border-radius: var(--border-radius);
   width: 100%;
   max-width: 700px;

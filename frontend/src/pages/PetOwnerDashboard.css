@@ -1,11 +1,55 @@
 .pet-owner-dashboard {
+  min-height: 100vh;
+  background-color: #FFFFFF;
+
+  --primary-color: #FFA500;
+  --secondary-color: #FFFFFF;
+  --accent-color: #FFB84D;
+}
+
+.dashboard-container {
   display: flex;
-  height: 100vh;
-  background-color: #f8f9fa;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  --primary-color: #f75815;
-  --secondary-color: #7ED321;
-  --accent-color: #50E3C2;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 280px;
+  background-color: #FFFFFF;
+}
+
+.content-wrapper {
+  padding: 2rem;
+  min-height: calc(100vh - 80px);
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 3px solid #e3e3e3;
+  border-top: 3px solid var(--primary-color);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, #FFB84D 100%);
 }
 
 /* Loading State */

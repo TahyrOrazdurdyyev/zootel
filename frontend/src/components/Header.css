@@ -246,7 +246,7 @@
   color: #dc3545;
 }
 
-/* Mobile Responsive */
+/* Mobile Responsive Improvements */
 @media (max-width: 768px) {
   .header-container {
     padding: 0 1rem;
@@ -257,21 +257,31 @@
   }
   
   .nav-link {
-    padding: 0.5rem;
     font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
   }
   
-  .profile-name,
-  .profile-role {
-    display: none;
+  .logo-image {
+    height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-container {
+    height: 60px;
+    padding: 0 0.5rem;
   }
   
-  .auth-buttons {
+  .logo-image {
+    height: 50px;
+  }
+  
+  .nav {
     gap: 0.5rem;
   }
   
-  .btn {
-    padding: 0.4rem 1rem;
+  .nav-link {
     font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
   }
 } 
