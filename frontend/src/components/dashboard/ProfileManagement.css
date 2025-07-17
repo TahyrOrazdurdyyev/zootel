@@ -123,70 +123,107 @@
   font-size: 1.1rem;
 }
 
-/* Form Container */
-.profile-form-container {
-  background: white;
-  border-radius: 20px;
-  padding: 2.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+/* Content Section */
+.profile-content {
   flex: 1;
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  min-height: 500px;
+  margin-bottom: 2rem;
+}
+
+.tab-content {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* Form Sections */
 .form-section {
-  display: none;
-}
-
-.form-section.active {
-  display: block;
+  margin-bottom: 2rem;
 }
 
 .form-section h3 {
-  margin: 0 0 2rem 0;
   color: #2c3e50;
   font-size: 1.5rem;
   font-weight: 600;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+  display: inline-block;
 }
 
-/* Form Grid */
+.form-section p {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+/* Form Grid Layout */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
 .form-group {
-  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
   color: #374151;
-  font-weight: 500;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
   font-size: 0.95rem;
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
-  width: 100%;
-  padding: 0.875rem 1rem;
+  background: #FFFFFF;
   border: 2px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
   font-size: 1rem;
+  color: #374151;
   transition: all 0.3s ease;
-  background: #fafbfc;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #ff6b35;
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
-  background: white;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
+}
+
+.form-group input:disabled,
+.form-group textarea:disabled,
+.form-group select:disabled {
+  background: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.form-group input.readonly {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.form-group small {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
 }
 
 .form-group textarea {
@@ -194,17 +231,71 @@
   min-height: 120px;
 }
 
-.form-group.full-width {
-  grid-column: 1 / -1;
+/* Business Hours Section */
+.business-hours {
+  background: #FFFFFF;
+  padding: 2rem;
+  border-radius: 16px;
 }
 
-/* Business Hours Section */
 .hours-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
+.hours-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.hours-row:hover {
+  border-color: var(--primary-color);
+  background: #FFFFFF;
+}
+
+.day-label {
+  min-width: 100px;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.hours-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.hours-inputs input {
+  background: #FFFFFF;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  color: #374151;
+  width: 120px;
+}
+
+.hours-inputs input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.hours-inputs span {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* Day Hours (alternative layout) */
 .day-hours {
   background: #f8f9fa;
   padding: 1.5rem;
@@ -214,12 +305,12 @@
 }
 
 .day-hours:hover {
-  border-color: #ff6b35;
-  background: white;
+  border-color: var(--primary-color);
+  background: #FFFFFF;
 }
 
 .day-hours label {
-  color: #2c3e50;
+  color: #374151;
   font-weight: 600;
   margin-bottom: 0.75rem;
   display: block;
@@ -227,7 +318,7 @@
 
 .day-hours input {
   margin-bottom: 0;
-  background: white;
+  background: #FFFFFF;
 }
 
 /* Images Section */
