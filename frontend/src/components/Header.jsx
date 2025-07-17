@@ -82,10 +82,9 @@ const Header = () => {
               onMouseLeave={() => setShowProfileDropdown(false)}
             >
               <button className="profile-button">
-                <span className="profile-name">
-                  {currentUser?.displayName || currentUser?.email?.split('@')[0]}
-                </span>
-                <span className="profile-role">({userRole})</span>
+                <span className="profile-icon">👤</span>
+                <span className="profile-name">My Profile</span>
+                <span className="profile-role" style={{ display: 'none' }}>({userRole})</span>
               </button>
               
               {showProfileDropdown && (
