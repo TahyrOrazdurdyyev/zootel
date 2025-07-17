@@ -4,7 +4,7 @@
 }
 
 /* Hero Section */
-.app-hero {
+.zootel-app-page .app-hero {
   padding: 80px 0 120px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -12,7 +12,7 @@
   overflow: hidden;
 }
 
-.app-hero::before {
+.zootel-app-page .app-hero::before {
   content: '';
   position: absolute;
   top: 0;
@@ -23,7 +23,7 @@
   background-size: cover;
 }
 
-.hero-container {
+.zootel-app-page .hero-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
@@ -31,18 +31,18 @@
   z-index: 2;
 }
 
-.hero-content {
+.zootel-app-page .hero-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 60px;
   align-items: center;
 }
 
-.hero-text {
+.zootel-app-page .hero-text {
   max-width: 600px;
 }
 
-.hero-title {
+.zootel-app-page .hero-title {
   font-size: 3.5rem;
   font-weight: 800;
   margin-bottom: 20px;
@@ -54,7 +54,7 @@
   text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
 }
 
-.hero-subtitle {
+.zootel-app-page .hero-subtitle {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 20px;
@@ -62,7 +62,7 @@
   text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
-.hero-description {
+.zootel-app-page .hero-description {
   font-size: 1.1rem;
   line-height: 1.7;
   margin-bottom: 40px;
@@ -246,19 +246,19 @@
 }
 
 /* Features Section */
-.features-section {
+.zootel-app-page .features-section {
   padding: 100px 0;
   background: white;
   position: relative;
 }
 
-.container {
+.zootel-app-page .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
-.section-title {
+.zootel-app-page .section-title {
   text-align: center;
   font-size: 3rem;
   font-weight: 800;
@@ -269,7 +269,7 @@
   background-clip: text;
 }
 
-.section-subtitle {
+.zootel-app-page .section-subtitle {
   text-align: center;
   font-size: 1.3rem;
   color: #6c757d;
@@ -279,13 +279,13 @@
   margin-right: auto;
 }
 
-.features-grid {
+.zootel-app-page .features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 40px;
 }
 
-.feature-card {
+.zootel-app-page .feature-card {
   background: white;
   padding: 40px 30px;
   border-radius: 20px;
@@ -295,13 +295,13 @@
   border: 1px solid #f1f3f4;
 }
 
-.feature-card:hover {
+.zootel-app-page .feature-card:hover {
   transform: translateY(-10px);
   box-shadow: 0 20px 60px rgba(102, 126, 234, 0.2);
   border-color: #667eea;
 }
 
-.feature-icon {
+.zootel-app-page .feature-icon {
   font-size: 3rem;
   background: linear-gradient(45deg, #667eea, #764ba2);
   width: 80px;
@@ -315,33 +315,33 @@
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
-.feature-card h3 {
+.zootel-app-page .feature-card h3 {
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 15px;
   color: #2c3e50;
 }
 
-.feature-card p {
+.zootel-app-page .feature-card p {
   color: #6c757d;
   line-height: 1.6;
   font-size: 1rem;
 }
 
 /* App Store Section */
-.app-store-section {
+.zootel-app-page .app-store-section {
   padding: 100px 0;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
-.app-store-buttons {
+.zootel-app-page .app-store-buttons {
   display: flex;
   justify-content: center;
   gap: 30px;
   margin-top: 40px;
 }
 
-.app-store-button {
+.zootel-app-page .app-store-button {
   display: flex;
   align-items: center;
   gap: 15px;
@@ -356,33 +356,33 @@
   min-width: 200px;
 }
 
-.app-store-button.disabled {
+.zootel-app-page .app-store-button.disabled {
   background: #6c757d;
   cursor: not-allowed;
 }
 
-.app-store-button:hover:not(.disabled) {
+.zootel-app-page .app-store-button:hover:not(.disabled) {
   background: #333;
   transform: translateY(-3px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
-.app-button-icon svg {
+.zootel-app-page .app-button-icon svg {
   width: 40px;
   height: 40px;
 }
 
-.app-button-subtitle {
+.zootel-app-page .app-button-subtitle {
   font-size: 0.9rem;
   opacity: 0.8;
 }
 
-.app-button-title {
+.zootel-app-page .app-button-title {
   font-size: 1.3rem;
   font-weight: 600;
 }
 
-.coming-soon-overlay {
+.zootel-app-page .coming-soon-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -479,59 +479,59 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .hero-content {
+  .zootel-app-page .hero-content {
     grid-template-columns: 1fr;
     gap: 40px;
     text-align: center;
   }
   
-  .hero-title {
+  .zootel-app-page .hero-title {
     font-size: 2.5rem;
   }
   
-  .phone-mockup {
+  .zootel-app-page .phone-mockup {
     width: 250px;
     height: 500px;
     transform: none;
   }
   
-  .features-grid {
+  .zootel-app-page .features-grid {
     grid-template-columns: 1fr;
   }
   
-  .app-store-buttons {
+  .zootel-app-page .app-store-buttons {
     flex-direction: column;
     align-items: center;
   }
   
-  .form-inputs {
+  .zootel-app-page .form-inputs {
     gap: 12px;
   }
   
-  .waitlist-form {
+  .zootel-app-page .waitlist-form {
     padding: 20px;
   }
 }
 
 @media (max-width: 480px) {
-  .hero-title {
+  .zootel-app-page .hero-title {
     font-size: 2rem;
   }
   
-  .section-title {
+  .zootel-app-page .section-title {
     font-size: 2.2rem;
   }
   
-  .feature-card {
+  .zootel-app-page .feature-card {
     padding: 25px 20px;
   }
   
-  .phone-mockup {
+  .zootel-app-page .phone-mockup {
     width: 200px;
     height: 400px;
   }
   
-  .success-modal {
+  .zootel-app-page .success-modal {
     padding: 30px 20px;
   }
 } 
