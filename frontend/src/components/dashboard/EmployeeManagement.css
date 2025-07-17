@@ -888,8 +888,8 @@
 .save-btn {
   padding: 0.875rem 2rem;
   border: 2px solid #FFA500;
-  background: #FFA500;
-  color: #FFFFFF;
+  background: #FFFFFF;
+  color: #FFA500;
   border-radius: 8px;
   font-weight: 600;
   font-size: 1rem;
@@ -900,8 +900,8 @@
 }
 
 .save-btn:hover:not(:disabled) {
-  background: #FFFFFF;
-  color: #FFA500;
+  background: #FFA500;
+  color: #FFFFFF;
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
 }
