@@ -85,7 +85,20 @@ router.get('/profile', verifyToken, requireCompany, async (req, res) => {
           state: company.state || '',
           zipCode: company.zipCode || '',
           description: company.description || '',
-          businessHours: typeof company.businessHours === 'string' ? JSON.parse(company.businessHours) : (company.businessHours || {}),
+          businessHours: (() => {
+            try {
+              if (typeof company.businessHours === 'string') {
+                return JSON.parse(company.businessHours);
+              } else if (company.businessHours && typeof company.businessHours === 'object') {
+                return company.businessHours;
+              } else {
+                return {};
+              }
+            } catch (error) {
+              console.warn('Error parsing businessHours:', error);
+              return {};
+            }
+          })(),
           logoUrl: company.logoUrl || '',
           verified: Boolean(company.verified),
           subscriptionPlan: company.subscriptionPlan || 'basic',
