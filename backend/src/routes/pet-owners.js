@@ -712,7 +712,7 @@ router.post('/bookings', verifyToken, requirePetOwner, async (req, res) => {
       date,
       time,
       notes,
-      specialRequirements
+      specialRequirements: _specialRequirements // eslint-disable-line no-unused-vars
     } = req.body;
 
     // Validate required fields

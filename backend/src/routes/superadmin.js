@@ -15,7 +15,7 @@ router.get('/users', verifyToken, requireSuperadmin, async (req, res) => {
 
     // Get users from Firebase Auth
     const listUsersResult = await admin.auth().listUsers(1000); // Firebase limit per request
-    let allUsers = listUsersResult.users.map(userRecord => ({
+    const allUsers = listUsersResult.users.map(userRecord => ({
       uid: userRecord.uid,
       email: userRecord.email,
       displayName: userRecord.displayName || '',

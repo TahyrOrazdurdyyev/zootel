@@ -123,7 +123,7 @@ router.get('/', verifyToken, requireCompany, async (req, res) => {
 // GET /api/bookings/:id - Get specific booking
 router.get('/:id', verifyToken, requireCompany, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id: _id } = req.params; // eslint-disable-line no-unused-vars
     
     // TODO: Implement database query to get specific booking
     res.status(404).json({
@@ -388,7 +388,7 @@ router.put('/:id/status', verifyToken, requireCompany, async (req, res) => {
 // PUT /api/bookings/:id - Update booking details
 router.put('/:id', verifyToken, requireCompany, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id: _id } = req.params; // eslint-disable-line no-unused-vars
     
     // TODO: Implement database update for booking
     res.status(404).json({
@@ -407,7 +407,7 @@ router.put('/:id', verifyToken, requireCompany, async (req, res) => {
 // DELETE /api/bookings/:id - Cancel/delete booking
 router.delete('/:id', verifyToken, requireCompany, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id: _id } = req.params; // eslint-disable-line no-unused-vars
     
     // TODO: Implement booking cancellation/deletion
     res.status(404).json({
@@ -490,7 +490,7 @@ router.get('/stats/overview', verifyToken, requireCompany, async (req, res) => {
       };
       
       statusStatsResult.forEach(stat => {
-        if (statusCounts.hasOwnProperty(stat.status)) {
+        if (Object.prototype.hasOwnProperty.call(statusCounts, stat.status)) {
           statusCounts[stat.status] = stat.count;
         }
       });

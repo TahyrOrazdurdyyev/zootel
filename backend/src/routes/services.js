@@ -10,7 +10,7 @@ const requireCompany = requireRole(['pet_company', 'superadmin']);
 // GET /api/services/public - Get all public services (for marketplace)
 router.get('/public', async (req, res) => {
   try {
-    const { category, petType, location, page = 1, limit = 20 } = req.query;
+    const { category, petType: _petType, location, page = 1, limit = 20 } = req.query; // eslint-disable-line no-unused-vars
 
     const connection = await pool.getConnection();
     
@@ -172,7 +172,7 @@ router.get('/', verifyToken, requireCompany, async (req, res) => {
 // GET /api/services/:id - Get a specific service
 router.get('/:id', verifyToken, requireCompany, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id: _id } = req.params; // eslint-disable-line no-unused-vars
     
     // TODO: Implement database query to get specific service
     res.status(404).json({
@@ -387,7 +387,7 @@ router.put('/:id', verifyToken, requireCompany, async (req, res) => {
 // DELETE /api/services/:id - Delete a service
 router.delete('/:id', verifyToken, requireCompany, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id: _id } = req.params; // eslint-disable-line no-unused-vars
     
     // TODO: Implement database deletion for service
     res.status(404).json({

@@ -234,7 +234,6 @@ router.get('/analytics/overview', verifyToken, requireCompany, async (req, res) 
       // Get current date ranges
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const startOfYear = new Date(now.getFullYear(), 0, 1);
       
       // Get total bookings
       const [totalBookingsResult] = await connection.execute(
