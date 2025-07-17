@@ -145,6 +145,158 @@ router.get('/skills/list', verifyToken, requireCompany, async (req, res) => {
   }
 });
 
+// GET /api/employees/stats - Get employee statistics
+router.get('/stats', verifyToken, requireCompany, async (req, res) => {
+  try {
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
+    
+    try {
+      // Get total employees
+      const [totalEmployeesResult] = await connection.execute(
+        'SELECT COUNT(*) as total FROM employees WHERE companyId = ? AND active = true',
+        [companyId]
+      );
+      
+      // Get employees by position
+      const [positionStatsResult] = await connection.execute(
+        'SELECT position, COUNT(*) as count FROM employees WHERE companyId = ? AND active = true GROUP BY position',
+        [companyId]
+      );
+      
+      // Get new employees this month
+      const [newEmployeesResult] = await connection.execute(
+        'SELECT COUNT(*) as total FROM employees WHERE companyId = ? AND active = true AND createdAt >= DATE_SUB(NOW(), INTERVAL 1 MONTH)',
+        [companyId]
+      );
+      
+      // Get employee performance (based on bookings)
+      const [performanceResult] = await connection.execute(
+        `SELECT 
+           e.id, e.name, e.position,
+           COUNT(b.id) as totalBookings,
+           AVG(r.rating) as averageRating
+         FROM employees e
+         LEFT JOIN bookings b ON e.id = b.employeeId
+         LEFT JOIN reviews r ON b.id = r.bookingId
+         WHERE e.companyId = ? AND e.active = true
+         GROUP BY e.id
+         ORDER BY totalBookings DESC
+         LIMIT 5`,
+        [companyId]
+      );
+
+      const stats = {
+        totalEmployees: totalEmployeesResult[0].total || 0,
+        newEmployeesThisMonth: newEmployeesResult[0].total || 0,
+        positionDistribution: positionStatsResult.map(position => ({
+          position: position.position,
+          count: position.count
+        })),
+        topPerformers: performanceResult.map(emp => ({
+          id: emp.id,
+          name: emp.name,
+          position: emp.position,
+          totalBookings: emp.totalBookings || 0,
+          averageRating: parseFloat(emp.averageRating) || 0.0
+        }))
+      };
+
+      res.json({
+        success: true,
+        data: stats
+      });
+      
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Error getting employee stats:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get employee stats'
+    });
+  }
+});
+
+// GET /api/employees/available - Get available employees for assignment
+router.get('/available', verifyToken, requireCompany, async (req, res) => {
+  try {
+    const { date, time, duration = 60 } = req.query;
+    const companyId = req.user.uid;
+    const connection = await pool.getConnection();
+
+    try {
+      if (!date || !time) {
+        // Return all active employees if no date/time specified
+        const [employeesResult] = await connection.execute(
+          'SELECT id, name, position, specialties FROM employees WHERE companyId = ? AND active = true ORDER BY name',
+          [companyId]
+        );
+
+        const availableEmployees = employeesResult.map(employee => ({
+          id: employee.id,
+          name: employee.name,
+          position: employee.position,
+          specialties: employee.specialties ? JSON.parse(employee.specialties) : []
+        }));
+
+        return res.json({
+          success: true,
+          data: availableEmployees,
+          message: 'All active employees retrieved'
+        });
+      }
+
+      // Check for conflicts with specific date/time
+      const endTime = new Date(`${date} ${time}`);
+      endTime.setMinutes(endTime.getMinutes() + parseInt(duration));
+      const endTimeString = endTime.toTimeString().slice(0, 5);
+
+      const [availableEmployeesResult] = await connection.execute(
+        `SELECT e.id, e.name, e.position, e.specialties
+         FROM employees e
+         WHERE e.companyId = ? AND e.active = true
+         AND e.id NOT IN (
+           SELECT b.employeeId 
+           FROM bookings b 
+           WHERE b.employeeId IS NOT NULL 
+           AND b.date = ? 
+           AND b.status NOT IN ('cancelled', 'completed')
+           AND (
+             (b.time <= ? AND ADDTIME(b.time, SEC_TO_TIME(s.duration * 60)) > ?) 
+             OR (b.time < ? AND ADDTIME(b.time, SEC_TO_TIME(s.duration * 60)) >= ?)
+           )
+         )
+         ORDER BY e.name`,
+        [companyId, date, time, time, endTimeString, endTimeString]
+      );
+
+      const availableEmployees = availableEmployeesResult.map(employee => ({
+        id: employee.id,
+        name: employee.name,
+        position: employee.position,
+        specialties: employee.specialties ? JSON.parse(employee.specialties) : []
+      }));
+
+      res.json({
+        success: true,
+        data: availableEmployees,
+        message: 'Available employees retrieved successfully'
+      });
+
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Error getting available employees:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get available employees'
+    });
+  }
+});
+
 // GET /api/employees/:id - Get specific employee
 router.get('/:id', verifyToken, requireCompany, async (req, res) => {
   try {
@@ -450,148 +602,6 @@ router.delete('/:id', verifyToken, requireCompany, async (req, res) => {
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to delete employee'
-    });
-  }
-});
-
-// GET /api/employees/available - Get available employees for booking assignment
-router.get('/available', verifyToken, requireCompany, async (req, res) => {
-  try {
-    const { date, time, duration = 60 } = req.query;
-    const companyId = req.user.uid;
-    const connection = await pool.getConnection();
-
-    if (!date || !time) {
-      return res.status(400).json({
-        error: 'Bad Request',
-        message: 'Date and time are required'
-      });
-    }
-
-    try {
-      // Get all active employees
-      const [employeesResult] = await connection.execute(
-        'SELECT * FROM employees WHERE companyId = ? AND active = true',
-        [companyId]
-      );
-
-      // Calculate end time
-      const [hours, minutes] = time.split(':').map(Number);
-      const startMinutes = hours * 60 + minutes;
-      const endMinutes = startMinutes + parseInt(duration);
-      const endTime = `${Math.floor(endMinutes / 60).toString().padStart(2, '0')}:${(endMinutes % 60).toString().padStart(2, '0')}`;
-
-      // Check for conflicts with existing bookings
-      const availableEmployees = [];
-      
-      for (const employee of employeesResult) {
-        const [conflictingBookings] = await connection.execute(
-          `SELECT COUNT(*) as count FROM bookings 
-           WHERE employeeId = ? AND date = ? AND status IN ('confirmed', 'in_progress')
-           AND (
-             (time <= ? AND ADDTIME(time, SEC_TO_TIME(60 * (SELECT duration FROM services WHERE id = serviceId))) > ?) OR
-             (time < ? AND ADDTIME(time, SEC_TO_TIME(60 * (SELECT duration FROM services WHERE id = serviceId))) >= ?)
-           )`,
-          [employee.id, date, time, time, endTime, endTime]
-        );
-
-        if (conflictingBookings[0].count === 0) {
-          availableEmployees.push({
-            id: employee.id,
-            name: employee.name,
-            position: employee.position,
-            specialties: employee.specialties ? JSON.parse(employee.specialties) : []
-          });
-        }
-      }
-
-      res.json({
-        success: true,
-        data: availableEmployees
-      });
-
-    } finally {
-      connection.release();
-    }
-  } catch (error) {
-    console.error('Error getting available employees:', error);
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to get available employees'
-    });
-  }
-});
-
-// GET /api/employees/stats - Get employee statistics
-router.get('/stats', verifyToken, requireCompany, async (req, res) => {
-  try {
-    const companyId = req.user.uid;
-    const connection = await pool.getConnection();
-    
-    try {
-      // Get total employees
-      const [totalEmployeesResult] = await connection.execute(
-        'SELECT COUNT(*) as total FROM employees WHERE companyId = ? AND active = true',
-        [companyId]
-      );
-      
-      // Get employees by role
-      const [roleStatsResult] = await connection.execute(
-        'SELECT position, COUNT(*) as count FROM employees WHERE companyId = ? AND active = true GROUP BY position',
-        [companyId]
-      );
-      
-      // Get new employees this month
-      const [newEmployeesResult] = await connection.execute(
-        'SELECT COUNT(*) as total FROM employees WHERE companyId = ? AND active = true AND createdAt >= DATE_SUB(NOW(), INTERVAL 1 MONTH)',
-        [companyId]
-      );
-      
-      // Get employee performance (based on bookings)
-      const [performanceResult] = await connection.execute(
-        `SELECT 
-           e.id, e.name, e.position,
-           COUNT(b.id) as totalBookings,
-           AVG(r.rating) as averageRating
-         FROM employees e
-         LEFT JOIN bookings b ON e.id = b.employeeId
-         LEFT JOIN reviews r ON b.id = r.bookingId
-         WHERE e.companyId = ? AND e.active = true
-         GROUP BY e.id
-         ORDER BY totalBookings DESC
-         LIMIT 5`,
-        [companyId]
-      );
-
-      const stats = {
-        totalEmployees: totalEmployeesResult[0].total || 0,
-        newEmployeesThisMonth: newEmployeesResult[0].total || 0,
-        roleDistribution: roleStatsResult.map(role => ({
-          role: role.position,
-          count: role.count
-        })),
-        topPerformers: performanceResult.map(emp => ({
-          id: emp.id,
-          name: emp.name,
-          position: emp.position,
-          totalBookings: emp.totalBookings || 0,
-          averageRating: parseFloat(emp.averageRating) || 0.0
-        }))
-      };
-
-      res.json({
-        success: true,
-        data: stats
-      });
-      
-    } finally {
-      connection.release();
-    }
-  } catch (error) {
-    console.error('Error getting employee stats:', error);
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to get employee stats'
     });
   }
 });
