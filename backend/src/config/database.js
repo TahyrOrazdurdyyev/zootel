@@ -113,17 +113,17 @@ const createTables = async () => {
       CREATE TABLE IF NOT EXISTS employees (
         id VARCHAR(255) PRIMARY KEY,
         companyId VARCHAR(255) NOT NULL,
-        firebaseUid VARCHAR(255) UNIQUE NOT NULL,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL,
         phone VARCHAR(50) DEFAULT '',
-        role VARCHAR(50) DEFAULT 'employee',
+        position VARCHAR(100) DEFAULT '',
         specialties JSON,
         workingHours JSON,
         active BOOLEAN DEFAULT TRUE,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (companyId) REFERENCES companies(id) ON DELETE CASCADE
+        FOREIGN KEY (companyId) REFERENCES companies(id) ON DELETE CASCADE,
+        UNIQUE KEY unique_company_email (companyId, email)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
@@ -271,5 +271,61 @@ const seedDemoData = async () => {
   }
 };
 
-export { pool, testConnection, createDatabase, createTables, seedDemoData };
+// Migrate employees table to new schema
+const migrateEmployeesTable = async () => {
+  try {
+    const connection = await pool.getConnection();
+    
+    try {
+      // Check if firebaseUid column exists and drop it
+      const [columns] = await connection.execute(`
+        SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'employees' AND COLUMN_NAME = 'firebaseUid'
+      `, ['zootel']);
+
+      if (columns.length > 0) {
+        console.log('🔄 Migrating employees table: removing firebaseUid column...');
+        await connection.execute('ALTER TABLE employees DROP COLUMN firebaseUid');
+        console.log('✅ Removed firebaseUid column from employees table');
+      }
+
+      // Check if role column exists and rename to position
+      const [roleColumns] = await connection.execute(`
+        SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'employees' AND COLUMN_NAME = 'role'
+      `, ['zootel']);
+
+      if (roleColumns.length > 0) {
+        console.log('🔄 Migrating employees table: renaming role to position...');
+        await connection.execute('ALTER TABLE employees CHANGE COLUMN role position VARCHAR(100) DEFAULT ""');
+        console.log('✅ Renamed role column to position in employees table');
+      }
+
+      // Add unique constraint for company-email combination if it doesn't exist
+      const [constraints] = await connection.execute(`
+        SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+        WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'employees' AND CONSTRAINT_NAME = 'unique_company_email'
+      `, ['zootel']);
+
+      if (constraints.length === 0) {
+        console.log('🔄 Adding unique constraint for company-email combination...');
+        await connection.execute('ALTER TABLE employees ADD UNIQUE KEY unique_company_email (companyId, email)');
+        console.log('✅ Added unique constraint for company-email combination');
+      }
+
+      connection.release();
+      console.log('✅ Employees table migration completed successfully');
+      return true;
+    } catch (error) {
+      connection.release();
+      throw error;
+    }
+  } catch (error) {
+    console.error('❌ Error migrating employees table:', error.message);
+    console.warn('⚠️  Continuing without migration');
+    return false;
+  }
+};
+
+export { pool, testConnection, createDatabase, createTables, seedDemoData, migrateEmployeesTable };
 export default pool; 

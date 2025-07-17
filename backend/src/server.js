@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import admin, { initializeFirebase, seedSuperadmin } from './config/firebase.js';
-import { testConnection, createDatabase, createTables, seedDemoData } from './config/database.js';
+import { testConnection, createDatabase, createTables, seedDemoData, migrateEmployeesTable } from './config/database.js';
 import authRoutes from './routes/auth.js';
 import companiesRoutes from './routes/companies.js';
 import servicesRoutes from './routes/services.js';
@@ -209,6 +209,9 @@ const startServer = async () => {
       if (dbConnected) {
         // Create tables
         await createTables();
+        
+        // Run employee table migration
+        await migrateEmployeesTable();
         
         // Seed demo data
         await seedDemoData();

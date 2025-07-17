@@ -46,7 +46,7 @@ router.get('/', verifyToken, requireCompany, async (req, res) => {
         name: employee.name,
         email: employee.email,
         phone: employee.phone || '',
-        role: employee.role,
+        position: employee.position,
         specialties: employee.specialties ? JSON.parse(employee.specialties) : [],
         workingHours: employee.workingHours ? JSON.parse(employee.workingHours) : {},
         active: Boolean(employee.active),
@@ -77,11 +77,11 @@ router.get('/', verifyToken, requireCompany, async (req, res) => {
   }
 });
 
-// GET /api/employees/roles/list - Get predefined employee roles for dropdown
-router.get('/roles/list', verifyToken, requireCompany, async (req, res) => {
+// GET /api/employees/positions/list - Get predefined employee positions for dropdown
+router.get('/positions/list', verifyToken, requireCompany, async (req, res) => {
   try {
-    // Predefined roles for pet service companies
-    const roles = [
+    // Predefined positions for pet service companies
+    const positions = [
       { id: 'veterinarian', name: 'Veterinarian', description: 'Licensed veterinary doctor' },
       { id: 'vet_technician', name: 'Veterinary Technician', description: 'Veterinary assistant and technician' },
       { id: 'groomer', name: 'Pet Groomer', description: 'Professional pet grooming specialist' },
@@ -96,14 +96,14 @@ router.get('/roles/list', verifyToken, requireCompany, async (req, res) => {
 
     res.json({
       success: true,
-      data: roles,
-      message: 'Employee roles retrieved successfully'
+      data: positions,
+      message: 'Employee positions retrieved successfully'
     });
   } catch (error) {
-    console.error('Error getting employee roles:', error);
+    console.error('Error getting employee positions:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to get employee roles'
+      message: 'Failed to get employee positions'
     });
   }
 });
@@ -172,7 +172,7 @@ router.get('/:id', verifyToken, requireCompany, async (req, res) => {
         name: employee.name,
         email: employee.email,
         phone: employee.phone || '',
-        role: employee.role,
+        position: employee.position,
         specialties: employee.specialties ? JSON.parse(employee.specialties) : [],
         workingHours: employee.workingHours ? JSON.parse(employee.workingHours) : {},
         active: Boolean(employee.active),
@@ -204,16 +204,16 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
       name,
       email,
       phone,
-      role,
+      position,
       specialties,
       workingHours
     } = req.body;
 
     // Validate required fields
-    if (!name || !email || !role) {
+    if (!name || !email || !position) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'Name, email, and role are required'
+        message: 'Name, email, and position are required'
       });
     }
 
@@ -235,18 +235,17 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
         });
       }
 
-      // Insert new employee
+      // Insert new employee (no Firebase UID - employees are company records)
       await connection.execute(
-        `INSERT INTO employees (id, companyId, firebaseUid, name, email, phone, role, specialties, workingHours, active, createdAt, updatedAt) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+        `INSERT INTO employees (id, companyId, name, email, phone, position, specialties, workingHours, active, createdAt, updatedAt) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           employeeId,
           companyId,
-          '', // No Firebase UID - employees are not user accounts
           name,
           email,
           phone || '',
-          role,
+          position,
           JSON.stringify(specialties || []),
           JSON.stringify(workingHours || {}),
           true
@@ -259,27 +258,26 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
         [employeeId]
       );
 
-      const newEmployee = newEmployeeResult[0];
-      const employeeData = {
-        id: newEmployee.id,
-        companyId: newEmployee.companyId,
-        name: newEmployee.name,
-        email: newEmployee.email,
-        phone: newEmployee.phone || '',
-        role: newEmployee.role,
-        specialties: newEmployee.specialties ? JSON.parse(newEmployee.specialties) : [],
-        workingHours: newEmployee.workingHours ? JSON.parse(newEmployee.workingHours) : {},
-        active: Boolean(newEmployee.active),
-        createdAt: newEmployee.createdAt,
-        updatedAt: newEmployee.updatedAt
+      const newEmployee = {
+        id: newEmployeeResult[0].id,
+        companyId: newEmployeeResult[0].companyId,
+        name: newEmployeeResult[0].name,
+        email: newEmployeeResult[0].email,
+        phone: newEmployeeResult[0].phone,
+        position: newEmployeeResult[0].position,
+        specialties: newEmployeeResult[0].specialties ? JSON.parse(newEmployeeResult[0].specialties) : [],
+        workingHours: newEmployeeResult[0].workingHours ? JSON.parse(newEmployeeResult[0].workingHours) : {},
+        active: Boolean(newEmployeeResult[0].active),
+        createdAt: newEmployeeResult[0].createdAt,
+        updatedAt: newEmployeeResult[0].updatedAt
       };
 
       res.status(201).json({
         success: true,
-        message: 'Employee added successfully',
-        data: employeeData
+        data: newEmployee,
+        message: 'Employee added successfully'
       });
-
+      
     } finally {
       connection.release();
     }
@@ -330,9 +328,9 @@ router.put('/:id', verifyToken, requireCompany, async (req, res) => {
         updateFields.push('phone = ?');
         updateValues.push(updateData.phone);
       }
-      if (updateData.role !== undefined) {
-        updateFields.push('role = ?');
-        updateValues.push(updateData.role);
+      if (updateData.position !== undefined) {
+        updateFields.push('position = ?');
+        updateValues.push(updateData.position);
       }
       if (updateData.specialties !== undefined) {
         updateFields.push('specialties = ?');
@@ -373,7 +371,7 @@ router.put('/:id', verifyToken, requireCompany, async (req, res) => {
         name: updatedEmployee.name,
         email: updatedEmployee.email,
         phone: updatedEmployee.phone || '',
-        role: updatedEmployee.role,
+        position: updatedEmployee.position,
         specialties: updatedEmployee.specialties ? JSON.parse(updatedEmployee.specialties) : [],
         workingHours: updatedEmployee.workingHours ? JSON.parse(updatedEmployee.workingHours) : {},
         active: Boolean(updatedEmployee.active),
@@ -501,7 +499,7 @@ router.get('/available', verifyToken, requireCompany, async (req, res) => {
           availableEmployees.push({
             id: employee.id,
             name: employee.name,
-            role: employee.role,
+            position: employee.position,
             specialties: employee.specialties ? JSON.parse(employee.specialties) : []
           });
         }
@@ -539,7 +537,7 @@ router.get('/stats', verifyToken, requireCompany, async (req, res) => {
       
       // Get employees by role
       const [roleStatsResult] = await connection.execute(
-        'SELECT role, COUNT(*) as count FROM employees WHERE companyId = ? AND active = true GROUP BY role',
+        'SELECT position, COUNT(*) as count FROM employees WHERE companyId = ? AND active = true GROUP BY position',
         [companyId]
       );
       
@@ -552,7 +550,7 @@ router.get('/stats', verifyToken, requireCompany, async (req, res) => {
       // Get employee performance (based on bookings)
       const [performanceResult] = await connection.execute(
         `SELECT 
-           e.id, e.name, e.role,
+           e.id, e.name, e.position,
            COUNT(b.id) as totalBookings,
            AVG(r.rating) as averageRating
          FROM employees e
@@ -569,13 +567,13 @@ router.get('/stats', verifyToken, requireCompany, async (req, res) => {
         totalEmployees: totalEmployeesResult[0].total || 0,
         newEmployeesThisMonth: newEmployeesResult[0].total || 0,
         roleDistribution: roleStatsResult.map(role => ({
-          role: role.role,
+          role: role.position,
           count: role.count
         })),
         topPerformers: performanceResult.map(emp => ({
           id: emp.id,
           name: emp.name,
-          role: emp.role,
+          position: emp.position,
           totalBookings: emp.totalBookings || 0,
           averageRating: parseFloat(emp.averageRating) || 0.0
         }))

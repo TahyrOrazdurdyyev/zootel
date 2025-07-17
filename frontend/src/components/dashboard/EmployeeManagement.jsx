@@ -23,14 +23,14 @@ const EmployeeManagement = () => {
 
   // Filters
   const [statusFilter, setStatusFilter] = useState('all');
-  const [roleFilter, setRoleFilter] = useState('all');
+  const [positionFilter, setPositionFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Statistics
   const [stats, setStats] = useState(null);
 
   // Available options
-  const [roles, setRoles] = useState([]);
+  const [positions, setPositions] = useState([]);
   const [skills, setSkills] = useState([]);
 
   // Form data
@@ -38,24 +38,9 @@ const EmployeeManagement = () => {
     name: '',
     email: '',
     phone: '',
-    role: '',
+    position: '',
     skills: [],
-    specializations: [],
-    availability: {
-      monday: { start: '09:00', end: '17:00', available: true },
-      tuesday: { start: '09:00', end: '17:00', available: true },
-      wednesday: { start: '09:00', end: '17:00', available: true },
-      thursday: { start: '09:00', end: '17:00', available: true },
-      friday: { start: '09:00', end: '17:00', available: true },
-      saturday: { start: '', end: '', available: false },
-      sunday: { start: '', end: '', available: false }
-    },
-    emergencyContact: {
-      name: '',
-      phone: '',
-      relationship: ''
-    },
-    notes: ''
+    workingHours: {}
   });
 
   const tabs = [
@@ -132,20 +117,20 @@ const EmployeeManagement = () => {
       
       // Fetch roles and skills separately with individual error handling
       try {
-        const rolesResponse = await fetch(`${baseUrl}/api/employees/roles/list`, {
+        const positionsResponse = await fetch(`${baseUrl}/api/employees/positions/list`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
-        if (rolesResponse.ok) {
-          const rolesData = await rolesResponse.json();
-          console.log('Roles fetched successfully:', rolesData);
-          setRoles(rolesData.data || []);
+        if (positionsResponse.ok) {
+          const positionsData = await positionsResponse.json();
+          console.log('Positions fetched successfully:', positionsData);
+          setPositions(positionsData.data || []);
         } else {
-          const errorText = await rolesResponse.text();
-          console.error('Roles fetch failed:', rolesResponse.status, errorText);
+          const errorText = await positionsResponse.text();
+          console.error('Positions fetch failed:', positionsResponse.status, errorText);
         }
-      } catch (rolesError) {
-        console.error('Error fetching roles:', rolesError);
+      } catch (positionsError) {
+        console.error('Error fetching positions:', positionsError);
       }
 
       try {
@@ -206,10 +191,10 @@ const EmployeeManagement = () => {
       filtered = filtered.filter(employee => employee.status === statusFilter);
     }
 
-    // Filter by role
-    if (roleFilter !== 'all') {
+    // Filter by position
+    if (positionFilter !== 'all') {
       filtered = filtered.filter(employee => 
-        employee.role.toLowerCase().includes(roleFilter.toLowerCase())
+        employee.position.toLowerCase().includes(positionFilter.toLowerCase())
       );
     }
 
@@ -219,12 +204,12 @@ const EmployeeManagement = () => {
       filtered = filtered.filter(employee =>
         employee.name.toLowerCase().includes(searchLower) ||
         employee.email.toLowerCase().includes(searchLower) ||
-        employee.role.toLowerCase().includes(searchLower)
+        employee.position.toLowerCase().includes(searchLower)
       );
     }
 
     setFilteredEmployees(filtered);
-  }, [employees, statusFilter, roleFilter, searchTerm]);
+  }, [employees, statusFilter, positionFilter, searchTerm]);
 
   useEffect(() => {
     if (currentUser) {
@@ -246,24 +231,9 @@ const EmployeeManagement = () => {
       name: '',
       email: '',
       phone: '',
-      role: '',
+      position: '',
       skills: [],
-      specializations: [],
-      availability: {
-        monday: { start: '09:00', end: '17:00', available: true },
-        tuesday: { start: '09:00', end: '17:00', available: true },
-        wednesday: { start: '09:00', end: '17:00', available: true },
-        thursday: { start: '09:00', end: '17:00', available: true },
-        friday: { start: '09:00', end: '17:00', available: true },
-        saturday: { start: '', end: '', available: false },
-        sunday: { start: '', end: '', available: false }
-      },
-      emergencyContact: {
-        name: '',
-        phone: '',
-        relationship: ''
-      },
-      notes: ''
+      workingHours: {}
     });
   };
 
@@ -278,11 +248,9 @@ const EmployeeManagement = () => {
       name: employee.name,
       email: employee.email,
       phone: employee.phone,
-      role: employee.role,
+      position: employee.position,
       skills: employee.skills || [],
-      specializations: employee.specializations || [],
-      availability: employee.availability || formData.availability,
-      emergencyContact: employee.emergencyContact || formData.emergencyContact,
+      workingHours: employee.workingHours || {},
       notes: employee.notes || ''
     });
     setSelectedEmployee(employee);
@@ -395,10 +363,10 @@ const EmployeeManagement = () => {
   const handleAvailabilityChange = (day, field, value) => {
     setFormData(prev => ({
       ...prev,
-      availability: {
-        ...prev.availability,
+      workingHours: {
+        ...prev.workingHours,
         [day]: {
-          ...prev.availability[day],
+          ...prev.workingHours[day],
           [field]: value
         }
       }
@@ -514,13 +482,13 @@ const EmployeeManagement = () => {
                   </select>
 
                   <select
-                    value={roleFilter}
-                    onChange={(e) => setRoleFilter(e.target.value)}
+                    value={positionFilter}
+                    onChange={(e) => setPositionFilter(e.target.value)}
                     className="filter-select"
                   >
-                    <option value="all">All Roles</option>
-                    {roles.map(role => (
-                      <option key={role.id} value={role.name}>{role.name}</option>
+                    <option value="all">All Positions</option>
+                    {positions.map(position => (
+                      <option key={position.id} value={position.name}>{position.name}</option>
                     ))}
                   </select>
                 </div>
@@ -543,7 +511,7 @@ const EmployeeManagement = () => {
 
                     <div className="employee-info">
                       <h3 className="employee-name">{employee.name}</h3>
-                      <p className="employee-role">{employee.role}</p>
+                      <p className="employee-role">{employee.position}</p>
                       <p className="employee-contact">{employee.email}</p>
                       
                       <div className="employee-meta">
@@ -700,7 +668,7 @@ const EmployeeManagement = () => {
                       <div className="schedule-header">
                         <div className="employee-info">
                           <h4>{employee.name}</h4>
-                          <p>{employee.role}</p>
+                          <p>{employee.position}</p>
                         </div>
                         <div className={`status-badge ${getStatusBadgeClass(employee.status)}`}>
                           {employee.status}
@@ -712,9 +680,9 @@ const EmployeeManagement = () => {
                           <div key={day.key} className="schedule-day">
                             <div className="day-name">{day.label.slice(0, 3)}</div>
                             <div className="day-hours">
-                              {employee.availability?.[day.key]?.available ? (
+                              {employee.workingHours?.[day.key]?.available ? (
                                 <span className="hours-text">
-                                  {employee.availability[day.key].start} - {employee.availability[day.key].end}
+                                  {employee.workingHours[day.key].start} - {employee.workingHours[day.key].end}
                                 </span>
                               ) : (
                                 <span className="hours-off">Off</span>
@@ -780,16 +748,16 @@ const EmployeeManagement = () => {
                       </div>
 
                       <div className="form-group">
-                        <label>Role *</label>
+                        <label>Position *</label>
                         <select
-                          name="role"
-                          value={formData.role}
-                          onChange={(e) => handleInputChange('role', e.target.value)}
+                          name="position"
+                          value={formData.position}
+                          onChange={(e) => handleInputChange('position', e.target.value)}
                           required={showAddModal || showEditModal}
                         >
-                          <option value="">Select Role</option>
-                          {roles.map(role => (
-                            <option key={role.id} value={role.name}>{role.name}</option>
+                          <option value="">Select Position</option>
+                          {positions.map(position => (
+                            <option key={position.id} value={position.name}>{position.name}</option>
                           ))}
                         </select>
                       </div>
@@ -823,24 +791,24 @@ const EmployeeManagement = () => {
                             <label className="day-checkbox">
                               <input
                                 type="checkbox"
-                                checked={formData.availability[day.key]?.available || false}
+                                checked={formData.workingHours[day.key]?.available || false}
                                 onChange={(e) => handleAvailabilityChange(day.key, 'available', e.target.checked)}
                               />
                               <span className="day-name">{day.label}</span>
                             </label>
                           </div>
                           
-                          {formData.availability[day.key]?.available && (
+                          {formData.workingHours[day.key]?.available && (
                             <div className="time-inputs">
                               <input
                                 type="time"
-                                value={formData.availability[day.key]?.start || '09:00'}
+                                value={formData.workingHours[day.key]?.start || '09:00'}
                                 onChange={(e) => handleAvailabilityChange(day.key, 'start', e.target.value)}
                               />
                               <span>to</span>
                               <input
                                 type="time"
-                                value={formData.availability[day.key]?.end || '17:00'}
+                                value={formData.workingHours[day.key]?.end || '17:00'}
                                 onChange={(e) => handleAvailabilityChange(day.key, 'end', e.target.value)}
                               />
                             </div>
@@ -858,7 +826,7 @@ const EmployeeManagement = () => {
                         <label>Emergency Contact Name</label>
                         <input
                           type="text"
-                          value={formData.emergencyContact.name}
+                          value={formData.emergencyContact?.name}
                           onChange={(e) => handleInputChange('emergencyContact', {
                             ...formData.emergencyContact,
                             name: e.target.value
@@ -870,7 +838,7 @@ const EmployeeManagement = () => {
                         <label>Emergency Contact Phone</label>
                         <input
                           type="tel"
-                          value={formData.emergencyContact.phone}
+                          value={formData.emergencyContact?.phone}
                           onChange={(e) => handleInputChange('emergencyContact', {
                             ...formData.emergencyContact,
                             phone: e.target.value
