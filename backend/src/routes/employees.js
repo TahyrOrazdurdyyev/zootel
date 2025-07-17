@@ -530,4 +530,72 @@ router.get('/stats', verifyToken, requireCompany, async (req, res) => {
   }
 });
 
+// GET /api/employees/roles/list - Get predefined employee roles for dropdown
+router.get('/roles/list', verifyToken, requireCompany, async (req, res) => {
+  try {
+    // Predefined roles for pet service companies
+    const roles = [
+      { id: 'veterinarian', name: 'Veterinarian', description: 'Licensed veterinary doctor' },
+      { id: 'vet_technician', name: 'Veterinary Technician', description: 'Veterinary assistant and technician' },
+      { id: 'groomer', name: 'Pet Groomer', description: 'Professional pet grooming specialist' },
+      { id: 'trainer', name: 'Pet Trainer', description: 'Animal behavior and training specialist' },
+      { id: 'caretaker', name: 'Pet Caretaker', description: 'General pet care and supervision' },
+      { id: 'receptionist', name: 'Receptionist', description: 'Front desk and customer service' },
+      { id: 'manager', name: 'Manager', description: 'Department or facility manager' },
+      { id: 'assistant', name: 'Assistant', description: 'General assistant role' },
+      { id: 'boarder', name: 'Pet Boarder', description: 'Pet boarding and overnight care specialist' },
+      { id: 'walker', name: 'Pet Walker', description: 'Professional dog walking services' }
+    ];
+
+    res.json({
+      success: true,
+      data: roles,
+      message: 'Employee roles retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Error getting employee roles:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get employee roles'
+    });
+  }
+});
+
+// GET /api/employees/skills/list - Get predefined employee skills for dropdown
+router.get('/skills/list', verifyToken, requireCompany, async (req, res) => {
+  try {
+    // Predefined skills for pet service employees
+    const skills = [
+      { id: 'animal_handling', name: 'Animal Handling', category: 'Care' },
+      { id: 'dog_grooming', name: 'Dog Grooming', category: 'Grooming' },
+      { id: 'cat_grooming', name: 'Cat Grooming', category: 'Grooming' },
+      { id: 'nail_trimming', name: 'Nail Trimming', category: 'Grooming' },
+      { id: 'teeth_cleaning', name: 'Teeth Cleaning', category: 'Health' },
+      { id: 'medication_admin', name: 'Medication Administration', category: 'Health' },
+      { id: 'first_aid', name: 'Pet First Aid', category: 'Health' },
+      { id: 'behavior_training', name: 'Behavior Training', category: 'Training' },
+      { id: 'obedience_training', name: 'Obedience Training', category: 'Training' },
+      { id: 'puppy_training', name: 'Puppy Training', category: 'Training' },
+      { id: 'aggressive_handling', name: 'Aggressive Animal Handling', category: 'Specialized' },
+      { id: 'elderly_care', name: 'Elderly Pet Care', category: 'Specialized' },
+      { id: 'special_needs', name: 'Special Needs Care', category: 'Specialized' },
+      { id: 'customer_service', name: 'Customer Service', category: 'Administrative' },
+      { id: 'scheduling', name: 'Appointment Scheduling', category: 'Administrative' },
+      { id: 'emergency_response', name: 'Emergency Response', category: 'Health' }
+    ];
+
+    res.json({
+      success: true,
+      data: skills,
+      message: 'Employee skills retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Error getting employee skills:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get employee skills'
+    });
+  }
+});
+
 export default router; 
