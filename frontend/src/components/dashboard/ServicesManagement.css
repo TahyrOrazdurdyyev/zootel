@@ -646,42 +646,80 @@
 }
 
 .cancel-btn {
-  background-color: transparent;
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
+  padding: 0.875rem 2rem;
+  border: 2px solid #FFA500;
+  background: #FFFFFF;
+  color: #FFA500;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  font-weight: 500;
-  transition: var(--transition);
+  transition: all 0.3s ease;
+  min-width: 120px;
+  text-align: center;
 }
 
 .cancel-btn:hover:not(:disabled) {
-  background-color: var(--background-color);
-  border-color: var(--text-muted);
+  background: #FFA500;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
 }
 
-.submit-btn {
-  background: linear-gradient(135deg, var(--primary-color), #ff7a47);
-  color: white;
-  border: none;
-  padding: 0.75rem 2rem;
-  border-radius: 6px;
-  cursor: pointer;
+.save-btn {
+  padding: 0.875rem 2rem;
+  border: 2px solid #FFA500;
+  background: #FFA500;
+  color: #FFFFFF;
+  border-radius: 8px;
   font-weight: 600;
-  transition: var(--transition);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  text-align: center;
 }
 
-.submit-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-light);
+.save-btn:hover:not(:disabled) {
+  background: #FFFFFF;
+  color: #FFA500;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
 }
 
-.submit-btn:disabled,
-.cancel-btn:disabled {
+.save-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
+}
+
+.delete-btn {
+  padding: 0.875rem 2rem;
+  border: 2px solid #dc3545;
+  background: #FFFFFF;
+  color: #dc3545;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  text-align: center;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: #dc3545;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Delete Modal */
@@ -709,23 +747,6 @@
   color: var(--text-muted);
   font-size: 0.9rem;
   margin-bottom: 2rem !important;
-}
-
-.delete-btn {
-  background-color: var(--error-color);
-  color: white;
-  border: none;
-  padding: 0.75rem 2rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: var(--transition);
-}
-
-.delete-btn:hover:not(:disabled) {
-  background-color: #c82333;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-light);
 }
 
 /* Responsive Design */

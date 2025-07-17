@@ -54,16 +54,16 @@ router.get('/', verifyToken, requireCompany, async (req, res) => {
         updatedAt: employee.updatedAt
       }));
 
-      res.json({
-        success: true,
+    res.json({
+      success: true,
         data: employees,
-        pagination: {
-          currentPage: parseInt(page),
+      pagination: {
+        currentPage: parseInt(page),
           totalPages: Math.ceil(totalEmployees / limit),
           totalEmployees: totalEmployees,
-          limit: parseInt(limit)
-        }
-      });
+        limit: parseInt(limit)
+      }
+    });
 
     } finally {
       connection.release();
@@ -529,10 +529,10 @@ router.put('/:id', verifyToken, requireCompany, async (req, res) => {
         active: Boolean(updatedEmployee.active),
         createdAt: updatedEmployee.createdAt,
         updatedAt: updatedEmployee.updatedAt
-      };
+    };
 
-      res.json({
-        success: true,
+    res.json({
+      success: true,
         message: 'Employee updated successfully',
         data: employeeData
       });
