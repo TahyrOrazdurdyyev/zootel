@@ -43,7 +43,7 @@
 }
 
 .footer-link {
-  color: #666;
+  color: var(--text-light);
   text-decoration: none;
   transition: color 0.3s ease;
   font-size: 0.9rem;
@@ -81,12 +81,12 @@
 }
 
 .ios-button {
-  background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, #FFA500 0%, #FFB84D 100%);
   color: white;
 }
 
 .android-button {
-  background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, #FFA500 0%, #FFB84D 100%);
   color: white;
 }
 
@@ -139,7 +139,7 @@
   bottom: 110%;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #333 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, #FFA500 0%, #FFB84D 100%);
   color: white;
   padding: 8px 12px;
   border-radius: 8px;
