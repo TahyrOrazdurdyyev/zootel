@@ -14,6 +14,7 @@ import customersRoutes from './routes/customers.js';
 import analyticsRoutes from './routes/analytics.js';
 import petOwnersRoutes from './routes/pet-owners.js';
 import superadminRoutes from './routes/superadmin.js';
+import waitlistRoutes from './routes/waitlist.js';
 import { verifyToken, optionalAuth } from './middleware/auth.js';
 
 // Load environment variables
@@ -114,6 +115,9 @@ app.get('/api/subscription', verifyToken, async (req, res) => {
 
 // Authentication routes
 app.use('/api/auth', authRoutes);
+
+// Waitlist routes (public)
+app.use('/api/waitlist', waitlistRoutes);
 
 // Pet company dashboard routes
 app.use('/api/companies', companiesRoutes);

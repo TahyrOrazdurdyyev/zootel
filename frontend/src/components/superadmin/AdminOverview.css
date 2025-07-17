@@ -161,6 +161,10 @@
   background: linear-gradient(90deg, var(--admin-warning), #ffb74d);
 }
 
+.metric-card.purple::before {
+  background: linear-gradient(90deg, #9C27B0, #E1BEE7);
+}
+
 .metric-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(124, 77, 255, 0.2);

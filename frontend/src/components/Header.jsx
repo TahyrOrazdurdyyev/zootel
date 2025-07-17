@@ -59,17 +59,15 @@ const Header = () => {
             </button>
             {showSolutionsDropdown && (
               <div className="dropdown-menu">
-                <div className="dropdown-item coming-soon">
+                <Link to="/zootel-app" className="dropdown-item">
                   📱 Zootel App
-                  <span className="coming-soon-badge">Coming Soon</span>
-                </div>
+                </Link>
                 <Link to="/pricing" className="dropdown-item">
                   💼 Zootel CRM
                 </Link>
-                <div className="dropdown-item coming-soon">
+                <Link to="/zootel-business" className="dropdown-item">
                   🏢 Zootel Business
-                  <span className="coming-soon-badge">Coming Soon</span>
-                </div>
+                </Link>
               </div>
             )}
           </div>

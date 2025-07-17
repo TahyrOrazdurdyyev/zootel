@@ -4,10 +4,12 @@ import './AdminOverview.css';
 const AdminOverview = () => {
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState(null);
+  const [waitlistStats, setWaitlistStats] = useState(null);
   const [systemStatus, setSystemStatus] = useState('healthy');
 
   useEffect(() => {
     fetchAnalytics();
+    fetchWaitlistStats();
     checkSystemStatus();
   }, []);
 
@@ -33,6 +35,25 @@ const AdminOverview = () => {
       console.error('Error fetching analytics:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchWaitlistStats = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://zootel.shop'}/api/waitlist/stats`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setWaitlistStats(result.data);
+      } else {
+        console.error('Failed to fetch waitlist stats');
+      }
+    } catch (error) {
+      console.error('Error fetching waitlist stats:', error);
     }
   };
 
@@ -190,6 +211,18 @@ const AdminOverview = () => {
             <div className="metric-value">{analytics.platformStats.averageRating}/5.0</div>
             <div className="metric-sub">
               <span>Service Quality</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="metric-card purple">
+          <div className="metric-icon">📋</div>
+          <div className="metric-content">
+            <h3>Waitlist Signups</h3>
+            <div className="metric-value">{waitlistStats ? formatNumber(waitlistStats.overall.total) : '...'}</div>
+            <div className="metric-sub">
+              <span>Mobile App: {waitlistStats?.byType?.mobile_app?.total || 0}</span>
+              <span>Business: {waitlistStats?.byType?.business_app?.total || 0}</span>
             </div>
           </div>
         </div>

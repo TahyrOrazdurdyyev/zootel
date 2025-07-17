@@ -7,6 +7,8 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import Marketplace from './pages/Marketplace';
 import Pricing from './pages/Pricing';
+import ZootelApp from './pages/ZootelApp';
+import ZootelBusiness from './pages/ZootelBusiness';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Support from './pages/Support';
@@ -66,6 +68,8 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/pricing" element={<Pricing />} />
+                <Route path="/zootel-app" element={<ZootelApp />} />
+                <Route path="/zootel-business" element={<ZootelBusiness />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/support" element={<Support />} />
