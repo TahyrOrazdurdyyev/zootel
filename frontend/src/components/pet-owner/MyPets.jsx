@@ -137,9 +137,16 @@ const MyPets = () => {
   };
 
   const openAddModal = () => {
+    console.log('🐾 Add Pet button clicked');
+    console.log('🔍 Current user:', currentUser ? 'Authenticated' : 'Not authenticated');
+    console.log('📝 Before - showAddModal:', showAddModal);
+    
     resetForm();
     setShowAddModal(true);
     setError('');
+    
+    console.log('✅ Modal state updated - showAddModal should be true');
+    console.log('📋 Form data after reset:', formData);
   };
 
   const openEditModal = (pet) => {
