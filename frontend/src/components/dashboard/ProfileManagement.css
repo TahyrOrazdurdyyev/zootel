@@ -8,7 +8,7 @@
 
 /* Header Section with Gradient */
 .profile-header {
-  background: linear-gradient(135deg, #ff6b35, #ff8c42, #ffa726);
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 50%, #ffa726 100%);
   color: white;
   padding: 2.5rem 2rem;
   border-radius: 20px;
@@ -49,16 +49,16 @@
 }
 
 .profile-header p {
-  color: white;
+  color: white !important;
   margin: 0;
   font-size: 1.1rem;
   font-weight: 400;
-  opacity: 0.9;
+  opacity: 1;
 }
 
-.header-info p {
+.profile-header .header-info p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.9);
+  color: white !important;
   font-size: 1.1rem;
   font-weight: 400;
 }
