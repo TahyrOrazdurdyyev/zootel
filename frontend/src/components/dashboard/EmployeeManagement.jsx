@@ -188,13 +188,13 @@ const EmployeeManagement = () => {
 
     // Filter by status
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(employee => employee.status === statusFilter);
+      filtered = filtered.filter(employee => (employee.status || 'inactive') === statusFilter);
     }
 
     // Filter by position
     if (positionFilter !== 'all') {
       filtered = filtered.filter(employee => 
-        employee.position.toLowerCase().includes(positionFilter.toLowerCase())
+        (employee.position || '').toLowerCase().includes(positionFilter.toLowerCase())
       );
     }
 
@@ -202,9 +202,9 @@ const EmployeeManagement = () => {
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(employee =>
-        employee.name.toLowerCase().includes(searchLower) ||
-        employee.email.toLowerCase().includes(searchLower) ||
-        employee.position.toLowerCase().includes(searchLower)
+        (employee.name || '').toLowerCase().includes(searchLower) ||
+        (employee.email || '').toLowerCase().includes(searchLower) ||
+        (employee.position || '').toLowerCase().includes(searchLower)
       );
     }
 
@@ -501,25 +501,27 @@ const EmployeeManagement = () => {
                     <div className="employee-avatar">
                       <img 
                         src={employee.profileImage} 
-                        alt={employee.name}
+                        alt={employee.name || 'Employee'}
                         onError={(e) => {
-                          e.target.src = `https://via.placeholder.com/150?text=${employee.name.split(' ').map(n => n[0]).join('')}`;
+                          const name = employee.name || 'Employee';
+                          const initials = name.split(' ').map(n => n[0] || '').join('');
+                          e.target.src = `https://via.placeholder.com/150?text=${initials || 'E'}`;
                         }}
                       />
-                      <div className={`status-indicator ${employee.status}`}></div>
+                      <div className={`status-indicator ${employee.status || 'inactive'}`}></div>
                     </div>
 
-                    <div className="employee-info">
-                      <h3 className="employee-name">{employee.name}</h3>
-                      <p className="employee-role">{employee.position}</p>
-                      <p className="employee-contact">{employee.email}</p>
+                                          <div className="employee-info">
+                      <h3 className="employee-name">{employee.name || 'No Name'}</h3>
+                      <p className="employee-role">{employee.position || 'No Position'}</p>
+                      <p className="employee-contact">{employee.email || 'No Email'}</p>
                       
                       <div className="employee-meta">
-                        <span className={`status-badge ${getStatusBadgeClass(employee.status)}`}>
-                          {employee.status.charAt(0).toUpperCase() + employee.status.slice(1)}
+                        <span className={`status-badge ${getStatusBadgeClass(employee.status || 'inactive')}`}>
+                          {(employee.status || 'inactive').charAt(0).toUpperCase() + (employee.status || 'inactive').slice(1)}
                         </span>
                         <span className="hire-date">
-                          Hired: {formatDate(employee.hireDate)}
+                          Hired: {formatDate(employee.hireDate || employee.createdAt)}
                         </span>
                       </div>
 
