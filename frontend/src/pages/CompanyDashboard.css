@@ -12,8 +12,8 @@
 
 .main-content {
   flex: 1;
-  margin-left: 280px;
   background-color: #FFFFFF;
+  margin-left: 0;
 }
 
 .content-wrapper {
