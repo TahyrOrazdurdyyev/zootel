@@ -865,47 +865,44 @@
 }
 
 .cancel-btn {
-  padding: 0.875rem 2rem;
-  border: 2px solid #e9ecef;
+  flex: 1;
+  padding: .75rem 1rem;
   background: orangered;
   color: white;
+  border: 1px solid rgba(255, 255, 255, .2);
   border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 120px;
-  text-align: center;
+  font-weight: 600;
+  transition: all .3s ease;
 }
 
-.cancel-btn:hover {
+.cancel-btn:hover:not(:disabled) {
   background: white;
   color: orangered;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+  box-shadow: 0 4px 15px #6c757d4d;
 }
 
 .save-btn {
-  padding: 0.875rem 2rem;
-  border: 3px solid #FFA500;
   background: orangered;
-  color: white;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, .3);
+  padding: .75rem 1.5rem;
   border-radius: 8px;
-  font-weight: 700;
-  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 140px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.2);
+  font-weight: 600;
+  transition: all .3s ease;
+  white-space: nowrap;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .save-btn:hover:not(:disabled) {
-  background: white;
   color: orangered;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
-  border-color: #FFA500;
+  background: rgba(255, 255, 255, .3);
+  border-color: #ffffff80;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px #6c757d4d;
 }
 
 .save-btn:disabled {
