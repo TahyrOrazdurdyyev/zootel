@@ -249,7 +249,7 @@ const EmployeeManagement = () => {
       email: employee.email,
       phone: employee.phone,
       position: employee.position,
-      skills: employee.skills || [],
+      skills: employee.specialties || employee.skills || [], // Map specialties to skills for frontend
       workingHours: employee.workingHours || {},
       notes: employee.notes || ''
     });
@@ -278,13 +278,20 @@ const EmployeeManagement = () => {
       
       const method = selectedEmployee ? 'PUT' : 'POST';
 
+      // Map frontend field names to backend field names
+      const backendData = {
+        ...formData,
+        specialties: formData.skills, // Map skills to specialties for backend
+      };
+      delete backendData.skills; // Remove the frontend field
+
       const response = await fetch(url, {
         method,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(backendData)
       });
 
       if (response.ok) {
