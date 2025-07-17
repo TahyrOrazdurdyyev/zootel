@@ -4,14 +4,14 @@
   width: 100%;
 }
 
-.container {
+.home .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
 }
 
 /* Hero Section */
-.hero {
+.home .hero {
   position: relative;
   min-height: 70vh;
   display: flex;
@@ -23,7 +23,7 @@
   margin-left: 0;
 }
 
-.hero-background {
+.home .hero-background {
   position: absolute;
   top: 0;
   left: 0;
@@ -36,7 +36,7 @@
   opacity: 0.3;
 }
 
-.hero-content {
+.home .hero-content {
   position: relative;
   z-index: 2;
   text-align: center;
@@ -45,14 +45,14 @@
   padding: 2rem;
 }
 
-.hero-title {
+.home .hero-title {
   font-size: 5rem;
   font-weight: bold;
   margin-bottom: 1rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.hero-overlay {
+.home .hero-overlay {
   background-color: rgba(255, 255, 255, 0.1);
   padding: 2rem;
   border-radius: 16px;
@@ -61,20 +61,20 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.hero-subtitle {
+.home .hero-subtitle {
   font-size: 2rem;
   margin-bottom: 1rem;
   color: white;
 }
 
-.hero-description {
+.home .hero-description {
   font-size: 1.3rem;
   margin-bottom: 2rem;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.9);
 }
 
-.cta-button {
+.home .cta-button {
   background-color: white;
   color: var(--primary-color);
   padding: 1rem 2.5rem;
@@ -87,30 +87,30 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.cta-button:hover {
+.home .cta-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   background-color: #f8f9fa;
 }
 
-.cta-button.secondary {
+.home .cta-button.secondary {
   background-color: transparent;
   color: white;
   border: 2px solid white;
 }
 
-.cta-button.secondary:hover {
+.home .cta-button.secondary:hover {
   background-color: white;
   color: var(--primary-color);
 }
 
 /* Why Choose Section */
-.why-choose {
+.home .why-choose {
   padding: 5rem 0;
   background-color: white;
 }
 
-.section-title {
+.home .section-title {
   text-align: center;
   font-size: 2.5rem;
   color: var(--text-color);
@@ -118,7 +118,7 @@
   position: relative;
 }
 
-.section-title::after {
+.home .section-title::after {
   content: '';
   display: block;
   width: 80px;
@@ -128,14 +128,14 @@
   border-radius: 2px;
 }
 
-.cards-grid {
+.home .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
   margin-top: 3rem;
 }
 
-.feature-card {
+.home .feature-card {
   background-color: white;
   padding: 2.5rem 1.5rem;
   border-radius: 16px;
@@ -145,80 +145,80 @@
   border: 2px solid transparent;
 }
 
-.feature-card:hover {
+.home .feature-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   border-color: var(--primary-color);
 }
 
-.card-icon {
+.home .card-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
 }
 
-.card-title {
+.home .card-title {
   font-size: 1.4rem;
   color: var(--text-color);
   margin-bottom: 1rem;
   font-weight: 600;
 }
 
-.card-description {
+.home .card-description {
   color: #666;
   line-height: 1.6;
   font-size: 1rem;
 }
 
 /* Stats Section */
-.stats {
+.home .stats {
   padding: 4rem 0;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
-.stats-grid {
+.home .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 2rem;
 }
 
-.stat-item {
+.home .stat-item {
   text-align: center;
   padding: 1.5rem;
 }
 
-.stat-number {
+.home .stat-number {
   font-size: 2.5rem;
   font-weight: bold;
   color: var(--primary-color);
   margin-bottom: 0.5rem;
 }
 
-.stat-label {
+.home .stat-label {
   font-size: 1rem;
   color: #666;
   font-weight: 500;
 }
 
 /* CTA Section */
-.cta-section {
+.home .cta-section {
   padding: 5rem 0;
   background: linear-gradient(135deg, var(--primary-color) 0%, #ffb347 100%);
   color: white;
 }
 
-.cta-content {
+.home .cta-content {
   text-align: center;
   max-width: 600px;
   margin: 0 auto;
 }
 
-.cta-title {
+.home .cta-title {
   font-size: 2.2rem;
   margin-bottom: 1.5rem;
   font-weight: 600;
 }
 
-.cta-description {
+.home .cta-description {
   font-size: 1.1rem;
   margin-bottom: 2rem;
   line-height: 1.6;

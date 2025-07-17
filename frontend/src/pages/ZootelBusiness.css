@@ -4,39 +4,39 @@
 }
 
 /* Hero Section */
-.business-hero {
+.zootel-business-page .business-hero {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 4rem 0;
 }
 
-.hero-container {
+.zootel-business-page .hero-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
 }
 
-.hero-content {
+.zootel-business-page .hero-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
   align-items: center;
 }
 
-.hero-title {
+.zootel-business-page .hero-title {
   font-size: 3.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.hero-subtitle {
+.zootel-business-page .hero-subtitle {
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
   color: rgba(255, 255, 255, 0.9);
 }
 
-.hero-description {
+.zootel-business-page .hero-description {
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: 2rem;
@@ -44,13 +44,13 @@
 }
 
 /* CTA Buttons */
-.cta-buttons {
+.zootel-business-page .cta-buttons {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
 }
 
-.cta-btn {
+.zootel-business-page .cta-btn {
   padding: 1rem 2rem;
   border-radius: 8px;
   text-decoration: none;
@@ -60,36 +60,36 @@
   display: inline-block;
 }
 
-.cta-btn.primary {
+.zootel-business-page .cta-btn.primary {
   background-color: #FF6B35;
   color: white;
 }
 
-.cta-btn.primary:hover {
+.zootel-business-page .cta-btn.primary:hover {
   background-color: #e55a2b;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
 }
 
-.cta-btn.secondary {
+.zootel-business-page .cta-btn.secondary {
   background-color: transparent;
   color: white;
   border: 2px solid white;
 }
 
-.cta-btn.secondary:hover {
+.zootel-business-page .cta-btn.secondary:hover {
   background-color: white;
   color: #667eea;
 }
 
 /* Dashboard Mockup */
-.hero-visual {
+.zootel-business-page .hero-visual {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.dashboard-mockup {
+.zootel-business-page .dashboard-mockup {
   width: 100%;
   max-width: 500px;
   background: white;
@@ -98,7 +98,7 @@
   overflow: hidden;
 }
 
-.mockup-header {
+.zootel-business-page .mockup-header {
   background: linear-gradient(90deg, #4F46E5, #06B6D4);
   color: white;
   padding: 1rem;
@@ -107,39 +107,39 @@
   gap: 1rem;
 }
 
-.header-controls {
+.zootel-business-page .header-controls {
   display: flex;
   gap: 0.5rem;
 }
 
-.control {
+.zootel-business-page .control {
   width: 12px;
   height: 12px;
   border-radius: 50%;
 }
 
-.control.red { background-color: #ff5f56; }
-.control.yellow { background-color: #ffbd2e; }
-.control.green { background-color: #27ca3f; }
+.zootel-business-page .control.red { background-color: #ff5f56; }
+.zootel-business-page .control.yellow { background-color: #ffbd2e; }
+.zootel-business-page .control.green { background-color: #27ca3f; }
 
-.header-title {
+.zootel-business-page .header-title {
   font-weight: 600;
   font-size: 0.9rem;
 }
 
-.mockup-content {
+.zootel-business-page .mockup-content {
   display: flex;
   height: 300px;
 }
 
-.sidebar {
+.zootel-business-page .sidebar {
   width: 150px;
   background-color: #f8f9fa;
   padding: 1rem 0;
   border-right: 1px solid #dee2e6;
 }
 
-.nav-item {
+.zootel-business-page .nav-item {
   padding: 0.75rem 1rem;
   color: #666;
   font-size: 0.8rem;
@@ -147,23 +147,23 @@
   transition: all 0.3s ease;
 }
 
-.nav-item:hover,
-.nav-item.active {
+.zootel-business-page .nav-item:hover,
+.zootel-business-page .nav-item.active {
   background-color: #e9ecef;
   color: #333;
 }
 
-.main-content {
+.zootel-business-page .main-content {
   flex: 1;
   padding: 1.5rem;
 }
 
-.stat-cards {
+.zootel-business-page .stat-cards {
   display: flex;
   gap: 1rem;
 }
 
-.stat-card {
+.zootel-business-page .stat-card {
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
   padding: 1rem;
@@ -172,32 +172,32 @@
   text-align: center;
 }
 
-.stat-number {
+.zootel-business-page .stat-number {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 0.25rem;
 }
 
-.stat-label {
+.zootel-business-page .stat-label {
   font-size: 0.7rem;
   opacity: 0.9;
 }
 
 /* Common Section Styles */
-.container {
+.zootel-business-page .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
 }
 
-.section-title {
+.zootel-business-page .section-title {
   text-align: center;
   font-size: 2.5rem;
   color: #333;
   margin-bottom: 1rem;
 }
 
-.section-subtitle {
+.zootel-business-page .section-subtitle {
   text-align: center;
   font-size: 1.2rem;
   color: #666;
@@ -205,19 +205,19 @@
 }
 
 /* Audiences Section */
-.audiences-section {
+.zootel-business-page .audiences-section {
   padding: 5rem 0;
   background-color: white;
 }
 
-.audiences-grid {
+.zootel-business-page .audiences-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
   gap: 3rem;
   margin-top: 3rem;
 }
 
-.audience-card {
+.zootel-business-page .audience-card {
   background: white;
   border: 2px solid #e9ecef;
   border-radius: 16px;
@@ -225,64 +225,64 @@
   transition: all 0.3s ease;
 }
 
-.audience-card:hover {
+.zootel-business-page .audience-card:hover {
   border-color: #4F46E5;
   box-shadow: 0 8px 30px rgba(79, 70, 229, 0.1);
   transform: translateY(-5px);
 }
 
-.audience-icon {
+.zootel-business-page .audience-icon {
   font-size: 3rem;
   margin-bottom: 1.5rem;
 }
 
-.audience-card h3 {
+.zootel-business-page .audience-card h3 {
   font-size: 1.5rem;
   color: #333;
   margin-bottom: 1rem;
 }
 
-.audience-description {
+.zootel-business-page .audience-description {
   color: #666;
   line-height: 1.6;
   margin-bottom: 2rem;
 }
 
-.features-list h4 {
+.zootel-business-page .features-list h4 {
   color: #333;
   margin-bottom: 1rem;
   font-size: 1.1rem;
 }
 
-.features-list ul {
+.zootel-business-page .features-list ul {
   list-style: none;
   padding: 0;
 }
 
-.features-list li {
+.zootel-business-page .features-list li {
   padding: 0.5rem 0;
   color: #555;
   line-height: 1.5;
 }
 
 /* Employee Features Section */
-.employee-features-section {
+.zootel-business-page .employee-features-section {
   padding: 5rem 0;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
-.section-header {
+.zootel-business-page .section-header {
   text-align: center;
   margin-bottom: 4rem;
 }
 
-.employee-features-grid {
+.zootel-business-page .employee-features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
 }
 
-.feature-item {
+.zootel-business-page .feature-item {
   background: white;
   padding: 2rem;
   border-radius: 12px;
@@ -291,41 +291,41 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.feature-item:hover {
+.zootel-business-page .feature-item:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
-.feature-icon {
+.zootel-business-page .feature-icon {
   font-size: 3rem;
   margin-bottom: 1.5rem;
 }
 
-.feature-item h3 {
+.zootel-business-page .feature-item h3 {
   font-size: 1.3rem;
   color: #333;
   margin-bottom: 1rem;
 }
 
-.feature-item p {
+.zootel-business-page .feature-item p {
   color: #666;
   line-height: 1.6;
 }
 
 /* Benefits Section */
-.benefits-section {
+.zootel-business-page .benefits-section {
   padding: 5rem 0;
   background-color: white;
 }
 
-.benefits-grid {
+.zootel-business-page .benefits-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
   margin-top: 3rem;
 }
 
-.benefit-card {
+.zootel-business-page .benefit-card {
   text-align: center;
   padding: 2rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -334,45 +334,45 @@
   transition: transform 0.3s ease;
 }
 
-.benefit-card:hover {
+.zootel-business-page .benefit-card:hover {
   transform: translateY(-8px);
 }
 
-.benefit-icon {
+.zootel-business-page .benefit-icon {
   font-size: 3rem;
   margin-bottom: 1.5rem;
 }
 
-.benefit-card h3 {
+.zootel-business-page .benefit-card h3 {
   font-size: 1.4rem;
   margin-bottom: 1rem;
 }
 
-.benefit-card p {
+.zootel-business-page .benefit-card p {
   line-height: 1.6;
   opacity: 0.9;
 }
 
 /* Coming Soon Banner */
-.coming-soon-banner {
+.zootel-business-page .coming-soon-banner {
   background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
   color: white;
   padding: 4rem 0;
   text-align: center;
 }
 
-.banner-content h2 {
+.zootel-business-page .banner-content h2 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
 }
 
-.banner-content p {
+.zootel-business-page .banner-content p {
   font-size: 1.2rem;
   margin-bottom: 2rem;
   opacity: 0.9;
 }
 
-.banner-actions {
+.zootel-business-page .banner-actions {
   display: flex;
   justify-content: center;
   gap: 1rem;
@@ -380,7 +380,7 @@
   margin-bottom: 3rem;
 }
 
-.banner-btn {
+.zootel-business-page .banner-btn {
   padding: 1rem 2rem;
   border-radius: 8px;
   text-decoration: none;
@@ -389,27 +389,27 @@
   transition: all 0.3s ease;
 }
 
-.banner-btn.primary {
+.zootel-business-page .banner-btn.primary {
   background-color: white;
   color: #FF6B35;
 }
 
-.banner-btn.primary:hover {
+.zootel-business-page .banner-btn.primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
 }
 
-.banner-btn.secondary {
+.zootel-business-page .banner-btn.secondary {
   background-color: transparent;
   color: white;
   border: 2px solid white;
 }
 
-.banner-btn.secondary:hover {
+.zootel-business-page .banner-btn.secondary:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.banner-note {
+.zootel-business-page .banner-note {
   max-width: 800px;
   margin: 0 auto;
   padding: 1.5rem;
@@ -418,7 +418,7 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.banner-note p {
+.zootel-business-page .banner-note p {
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.5;
