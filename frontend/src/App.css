@@ -28,24 +28,24 @@
   color: var(--primary-color);
 }
 
-/* Error states */
+/* Error states - updated to use brand colors */
 .error {
-  background-color: #FFF4F4;
-  color: #D63031;
+  background-color: var(--error-bg);
+  color: var(--error-text);
   padding: 1rem;
   border-radius: 6px;
   margin: 1rem 0;
-  border: 1px solid #FFB8B8;
+  border: 1px solid var(--border-color);
 }
 
-/* Success states */
+/* Success states - updated to use brand colors */
 .success {
-  background-color: #F0FFF4;
-  color: #00B894;
+  background-color: var(--success-bg);
+  color: var(--success-text);
   padding: 1rem;
   border-radius: 6px;
   margin: 1rem 0;
-  border: 1px solid #B8FFD1;
+  border: 1px solid var(--border-color);
 }
 
 /* Enhanced Mobile Responsiveness */

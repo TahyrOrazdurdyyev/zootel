@@ -122,7 +122,7 @@
 
 .dropdown-item.coming-soon {
   position: relative;
-  color: #999;
+  color: var(--text-lighter);
   cursor: not-allowed;
 }
 

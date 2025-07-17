@@ -5,8 +5,8 @@
   --admin-primary: #FFA500;
   --admin-secondary: #FFB84D;
   --admin-accent: #FFFFFF;
-  --admin-danger: #dc3545;
-  color: #333333;
+  --admin-danger: #FFA500;
+  color: var(--text-color);
 }
 
 .admin-sidebar {
