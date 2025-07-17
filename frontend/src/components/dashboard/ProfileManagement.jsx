@@ -23,6 +23,7 @@ const ProfileManagement = () => {
     zipCode: '',
     description: '',
     logoUrl: '',
+    logoFile: null,
     businessHours: {
       monday: '',
       tuesday: '',
@@ -77,6 +78,7 @@ const ProfileManagement = () => {
           zipCode: data.data.zipCode || '',
           description: data.data.description || '',
           logoUrl: data.data.logoUrl || '',
+          logoFile: null,
           businessHours: data.data.businessHours || {
             monday: '',
             tuesday: '',
@@ -191,6 +193,20 @@ const ProfileManagement = () => {
     }));
   };
 
+  const handleLogoUpload = (file) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setFormData(prev => ({
+          ...prev,
+          logoUrl: e.target.result,
+          logoFile: file
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -214,18 +230,6 @@ const ProfileManagement = () => {
         <div className="header-info">
           <h2>Company Profile</h2>
           <p>Manage your business information and settings</p>
-        </div>
-        
-        <div className="header-actions">
-          {hasFeature('profileCustomization') && (
-            <button 
-              className="save-btn"
-              onClick={handleSave}
-              disabled={saving}
-            >
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
-          )}
         </div>
       </div>
 
@@ -339,16 +343,37 @@ const ProfileManagement = () => {
                 </div>
 
                 <div className="form-group full-width">
-                  <label htmlFor="logoUrl">Company Logo URL (Optional)</label>
-                  <input
-                    type="url"
-                    id="logoUrl"
-                    value={formData.logoUrl}
-                    onChange={(e) => handleInputChange('logoUrl', e.target.value)}
-                    placeholder="Enter logo image URL"
-                    disabled={!hasFeature('profileCustomization')}
-                  />
-                  <small>Enter a URL to your company logo image</small>
+                  <label htmlFor="logoFile">Company Logo (Optional)</label>
+                  <div className="logo-upload-container">
+                    {formData.logoUrl && (
+                      <div className="logo-preview">
+                        <img src={formData.logoUrl} alt="Company Logo" />
+                      </div>
+                    )}
+                    <div className="upload-area">
+                      <input
+                        type="file"
+                        id="logoFile"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            handleLogoUpload(file);
+                          }
+                        }}
+                        disabled={!hasFeature('profileCustomization')}
+                        style={{ display: 'none' }}
+                      />
+                      <label htmlFor="logoFile" className="upload-label">
+                        <div className="upload-icon">📷</div>
+                        <div className="upload-text">
+                          {formData.logoUrl ? 'Change Logo' : 'Upload Logo'}
+                        </div>
+                        <div className="upload-hint">Click to select image from your computer</div>
+                      </label>
+                    </div>
+                  </div>
+                  <small>Upload a logo image file from your computer (PNG, JPG, max 5MB)</small>
                 </div>
 
                 <div className="form-group full-width">
@@ -362,6 +387,18 @@ const ProfileManagement = () => {
                     disabled={!hasFeature('profileCustomization')}
                   />
                 </div>
+
+                {hasFeature('profileCustomization') && (
+                  <div className="form-actions">
+                    <button 
+                      className="save-btn"
+                      onClick={handleSave}
+                      disabled={saving}
+                    >
+                      {saving ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
