@@ -1044,8 +1044,13 @@ router.get('/dashboard-stats', verifyToken, requirePetOwner, async (req, res) =>
 
 // POST /api/pet-owners/pets/upload-photos - Upload pet photos
 router.post('/pets/upload-photos', verifyToken, requirePetOwner, uploadPetPhoto.array('photos', 5), async (req, res) => {
+  console.log('Upload route hit - Content-Type:', req.get('Content-Type'));
+  console.log('Files received:', req.files ? req.files.length : 0);
+  console.log('Body:', req.body);
+  
   try {
     if (!req.files || req.files.length === 0) {
+      console.log('No files found in request');
       return res.status(400).json({
         error: 'Bad Request',
         message: 'No photos uploaded'
