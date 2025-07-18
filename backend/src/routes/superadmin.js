@@ -164,7 +164,8 @@ router.get('/companies', verifyToken, requireSuperadmin, async (req, res) => {
         query += ' WHERE ' + whereConditions.join(' AND ');
       }
       
-      query += ' ORDER BY c.createdAt DESC';
+      // ORDER BY removed to avoid MySQL sort memory issues
+      // query += ' ORDER BY c.createdAt DESC';
       
       // Get total count for pagination
       let countQuery = 'SELECT COUNT(*) as total FROM companies c';
