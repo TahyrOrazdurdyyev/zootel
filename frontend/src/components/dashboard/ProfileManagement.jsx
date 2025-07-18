@@ -453,58 +453,125 @@ const ProfileManagement = () => {
           >
             <div className="tab-content images-section">
               <div className="form-section">
-                <h3>Business Photos</h3>
-                <p>Add up to 5 photos to showcase your business and services</p>
-                
-                <div className="images-grid">
-                  {formData.images.map((image, index) => (
-                    <div key={index} className="image-item">
-                      <img src={image} alt={`Business photo ${index + 1}`} />
-                      <button
-                        className="remove-image"
-                        onClick={() => handleImageRemove(index)}
-                        disabled={!hasFeature('profileCustomization')}
-                      >
-                        ×
-                      </button>
+                <div className="photos-header">
+                  <div className="photos-title-section">
+                    <h3>Business Photos</h3>
+                    <div className="photos-subtitle">
+                      <span className="photos-count">{formData.images.length}/5</span>
+                      <span>Showcase your business and services with stunning photos</span>
                     </div>
-                  ))}
-                  
+                  </div>
+                  <div className="photos-progress">
+                    <div className="progress-bar">
+                      <div 
+                        className="progress-fill" 
+                        style={{ width: `${(formData.images.length / 5) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="photos-upload-area">
                   {formData.images.length < 5 && hasFeature('profileCustomization') && (
-                    <div className="add-image">
-                      <div className="add-image-content">
-                        <div className="add-icon">📷</div>
-                        <p>Add Photo</p>
-                        <small>Click to upload</small>
+                    <div className="upload-zone">
+                      <div className="upload-content">
+                        <div className="upload-icon">
+                          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 6V18M6 12H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          </svg>
+                        </div>
+                        <h4>Add Photos</h4>
+                        <p>Drag & drop your images here, or click to browse</p>
+                        <div className="upload-formats">
+                          <span>PNG</span>
+                          <span>JPG</span>
+                          <span>WEBP</span>
+                        </div>
                       </div>
                       <input
                         type="file"
                         accept="image/*"
+                        multiple
+                        className="upload-input"
                         onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            // In a real app, you'd upload this to a cloud storage service
-                            // For now, we'll use a data URL for the image preview
-                            const reader = new FileReader();
-                            reader.onload = (e) => {
-                              handleImageAdd(e.target.result);
-                            };
-                            reader.readAsDataURL(file);
-                          }
+                          const files = Array.from(e.target.files);
+                          files.forEach(file => {
+                            if (formData.images.length < 5 && file) {
+                              const reader = new FileReader();
+                              reader.onload = (e) => {
+                                handleImageAdd(e.target.result);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          });
                         }}
                       />
                     </div>
                   )}
                 </div>
                 
-                <div className="image-guidelines">
-                  <h4>Photo Guidelines:</h4>
-                  <ul>
-                    <li>Use high-quality images (minimum 800x600 pixels)</li>
-                    <li>Show your business location, team, or services in action</li>
-                    <li>Avoid blurry or dark photos</li>
-                    <li>Maximum file size: 5MB per image</li>
-                  </ul>
+                <div className="images-grid">
+                  {formData.images.map((image, index) => (
+                    <div key={index} className="photo-card">
+                      <div className="photo-container">
+                        <img src={image} alt={`Business photo ${index + 1}`} />
+                        <div className="photo-overlay">
+                          <button
+                            className="remove-photo-btn"
+                            onClick={() => handleImageRemove(index)}
+                            disabled={!hasFeature('profileCustomization')}
+                            title="Remove photo"
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                      <div className="photo-info">
+                        <span className="photo-number">Photo {index + 1}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="photo-guidelines">
+                  <div className="guidelines-header">
+                    <h4>
+                      <span className="guidelines-icon">💡</span>
+                      Photo Guidelines
+                    </h4>
+                  </div>
+                  <div className="guidelines-grid">
+                    <div className="guideline-item">
+                      <div className="guideline-icon">📐</div>
+                      <div className="guideline-content">
+                        <h5>High Quality</h5>
+                        <p>Minimum 800×600 pixels for crisp, clear images</p>
+                      </div>
+                    </div>
+                    <div className="guideline-item">
+                      <div className="guideline-icon">🎯</div>
+                      <div className="guideline-content">
+                        <h5>Show Your Business</h5>
+                        <p>Include your location, team, or services in action</p>
+                      </div>
+                    </div>
+                    <div className="guideline-item">
+                      <div className="guideline-icon">🌟</div>
+                      <div className="guideline-content">
+                        <h5>Bright & Clear</h5>
+                        <p>Avoid blurry, dark, or low-quality photos</p>
+                      </div>
+                    </div>
+                    <div className="guideline-item">
+                      <div className="guideline-icon">💾</div>
+                      <div className="guideline-content">
+                        <h5>File Size</h5>
+                        <p>Maximum 5MB per image for optimal loading</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -438,33 +438,250 @@
   font-size: 0.9rem;
 }
 
-.images-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-.image-item {
+/* Business Photos Section */
+.profile-management .photos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #FFA500 0%, #FF8C42 50%, #FF7F00 100%);
+  border-radius: 16px;
+  color: white;
   position: relative;
-  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.image-item img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-.image-overlay {
+.profile-management .photos-header::before {
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  pointer-events: none;
+}
+
+.profile-management .photos-title-section {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.profile-management .photos-header h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: white !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-management .photos-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  opacity: 0.95;
+}
+
+.profile-management .photos-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.375rem 0.875rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.profile-management .photos-progress {
+  position: relative;
+  z-index: 1;
+  min-width: 200px;
+}
+
+.profile-management .progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.profile-management .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0.8));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.profile-management .progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Upload Area */
+.profile-management .photos-upload-area {
+  margin-bottom: 2rem;
+}
+
+.profile-management .upload-zone {
+  position: relative;
+  border: 3px dashed #e0e6ed;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+  padding: 3rem 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.profile-management .upload-zone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 165, 0, 0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.profile-management .upload-zone:hover {
+  border-color: #FFA500;
+  background: linear-gradient(135deg, #fff 0%, #fff8f0 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 165, 0, 0.15);
+}
+
+.profile-management .upload-zone:hover::before {
+  opacity: 1;
+}
+
+.profile-management .upload-content {
+  position: relative;
+  z-index: 1;
+}
+
+.profile-management .upload-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #FFA500, #FF8C42);
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+  color: white;
+  box-shadow: 0 8px 25px rgba(255, 165, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.profile-management .upload-zone:hover .upload-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.profile-management .upload-content h4 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+}
+
+.profile-management .upload-content p {
+  color: #6c757d;
+  font-size: 1rem;
+  margin: 0 0 1.5rem 0;
+}
+
+.profile-management .upload-formats {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.profile-management .upload-formats span {
+  background: #e9ecef;
+  color: #495057;
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid #dee2e6;
+}
+
+.profile-management .upload-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Photos Grid */
+.profile-management .images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.profile-management .photo-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.profile-management .photo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+  border-color: #FFA500;
+}
+
+.profile-management .photo-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-management .photo-container img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.profile-management .photo-card:hover .photo-container img {
+  transform: scale(1.05);
+}
+
+.profile-management .photo-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(255, 165, 0, 0.3));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -472,8 +689,106 @@
   transition: opacity 0.3s ease;
 }
 
-.image-item:hover .image-overlay {
+.profile-management .photo-card:hover .photo-overlay {
   opacity: 1;
+}
+
+.profile-management .remove-photo-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+}
+
+.profile-management .remove-photo-btn:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.profile-management .photo-info {
+  padding: 1rem;
+  text-align: center;
+}
+
+.profile-management .photo-number {
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Photo Guidelines */
+.profile-management .photo-guidelines {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid #dee2e6;
+}
+
+.profile-management .guidelines-header {
+  margin-bottom: 1.5rem;
+}
+
+.profile-management .guidelines-header h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.profile-management .guidelines-icon {
+  font-size: 1.5rem;
+}
+
+.profile-management .guidelines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.profile-management .guideline-item {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  gap: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid #FFA500;
+  transition: transform 0.2s ease;
+}
+
+.profile-management .guideline-item:hover {
+  transform: translateY(-2px);
+}
+
+.profile-management .guideline-item .guideline-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.profile-management .guideline-content h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+}
+
+.profile-management .guideline-content p {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .delete-btn {
