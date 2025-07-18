@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { authenticatedApiCall } from '../../utils/api';
 import './CompanyManagement.css';
+import './AdminComponents.css';
 
 const CompanyManagement = () => {
   const { currentUser } = useAuth();
