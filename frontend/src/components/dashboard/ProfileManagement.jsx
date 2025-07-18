@@ -113,13 +113,19 @@ const ProfileManagement = () => {
     try {
       const token = await currentUser.getIdToken();
       const baseUrl = import.meta.env.VITE_API_URL || 'https://zootel.shop';
+      
+      // Filter out logoFile from the data being sent (File objects can't be JSON stringified)
+      const { logoFile, ...dataToSend } = formData;
+      
+      console.log('Sending profile data:', dataToSend);
+      
       const response = await fetch(`${baseUrl}/api/companies/profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(dataToSend)
       });
 
       if (response.ok) {

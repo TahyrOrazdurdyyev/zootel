@@ -140,13 +140,30 @@ router.put('/profile', verifyToken, requireCompany, async (req, res) => {
       description,
       businessHours,
       logoUrl,
+      logoFile, // Handle logoFile from frontend
       images
     } = req.body;
 
     const companyId = req.user.uid;
+    
+    // Log the request body for debugging
+    console.log('Profile update request body:', {
+      name: name || 'undefined',
+      businessHours: typeof businessHours,
+      logoFile: logoFile ? 'provided' : 'null/undefined',
+      fieldsReceived: Object.keys(req.body)
+    });
+    
     const connection = await pool.getConnection();
     
     try {
+      // Handle logoFile if provided (for future file upload implementation)
+      let finalLogoUrl = logoUrl || '';
+      if (logoFile && typeof logoFile === 'object' && logoFile !== null) {
+        // TODO: Implement file upload logic here
+        console.log('LogoFile provided but not yet implemented:', typeof logoFile);
+      }
+      
       // Check if profile is complete for auto-verification
       const isProfileComplete = !!(name && address && city && description);
       
@@ -165,7 +182,7 @@ router.put('/profile', verifyToken, requireCompany, async (req, res) => {
           zipCode || '', 
           description || '', 
           JSON.stringify(businessHours || {}), 
-          logoUrl || '', 
+          finalLogoUrl || '', 
           isProfileComplete, // Auto-verify if profile is complete
           companyId
         ]
