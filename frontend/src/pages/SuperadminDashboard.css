@@ -1,19 +1,19 @@
 .superadmin-dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #042f2e 0%, #164e63 50%, #155e75 100%);
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 50%, #fb923c 100%);
   display: flex;
-  --admin-primary: #14b8a6;
-  --admin-secondary: #06b6d4;
-  --admin-accent: #f0fdfa;
+  --admin-primary: #ea580c;
+  --admin-secondary: #fb923c;
+  --admin-accent: #ffffff;
   --admin-success: #10b981;
   --admin-warning: #f59e0b;
   --admin-danger: #ef4444;
-  --admin-dark: #134e4a;
-  --admin-darker: #042f2e;
-  --admin-light: #f0fdfa;
-  --admin-text: #e6fffa;
-  --admin-text-muted: #99f6e4;
-  --admin-border: #0f766e;
+  --admin-dark: #c2410c;
+  --admin-darker: #9a3412;
+  --admin-light: #ffffff;
+  --admin-text: #1c1917;
+  --admin-text-muted: #78716c;
+  --admin-border: #fed7aa;
   color: var(--admin-text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
@@ -22,9 +22,9 @@
 .superadmin-dashboard .dashboard-sidebar {
   width: 280px;
   min-height: 100vh;
-  background: linear-gradient(180deg, #134e4a 0%, #042f2e 50%, #022c22 100%);
+  background: linear-gradient(180deg, #ea580c 0%, #c2410c 50%, #9a3412 100%);
   border-right: 1px solid var(--admin-border);
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   z-index: 100;
@@ -39,14 +39,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(251, 146, 60, 0.05) 100%);
   pointer-events: none;
 }
 
 .superadmin-dashboard .sidebar-header {
   padding: 2rem 1.5rem;
-  border-bottom: 1px solid var(--admin-border);
-  background: rgba(20, 184, 166, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   position: relative;
   z-index: 1;
@@ -67,13 +67,13 @@
 .superadmin-dashboard .sidebar-logo-image {
   height: 50px;
   width: auto;
-  filter: brightness(1.2) drop-shadow(0 2px 8px rgba(20, 184, 166, 0.3));
+  filter: brightness(1.2) drop-shadow(0 2px 8px rgba(255, 255, 255, 0.3));
   transition: all 0.3s ease;
 }
 
 .superadmin-dashboard .sidebar-toggle {
-  background: rgba(20, 184, 166, 0.2);
-  border: 1px solid rgba(20, 184, 166, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: var(--admin-accent);
   padding: 0.5rem;
   border-radius: 8px;
@@ -83,16 +83,16 @@
 }
 
 .superadmin-dashboard .sidebar-toggle:hover {
-  background: rgba(20, 184, 166, 0.3);
+  background: rgba(255, 255, 255, 0.3);
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
 /* User Info Section */
 .superadmin-dashboard .sidebar-user {
   padding: 2rem 1.5rem;
-  border-bottom: 1px solid var(--admin-border);
-  background: linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(251, 146, 60, 0.05) 100%);
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -103,14 +103,14 @@
 .superadmin-dashboard .user-avatar.admin {
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
-  border: 3px solid rgba(20, 184, 166, 0.3);
-  box-shadow: 0 4px 16px rgba(20, 184, 166, 0.3);
+  background: linear-gradient(135deg, var(--admin-accent) 0%, #fed7aa 100%);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: white;
+  color: var(--admin-primary);
   font-weight: 600;
   font-size: 1.2rem;
   position: relative;
@@ -135,14 +135,14 @@
 }
 
 .superadmin-dashboard .user-email {
-  color: var(--admin-text-muted);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.85rem;
   margin-bottom: 0.5rem;
 }
 
 .superadmin-dashboard .user-role.admin-role {
-  background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--admin-accent) 0%, #fed7aa 100%);
+  color: var(--admin-primary);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -152,7 +152,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 2px 8px rgba(20, 184, 166, 0.3);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
 .superadmin-dashboard .user-role.admin-role::before {
@@ -180,7 +180,7 @@
   background: none;
   border: none;
   border-radius: 12px;
-  color: var(--admin-text-muted);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -198,16 +198,16 @@
   top: 0;
   bottom: 0;
   width: 3px;
-  background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+  background: linear-gradient(135deg, var(--admin-accent) 0%, #fed7aa 100%);
   transform: scaleY(0);
   transition: transform 0.3s ease;
 }
 
 .superadmin-dashboard .nav-item:hover {
-  background: linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(251, 146, 60, 0.1) 100%);
   color: var(--admin-accent);
   transform: translateX(8px);
-  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
 .superadmin-dashboard .nav-item:hover::before {
@@ -215,11 +215,11 @@
 }
 
 .superadmin-dashboard .nav-item.active {
-  background: linear-gradient(135deg, rgba(20, 184, 166, 0.25) 0%, rgba(6, 182, 212, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(251, 146, 60, 0.2) 100%);
   color: var(--admin-accent);
   font-weight: 600;
-  border: 1px solid rgba(20, 184, 166, 0.3);
-  box-shadow: 0 6px 16px rgba(20, 184, 166, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.3);
 }
 
 .superadmin-dashboard .nav-item.active::before {
@@ -229,7 +229,7 @@
 .superadmin-dashboard .nav-icon {
   font-size: 1.3rem;
   flex-shrink: 0;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 .superadmin-dashboard .nav-text {
@@ -244,22 +244,25 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #042f2e 0%, #164e63 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%);
   min-height: 100vh;
   margin-left: 280px;
 }
 
 .superadmin-dashboard .dashboard-header {
-  background: linear-gradient(135deg, #134e4a 0%, #0f766e 100%);
-  border-bottom: 1px solid var(--admin-border);
-  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+  border-bottom: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.2);
   backdrop-filter: blur(10px);
   position: relative;
   z-index: 10;
+  height: 80px;
+  padding: 0 2rem;
 }
 
 .superadmin-dashboard .dashboard-header::before {
@@ -269,7 +272,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(20, 184, 166, 0.05) 0%, rgba(6, 182, 212, 0.02) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
   pointer-events: none;
 }
 
@@ -286,10 +289,6 @@
   font-size: 1.75rem;
   font-weight: 700;
   margin: 0;
-  background: linear-gradient(135deg, var(--admin-accent) 0%, var(--admin-text-muted) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .superadmin-dashboard .admin-badge {
@@ -297,12 +296,12 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1.2rem;
-  background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+  background: linear-gradient(135deg, var(--admin-accent) 0%, #fed7aa 100%);
   border-radius: 25px;
   font-size: 0.8rem;
   font-weight: 600;
-  color: white;
-  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+  color: var(--admin-primary);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
   position: relative;
   overflow: hidden;
 }
@@ -314,12 +313,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.1) 0%, transparent 50%);
 }
 
 .superadmin-dashboard .badge-icon {
   font-size: 1rem;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 1px 2px rgba(234, 88, 12, 0.3));
 }
 
 .superadmin-dashboard .header-right {
@@ -337,9 +336,9 @@
 }
 
 .superadmin-dashboard .header-btn {
-  background: rgba(20, 184, 166, 0.1);
-  border: 1px solid rgba(20, 184, 166, 0.2);
-  color: var(--admin-text);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--admin-accent);
   padding: 0.75rem;
   border-radius: 10px;
   cursor: pointer;
@@ -356,16 +355,16 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(20, 184, 166, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
 .superadmin-dashboard .header-btn:hover {
   color: var(--admin-accent);
-  border-color: var(--admin-primary);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(20, 184, 166, 0.3);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.3);
 }
 
 .superadmin-dashboard .header-btn:hover::before {
@@ -387,7 +386,7 @@
 .superadmin-dashboard .dashboard-content {
   flex: 1;
   padding: 0;
-  background: linear-gradient(135deg, #042f2e 0%, #164e63 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%);
   min-height: calc(100vh - 80px);
   position: relative;
   overflow-y: auto;
@@ -401,8 +400,8 @@
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(20, 184, 166, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+    radial-gradient(circle at 20% 80%, rgba(234, 88, 12, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(251, 146, 60, 0.05) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -413,19 +412,19 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: linear-gradient(135deg, #042f2e 0%, #164e63 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%);
   color: var(--admin-text);
 }
 
 .superadmin-dashboard .loading-spinner {
   width: 60px;
   height: 60px;
-  border: 4px solid rgba(20, 184, 166, 0.2);
+  border: 4px solid rgba(234, 88, 12, 0.2);
   border-top: 4px solid var(--admin-primary);
   border-radius: 50%;
   animation: spin-admin 1s linear infinite;
   margin-bottom: 1.5rem;
-  box-shadow: 0 4px 16px rgba(20, 184, 166, 0.3);
+  box-shadow: 0 4px 16px rgba(234, 88, 12, 0.3);
 }
 
 @keyframes spin-admin {
