@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { authenticatedApiCall } from '../../utils/api';
 import './OwnerDashboardOverview.css';
 
 const OwnerDashboardOverview = () => {
+  const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
 
@@ -10,29 +13,34 @@ const OwnerDashboardOverview = () => {
   }, []);
 
   const fetchDashboardData = async () => {
+    if (!currentUser) return;
+    
     try {
       setLoading(true);
       
-      // Fetch real dashboard data from API
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://api.zootel.shop'}/api/pet-owners/dashboard-stats`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      // Fetch real dashboard data from API using the same pattern as Company Dashboard
+      const response = await authenticatedApiCall(currentUser, '/api/pet-owners/dashboard-stats');
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setDashboardData(result.data);
+      if (response.ok) {
+        const result = await response.json();
+        
+        if (result.success) {
+          setDashboardData(result.data);
+        } else {
+          console.error('API response was not successful:', result);
+          // Fallback to empty data
+          setDashboardData({
+            totalPets: 0,
+            upcomingBookings: 0,
+            totalBookings: 0,
+            favoriteCompanies: 0,
+            recentActivity: [],
+            upcomingAppointments: [],
+            petHealthReminders: []
+          });
+        }
       } else {
-        console.error('API response was not successful:', result);
+        console.error('Failed to fetch dashboard data:', response.status);
         // Fallback to empty data
         setDashboardData({
           totalPets: 0,
