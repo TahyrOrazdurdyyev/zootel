@@ -107,7 +107,10 @@ const MyBookings = () => {
   };
 
   const formatPrice = (price) => {
-    return `$${price.toFixed(2)}`;
+    if (price === undefined || price === null || isNaN(price)) {
+      return '$0.00';
+    }
+    return `$${parseFloat(price).toFixed(2)}`;
   };
 
   const canCancelBooking = (booking) => {
@@ -315,7 +318,7 @@ const MyBookings = () => {
                   </div>
                   <div className="detail-item">
                     <span className="detail-label">Price:</span>
-                    <span className="detail-value price">{formatPrice(booking.price)}</span>
+                    <span className="detail-value price">{formatPrice(booking.totalAmount || booking.servicePrice)}</span>
                   </div>
                 </div>
 
