@@ -911,4 +911,137 @@ router.get('/dashboard', verifyToken, requirePetOwner, async (req, res) => {
   }
 });
 
-export default router; 
+// GET /api/pet-owners/dashboard-stats - Get dashboard statistics for pet owner
+router.get('/dashboard-stats', verifyToken, requirePetOwner, async (req, res) => {
+  try {
+    const petOwnerId = req.user.uid;
+    const connection = await pool.getConnection();
+    
+    try {
+      // Get total pets count
+      const [petsCountResult] = await connection.execute(
+        'SELECT COUNT(*) as total FROM pets WHERE ownerId = ?',
+        [petOwnerId]
+      );
+      
+      // Get total bookings count
+      const [totalBookingsResult] = await connection.execute(
+        'SELECT COUNT(*) as total FROM bookings WHERE petOwnerId = ?',
+        [petOwnerId]
+      );
+      
+      // Get upcoming bookings count
+      const [upcomingBookingsResult] = await connection.execute(
+        `SELECT COUNT(*) as total FROM bookings 
+         WHERE petOwnerId = ? AND status IN ('pending', 'confirmed') 
+         AND date >= CURDATE()`,
+        [petOwnerId]
+      );
+      
+      // Get favorite companies count (companies the user has booked with)
+      const [favoriteCompaniesResult] = await connection.execute(
+        `SELECT COUNT(DISTINCT companyId) as total FROM bookings 
+         WHERE petOwnerId = ?`,
+        [petOwnerId]
+      );
+      
+      // Get recent activity (last 5 bookings)
+      const [recentActivityResult] = await connection.execute(
+        `SELECT b.*, s.name as serviceName, c.name as companyName, p.name as petName
+         FROM bookings b
+         LEFT JOIN services s ON b.serviceId = s.id
+         LEFT JOIN companies c ON b.companyId = c.id
+         LEFT JOIN pets p ON b.petId = p.id
+         WHERE b.petOwnerId = ?
+         ORDER BY b.createdAt DESC
+         LIMIT 5`,
+        [petOwnerId]
+      );
+      
+      // Get upcoming appointments (next 10 appointments)
+      const [upcomingAppointmentsResult] = await connection.execute(
+        `SELECT b.*, s.name as serviceName, c.name as companyName, p.name as petName
+         FROM bookings b
+         LEFT JOIN services s ON b.serviceId = s.id
+         LEFT JOIN companies c ON b.companyId = c.id
+         LEFT JOIN pets p ON b.petId = p.id
+         WHERE b.petOwnerId = ? AND status IN ('pending', 'confirmed')
+         AND date >= CURDATE()
+         ORDER BY b.date ASC, b.time ASC
+         LIMIT 10`,
+        [petOwnerId]
+      );
+      
+      // Format recent activity
+      const recentActivity = recentActivityResult.map(activity => {
+        let icon = '📅';
+        let message = '';
+        
+        switch(activity.status) {
+          case 'confirmed':
+            icon = '✅';
+            message = `Booking confirmed for ${activity.petName ? activity.petName + "'s" : ''} ${activity.serviceName}`;
+            break;
+          case 'completed':
+            icon = '🎉';
+            message = `${activity.serviceName} completed for ${activity.petName}`;
+            break;
+          case 'cancelled':
+            icon = '❌';
+            message = `Booking cancelled for ${activity.serviceName}`;
+            break;
+          default:
+            message = `Booking ${activity.status} for ${activity.serviceName}`;
+        }
+        
+        return {
+          id: activity.id,
+          type: `booking_${activity.status}`,
+          message: message,
+          date: activity.createdAt ? activity.createdAt.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          icon: icon
+        };
+      });
+      
+      // Format upcoming appointments
+      const upcomingAppointments = upcomingAppointmentsResult.map(appointment => ({
+        id: appointment.id,
+        serviceName: appointment.serviceName || 'Service',
+        companyName: appointment.companyName || 'Company',
+        petName: appointment.petName || 'Pet',
+        date: appointment.date ? appointment.date.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        time: appointment.time || '10:00 AM',
+        status: appointment.status
+      }));
+      
+      // Mock health reminders for now (since we don't have a health reminders table yet)
+      const petHealthReminders = [];
+      
+      const dashboardStats = {
+        totalPets: petsCountResult[0].total || 0,
+        totalBookings: totalBookingsResult[0].total || 0,
+        upcomingBookings: upcomingBookingsResult[0].total || 0,
+        favoriteCompanies: favoriteCompaniesResult[0].total || 0,
+        recentActivity: recentActivity,
+        upcomingAppointments: upcomingAppointments,
+        petHealthReminders: petHealthReminders
+      };
+
+      res.json({
+        success: true,
+        data: dashboardStats
+      });
+      
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Error getting pet owner dashboard stats:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get dashboard statistics'
+    });
+  }
+});
+
+export default router;

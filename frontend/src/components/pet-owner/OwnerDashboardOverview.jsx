@@ -13,79 +13,53 @@ const OwnerDashboardOverview = () => {
     try {
       setLoading(true);
       
-      // Mock data for now
-      setTimeout(() => {
+      // Fetch real dashboard data from API
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://api.zootel.shop'}/api/pet-owners/dashboard-stats`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setDashboardData(result.data);
+      } else {
+        console.error('API response was not successful:', result);
+        // Fallback to empty data
         setDashboardData({
-          totalPets: 2,
-          upcomingBookings: 2,
-          totalBookings: 15,
-          favoriteCompanies: 3,
-          recentActivity: [
-            {
-              id: 'activity_1',
-              type: 'booking_confirmed',
-              message: 'Booking confirmed for Buddy\'s grooming',
-              date: '2024-01-15',
-              icon: '✅'
-            },
-            {
-              id: 'activity_2',
-              type: 'booking_completed',
-              message: 'Dog walking completed for Buddy',
-              date: '2024-01-14',
-              icon: '🚶‍♂️'
-            },
-            {
-              id: 'activity_3',
-              type: 'pet_added',
-              message: 'Added new pet profile for Whiskers',
-              date: '2024-01-12',
-              icon: '🐱'
-            }
-          ],
-          upcomingAppointments: [
-            {
-              id: 'booking_upcoming_1',
-              serviceName: 'Premium Dog Grooming',
-              companyName: 'Happy Paws Pet Services',
-              petName: 'Buddy',
-              date: '2024-01-20',
-              time: '10:00 AM',
-              status: 'confirmed'
-            },
-            {
-              id: 'booking_upcoming_2',
-              serviceName: 'Pet Sitting',
-              companyName: 'Pet Care Plus',
-              petName: 'Whiskers',
-              date: '2024-01-22',
-              time: '2:00 PM',
-              status: 'pending'
-            }
-          ],
-          petHealthReminders: [
-            {
-              id: 'reminder_1',
-              petName: 'Buddy',
-              type: 'vaccination',
-              message: 'Annual vaccination due soon',
-              dueDate: '2024-02-15',
-              priority: 'high'
-            },
-            {
-              id: 'reminder_2',
-              petName: 'Whiskers',
-              type: 'checkup',
-              message: 'Regular health checkup recommended',
-              dueDate: '2024-03-01',
-              priority: 'medium'
-            }
-          ]
+          totalPets: 0,
+          upcomingBookings: 0,
+          totalBookings: 0,
+          favoriteCompanies: 0,
+          recentActivity: [],
+          upcomingAppointments: [],
+          petHealthReminders: []
         });
-        setLoading(false);
-      }, 1000);
+      }
+      
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      
+      // Fallback to empty data on error
+      setDashboardData({
+        totalPets: 0,
+        upcomingBookings: 0,
+        totalBookings: 0,
+        favoriteCompanies: 0,
+        recentActivity: [],
+        upcomingAppointments: [],
+        petHealthReminders: []
+      });
+      
       setLoading(false);
     }
   };
