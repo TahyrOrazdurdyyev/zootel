@@ -39,17 +39,17 @@ app.use(cors({
   credentials: true,
 }));
 app.use(morgan('combined'));
-app.use(express.json({ limit: '10mb' }));
 
-// Conditional middleware for urlencoded data
+// Conditional body parsing middleware
 app.use((req, res, next) => {
-  // Skip urlencoded parsing for multipart/form-data requests (handled by multer)
   const contentType = req.get('Content-Type');
   console.log('Request Content-Type:', contentType);
   
   if (contentType && contentType.startsWith('multipart/form-data')) {
-    console.log('Skipping urlencoded parsing for multipart request');
+    console.log('Skipping all body parsing for multipart request');
     next();
+  } else if (contentType && contentType.includes('application/json')) {
+    express.json({ limit: '10mb' })(req, res, next);
   } else {
     express.urlencoded({ extended: true, limit: '10mb' })(req, res, next);
   }
