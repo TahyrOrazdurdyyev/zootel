@@ -124,19 +124,7 @@ const PetOwnerDashboard = () => {
             ))}
           </nav>
 
-          {/* Quick Actions */}
-          {sidebarOpen && (
-            <div className="sidebar-quick-actions">
-              <button className="quick-action-btn primary">
-                <span className="action-icon">📅</span>
-                <span className="action-text">Book Service</span>
-              </button>
-              <button className="quick-action-btn secondary">
-                <span className="action-icon">🐕</span>
-                <span className="action-text">Add Pet</span>
-              </button>
-            </div>
-          )}
+
 
           {/* Sidebar footer */}
           <div className="sidebar-footer">
