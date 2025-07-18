@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { authenticatedApiCall } from '../../utils/api';
 import './CompanyManagement.css';
 
 const CompanyManagement = () => {
+  const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [companies, setCompanies] = useState([]);
   const [filteredCompanies, setFilteredCompanies] = useState([]);
@@ -18,22 +21,17 @@ const CompanyManagement = () => {
   const [showCompanyModal, setShowCompanyModal] = useState(false);
 
   const fetchCompanies = useCallback(async () => {
+    if (!currentUser) return;
+    
     try {
       setLoading(true);
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const token = await user.getIdToken?.();
       
       const queryParams = new URLSearchParams({
         page: filters.page.toString(),
         limit: filters.limit.toString()
       });
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://zootel.shop'}/api/superadmin/companies?${queryParams}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await authenticatedApiCall(currentUser, `/api/superadmin/companies?${queryParams}`);
 
       if (response.ok) {
         const result = await response.json();
@@ -47,7 +45,7 @@ const CompanyManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters.page, filters.limit]);
+  }, [currentUser, filters.page, filters.limit]);
 
   const applyFilters = useCallback(() => {
     let filtered = [...companies];

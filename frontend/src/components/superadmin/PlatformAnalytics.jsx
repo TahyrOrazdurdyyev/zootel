@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { authenticatedApiCall } from '../../utils/api';
 import './PlatformAnalytics.css';
 
 const PlatformAnalytics = () => {
+  const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState(null);
   const [selectedTimeframe, setSelectedTimeframe] = useState('6months');
@@ -14,17 +17,12 @@ const PlatformAnalytics = () => {
   }, [selectedTimeframe]);
 
   const fetchAnalytics = async () => {
+    if (!currentUser) return;
+    
     try {
       setLoading(true);
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const token = await user.getIdToken?.();
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://zootel.shop'}/api/superadmin/analytics`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await authenticatedApiCall(currentUser, '/api/superadmin/analytics');
 
       if (response.ok) {
         const result = await response.json();

@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { authenticatedApiCall } from '../../utils/api';
 import './AdminOverview.css';
 
 const AdminOverview = () => {
+  const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState(null);
   const [waitlistStats, setWaitlistStats] = useState(null);
@@ -14,16 +17,10 @@ const AdminOverview = () => {
   }, []);
 
   const fetchAnalytics = async () => {
+    if (!currentUser) return;
+    
     try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const token = await user.getIdToken?.();
-      
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://zootel.shop'}/api/superadmin/analytics`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await authenticatedApiCall(currentUser, '/api/superadmin/analytics');
 
       if (response.ok) {
         const result = await response.json();
