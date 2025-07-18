@@ -41,14 +41,14 @@
   margin-bottom: 1rem;
 }
 
-.header-info h2 {
+.employee-management .header-info h2 {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--text-color);
 }
 
-.header-info p {
+.employee-management .header-info p {
   margin: 0.25rem 0 0;
   color: #6c757d;
   font-size: 0.9rem;
@@ -87,7 +87,7 @@
 }
 
 /* Messages */
-.error-message {
+.employee-management .error-message {
   background: #f8d7da;
   color: #721c24;
   padding: 1rem;
@@ -96,7 +96,7 @@
   border: 1px solid #f5c6cb;
 }
 
-.success-message {
+.employee-management .success-message {
   background: #d4edda;
   color: #155724;
   padding: 1rem;
@@ -382,7 +382,7 @@
   gap: 0.5rem;
 }
 
-.action-btn {
+.employee-management .action-btn {
   padding: 0.5rem;
   border: none;
   border-radius: 6px;
@@ -396,55 +396,55 @@
   justify-content: center;
 }
 
-.action-btn.edit {
+.employee-management .action-btn.edit {
   background: rgba(40, 167, 69, 0.1);
   color: #28a745;
 }
 
-.action-btn.edit:hover {
+.employee-management .action-btn.edit:hover {
   background: #28a745;
   color: white;
 }
 
-.action-btn.assign {
+.employee-management .action-btn.assign {
   background: rgba(255, 165, 0, 0.1);
   color: #FFA500;
 }
 
-.action-btn.assign:hover {
+.employee-management .action-btn.assign:hover {
   background: #FFA500;
   color: white;
 }
 
-.action-btn.delete {
+.employee-management .action-btn.delete {
   background: rgba(220, 53, 69, 0.1);
   color: #dc3545;
 }
 
-.action-btn.delete:hover {
+.employee-management .action-btn.delete:hover {
   background: #dc3545;
   color: white;
 }
 
 /* Empty State */
-.empty-state {
+.employee-management .empty-state {
   text-align: center;
   padding: 4rem 2rem;
   color: #6c757d;
 }
 
-.empty-icon {
+.employee-management .empty-icon {
   font-size: 4rem;
   margin-bottom: 1rem;
   opacity: 0.5;
 }
 
-.empty-state h3 {
+.employee-management .empty-state h3 {
   margin: 0 0 0.5rem;
   color: #2c3e50;
 }
 
-.empty-state p {
+.employee-management .empty-state p {
   margin: 0 0 1.5rem;
   max-width: 400px;
   margin-left: auto;
@@ -660,7 +660,7 @@
   padding: 1rem;
 }
 
-.modal {
+.employee-management .modal {
   background: white;
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
@@ -1095,15 +1095,15 @@
     max-height: 95vh;
   }
   
-  .modal-content {
+  .employee-management .modal-content {
     padding: 1rem;
   }
   
-  .modal-header {
+  .employee-management .modal-header {
     padding: 1rem;
   }
   
-  .modal-actions {
+  .employee-management .modal-actions {
     padding: 1rem;
     flex-direction: column;
     gap: 0.5rem;

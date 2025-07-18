@@ -4,7 +4,7 @@
 }
 
 /* Header Section with Gradient */
-.customer-header {
+.customer-management .customer-header {
   background: linear-gradient(135deg, #ff6b35, #ff8c42, #ffa726);
   color: white;
   padding: 2.5rem 2rem;
@@ -15,7 +15,7 @@
   overflow: hidden;
 }
 
-.customer-header::before {
+.customer-management .customer-header::before {
   content: '';
   position: absolute;
   top: 0;
@@ -26,12 +26,12 @@
   pointer-events: none;
 }
 
-.customer-header * {
+.customer-management .customer-header * {
   position: relative;
   z-index: 1;
 }
 
-.header-content h2 {
+.customer-management .header-content h2 {
   margin: 0 0 0.5rem 0;
   color: white;
   font-size: 2.2rem;
@@ -39,7 +39,7 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.header-content p {
+.customer-management .header-content p {
   margin: 0;
   color: rgba(255, 255, 255, 0.9);
   font-size: 1.1rem;
@@ -310,7 +310,7 @@
   margin-top: 1.5rem;
 }
 
-.action-btn {
+.customer-management .action-btn {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 8px;
@@ -323,47 +323,47 @@
   gap: 0.5rem;
 }
 
-.action-btn.primary {
+.customer-management .action-btn.primary {
   background: #ff6b35;
   color: white;
 }
 
-.action-btn.secondary {
+.customer-management .action-btn.secondary {
   background: #6c757d;
   color: white;
 }
 
-.action-btn.info {
+.customer-management .action-btn.info {
   background: #17a2b8;
   color: white;
 }
 
-.action-btn:hover {
+.customer-management .action-btn:hover {
   transform: translateY(-1px);
   filter: brightness(1.1);
 }
 
 /* Empty State */
-.customers-empty {
+.customer-management .customers-empty {
   text-align: center;
   padding: 4rem 2rem;
   color: #6c757d;
 }
 
-.empty-icon {
+.customer-management .empty-icon {
   font-size: 4rem;
   margin-bottom: 1.5rem;
   opacity: 0.5;
 }
 
-.customers-empty h3 {
+.customer-management .customers-empty h3 {
   margin: 0 0 1rem 0;
   color: #2c3e50;
   font-size: 1.5rem;
   font-weight: 600;
 }
 
-.customers-empty p {
+.customer-management .customers-empty p {
   margin: 0;
   font-size: 1.1rem;
   max-width: 400px;
