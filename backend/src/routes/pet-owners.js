@@ -251,7 +251,6 @@ router.get('/pets', verifyToken, requirePetOwner, async (req, res) => {
           allergies: [],
           medications: [],
           conditions: [],
-          vetInfo: { name: '', phone: '', address: '' },
           lastCheckup: ''
         }),
         behaviorNotes: pet.behaviorNotes || '',
@@ -413,7 +412,6 @@ router.post('/pets', verifyToken, requirePetOwner, async (req, res) => {
             allergies: [],
             medications: [],
             conditions: [],
-            vetInfo: { name: '', phone: '', address: '' },
             lastCheckup: ''
           }),
           behaviorNotes || '',
@@ -437,7 +435,6 @@ router.post('/pets', verifyToken, requirePetOwner, async (req, res) => {
           allergies: [],
           medications: [],
           conditions: [],
-          vetInfo: { name: '', phone: '', address: '' },
           lastCheckup: ''
         },
         behaviorNotes: behaviorNotes || '',

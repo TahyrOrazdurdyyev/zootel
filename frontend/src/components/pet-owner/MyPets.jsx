@@ -28,11 +28,7 @@ const MyPets = () => {
       allergies: [],
       medications: [],
       conditions: [],
-      vetInfo: {
-        name: '',
-        phone: '',
-        address: ''
-      },
+
       lastCheckup: ''
     },
     behaviorNotes: '',
@@ -80,11 +76,7 @@ const MyPets = () => {
         allergies: [],
         medications: [],
         conditions: [],
-        vetInfo: {
-          name: '',
-          phone: '',
-          address: ''
-        },
+
         lastCheckup: ''
       },
       behaviorNotes: '',
@@ -97,26 +89,13 @@ const MyPets = () => {
     
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      if (parent === 'vetInfo') {
-        setFormData(prev => ({
-          ...prev,
-          medicalInfo: {
-            ...prev.medicalInfo,
-            vetInfo: {
-              ...prev.medicalInfo.vetInfo,
-              [child]: value
-            }
-          }
-        }));
-      } else {
-        setFormData(prev => ({
-          ...prev,
-          [parent]: {
-            ...prev[parent],
-            [child]: value
-          }
-        }));
-      }
+      setFormData(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
+      }));
     } else {
       setFormData(prev => ({
         ...prev,
@@ -157,7 +136,7 @@ const MyPets = () => {
         allergies: pet.medicalInfo?.allergies || [],
         medications: pet.medicalInfo?.medications || [],
         conditions: pet.medicalInfo?.conditions || [],
-        vetInfo: pet.medicalInfo?.vetInfo || { name: '', phone: '', address: '' },
+
         lastCheckup: pet.medicalInfo?.lastCheckup || ''
       }
     });
@@ -491,44 +470,7 @@ const MyPets = () => {
                 </div>
               </div>
 
-              <div className="form-section">
-                <h4>Veterinarian Information</h4>
-                
-                <div className="form-group">
-                  <label htmlFor="vetName">Vet Name</label>
-                  <input
-                    type="text"
-                    id="vetName"
-                    name="vetInfo.name"
-                    value={formData.medicalInfo.vetInfo.name}
-                    onChange={handleInputChange}
-                  />
-                </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="vetPhone">Vet Phone</label>
-                    <input
-                      type="tel"
-                      id="vetPhone"
-                      name="vetInfo.phone"
-                      value={formData.medicalInfo.vetInfo.phone}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="vetAddress">Vet Address</label>
-                    <input
-                      type="text"
-                      id="vetAddress"
-                      name="vetInfo.address"
-                      value={formData.medicalInfo.vetInfo.address}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-              </div>
 
               <div className="form-group">
                 <label htmlFor="behaviorNotes">Behavior Notes</label>
