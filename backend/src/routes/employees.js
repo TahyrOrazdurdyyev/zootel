@@ -6,12 +6,17 @@ const router = express.Router();
 
 // Helper function to safely parse JSON
 const safeJSONParse = (jsonString, defaultValue) => {
+  console.log('safeJSONParse input:', typeof jsonString, jsonString);
+  
   // Handle null, undefined, or non-string values
   if (!jsonString || typeof jsonString !== 'string' || jsonString.trim() === '') {
+    console.log('safeJSONParse returning default due to empty/null input');
     return defaultValue;
   }
   try {
-    return JSON.parse(jsonString);
+    const result = JSON.parse(jsonString);
+    console.log('safeJSONParse success:', result);
+    return result;
   } catch (error) {
     console.error('JSON parse error:', error.message);
     console.error('Problematic JSON string:', JSON.stringify(jsonString));
@@ -58,7 +63,11 @@ router.get('/', verifyToken, requireCompany, async (req, res) => {
 
       const employees = employeesResult.map(employee => {
         try {
-          return {
+          console.log('Processing employee:', employee.id);
+          console.log('Raw specialties from DB:', employee.specialties);
+          console.log('Raw workingHours from DB:', employee.workingHours);
+          
+          const processedEmployee = {
             id: employee.id,
             companyId: employee.companyId,
             name: employee.name,
@@ -76,6 +85,11 @@ router.get('/', verifyToken, requireCompany, async (req, res) => {
             createdAt: employee.createdAt,
             updatedAt: employee.updatedAt
           };
+          
+          console.log('Processed specialties:', processedEmployee.specialties);
+          console.log('Processed workingHours:', processedEmployee.workingHours);
+          
+          return processedEmployee;
         } catch (error) {
           console.error('Error processing employee:', employee.id, error);
           console.error('Employee data:', {
