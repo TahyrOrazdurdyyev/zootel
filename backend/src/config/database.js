@@ -82,6 +82,7 @@ const createTables = async () => {
         description TEXT,
         businessHours JSON,
         logoUrl VARCHAR(500) DEFAULT '',
+        images JSON DEFAULT NULL,
         verified BOOLEAN DEFAULT FALSE,
         subscriptionPlan VARCHAR(50) DEFAULT 'basic',
         subscriptionStatus VARCHAR(50) DEFAULT 'active',
@@ -327,5 +328,35 @@ const migrateEmployeesTable = async () => {
   }
 };
 
-export { pool, testConnection, createDatabase, createTables, seedDemoData, migrateEmployeesTable };
+// Migrate companies table to add images column
+const migrateCompaniesTable = async () => {
+  try {
+    const connection = await pool.getConnection();
+    
+    try {
+      // Check if images column exists
+      const [columns] = await connection.execute(`
+        SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'companies' AND COLUMN_NAME = 'images'
+      `, [process.env.DB_NAME || 'zootel']);
+
+      if (columns.length === 0) {
+        console.log('🔄 Migrating companies table: adding images column...');
+        await connection.execute('ALTER TABLE companies ADD COLUMN images JSON DEFAULT NULL');
+        console.log('✅ Added images column to companies table');
+      }
+
+      connection.release();
+    } catch (error) {
+      connection.release();
+      throw error;
+    }
+  } catch (error) {
+    console.error('❌ Error migrating companies table:', error.message);
+    console.warn('⚠️  Continuing without migration');
+    return false;
+  }
+};
+
+export { pool, testConnection, createDatabase, createTables, seedDemoData, migrateEmployeesTable, migrateCompaniesTable };
 export default pool; 

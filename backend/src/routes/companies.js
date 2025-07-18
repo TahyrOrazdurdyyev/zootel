@@ -54,6 +54,7 @@ router.get('/profile', verifyToken, requireCompany, async (req, res) => {
           description: '',
           businessHours: JSON.parse(defaultBusinessHours),
           logoUrl: '',
+          images: [],
           verified: false,
           subscriptionPlan: 'basic',
           subscriptionStatus: 'active',
@@ -100,6 +101,20 @@ router.get('/profile', verifyToken, requireCompany, async (req, res) => {
             }
           })(),
           logoUrl: company.logoUrl || '',
+          images: (() => {
+            try {
+              if (typeof company.images === 'string') {
+                return JSON.parse(company.images);
+              } else if (company.images && typeof company.images === 'object') {
+                return company.images;
+              } else {
+                return [];
+              }
+            } catch (error) {
+              console.warn('Error parsing company images:', error.message);
+              return [];
+            }
+          })(),
           verified: Boolean(company.verified),
           subscriptionPlan: company.subscriptionPlan || 'basic',
           subscriptionStatus: company.subscriptionStatus || 'active',
@@ -171,7 +186,7 @@ router.put('/profile', verifyToken, requireCompany, async (req, res) => {
       await connection.execute(
         `UPDATE companies SET 
          name = ?, phone = ?, address = ?, city = ?, state = ?, zipCode = ?, 
-         description = ?, businessHours = ?, logoUrl = ?, verified = ?, updatedAt = NOW()
+         description = ?, businessHours = ?, logoUrl = ?, images = ?, verified = ?, updatedAt = NOW()
          WHERE id = ?`,
         [
           name || '', 
@@ -183,6 +198,7 @@ router.put('/profile', verifyToken, requireCompany, async (req, res) => {
           description || '', 
           JSON.stringify(businessHours || {}), 
           finalLogoUrl || '', 
+          JSON.stringify(images || []), // Store images as JSON
           isProfileComplete, // Auto-verify if profile is complete
           companyId
         ]
@@ -220,7 +236,20 @@ router.put('/profile', verifyToken, requireCompany, async (req, res) => {
           }
         })(),
         logoUrl: company.logoUrl || '',
-        images: images || [],
+        images: (() => {
+          try {
+            if (typeof company.images === 'string') {
+              return JSON.parse(company.images);
+            } else if (company.images && typeof company.images === 'object') {
+              return company.images;
+            } else {
+              return [];
+            }
+          } catch (error) {
+            console.warn('Error parsing company images:', error.message);
+            return [];
+          }
+        })(),
         verified: Boolean(company.verified),
         subscriptionPlan: company.subscriptionPlan || 'basic',
         joinedDate: company.createdAt ? company.createdAt.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
