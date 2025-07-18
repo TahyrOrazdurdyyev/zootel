@@ -1379,6 +1379,17 @@
   border-color: #138496;
 }
 
+.bookings-management .assign-action {
+  background: #fd7e14;
+  border-color: #fd7e14;
+  color: white;
+}
+
+.bookings-management .assign-action:hover {
+  background: #e5660b;
+  border-color: #e5660b;
+}
+
 /* Responsive Enhancements */
 @media (max-width: 768px) {
   .bookings-management .overview-cards {

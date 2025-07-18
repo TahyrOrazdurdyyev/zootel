@@ -17,13 +17,20 @@ const BookingsManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [employees, setEmployees] = useState([]);
 
   const [statusUpdateData, setStatusUpdateData] = useState({
     status: '',
     notes: '',
     notifyCustomer: true
+  });
+
+  const [assignmentData, setAssignmentData] = useState({
+    employeeId: '',
+    notes: ''
   });
 
   const statusOptions = [
@@ -54,6 +61,26 @@ const BookingsManagement = () => {
       petType: booking.petType
     }));
   };
+
+  const fetchEmployees = useCallback(async () => {
+    try {
+      const token = await currentUser.getIdToken();
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://zootel.shop';
+      const response = await fetch(`${baseUrl}/api/employees`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setEmployees(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+    }
+  }, [currentUser]);
 
   const fetchAppointments = useCallback(async () => {
     setLoading(true);
@@ -120,7 +147,8 @@ const BookingsManagement = () => {
 
   useEffect(() => {
     fetchAppointments();
-  }, [fetchAppointments]);
+    fetchEmployees();
+  }, [fetchAppointments, fetchEmployees]);
 
   useEffect(() => {
     filterAppointments();
@@ -217,9 +245,20 @@ const BookingsManagement = () => {
     setError('');
   };
 
+  const openAssignModal = (appointment) => {
+    setSelectedAppointment(appointment);
+    setAssignmentData({
+      employeeId: appointment.employeeId || '',
+      notes: ''
+    });
+    setShowAssignModal(true);
+    setError('');
+  };
+
   const closeModals = () => {
     setShowDetailsModal(false);
     setShowStatusModal(false);
+    setShowAssignModal(false);
     setSelectedAppointment(null);
     setError('');
   };
@@ -257,6 +296,41 @@ const BookingsManagement = () => {
     } catch (error) {
       console.error('Error updating appointment status:', error);
       setError('Error updating appointment status');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleEmployeeAssignment = async (e) => {
+    e.preventDefault();
+    
+    setActionLoading(true);
+    setError('');
+
+    try {
+      const token = await currentUser.getIdToken();
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://zootel.shop';
+      const response = await fetch(`${baseUrl}/api/bookings/${selectedAppointment.id}/assign`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          employeeId: assignmentData.employeeId || null
+        })
+      });
+
+      if (response.ok) {
+        await fetchAppointments(); // Refresh appointments
+        closeModals();
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to assign employee');
+      }
+    } catch (error) {
+      console.error('Error assigning employee:', error);
+      setError('Error assigning employee');
     } finally {
       setActionLoading(false);
     }
@@ -789,6 +863,21 @@ const BookingsManagement = () => {
                     Update Status
                   </button>
 
+                  {(appointment.status === 'pending' || appointment.status === 'confirmed') && (
+                    <button 
+                      className="action-btn assign-action"
+                      onClick={() => openAssignModal(appointment)}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M16 21V19C16 17.9 15.1 17 14 17H6C4.9 17 4 17.9 4 19V21" stroke="currentColor" strokeWidth="2"/>
+                        <circle cx="10" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
+                        <line x1="19" y1="8" x2="19" y2="14" stroke="currentColor" strokeWidth="2"/>
+                        <line x1="22" y1="11" x2="16" y2="11" stroke="currentColor" strokeWidth="2"/>
+                      </svg>
+                      {appointment.employeeName ? `Assigned: ${appointment.employeeName}` : 'Assign Employee'}
+                    </button>
+                  )}
+
                   <button 
                     className="action-btn contact-action"
                     onClick={() => window.location.href = `tel:${appointment.customerPhone}`}
@@ -871,6 +960,16 @@ const BookingsManagement = () => {
                     <div className="detail-row">
                       <span className="detail-label">Phone:</span>
                       <span className="detail-value">{selectedAppointment.customerPhone}</span>
+                    </div>
+                  </div>
+
+                  <div className="details-section">
+                    <h4>Assignment Information</h4>
+                    <div className="detail-row">
+                      <span className="detail-label">Assigned Employee:</span>
+                      <span className="detail-value">
+                        {selectedAppointment.employeeName || 'Not assigned'}
+                      </span>
                     </div>
                   </div>
 
@@ -979,6 +1078,64 @@ const BookingsManagement = () => {
                   </button>
                   <button type="submit" className="submit-btn" disabled={actionLoading}>
                     {actionLoading ? 'Updating...' : 'Update Status'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Employee Assignment Modal */}
+        {showAssignModal && selectedAppointment && (
+          <div className="modal-overlay" onClick={closeModals}>
+            <div className="modal assign-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Assign Employee</h3>
+                <button className="close-btn" onClick={closeModals}>×</button>
+              </div>
+
+              <form onSubmit={handleEmployeeAssignment} className="assign-form">
+                <div className="appointment-summary">
+                  <h4>{selectedAppointment.customerName}</h4>
+                  <p>{selectedAppointment.serviceName} for {selectedAppointment.petName}</p>
+                  <p>{formatDate(selectedAppointment.date)} at {formatTime(selectedAppointment.time)}</p>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="employeeId">Select Employee</label>
+                  <select
+                    id="employeeId"
+                    value={assignmentData.employeeId}
+                    onChange={(e) => setAssignmentData(prev => ({ ...prev, employeeId: e.target.value }))}
+                  >
+                    <option value="">Unassigned</option>
+                    {employees.map(employee => (
+                      <option key={employee.id} value={employee.id}>
+                        {employee.name} - {employee.position}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="assignNotes">Assignment Notes (Optional)</label>
+                  <textarea
+                    id="assignNotes"
+                    value={assignmentData.notes}
+                    onChange={(e) => setAssignmentData(prev => ({ ...prev, notes: e.target.value }))}
+                    rows="3"
+                    placeholder="Add any notes for the assigned employee..."
+                  />
+                </div>
+
+                {error && <div className="error-message">{error}</div>}
+
+                <div className="form-actions">
+                  <button type="button" className="cancel-btn" onClick={closeModals}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="submit-btn" disabled={actionLoading}>
+                    {actionLoading ? 'Assigning...' : assignmentData.employeeId ? 'Assign Employee' : 'Remove Assignment'}
                   </button>
                 </div>
               </form>
