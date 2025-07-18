@@ -1150,4 +1150,465 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 0.25rem;
   }
+}
+
+/* ============================================
+   MODERN UI ENHANCEMENTS FOR EMPLOYEE MANAGEMENT
+   ============================================ */
+
+/* Modern Employee Grid */
+.employee-management .employees-grid.modern-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 1.5rem;
+  padding: 0;
+}
+
+/* Modern Employee Cards */
+.employee-management .employee-card.modern-employee-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #f0f0f0;
+}
+
+.employee-management .employee-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  border-color: #FFA500;
+}
+
+.employee-management .card-border-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #FFA500, #FF8C42);
+}
+
+/* Employee Header */
+.employee-management .employee-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #f0f0f0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+}
+
+.employee-management .employee-avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.employee-management .employee-avatar.modern-avatar {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FFA500, #FF8C42);
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.employee-management .employee-card:hover .employee-avatar.modern-avatar {
+  transform: scale(1.05);
+}
+
+.employee-management .employee-avatar.modern-avatar.active {
+  background: linear-gradient(135deg, #28a745, #34ce57);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.employee-management .employee-avatar.modern-avatar.on_leave {
+  background: linear-gradient(135deg, #ffc107, #ffcd39);
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+}
+
+.employee-management .employee-avatar.modern-avatar.inactive {
+  background: linear-gradient(135deg, #6c757d, #868e96);
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+.employee-management .avatar-initials {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.employee-management .status-indicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.employee-management .status-indicator.active {
+  background: #28a745;
+}
+
+.employee-management .status-indicator.on_leave {
+  background: #ffc107;
+}
+
+.employee-management .status-indicator.inactive {
+  background: #dc3545;
+}
+
+.employee-management .employee-basic-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.employee-management .employee-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.2;
+}
+
+.employee-management .employee-role {
+  color: #6c757d;
+  font-size: 1rem;
+  margin: 0 0 0.75rem 0;
+  font-weight: 500;
+}
+
+.employee-management .status-badge.modern-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.employee-management .status-badge.active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.employee-management .status-badge.on_leave {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.employee-management .status-badge.inactive {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Employee Content */
+.employee-management .employee-content {
+  padding: 1.5rem 2rem;
+}
+
+.employee-management .contact-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.employee-management .contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.employee-management .contact-item:last-child {
+  margin-bottom: 0;
+}
+
+.employee-management .contact-icon {
+  width: 32px;
+  height: 32px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  flex-shrink: 0;
+}
+
+.employee-management .contact-text {
+  color: #495057;
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.employee-management .employee-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.employee-management .detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.employee-management .detail-icon {
+  width: 32px;
+  height: 32px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  flex-shrink: 0;
+}
+
+.employee-management .detail-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.employee-management .detail-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 0.125rem;
+}
+
+.employee-management .detail-value {
+  font-size: 0.9rem;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+/* Performance Section */
+.employee-management .performance-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1rem;
+  border-left: 4px solid #FFA500;
+}
+
+.employee-management .performance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.employee-management .perf-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.employee-management .perf-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.employee-management .perf-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.employee-management .perf-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 0.125rem;
+}
+
+.employee-management .perf-value {
+  font-size: 0.95rem;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* Skills Section */
+.employee-management .skills-section {
+  margin-top: 1rem;
+}
+
+.employee-management .skills-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.employee-management .employee-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.employee-management .skill-tag.modern-skill {
+  background: #e9ecef;
+  color: #495057;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid #dee2e6;
+  transition: all 0.3s ease;
+}
+
+.employee-management .skill-tag.modern-skill:hover {
+  background: #FFA500;
+  color: white;
+  border-color: #FFA500;
+}
+
+.employee-management .skill-tag.modern-skill.more {
+  background: #6c757d;
+  color: white;
+  border-color: #6c757d;
+}
+
+/* Modern Actions */
+.employee-management .employee-actions.modern-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem;
+  background: #f8f9fa;
+  border-top: 1px solid #f0f0f0;
+  justify-content: space-between;
+}
+
+.employee-management .action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  background: white;
+  color: #495057;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+}
+
+.employee-management .action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.employee-management .edit-action {
+  background: #FFA500;
+  border-color: #FFA500;
+  color: white;
+}
+
+.employee-management .edit-action:hover {
+  background: #ff8c00;
+  border-color: #ff8c00;
+}
+
+.employee-management .assign-action {
+  background: #17a2b8;
+  border-color: #17a2b8;
+  color: white;
+}
+
+.employee-management .assign-action:hover {
+  background: #138496;
+  border-color: #138496;
+}
+
+.employee-management .delete-action {
+  background: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.employee-management .delete-action:hover {
+  background: #c82333;
+  border-color: #c82333;
+}
+
+/* Enhanced Responsive Design */
+@media (max-width: 768px) {
+  .employee-management .employees-grid.modern-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .employee-management .employee-header {
+    padding: 1rem 1.5rem;
+  }
+
+  .employee-management .employee-avatar-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .employee-management .employee-avatar.modern-avatar {
+    width: 60px;
+    height: 60px;
+  }
+
+  .employee-management .avatar-initials {
+    font-size: 1.25rem;
+  }
+
+  .employee-management .employee-content {
+    padding: 1rem 1.5rem;
+  }
+
+  .employee-management .performance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-management .employee-actions.modern-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+  }
+
+  .employee-management .action-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .employee-management .employees-grid.modern-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .employee-management .employee-header {
+    padding: 1rem;
+  }
+
+  .employee-management .employee-content {
+    padding: 1rem;
+  }
+
+  .employee-management .employee-actions.modern-actions {
+    padding: 1rem;
+  }
 } 

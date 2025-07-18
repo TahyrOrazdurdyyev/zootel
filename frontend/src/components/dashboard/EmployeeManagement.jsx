@@ -501,87 +501,154 @@ const EmployeeManagement = () => {
                 </div>
               </div>
 
-              {/* Employee Cards */}
-              <div className="employees-grid">
+              {/* Modern Employee Cards */}
+              <div className="employees-grid modern-grid">
                 {filteredEmployees.map(employee => (
-                  <div key={employee.id} className="employee-card">
-                    <div className="employee-avatar">
-                      <img 
-                        src={employee.profileImage} 
-                        alt={employee.name || 'Employee'}
-                        onError={(e) => {
-                          const name = employee.name || 'Employee';
-                          const initials = name.split(' ').map(n => n[0] || '').join('');
-                          // Use a data URL for fallback instead of external service
-                          e.target.src = `data:image/svg+xml;base64,${btoa(`
-                            <svg width="150" height="150" xmlns="http://www.w3.org/2000/svg">
-                              <rect width="150" height="150" fill="#FFA500"/>
-                              <text x="75" y="85" font-family="Arial" font-size="48" fill="white" text-anchor="middle" dominant-baseline="middle">${initials || 'E'}</text>
-                            </svg>
-                          `)}`;
-                        }}
-                      />
-                      <div className={`status-indicator ${employee.status || 'inactive'}`}></div>
-                    </div>
-
-                                          <div className="employee-info">
-                      <h3 className="employee-name">{employee.name || 'No Name'}</h3>
-                      <p className="employee-role">{employee.position || 'No Position'}</p>
-                      <p className="employee-contact">{employee.email || 'No Email'}</p>
-                      
-                      <div className="employee-meta">
-                        <span className={`status-badge ${getStatusBadgeClass(employee.status || 'inactive')}`}>
-                          {(employee.status || 'inactive').charAt(0).toUpperCase() + (employee.status || 'inactive').slice(1)}
-                        </span>
-                        <span className="hire-date">
-                          Hired: {formatDate(employee.hireDate || employee.createdAt)}
-                        </span>
-                      </div>
-
-                      {employee.performance && (
-                        <div className="performance-summary">
-                          <div className="performance-item">
-                            <span className="perf-label">Rating:</span>
-                            <span className="perf-value">⭐ {employee.performance.rating}</span>
-                          </div>
-                          <div className="performance-item">
-                            <span className="perf-label">Completed:</span>
-                            <span className="perf-value">{employee.performance.completedAppointments}</span>
+                  <div key={employee.id} className="employee-card modern-employee-card">
+                    <div className="card-border-accent"></div>
+                    
+                    <div className="employee-header">
+                      <div className="employee-avatar-section">
+                        <div className={`employee-avatar modern-avatar ${employee.status || 'inactive'}`}>
+                          <span className="avatar-initials">
+                            {(employee.name || 'Employee').split(' ').map(n => n[0] || '').join('').slice(0, 2).toUpperCase()}
+                          </span>
+                          <div className={`status-indicator ${employee.status || 'inactive'}`}></div>
+                        </div>
+                        <div className="employee-basic-info">
+                          <h3 className="employee-name">{employee.name || 'No Name'}</h3>
+                          <p className="employee-role">{employee.position || 'No Position'}</p>
+                          <div className={`status-badge modern-status ${getStatusBadgeClass(employee.status || 'inactive')}`}>
+                            <span className="status-icon">
+                              {employee.status === 'active' ? '✅' : employee.status === 'on_leave' ? '🏖️' : '⏸️'}
+                            </span>
+                            <span className="status-text">
+                              {(employee.status || 'inactive').charAt(0).toUpperCase() + (employee.status || 'inactive').slice(1).replace('_', ' ')}
+                            </span>
                           </div>
                         </div>
-                      )}
+                      </div>
+                    </div>
 
-                      <div className="employee-skills">
-                        {employee.skills?.slice(0, 3).map((skill, index) => (
-                          <span key={index} className="skill-tag">{skill}</span>
-                        ))}
-                        {employee.skills?.length > 3 && (
-                          <span className="skill-tag more">+{employee.skills.length - 3}</span>
+                    <div className="employee-content">
+                      <div className="contact-section">
+                        <div className="contact-item">
+                          <div className="contact-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                              <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" strokeWidth="2"/>
+                              <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2"/>
+                            </svg>
+                          </div>
+                          <span className="contact-text">{employee.email || 'No Email'}</span>
+                        </div>
+                        
+                        {employee.phone && (
+                          <div className="contact-item">
+                            <div className="contact-icon">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M22 16.92V19.92C22 20.92 21.11 21.92 19.95 21.92C8.91 21.92 2 14.92 2 3.92C2 2.76 3 1.92 4 1.92H7C8.1 1.92 9 2.82 9 3.92V6.92C9 7.92 8.1 8.92 7 8.92H5C5 12.92 8.13 16.92 12 16.92V14.92C12 13.82 12.9 12.92 14 12.92H17C18.1 12.92 19 13.82 19 14.92V16.92H22Z" stroke="currentColor" strokeWidth="2"/>
+                              </svg>
+                            </div>
+                            <span className="contact-text">{employee.phone}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="employee-details">
+                        <div className="detail-item">
+                          <div className="detail-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
+                              <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2"/>
+                              <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2"/>
+                              <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+                            </svg>
+                          </div>
+                          <div className="detail-content">
+                            <span className="detail-label">Hired</span>
+                            <span className="detail-value">{formatDate(employee.hireDate || employee.createdAt)}</span>
+                          </div>
+                        </div>
+
+                        {employee.performance && (
+                          <div className="performance-section">
+                            <div className="performance-grid">
+                              <div className="perf-item">
+                                <div className="perf-icon">⭐</div>
+                                <div className="perf-content">
+                                  <span className="perf-label">Rating</span>
+                                  <span className="perf-value">{employee.performance.rating || 'N/A'}</span>
+                                </div>
+                              </div>
+                              <div className="perf-item">
+                                <div className="perf-icon">✅</div>
+                                <div className="perf-content">
+                                  <span className="perf-label">Completed</span>
+                                  <span className="perf-value">{employee.performance.completedAppointments || 0}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {employee.skills?.length > 0 && (
+                          <div className="skills-section">
+                            <div className="skills-header">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <polygon points="12 2 15.09 8.26 22 9 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9 8.91 8.26 12 2" stroke="currentColor" strokeWidth="2"/>
+                              </svg>
+                              <span>Skills</span>
+                            </div>
+                            <div className="employee-skills">
+                              {employee.skills.slice(0, 3).map((skill, index) => (
+                                <span key={index} className="skill-tag modern-skill">{skill}</span>
+                              ))}
+                              {employee.skills.length > 3 && (
+                                <span className="skill-tag modern-skill more">+{employee.skills.length - 3} more</span>
+                              )}
+                            </div>
+                          </div>
                         )}
                       </div>
                     </div>
 
-                    <div className="employee-actions">
+                    <div className="employee-actions modern-actions">
                       <button 
-                        className="action-btn edit"
+                        className="action-btn edit-action"
                         onClick={() => handleEdit(employee)}
                         title="Edit Employee"
                       >
-                        ✏️
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <path d="M11 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H16C17.1 20 18 19.1 18 18V13" stroke="currentColor" strokeWidth="2"/>
+                          <path d="M18.5 2.5C19.3 1.7 20.7 1.7 21.5 2.5C22.3 3.3 22.3 4.7 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" strokeWidth="2"/>
+                        </svg>
+                        Edit
                       </button>
                       <button 
-                        className="action-btn assign"
+                        className="action-btn assign-action"
                         onClick={() => setSelectedEmployee(employee)}
                         title="Assign to Appointment"
                       >
-                        📋
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2"/>
+                          <polyline points="14,2 14,8 20,8" stroke="currentColor" strokeWidth="2"/>
+                          <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" strokeWidth="2"/>
+                          <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" strokeWidth="2"/>
+                        </svg>
+                        Assign
                       </button>
                       <button 
-                        className="action-btn delete"
+                        className="action-btn delete-action"
                         onClick={() => handleDelete(employee)}
                         title="Remove Employee"
                       >
-                        🗑️
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="2"/>
+                          <path d="M19 6V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V6M8 6V4C8 2.9 8.9 2 10 2H14C15.1 2 16 2.9 16 4V6" stroke="currentColor" strokeWidth="2"/>
+                          <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" strokeWidth="2"/>
+                          <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" strokeWidth="2"/>
+                        </svg>
+                        Delete
                       </button>
                     </div>
                   </div>
