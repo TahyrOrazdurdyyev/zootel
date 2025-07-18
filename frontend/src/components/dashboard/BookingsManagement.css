@@ -24,7 +24,7 @@
 }
 
 /* Header Section with Gradient */
-.bookings-header {
+.bookings-management .bookings-header {
   background: linear-gradient(135deg, var(--primary-color), #FFB84D, #FF8C00);
   color: #FFFFFF;
   padding: 2.5rem 2rem;
@@ -35,7 +35,7 @@
   overflow: hidden;
 }
 
-.bookings-header::before {
+.bookings-management .bookings-header::before {
   content: '';
   position: absolute;
   top: 0;
@@ -46,18 +46,18 @@
   pointer-events: none;
 }
 
-.bookings-header * {
+.bookings-management .bookings-header * {
   position: relative;
   z-index: 1;
 }
 
-.header-content {
+.bookings-management .header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.header-left h2 {
+.bookings-management .header-left h2 {
   color: #FFFFFF;
   margin: 0 0 0.5rem 0;
   font-size: 2.2rem;
@@ -447,25 +447,25 @@
 }
 
 /* Empty State */
-.appointments-empty {
+.bookings-management .appointments-empty {
   text-align: center;
   padding: 4rem 2rem;
   color: var(--text-muted);
 }
 
-.empty-icon {
+.bookings-management .empty-icon {
   font-size: 4rem;
   margin-bottom: 1.5rem;
   opacity: 0.5;
 }
 
-.appointments-empty h3 {
+.bookings-management .appointments-empty h3 {
   margin: 0 0 1rem 0;
   color: var(--text-color);
   font-size: 1.5rem;
 }
 
-.appointments-empty p {
+.bookings-management .appointments-empty p {
   margin: 0;
   font-size: 1.1rem;
   max-width: 400px;
@@ -499,7 +499,7 @@
 }
 
 /* Error Message */
-.error-message {
+.bookings-management .error-message {
   background: linear-gradient(135deg, #fef2f2, #fee2e2);
   color: #b91c1c;
   padding: 1rem 1.5rem;
@@ -511,7 +511,7 @@
   border: 1px solid #fecaca;
 }
 
-.error-icon {
+.bookings-management .error-icon {
   font-size: 1.25rem;
 }
 
@@ -522,7 +522,7 @@
   margin-top: 0.75rem;
 }
 
-.action-btn {
+.bookings-management .action-btn {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 8px;
@@ -532,27 +532,27 @@
   transition: var(--transition);
 }
 
-.action-btn.primary {
+.bookings-management .action-btn.primary {
   background: var(--primary-color);
   color: white;
 }
 
-.action-btn.secondary {
+.bookings-management .action-btn.secondary {
   background: #6c757d;
   color: white;
 }
 
-.action-btn.success {
+.bookings-management .action-btn.success {
   background: var(--success-color);
   color: white;
 }
 
-.action-btn.danger {
+.bookings-management .action-btn.danger {
   background: var(--error-color);
   color: white;
 }
 
-.action-btn:hover {
+.bookings-management .action-btn:hover {
   transform: translateY(-1px);
   filter: brightness(1.1);
 }

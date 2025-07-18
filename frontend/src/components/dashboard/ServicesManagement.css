@@ -24,7 +24,7 @@
 }
 
 /* Header */
-.services-header {
+.services-management .services-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -35,14 +35,14 @@
   box-shadow: var(--shadow-light);
 }
 
-.services-header h2 {
+.services-management .services-header h2 {
   color: var(--text-color);
   margin: 0;
   font-size: 1.8rem;
   font-weight: 600;
 }
 
-.header-stats {
+.services-management .header-stats {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -115,7 +115,7 @@
 }
 
 /* Empty State */
-.empty-state {
+.services-management .empty-state {
   text-align: center;
   padding: 4rem 2rem;
   background: white;
@@ -123,19 +123,19 @@
   box-shadow: var(--shadow-light);
 }
 
-.empty-icon {
+.services-management .empty-icon {
   font-size: 4rem;
   margin-bottom: 1.5rem;
   opacity: 0.6;
 }
 
-.empty-state h3 {
+.services-management .empty-state h3 {
   color: var(--text-color);
   margin-bottom: 1rem;
   font-size: 1.5rem;
 }
 
-.empty-state p {
+.services-management .empty-state p {
   color: var(--text-muted);
   margin-bottom: 2rem;
   max-width: 400px;
@@ -339,7 +339,7 @@
   border-top: 1px solid var(--border-color);
 }
 
-.action-btn {
+.services-management .action-btn {
   background: none;
   border: 1px solid var(--border-color);
   width: 40px;
@@ -353,18 +353,18 @@
   font-size: 1.1rem;
 }
 
-.action-btn.edit:hover {
+.services-management .action-btn.edit:hover {
   background-color: #e3f2fd;
   border-color: #2196f3;
 }
 
-.action-btn.delete:hover {
+.services-management .action-btn.delete:hover {
   background-color: #ffebee;
   border-color: #f44336;
 }
 
 /* Error Messages */
-.error-message {
+.services-management .error-message {
   background-color: #f8d7da;
   color: #721c24;
   padding: 0.75rem 1rem;
@@ -396,7 +396,7 @@
   to { opacity: 1; }
 }
 
-.modal {
+.services-management .modal {
   background: white;
   border-radius: var(--border-radius);
   width: 100%;
@@ -407,7 +407,7 @@
   animation: slideIn 0.3s ease;
 }
 
-.modal.large {
+.services-management .modal.large {
   max-width: 800px;
 }
 
@@ -439,7 +439,7 @@
   font-weight: 600;
 }
 
-.close-btn {
+.services-management .close-btn {
   background: none;
   border: none;
   color: white;
@@ -455,7 +455,7 @@
   transition: var(--transition);
 }
 
-.close-btn:hover {
+.services-management .close-btn:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -464,7 +464,7 @@
   padding: 1.5rem;
 }
 
-.form-row {
+.services-management .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
@@ -645,7 +645,7 @@
   border-top: 1px solid var(--border-color);
 }
 
-.cancel-btn {
+.services-management .cancel-btn {
   padding: 0.875rem 2rem;
   border: 2px solid #e9ecef;
   background: #FFFFFF;
@@ -659,14 +659,14 @@
   text-align: center;
 }
 
-.cancel-btn:hover:not(:disabled) {
+.services-management .cancel-btn:hover:not(:disabled) {
   background: #6c757d;
   color: #FFFFFF;
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
 }
 
-.save-btn {
+.services-management .save-btn {
   padding: 0.875rem 2rem;
   border: 3px solid #FFA500;
   background: #FFFFFF;
@@ -681,7 +681,7 @@
   box-shadow: 0 2px 8px rgba(255, 165, 0, 0.2);
 }
 
-.save-btn:hover:not(:disabled) {
+.services-management .save-btn:hover:not(:disabled) {
   background: #FFA500;
   color: #FFFFFF;
   transform: translateY(-2px);
@@ -689,14 +689,14 @@
   border-color: #FFA500;
 }
 
-.save-btn:disabled {
+.services-management .save-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
   box-shadow: 0 2px 8px rgba(255, 165, 0, 0.1);
 }
 
-.delete-btn {
+.services-management .delete-btn {
   padding: 0.875rem 2rem;
   border: 2px solid #dc3545;
   background: #FFFFFF;
@@ -710,14 +710,14 @@
   text-align: center;
 }
 
-.delete-btn:hover:not(:disabled) {
+.services-management .delete-btn:hover:not(:disabled) {
   background: #dc3545;
   color: #FFFFFF;
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
 }
 
-.delete-btn:disabled {
+.services-management .delete-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
