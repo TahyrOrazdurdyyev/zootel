@@ -595,6 +595,10 @@
   transition: all 0.3s ease;
   cursor: pointer;
   overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .profile-management .upload-zone::before {
@@ -614,6 +618,11 @@
   background: linear-gradient(135deg, #fff 0%, #fff8f0 100%);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(255, 165, 0, 0.15);
+}
+
+.profile-management .upload-zone:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.2);
 }
 
 .profile-management .upload-zone:hover::before {
@@ -680,6 +689,8 @@
   height: 100%;
   opacity: 0;
   cursor: pointer;
+  z-index: 10;
+  font-size: 0;
 }
 
 /* Photos Grid */

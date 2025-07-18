@@ -524,7 +524,7 @@ const ProfileManagement = () => {
                 </div>
                 
                 <div className="photos-upload-area">
-                  {formData.images.length < 5 && hasFeature('profileCustomization') && (
+                  {formData.images.length < 5 && (
                     <div className="upload-zone">
                       <div className="upload-content">
                         <div className="upload-icon">
@@ -549,6 +549,38 @@ const ProfileManagement = () => {
                           const files = Array.from(e.target.files);
                           files.forEach(file => {
                             if (formData.images.length < 5 && file) {
+                              const reader = new FileReader();
+                              reader.onload = (e) => {
+                                handleImageAdd(e.target.result);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          });
+                          // Reset the input value to allow selecting the same file again
+                          e.target.value = '';
+                        }}
+                        onClick={(e) => {
+                          // Ensure the click event is properly handled
+                          e.stopPropagation();
+                        }}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.currentTarget.parentElement.style.borderColor = '#FFA500';
+                          e.currentTarget.parentElement.style.background = 'linear-gradient(135deg, #fff 0%, #fff8f0 100%)';
+                        }}
+                        onDragLeave={(e) => {
+                          e.preventDefault();
+                          e.currentTarget.parentElement.style.borderColor = '#e0e6ed';
+                          e.currentTarget.parentElement.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #fff 100%)';
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          e.currentTarget.parentElement.style.borderColor = '#e0e6ed';
+                          e.currentTarget.parentElement.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #fff 100%)';
+                          
+                          const files = Array.from(e.dataTransfer.files);
+                          files.forEach(file => {
+                            if (formData.images.length < 5 && file && file.type.startsWith('image/')) {
                               const reader = new FileReader();
                               reader.onload = (e) => {
                                 handleImageAdd(e.target.result);
