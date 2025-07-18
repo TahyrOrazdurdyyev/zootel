@@ -67,6 +67,11 @@ router.get('/', verifyToken, requireCompany, async (req, res) => {
             position: employee.position,
             specialties: safeJSONParse(employee.specialties, []),
             workingHours: safeJSONParse(employee.workingHours, {}),
+            emergencyContact: {
+              name: employee.emergencyContactName || '',
+              phone: employee.emergencyContactPhone || ''
+            },
+            notes: employee.notes || '',
             active: Boolean(employee.active),
             createdAt: employee.createdAt,
             updatedAt: employee.updatedAt
@@ -87,6 +92,11 @@ router.get('/', verifyToken, requireCompany, async (req, res) => {
             position: employee.position,
             specialties: [],
             workingHours: {},
+            emergencyContact: {
+              name: '',
+              phone: ''
+            },
+            notes: '',
             active: Boolean(employee.active),
             createdAt: employee.createdAt,
             updatedAt: employee.updatedAt
@@ -367,6 +377,11 @@ router.get('/:id', verifyToken, requireCompany, async (req, res) => {
         position: employee.position,
         specialties: safeJSONParse(employee.specialties, []),
         workingHours: safeJSONParse(employee.workingHours, {}),
+        emergencyContact: {
+          name: employee.emergencyContactName || '',
+          phone: employee.emergencyContactPhone || ''
+        },
+        notes: employee.notes || '',
         active: Boolean(employee.active),
         createdAt: employee.createdAt,
         updatedAt: employee.updatedAt
@@ -398,7 +413,9 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
       phone,
       position,
       specialties,
-      workingHours
+      workingHours,
+      emergencyContact,
+      notes
     } = req.body;
 
     // Validate required fields
@@ -429,8 +446,8 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
 
       // Insert new employee (no Firebase UID - employees are company records)
       await connection.execute(
-        `INSERT INTO employees (id, companyId, name, email, phone, position, specialties, workingHours, active, createdAt, updatedAt) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+        `INSERT INTO employees (id, companyId, name, email, phone, position, specialties, workingHours, emergencyContactName, emergencyContactPhone, notes, active, createdAt, updatedAt) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           employeeId,
           companyId,
@@ -440,6 +457,9 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
           position,
           JSON.stringify(specialties || []),
           JSON.stringify(workingHours || {}),
+          emergencyContact?.name || '',
+          emergencyContact?.phone || '',
+          notes || '',
           true
         ]
       );
@@ -459,6 +479,11 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
         position: newEmployeeResult[0].position,
         specialties: safeJSONParse(newEmployeeResult[0].specialties, []),
         workingHours: safeJSONParse(newEmployeeResult[0].workingHours, {}),
+        emergencyContact: {
+          name: newEmployeeResult[0].emergencyContactName || '',
+          phone: newEmployeeResult[0].emergencyContactPhone || ''
+        },
+        notes: newEmployeeResult[0].notes || '',
         active: Boolean(newEmployeeResult[0].active),
         createdAt: newEmployeeResult[0].createdAt,
         updatedAt: newEmployeeResult[0].updatedAt
@@ -532,6 +557,16 @@ router.put('/:id', verifyToken, requireCompany, async (req, res) => {
         updateFields.push('workingHours = ?');
         updateValues.push(JSON.stringify(updateData.workingHours));
       }
+      if (updateData.emergencyContact !== undefined) {
+        updateFields.push('emergencyContactName = ?');
+        updateValues.push(updateData.emergencyContact?.name || '');
+        updateFields.push('emergencyContactPhone = ?');
+        updateValues.push(updateData.emergencyContact?.phone || '');
+      }
+      if (updateData.notes !== undefined) {
+        updateFields.push('notes = ?');
+        updateValues.push(updateData.notes);
+      }
       if (updateData.active !== undefined) {
         updateFields.push('active = ?');
         updateValues.push(Boolean(updateData.active));
@@ -566,6 +601,11 @@ router.put('/:id', verifyToken, requireCompany, async (req, res) => {
         position: updatedEmployee.position,
         specialties: safeJSONParse(updatedEmployee.specialties, []),
         workingHours: safeJSONParse(updatedEmployee.workingHours, {}),
+        emergencyContact: {
+          name: updatedEmployee.emergencyContactName || '',
+          phone: updatedEmployee.emergencyContactPhone || ''
+        },
+        notes: updatedEmployee.notes || '',
         active: Boolean(updatedEmployee.active),
         createdAt: updatedEmployee.createdAt,
         updatedAt: updatedEmployee.updatedAt

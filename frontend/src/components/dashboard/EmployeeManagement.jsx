@@ -40,7 +40,12 @@ const EmployeeManagement = () => {
     phone: '',
     position: '',
     skills: [],
-    workingHours: {}
+    workingHours: {},
+    emergencyContact: {
+      name: '',
+      phone: ''
+    },
+    notes: ''
   });
 
   const tabs = [
@@ -233,7 +238,12 @@ const EmployeeManagement = () => {
       phone: '',
       position: '',
       skills: [],
-      workingHours: {}
+      workingHours: {},
+      emergencyContact: {
+        name: '',
+        phone: ''
+      },
+      notes: ''
     });
   };
 
@@ -251,6 +261,10 @@ const EmployeeManagement = () => {
       position: employee.position,
       skills: employee.specialties || employee.skills || [], // Map specialties to skills for frontend
       workingHours: employee.workingHours || {},
+      emergencyContact: employee.emergencyContact || {
+        name: '',
+        phone: ''
+      },
       notes: employee.notes || ''
     });
     setSelectedEmployee(employee);
