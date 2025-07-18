@@ -459,4 +459,533 @@
   .performance-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ============================================
+   MODERN UI ENHANCEMENTS FOR ANALYTICS DASHBOARD
+   ============================================ */
+
+/* Modern Metrics Cards */
+.analytics-dashboard .metrics-overview.modern-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.analytics-dashboard .metric-card {
+  position: relative;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+}
+
+.analytics-dashboard .metric-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border-color: #FFA500;
+}
+
+.analytics-dashboard .card-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.05;
+}
+
+.analytics-dashboard .modern-revenue-card .card-background {
+  background: linear-gradient(135deg, #FFA500, #FF8C42);
+}
+
+.analytics-dashboard .modern-bookings-card .card-background {
+  background: linear-gradient(135deg, #17a2b8, #20c997);
+}
+
+.analytics-dashboard .modern-rating-card .card-background {
+  background: linear-gradient(135deg, #ffc107, #fd7e14);
+}
+
+.analytics-dashboard .modern-customers-card .card-background {
+  background: linear-gradient(135deg, #6f42c1, #e83e8c);
+}
+
+.analytics-dashboard .card-pattern {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #FFA500, #FF8C42);
+  border-radius: 50%;
+  transform: translate(30px, -30px);
+  opacity: 0.1;
+}
+
+.analytics-dashboard .card-content {
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
+}
+
+.analytics-dashboard .metric-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.analytics-dashboard .metric-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.analytics-dashboard .revenue-icon {
+  background: linear-gradient(135deg, #FFA500, #FF8C42);
+}
+
+.analytics-dashboard .bookings-icon {
+  background: linear-gradient(135deg, #17a2b8, #20c997);
+}
+
+.analytics-dashboard .rating-icon {
+  background: linear-gradient(135deg, #ffc107, #fd7e14);
+}
+
+.analytics-dashboard .customers-icon {
+  background: linear-gradient(135deg, #6f42c1, #e83e8c);
+}
+
+.analytics-dashboard .metric-trend {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+}
+
+.analytics-dashboard .metric-trend.positive {
+  background: #d4edda;
+  color: #155724;
+}
+
+.analytics-dashboard .metric-detail {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.analytics-dashboard .metric-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.analytics-dashboard .metric-label {
+  font-size: 1rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+/* Modern Charts */
+.analytics-dashboard .analytics-charts.modern-charts {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.analytics-dashboard .chart-card.modern-chart-card,
+.analytics-dashboard .chart-card.modern-services-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+}
+
+.analytics-dashboard .chart-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+  border-color: #FFA500;
+}
+
+.analytics-dashboard .chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #f0f0f0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+}
+
+.analytics-dashboard .chart-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.analytics-dashboard .chart-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #FFA500, #FF8C42);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+}
+
+.analytics-dashboard .chart-title h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.analytics-dashboard .chart-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.analytics-dashboard .chart-filter {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.analytics-dashboard .chart-filter:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.analytics-dashboard .chart-filter.active {
+  background: #FFA500;
+  border-color: #FFA500;
+  color: white;
+}
+
+.analytics-dashboard .services-count {
+  background: #f8f9fa;
+  color: #6c757d;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Chart Container */
+.analytics-dashboard .chart-container.modern-chart-container {
+  padding: 2rem;
+  min-height: 300px;
+}
+
+.analytics-dashboard .trend-chart.modern-trend-chart {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 250px;
+  padding: 1rem 0;
+}
+
+.analytics-dashboard .trend-bar.modern-trend-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.analytics-dashboard .bar.modern-bar {
+  width: 100%;
+  max-width: 40px;
+  background: linear-gradient(135deg, #FFA500, #FF8C42);
+  border-radius: 6px 6px 0 0;
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+}
+
+.analytics-dashboard .bar.modern-bar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
+}
+
+.analytics-dashboard .bar-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.analytics-dashboard .bar-value {
+  font-size: 0.75rem;
+  color: #495057;
+  font-weight: 600;
+  background: #f8f9fa;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  position: absolute;
+  bottom: 100%;
+  margin-bottom: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+
+.analytics-dashboard .trend-bar:hover .bar-value {
+  opacity: 1;
+}
+
+/* Empty States */
+.analytics-dashboard .empty-chart,
+.analytics-dashboard .empty-services {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #6c757d;
+}
+
+.analytics-dashboard .empty-chart-icon,
+.analytics-dashboard .empty-services-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.analytics-dashboard .empty-chart p,
+.analytics-dashboard .empty-services p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #495057;
+  margin: 0 0 0.5rem 0;
+}
+
+.analytics-dashboard .empty-chart span,
+.analytics-dashboard .empty-services span {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+/* Modern Services List */
+.analytics-dashboard .services-list.modern-services-list {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.analytics-dashboard .service-item.modern-service-item {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  border-left: 4px solid #FFA500;
+}
+
+.analytics-dashboard .service-item:hover {
+  background: #f1f3f4;
+  transform: translateX(4px);
+}
+
+.analytics-dashboard .service-rank {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #FFA500, #FF8C42);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+  border: 3px solid white;
+}
+
+.analytics-dashboard .service-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.analytics-dashboard .service-info h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+}
+
+.analytics-dashboard .service-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.analytics-dashboard .bookings-count {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.analytics-dashboard .service-revenue {
+  text-align: right;
+}
+
+.analytics-dashboard .revenue-amount {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #28a745;
+  display: block;
+}
+
+.analytics-dashboard .revenue-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.analytics-dashboard .service-progress {
+  height: 6px;
+  background: #e9ecef;
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.analytics-dashboard .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FFA500, #FF8C42);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.analytics-dashboard .progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Enhanced Responsive Design */
+@media (max-width: 1200px) {
+  .analytics-dashboard .analytics-charts.modern-charts {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-dashboard .metrics-overview.modern-metrics {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .analytics-dashboard .card-content {
+    padding: 1.5rem;
+  }
+
+  .analytics-dashboard .metric-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .analytics-dashboard .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+
+  .analytics-dashboard .chart-container.modern-chart-container {
+    padding: 1.5rem;
+  }
+
+  .analytics-dashboard .trend-chart.modern-trend-chart {
+    height: 200px;
+    gap: 0.5rem;
+  }
+
+  .analytics-dashboard .service-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .analytics-dashboard .service-revenue {
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .analytics-dashboard .card-content {
+    padding: 1rem;
+  }
+
+  .analytics-dashboard .metric-value {
+    font-size: 2rem;
+  }
+
+  .analytics-dashboard .chart-header {
+    padding: 1rem;
+  }
+
+  .analytics-dashboard .chart-container.modern-chart-container {
+    padding: 1rem;
+  }
+
+  .analytics-dashboard .services-list.modern-services-list {
+    padding: 1rem;
+  }
 } 
