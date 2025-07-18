@@ -331,7 +331,20 @@ const Marketplace = () => {
                 {sortedServices.map(service => (
                   <div key={service.id} className="service-card">
                     <div className="service-image">
-                      <span className="service-icon">{getServiceIcon(service.category)}</span>
+                      {service.companyLogoUrl ? (
+                        <img 
+                          src={service.companyLogoUrl} 
+                          alt={`${service.companyName} logo`}
+                          className="company-logo"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'block';
+                          }}
+                        />
+                      ) : null}
+                      <span className="service-icon" style={{ display: service.companyLogoUrl ? 'none' : 'block' }}>
+                        {getServiceIcon(service.category)}
+                      </span>
                     </div>
                     
                     <div className="service-content">
@@ -358,7 +371,7 @@ const Marketplace = () => {
                         className="company-button"
                         onClick={() => handleCompanyClick(service.companyId)}
                       >
-                        {service.companyName} • {service.location}
+                        {service.companyName || 'Unknown Company'} • {service.location}
                       </button>
 
                       <div className="service-footer">

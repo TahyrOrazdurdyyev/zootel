@@ -86,6 +86,7 @@ router.get('/public', async (req, res) => {
         companyPhone: service.phone || '',
         companyLogoUrl: service.logoUrl || '',
         companyVerified: Boolean(service.verified),
+        location: service.city && service.state ? `${service.city}, ${service.state}` : service.address || 'Location not specified',
         rating: parseFloat(service.rating) || 0.0,
         reviewCount: service.reviewCount || 0,
         // Mock data for pet types (could be added to database schema later)

@@ -550,4 +550,132 @@ router.get('/stats', verifyToken, requireCompany, async (req, res) => {
   }
 });
 
+// GET /api/companies/:id/public - Get public company information
+router.get('/:id/public', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const connection = await pool.getConnection();
+    
+    try {
+      // Get company details
+      const [companyRows] = await connection.execute(
+        'SELECT * FROM companies WHERE id = ? AND verified = true',
+        [id]
+      );
+      
+      if (companyRows.length === 0) {
+        return res.status(404).json({
+          error: 'Not Found',
+          message: 'Company not found or not verified'
+        });
+      }
+      
+      const company = companyRows[0];
+      
+      // Get rating stats
+      const [ratingStats] = await connection.execute(
+        'SELECT AVG(rating) as avgRating, COUNT(*) as totalReviews FROM reviews WHERE companyId = ?',
+        [id]
+      );
+      
+      const companyData = {
+        id: company.id,
+        name: company.name || 'Unknown Company',
+        email: company.email,
+        phone: company.phone || '',
+        address: company.address || '',
+        city: company.city || '',
+        state: company.state || '',
+        zipCode: company.zipCode || '',
+        description: company.description || '',
+        logoUrl: company.logoUrl || '',
+        images: (() => {
+          try {
+            if (typeof company.images === 'string') {
+              return JSON.parse(company.images);
+            } else if (company.images && typeof company.images === 'object') {
+              return company.images;
+            } else {
+              return [];
+            }
+          } catch (error) {
+            console.warn('Error parsing company images:', error.message);
+            return [];
+          }
+        })(),
+        verified: Boolean(company.verified),
+        rating: parseFloat(ratingStats[0].avgRating) || 0.0,
+        totalReviews: ratingStats[0].totalReviews || 0,
+        joinedDate: company.createdAt ? company.createdAt.toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+      };
+      
+      res.json({
+        success: true,
+        data: companyData
+      });
+      
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Error getting public company info:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get company information'
+    });
+  }
+});
+
+// GET /api/companies/:id/services/public - Get public services for a company
+router.get('/:id/services/public', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const connection = await pool.getConnection();
+    
+    try {
+      // Get active services for the company
+      const [servicesResult] = await connection.execute(
+        `SELECT 
+           s.id, s.name, s.description, s.price, s.duration, s.category, s.imageUrl,
+           AVG(r.rating) as rating,
+           COUNT(r.id) as reviewCount
+         FROM services s
+         LEFT JOIN reviews r ON s.companyId = r.companyId
+         WHERE s.companyId = ? AND s.active = true
+         GROUP BY s.id
+         ORDER BY s.createdAt DESC`,
+        [id]
+      );
+      
+      const services = servicesResult.map(service => ({
+        id: service.id,
+        name: service.name,
+        description: service.description || '',
+        price: parseFloat(service.price),
+        duration: service.duration,
+        category: service.category || '',
+        imageUrl: service.imageUrl || '',
+        rating: parseFloat(service.rating) || 0.0,
+        reviewCount: service.reviewCount || 0,
+        // Mock data for pet types (could be added to database schema later)
+        petTypes: ['Dog', 'Cat', 'Bird', 'Rabbit', 'Other']
+      }));
+      
+      res.json({
+        success: true,
+        data: services
+      });
+      
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Error getting public company services:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get company services'
+    });
+  }
+});
+
 export default router; 

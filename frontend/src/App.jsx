@@ -23,6 +23,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import EmailVerification from './pages/EmailVerification';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import CompanyDescription from './pages/CompanyDescription';
 import './App.css';
 
 // Layout wrapper component
@@ -89,12 +90,7 @@ function App() {
                     <p>Booking page coming soon...</p>
                   </div>
                 } />
-                <Route path="/company/:companyId" element={
-                  <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-                    <h1 style={{ color: '#FFA500' }}>Company Profile</h1>
-                    <p>Company profile page coming soon...</p>
-                  </div>
-                } />
+                <Route path="/company/:companyId" element={<CompanyDescription />} />
 
                 {/* 404 Page */}
                 <Route path="*" element={
