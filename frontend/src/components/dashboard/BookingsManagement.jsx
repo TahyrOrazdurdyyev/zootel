@@ -42,9 +42,16 @@ const BookingsManagement = () => {
   const transformBookingData = (bookings) => {
     return bookings.map(booking => ({
       ...booking,
-      customerName: booking.petOwnerName,
-      customerEmail: booking.petOwnerEmail,
-      customerPhone: booking.petOwnerPhone
+      // Customer details are already correctly named in backend response
+      customerName: booking.customerName,
+      customerEmail: booking.customerEmail,
+      customerPhone: booking.customerPhone,
+      // Map price field correctly
+      price: booking.servicePrice,
+      // Ensure all required fields are present
+      serviceName: booking.serviceName,
+      petName: booking.petName,
+      petType: booking.petType
     }));
   };
 
@@ -170,6 +177,9 @@ const BookingsManagement = () => {
   };
 
   const formatPrice = (price) => {
+    if (price === null || price === undefined || isNaN(price)) {
+      return '$0.00';
+    }
     return `$${parseFloat(price).toFixed(2)}`;
   };
 
