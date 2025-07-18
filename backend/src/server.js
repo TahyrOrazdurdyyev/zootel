@@ -40,7 +40,14 @@ app.use(cors({
 }));
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Skip urlencoded parsing for multipart/form-data requests (handled by multer)
+app.use((req, res, next) => {
+  if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
+    next();
+  } else {
+    express.urlencoded({ extended: true, limit: '10mb' })(req, res, next);
+  }
+});
 
 // Serve static files (uploaded images)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
