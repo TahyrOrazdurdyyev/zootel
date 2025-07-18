@@ -1,114 +1,47 @@
 .owner-dashboard-overview {
   padding: 0;
-  animation: fadeInUp 0.6s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .welcome-section {
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
   text-align: center;
-  position: relative;
-}
-
-.welcome-section::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100px;
-  height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-  border-radius: 2px;
-  animation: slideIn 0.8s ease-out 0.3s both;
-}
-
-@keyframes slideIn {
-  from {
-    width: 0;
-  }
-  to {
-    width: 100px;
-  }
 }
 
 .welcome-section h2 {
-  color: #2d3748;
+  color: #2c3e50;
   margin-bottom: 0.75rem;
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: fadeIn 0.6s ease-out 0.2s both;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
 
 .welcome-section p {
-  color: #718096;
+  color: #6c757d;
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 400;
-  animation: fadeIn 0.6s ease-out 0.4s both;
 }
 
 .owner-dashboard-overview .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .owner-dashboard-overview .metric-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
-  border-radius: 20px;
-  padding: 2.5rem;
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+  border-top: 4px solid #FFA500;
   position: relative;
   overflow: hidden;
-  animation: slideInFromBottom 0.6s ease-out;
-  animation-fill-mode: both;
 }
-
-@keyframes slideInFromBottom {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.owner-dashboard-overview .metric-card:nth-child(1) { animation-delay: 0.1s; }
-.owner-dashboard-overview .metric-card:nth-child(2) { animation-delay: 0.2s; }
-.owner-dashboard-overview .metric-card:nth-child(3) { animation-delay: 0.3s; }
-.owner-dashboard-overview .metric-card:nth-child(4) { animation-delay: 0.4s; }
 
 .owner-dashboard-overview .metric-card::before {
   content: '';
@@ -117,65 +50,31 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #f093fb 100%);
-  border-radius: 20px 20px 0 0;
-}
-
-.owner-dashboard-overview .metric-card::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1), transparent);
-  transform: rotate(45deg);
-  transition: all 0.6s ease;
-  opacity: 0;
+  background: linear-gradient(90deg, #FFA500 0%, #FFB84D 100%);
 }
 
 .owner-dashboard-overview .metric-card:hover {
-  transform: translateY(-10px) scale(1.03);
-  box-shadow: 0 20px 50px rgba(102, 126, 234, 0.25);
-  border-color: #667eea;
-}
-
-.owner-dashboard-overview .metric-card:hover::after {
-  opacity: 1;
-  right: 100%;
-  top: 100%;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(255, 165, 0, 0.2);
+  border-color: #FFA500;
 }
 
 .owner-dashboard-overview .metric-icon {
-  font-size: 3.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 2px 4px rgba(102, 126, 234, 0.3));
-  transition: all 0.3s ease;
-}
-
-.owner-dashboard-overview .metric-card:hover .metric-icon {
-  transform: scale(1.1);
-  filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.4));
+  font-size: 3rem;
+  color: #FFA500;
+  filter: drop-shadow(0 2px 4px rgba(255, 165, 0, 0.3));
 }
 
 .owner-dashboard-overview .metric-value {
-  font-size: 2.8rem;
-  font-weight: 800;
-  color: #2d3748;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
   margin-bottom: 0.25rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1;
 }
 
 .owner-dashboard-overview .metric-label {
-  color: #718096;
-  font-size: 1rem;
+  color: #6c757d;
+  font-size: 0.95rem;
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -184,17 +83,17 @@
 .overview-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  animation: fadeInUp 0.6s ease-out 0.5s both;
+  gap: 1.5rem;
 }
 
 .overview-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  border: 1px solid rgba(102, 126, 234, 0.1);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid #e9ecef;
+  border-top: 4px solid #FFA500;
+  transition: all 0.3s ease;
   position: relative;
 }
 
@@ -205,108 +104,100 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #f093fb 100%);
+  background: linear-gradient(90deg, #FFA500 0%, #FFB84D 100%);
 }
 
 .overview-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
-  border-color: #667eea;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 165, 0, 0.15);
+  border-color: #FFA500;
 }
 
 .owner-dashboard-overview .card-header {
-  padding: 2rem 2rem 1rem;
+  padding: 1.5rem 1.5rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+  border-bottom: 1px solid #e9ecef;
 }
 
 .owner-dashboard-overview .card-header h3 {
   margin: 0;
-  color: #2d3748;
-  font-size: 1.3rem;
+  color: #2c3e50;
+  font-size: 1.2rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .view-all-link {
-  color: #667eea;
+  color: #FFA500;
   text-decoration: none;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   padding: 0.5rem 1rem;
-  border-radius: 10px;
-  background: rgba(102, 126, 234, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 165, 0, 0.1);
   transition: all 0.3s ease;
 }
 
 .view-all-link:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #FFA500;
   color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
 }
 
 .owner-dashboard-overview .card-content {
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
 .empty-state {
   text-align: center;
-  padding: 3rem 2rem;
-  color: #718096;
+  padding: 2.5rem 1.5rem;
+  color: #6c757d;
 }
 
 .empty-icon {
-  font-size: 4rem;
-  margin-bottom: 1.5rem;
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
   opacity: 0.6;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #FFA500;
 }
 
 .cta-button, .add-reminder-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FFA500 0%, #FFB84D 100%);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
 }
 
 .cta-button:hover, .add-reminder-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 165, 0, 0.4);
 }
 
 /* Appointments List */
 .appointments-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .appointment-item {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-  border-radius: 16px;
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
 }
 
 .appointment-item::before {
@@ -316,38 +207,38 @@
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
+  background: linear-gradient(135deg, #FFA500 0%, #FFB84D 100%);
 }
 
 .appointment-item:hover {
   transform: translateX(5px);
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.1);
 }
 
 .appointment-date {
   flex-shrink: 0;
-  width: 60px;
+  width: 50px;
   text-align: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FFA500 0%, #FFB84D 100%);
   color: white;
-  border-radius: 12px;
-  padding: 0.75rem 0.5rem;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem;
+  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
 }
 
 .date-day {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 700;
   line-height: 1;
 }
 
 .date-month {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-top: 0.25rem;
+  margin-top: 0.2rem;
 }
 
 .appointment-details {
@@ -355,22 +246,22 @@
 }
 
 .appointment-service {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #2c3e50;
   margin-bottom: 0.25rem;
 }
 
 .appointment-company {
-  font-size: 1rem;
-  color: #667eea;
+  font-size: 0.9rem;
+  color: #FFA500;
   font-weight: 600;
   margin-bottom: 0.25rem;
 }
 
 .appointment-meta {
-  font-size: 0.9rem;
-  color: #718096;
+  font-size: 0.8rem;
+  color: #6c757d;
 }
 
 .appointment-status {
@@ -378,77 +269,76 @@
 }
 
 .status-badge {
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .status-badge.confirmed {
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+  background: #d4edda;
+  color: #155724;
 }
 
 .status-badge.pending {
-  background: linear-gradient(135deg, #ffe066 0%, #ffb347 100%);
-  color: #8b5a00;
-  box-shadow: 0 2px 8px rgba(255, 224, 102, 0.3);
+  background: #fff3cd;
+  color: #856404;
 }
 
 /* Reminders List */
 .reminders-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .reminder-item {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-  border-radius: 16px;
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
   transition: all 0.3s ease;
   position: relative;
 }
 
 .reminder-item.priority-high {
-  border-left: 4px solid #ff6b6b;
-  background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 138, 128, 0.1) 100%);
+  border-left: 4px solid #dc3545;
+  background: rgba(220, 53, 69, 0.05);
 }
 
 .reminder-item.priority-medium {
-  border-left: 4px solid #ffe066;
-  background: linear-gradient(135deg, rgba(255, 224, 102, 0.1) 0%, rgba(255, 179, 71, 0.1) 100%);
+  border-left: 4px solid #ffc107;
+  background: rgba(255, 193, 7, 0.05);
 }
 
 .reminder-item.priority-low {
-  border-left: 4px solid #4ecdc4;
-  background: linear-gradient(135deg, rgba(78, 205, 196, 0.1) 0%, rgba(68, 160, 141, 0.1) 100%);
+  border-left: 4px solid #28a745;
+  background: rgba(40, 167, 69, 0.05);
 }
 
 .reminder-item:hover {
   transform: translateX(5px);
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .reminder-icon {
-  font-size: 2rem;
+  font-size: 1.5rem;
   flex-shrink: 0;
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FFA500 0%, #FFB84D 100%);
   border-radius: 50%;
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
 }
 
 .reminder-details {
@@ -456,87 +346,84 @@
 }
 
 .reminder-pet {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #2c3e50;
   margin-bottom: 0.25rem;
 }
 
 .reminder-message {
-  font-size: 1rem;
-  color: #718096;
+  font-size: 0.9rem;
+  color: #6c757d;
   margin-bottom: 0.25rem;
 }
 
 .reminder-date {
-  font-size: 0.9rem;
-  color: #667eea;
+  font-size: 0.8rem;
+  color: #FFA500;
   font-weight: 600;
 }
 
 .priority-badge {
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .priority-badge.high {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ff8a80 100%);
+  background: #dc3545;
   color: white;
-  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
 }
 
 .priority-badge.medium {
-  background: linear-gradient(135deg, #ffe066 0%, #ffb347 100%);
-  color: #8b5a00;
-  box-shadow: 0 2px 8px rgba(255, 224, 102, 0.3);
+  background: #ffc107;
+  color: #856404;
 }
 
 .priority-badge.low {
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  background: #28a745;
   color: white;
-  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
 }
 
 /* Activity List */
 .activity-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .activity-item {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-  border-radius: 16px;
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
   transition: all 0.3s ease;
 }
 
 .activity-item:hover {
   transform: translateX(5px);
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .activity-icon {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   flex-shrink: 0;
-  width: 50px;
-  height: 50px;
+  width: 35px;
+  height: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FFA500 0%, #FFB84D 100%);
   border-radius: 50%;
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
 }
 
 .activity-details {
@@ -544,89 +431,71 @@
 }
 
 .activity-message {
-  font-size: 1rem;
-  color: #2d3748;
+  font-size: 0.9rem;
+  color: #2c3e50;
   font-weight: 600;
   margin-bottom: 0.25rem;
 }
 
 .activity-date {
-  font-size: 0.9rem;
-  color: #718096;
+  font-size: 0.8rem;
+  color: #6c757d;
 }
 
 /* Quick Actions */
 .owner-dashboard-overview .actions-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .action-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  padding: 2rem 1.5rem;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem;
   border: none;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-radius: 8px;
+  background: #f8f9fa;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border: 1px solid rgba(102, 126, 234, 0.1);
-  position: relative;
-  overflow: hidden;
-}
-
-.action-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
-  transition: left 0.6s ease;
-}
-
-.action-btn:hover::before {
-  left: 100%;
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
 }
 
 .action-btn:hover {
-  transform: translateY(-5px) scale(1.02);
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
-  border-color: #667eea;
+  transform: translateY(-3px);
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-color: #FFA500;
 }
 
 .action-btn.primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FFA500 0%, #FFB84D 100%);
   color: white;
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
 }
 
 .action-btn.primary:hover {
-  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.4);
 }
 
 .action-btn.secondary {
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  background: linear-gradient(135deg, #28a745 0%, #32d74b 100%);
   color: white;
-  box-shadow: 0 8px 20px rgba(78, 205, 196, 0.3);
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 }
 
 .action-btn.secondary:hover {
-  box-shadow: 0 15px 35px rgba(78, 205, 196, 0.4);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
 }
 
 .action-btn .action-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 2rem;
 }
 
 .action-btn .action-text {
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   text-align: center;
 }
@@ -637,26 +506,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 60vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 20px;
-  color: white;
+  height: 50vh;
+  background: #f8f9fa;
+  border-radius: 12px;
+  color: #6c757d;
 }
 
 .owner-dashboard-loading .loading-spinner {
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid white;
+  width: 50px;
+  height: 50px;
+  border: 3px solid #e3e3e3;
+  border-top: 3px solid #FFA500;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .owner-dashboard-loading p {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 500;
-  opacity: 0.9;
 }
 
 /* Responsive Design */
@@ -670,7 +538,7 @@
 @media (max-width: 768px) {
   .owner-dashboard-overview .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    gap: 1rem;
   }
   
   .owner-dashboard-overview .actions-grid {
@@ -679,11 +547,11 @@
   }
   
   .overview-card {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
   
   .welcome-section h2 {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
   
   .owner-dashboard-overview .metric-card {
@@ -701,17 +569,17 @@
   .appointment-item,
   .reminder-item,
   .activity-item {
-    padding: 1rem;
-    gap: 1rem;
+    padding: 0.75rem;
+    gap: 0.75rem;
   }
   
   .appointment-date {
-    width: 50px;
-    padding: 0.5rem;
+    width: 45px;
+    padding: 0.4rem;
   }
   
   .date-day {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 }
 
@@ -721,14 +589,14 @@
   }
   
   .welcome-section h2 {
-    font-size: 1.75rem;
+    font-size: 1.6rem;
   }
   
   .owner-dashboard-overview .card-content {
-    padding: 1.5rem;
+    padding: 1rem;
   }
   
   .owner-dashboard-overview .card-header {
-    padding: 1.5rem 1.5rem 1rem;
+    padding: 1rem 1rem 0.5rem;
   }
 } 
