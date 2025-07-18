@@ -606,13 +606,27 @@ router.put('/:id', verifyToken, requireCompany, async (req, res) => {
       updateValues.push(id, companyId);
 
       const updateQuery = `UPDATE employees SET ${updateFields.join(', ')} WHERE id = ? AND companyId = ?`;
+      
+      console.log('UPDATE Query:', updateQuery);
+      console.log('UPDATE Values:', updateValues);
+      console.log('Fields being updated:', updateFields);
+      
       await connection.execute(updateQuery, updateValues);
+
+      console.log('UPDATE executed successfully');
 
       // Get updated employee
       const [updatedEmployeeResult] = await connection.execute(
         'SELECT * FROM employees WHERE id = ? AND companyId = ?',
         [id, companyId]
       );
+
+      console.log('Retrieved updated employee:', {
+        specialties: updatedEmployeeResult[0].specialties,
+        workingHours: updatedEmployeeResult[0].workingHours,
+        emergencyContactName: updatedEmployeeResult[0].emergencyContactName,
+        notes: updatedEmployeeResult[0].notes
+      });
 
       const updatedEmployee = updatedEmployeeResult[0];
       const employeeData = {
