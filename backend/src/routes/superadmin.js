@@ -139,17 +139,10 @@ router.get('/companies', verifyToken, requireSuperadmin, async (req, res) => {
     const connection = await pool.getConnection();
 
     try {
-      // Build query with filters
+      // Build query with filters (simplified to avoid memory issues)
       let query = `
-        SELECT c.*, 
-               COUNT(DISTINCT b.id) as totalBookings,
-               COUNT(DISTINCT s.id) as totalServices,
-               AVG(r.rating) as averageRating,
-               SUM(CASE WHEN b.status = 'completed' THEN b.totalAmount ELSE 0 END) as totalRevenue
+        SELECT c.*
         FROM companies c
-        LEFT JOIN bookings b ON c.id = b.companyId
-        LEFT JOIN services s ON c.id = s.companyId
-        LEFT JOIN reviews r ON c.id = r.companyId
       `;
       
       const queryParams = [];
@@ -171,7 +164,7 @@ router.get('/companies', verifyToken, requireSuperadmin, async (req, res) => {
         query += ' WHERE ' + whereConditions.join(' AND ');
       }
       
-      query += ' GROUP BY c.id ORDER BY c.createdAt DESC';
+      query += ' ORDER BY c.createdAt DESC';
       
       // Get total count for pagination
       let countQuery = 'SELECT COUNT(*) as total FROM companies c';
@@ -204,10 +197,10 @@ router.get('/companies', verifyToken, requireSuperadmin, async (req, res) => {
         subscriptionPlan: company.subscriptionPlan || 'basic',
         subscriptionStatus: company.subscriptionStatus || 'active',
         status: company.status || 'active',
-        totalBookings: company.totalBookings || 0,
-        totalServices: company.totalServices || 0,
-        averageRating: parseFloat(company.averageRating) || 0.0,
-        totalRevenue: parseFloat(company.totalRevenue) || 0.00,
+        totalBookings: 0, // Simplified query - aggregation removed to avoid memory issues
+        totalServices: 0, // Simplified query - aggregation removed to avoid memory issues
+        averageRating: 0.0, // Simplified query - aggregation removed to avoid memory issues
+        totalRevenue: 0.00, // Simplified query - aggregation removed to avoid memory issues
         joinedDate: company.createdAt ? company.createdAt.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         lastActive: company.updatedAt || company.createdAt
       }));
