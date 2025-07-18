@@ -78,112 +78,114 @@ const PetOwnerDashboard = () => {
 
   return (
     <div className="pet-owner-dashboard">
-      {/* Sidebar */}
-      <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
-        {/* Logo/Brand */}
-        <div className="sidebar-header">
-          <Link to="/" className="sidebar-logo">
-            <img src={logoImage} alt="Zootel" className="sidebar-logo-image" />
-          </Link>
-          <button 
-            className="sidebar-toggle"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            {sidebarOpen ? '‹' : '›'}
-          </button>
-        </div>
-
-        {/* User info */}
-        <div className="sidebar-user">
-          <div className="user-avatar">
-            {currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : currentUser.email.charAt(0).toUpperCase()}
+      <div className="dashboard-container">
+        {/* Sidebar */}
+        <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
+          {/* Logo/Brand */}
+          <div className="sidebar-header">
+            <Link to="/" className="sidebar-logo">
+              <img src={logoImage} alt="Zootel" className="sidebar-logo-image" />
+            </Link>
+            <button 
+              className="sidebar-toggle"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              {sidebarOpen ? '‹' : '›'}
+            </button>
           </div>
-          {sidebarOpen && (
-            <div className="user-info">
-              <div className="user-name">
-                {currentUser.displayName || 'Pet Owner'}
+
+          {/* User info */}
+          <div className="sidebar-user">
+            <div className="user-avatar">
+              {currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : currentUser.email.charAt(0).toUpperCase()}
+            </div>
+            {sidebarOpen && (
+              <div className="user-info">
+                <div className="user-name">
+                  {currentUser.displayName || 'Pet Owner'}
+                </div>
+                <div className="user-email">{currentUser.email}</div>
+                <div className="user-role">{userRole}</div>
               </div>
-              <div className="user-email">{currentUser.email}</div>
-              <div className="user-role">{userRole}</div>
+            )}
+          </div>
+
+          {/* Navigation */}
+          <nav className="sidebar-nav">
+            {navigationItems.map((item) => (
+              <button
+                key={item.id}
+                className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
+                onClick={() => setActiveTab(item.id)}
+              >
+                <span className="nav-icon">{item.icon}</span>
+                {sidebarOpen && <span className="nav-text">{item.name}</span>}
+              </button>
+            ))}
+          </nav>
+
+          {/* Quick Actions */}
+          {sidebarOpen && (
+            <div className="sidebar-quick-actions">
+              <button className="quick-action-btn primary">
+                <span className="action-icon">📅</span>
+                <span className="action-text">Book Service</span>
+              </button>
+              <button className="quick-action-btn secondary">
+                <span className="action-icon">🐕</span>
+                <span className="action-text">Add Pet</span>
+              </button>
             </div>
           )}
-        </div>
 
-        {/* Navigation */}
-        <nav className="sidebar-nav">
-          {navigationItems.map((item) => (
-            <button
-              key={item.id}
-              className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(item.id)}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              {sidebarOpen && <span className="nav-text">{item.name}</span>}
-            </button>
-          ))}
-        </nav>
-
-        {/* Quick Actions */}
-        {sidebarOpen && (
-          <div className="sidebar-quick-actions">
-            <button className="quick-action-btn primary">
-              <span className="action-icon">📅</span>
-              <span className="action-text">Book Service</span>
-            </button>
-            <button className="quick-action-btn secondary">
-              <span className="action-icon">🐕</span>
-              <span className="action-text">Add Pet</span>
+          {/* Sidebar footer */}
+          <div className="sidebar-footer">
+            <button className="logout-btn" onClick={handleLogout}>
+              <span className="nav-icon">🚪</span>
+              {sidebarOpen && <span className="nav-text">Logout</span>}
             </button>
           </div>
-        )}
+        </aside>
 
-        {/* Sidebar footer */}
-        <div className="sidebar-footer">
-          <button className="logout-btn" onClick={handleLogout}>
-            <span className="nav-icon">🚪</span>
-            {sidebarOpen && <span className="nav-text">Logout</span>}
-          </button>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="dashboard-main">
-        {/* Top bar */}
-        <header className="dashboard-header">
-          <div className="header-left">
-            <h1 className="page-title">
-              {navigationItems.find(item => item.id === activeTab)?.name || 'Dashboard'}
-            </h1>
-          </div>
-          <div className="header-right">
-            <div className="header-actions">
-              <button className="header-btn">
-                <span>🔔</span>
-                <span className="notification-badge">2</span>
-              </button>
-              <button className="header-btn" title="Emergency Contacts">
-                <span>🚨</span>
-              </button>
-              <button className="header-btn" title="Help">
-                <span>❓</span>
-              </button>
+        {/* Main content */}
+        <main className="dashboard-main">
+          {/* Top bar */}
+          <header className="dashboard-header">
+            <div className="header-left">
+              <h1 className="page-title">
+                {navigationItems.find(item => item.id === activeTab)?.name || 'Dashboard'}
+              </h1>
             </div>
-            <div className="user-menu">
-              <button className="user-menu-btn">
-                <div className="user-avatar small">
-                  {currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : currentUser.email.charAt(0).toUpperCase()}
-                </div>
-                <span>⌄</span>
-              </button>
+            <div className="header-right">
+              <div className="header-actions">
+                <button className="header-btn">
+                  <span>🔔</span>
+                  <span className="notification-badge">2</span>
+                </button>
+                <button className="header-btn" title="Emergency Contacts">
+                  <span>🚨</span>
+                </button>
+                <button className="header-btn" title="Help">
+                  <span>❓</span>
+                </button>
+              </div>
+              <div className="user-menu">
+                <button className="user-menu-btn">
+                  <div className="user-avatar small">
+                    {currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : currentUser.email.charAt(0).toUpperCase()}
+                  </div>
+                  <span>⌄</span>
+                </button>
+              </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* Page content */}
-        <div className="dashboard-content">
-          <ActiveComponent />
-        </div>
-      </main>
+          {/* Page content */}
+          <div className="dashboard-content">
+            <ActiveComponent />
+          </div>
+        </main>
+      </div>
     </div>
   );
 };
