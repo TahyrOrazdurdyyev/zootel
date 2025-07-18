@@ -418,6 +418,19 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
       notes
     } = req.body;
 
+    console.log('Employee POST received data:', {
+      name,
+      email,
+      phone,
+      position,
+      specialties: typeof specialties,
+      specialtiesValue: specialties,
+      workingHours: typeof workingHours,
+      workingHoursValue: workingHours,
+      emergencyContact,
+      notes
+    });
+
     // Validate required fields
     if (!name || !email || !position) {
       return res.status(400).json({
@@ -513,6 +526,16 @@ router.put('/:id', verifyToken, requireCompany, async (req, res) => {
     const { id } = req.params;
     const companyId = req.user.uid;
     const updateData = req.body;
+    
+    console.log('Employee PUT received data:', {
+      id,
+      updateData,
+      specialties: typeof updateData.specialties,
+      specialtiesValue: updateData.specialties,
+      workingHours: typeof updateData.workingHours,
+      workingHoursValue: updateData.workingHours
+    });
+    
     const connection = await pool.getConnection();
     
     try {

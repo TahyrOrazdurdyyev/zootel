@@ -299,6 +299,10 @@ const EmployeeManagement = () => {
       };
       delete backendData.skills; // Remove the frontend field
 
+      console.log('Employee save data being sent:', backendData);
+      console.log('FormData skills:', formData.skills);
+      console.log('FormData workingHours:', formData.workingHours);
+
       const response = await fetch(url, {
         method,
         headers: {
