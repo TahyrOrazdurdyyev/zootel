@@ -74,8 +74,8 @@ router.get('/', verifyToken, requireCompany, async (req, res) => {
             email: employee.email,
             phone: employee.phone || '',
             position: employee.position,
-            specialties: safeJSONParse(employee.specialties, []),
-            workingHours: safeJSONParse(employee.workingHours, {}),
+            specialties: employee.specialties || [],
+            workingHours: employee.workingHours || {},
             emergencyContact: {
               name: employee.emergencyContactName || '',
               phone: employee.emergencyContactPhone || ''
@@ -389,8 +389,8 @@ router.get('/:id', verifyToken, requireCompany, async (req, res) => {
         email: employee.email,
         phone: employee.phone || '',
         position: employee.position,
-        specialties: safeJSONParse(employee.specialties, []),
-        workingHours: safeJSONParse(employee.workingHours, {}),
+        specialties: employee.specialties || [],
+        workingHours: employee.workingHours || {},
         emergencyContact: {
           name: employee.emergencyContactName || '',
           phone: employee.emergencyContactPhone || ''
@@ -504,8 +504,8 @@ router.post('/', verifyToken, requireCompany, async (req, res) => {
         email: newEmployeeResult[0].email,
         phone: newEmployeeResult[0].phone,
         position: newEmployeeResult[0].position,
-        specialties: safeJSONParse(newEmployeeResult[0].specialties, []),
-        workingHours: safeJSONParse(newEmployeeResult[0].workingHours, {}),
+        specialties: newEmployeeResult[0].specialties || [],
+        workingHours: newEmployeeResult[0].workingHours || {},
         emergencyContact: {
           name: newEmployeeResult[0].emergencyContactName || '',
           phone: newEmployeeResult[0].emergencyContactPhone || ''
@@ -650,8 +650,8 @@ router.put('/:id', verifyToken, requireCompany, async (req, res) => {
         email: updatedEmployee.email,
         phone: updatedEmployee.phone || '',
         position: updatedEmployee.position,
-        specialties: safeJSONParse(updatedEmployee.specialties, []),
-        workingHours: safeJSONParse(updatedEmployee.workingHours, {}),
+        specialties: updatedEmployee.specialties || [],
+        workingHours: updatedEmployee.workingHours || {},
         emergencyContact: {
           name: updatedEmployee.emergencyContactName || '',
           phone: updatedEmployee.emergencyContactPhone || ''
