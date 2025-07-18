@@ -707,4 +707,708 @@
   .stat-value {
     font-size: 2rem;
   }
-} 
+}
+
+/* ============================================
+   MODERN UI ENHANCEMENTS FOR BOOKINGS MANAGEMENT
+   ============================================ */
+
+/* Enhanced Overview Cards */
+.bookings-management .overview-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.bookings-management .overview-card {
+  position: relative;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+}
+
+.bookings-management .overview-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border-color: #FFA500;
+}
+
+.bookings-management .card-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.05;
+  background: linear-gradient(135deg, #FFA500, #FF8C42);
+}
+
+.bookings-management .card-pattern {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #FFA500, #FF8C42);
+  border-radius: 50%;
+  transform: translate(30px, -30px);
+  opacity: 0.1;
+}
+
+.bookings-management .card-content {
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
+}
+
+.bookings-management .card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.bookings-management .card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.bookings-management .today-icon {
+  background: linear-gradient(135deg, #4CAF50, #66BB6A);
+}
+
+.bookings-management .upcoming-icon {
+  background: linear-gradient(135deg, #2196F3, #42A5F5);
+}
+
+.bookings-management .monthly-icon {
+  background: linear-gradient(135deg, #9C27B0, #BA68C8);
+}
+
+.bookings-management .revenue-icon {
+  background: linear-gradient(135deg, #FF9800, #FFB74D);
+}
+
+.bookings-management .card-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  flex: 1;
+}
+
+.bookings-management .card-stats {
+  text-align: left;
+}
+
+.bookings-management .stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.bookings-management .stat-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.bookings-management .stat-change {
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.bookings-management .stat-change.positive {
+  background: #e8f5e8;
+  color: #2e7d2e;
+}
+
+.bookings-management .stat-change.neutral {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.bookings-management .stat-change.negative {
+  background: #fdeaea;
+  color: #c62828;
+}
+
+/* Enhanced Controls Section */
+.bookings-management .appointments-controls {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+}
+
+.bookings-management .controls-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.bookings-management .controls-header h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.bookings-management .active-filters {
+  font-size: 0.85rem;
+}
+
+.bookings-management .active-indicator {
+  background: #FFA500;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-weight: 500;
+}
+
+.bookings-management .search-section {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.bookings-management .search-bar {
+  position: relative;
+  flex: 1;
+}
+
+.bookings-management .search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  z-index: 1;
+}
+
+.bookings-management .search-input {
+  width: 100%;
+  padding: 0.875rem 1rem 0.875rem 3rem;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.bookings-management .search-input:focus {
+  outline: none;
+  border-color: #FFA500;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
+}
+
+.bookings-management .clear-search {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: color 0.3s ease;
+}
+
+.bookings-management .clear-search:hover {
+  color: #dc3545;
+}
+
+.bookings-management .date-filter {
+  position: relative;
+  min-width: 200px;
+}
+
+.bookings-management .date-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  z-index: 1;
+}
+
+.bookings-management .date-input {
+  width: 100%;
+  padding: 0.875rem 1rem 0.875rem 3rem;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.bookings-management .date-input:focus {
+  outline: none;
+  border-color: #FFA500;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
+}
+
+.bookings-management .clear-date {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: color 0.3s ease;
+}
+
+.bookings-management .clear-date:hover {
+  color: #dc3545;
+}
+
+.bookings-management .status-filters-section {
+  border-top: 1px solid #e9ecef;
+  padding-top: 1.5rem;
+}
+
+.bookings-management .filters-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.bookings-management .filters-label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.bookings-management .clear-filters {
+  background: none;
+  border: none;
+  color: #FFA500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.bookings-management .clear-filters:hover {
+  color: #ff8c00;
+}
+
+.bookings-management .status-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.bookings-management .status-filter {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 25px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #495057;
+}
+
+.bookings-management .status-filter:hover {
+  background: white;
+  border-color: #FFA500;
+  color: #FFA500;
+}
+
+.bookings-management .status-filter.active {
+  background: #FFA500;
+  border-color: #FFA500;
+  color: white;
+}
+
+.bookings-management .filter-count {
+  background: rgba(255, 255, 255, 0.3);
+  padding: 0.125rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.bookings-management .status-filter:not(.active) .filter-count {
+  background: #e9ecef;
+  color: #6c757d;
+}
+
+/* Modern Appointment Cards */
+.bookings-management .appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.bookings-management .appointment-card.modern-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #f0f0f0;
+}
+
+.bookings-management .appointment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  border-color: #FFA500;
+}
+
+.bookings-management .card-border-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #FFA500, #FF8C42);
+}
+
+.bookings-management .appointment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #f0f0f0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+}
+
+.bookings-management .appointment-datetime {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.bookings-management .date-section {
+  text-align: left;
+}
+
+.bookings-management .date-primary {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.bookings-management .time-primary {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #FFA500;
+}
+
+.bookings-management .time-info {
+  text-align: left;
+}
+
+.bookings-management .time-until {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.bookings-management .duration {
+  font-size: 0.8rem;
+  color: #495057;
+  background: #e9ecef;
+  padding: 0.25rem 0.5rem;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+.bookings-management .status-badge.modern-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.bookings-management .appointment-content {
+  padding: 2rem;
+}
+
+.bookings-management .customer-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.bookings-management .customer-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFA500, #FF8C42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+}
+
+.bookings-management .avatar-initial {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.bookings-management .customer-details {
+  flex: 1;
+}
+
+.bookings-management .customer-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+}
+
+.bookings-management .contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bookings-management .contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.bookings-management .contact-item svg {
+  flex-shrink: 0;
+}
+
+.bookings-management .service-section {
+  margin-bottom: 1.5rem;
+}
+
+.bookings-management .service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.bookings-management .service-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #FFA500;
+}
+
+.bookings-management .service-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.bookings-management .service-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.bookings-management .service-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.bookings-management .service-value {
+  font-size: 0.95rem;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.bookings-management .service-value.price {
+  color: #FFA500;
+  font-weight: 700;
+}
+
+.bookings-management .additional-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.bookings-management .info-item {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.bookings-management .info-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.bookings-management .info-text {
+  color: #495057;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.bookings-management .appointment-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem;
+  background: #f8f9fa;
+  border-top: 1px solid #f0f0f0;
+  flex-wrap: wrap;
+}
+
+.bookings-management .action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  background: white;
+  color: #495057;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.bookings-management .action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.bookings-management .primary-action {
+  background: #FFA500;
+  border-color: #FFA500;
+  color: white;
+}
+
+.bookings-management .primary-action:hover {
+  background: #ff8c00;
+  border-color: #ff8c00;
+}
+
+.bookings-management .secondary-action {
+  background: #6c757d;
+  border-color: #6c757d;
+  color: white;
+}
+
+.bookings-management .secondary-action:hover {
+  background: #5a6268;
+  border-color: #5a6268;
+}
+
+.bookings-management .contact-action {
+  background: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+.bookings-management .contact-action:hover {
+  background: #218838;
+  border-color: #218838;
+}
+
+.bookings-management .email-action {
+  background: #17a2b8;
+  border-color: #17a2b8;
+  color: white;
+}
+
+.bookings-management .email-action:hover {
+  background: #138496;
+  border-color: #138496;
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+  .bookings-management .overview-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .bookings-management .search-section {
+    flex-direction: column;
+  }
+
+  .bookings-management .date-filter {
+    min-width: auto;
+  }
+
+  .bookings-management .status-filters {
+    justify-content: center;
+  }
+
+  .bookings-management .appointment-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .bookings-management .service-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bookings-management .appointment-actions {
+    justify-content: center;
+  }
+}

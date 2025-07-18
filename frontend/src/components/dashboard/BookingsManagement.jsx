@@ -414,72 +414,193 @@ const BookingsManagement = () => {
 
         {error && <div className="error-message">{error}</div>}
 
-        {/* Dashboard Overview */}
+        {/* Enhanced Dashboard Overview */}
         <div className="appointments-overview">
           <div className="overview-cards">
-            <div className="overview-card today">
-              <div className="card-icon">🗓️</div>
+            <div className="overview-card today-card">
+              <div className="card-background">
+                <div className="card-pattern"></div>
+              </div>
               <div className="card-content">
-                <h3>Today</h3>
-                <p className="card-number">{todaysAppointments.length}</p>
-                <p className="card-label">Appointments</p>
+                <div className="card-header">
+                  <div className="card-icon today-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M8 2V6M16 2V6M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+                  <h3>Today</h3>
+                </div>
+                <div className="card-stats">
+                  <div className="stat-number">{todaysAppointments.length}</div>
+                  <div className="stat-label">Appointments</div>
+                  <div className="stat-change positive">
+                    {todaysAppointments.filter(apt => apt.status === 'confirmed').length} confirmed
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="overview-card upcoming">
-              <div className="card-icon">⏰</div>
+            <div className="overview-card upcoming-card">
+              <div className="card-background">
+                <div className="card-pattern"></div>
+              </div>
               <div className="card-content">
-                <h3>Upcoming</h3>
-                <p className="card-number">{upcomingAppointments.length}</p>
-                <p className="card-label">This Week</p>
+                <div className="card-header">
+                  <div className="card-icon upcoming-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                      <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+                  <h3>Upcoming</h3>
+                </div>
+                <div className="card-stats">
+                  <div className="stat-number">{upcomingAppointments.length}</div>
+                  <div className="stat-label">This Week</div>
+                  <div className="stat-change neutral">
+                    Next: {upcomingAppointments.length > 0 ? upcomingAppointments[0]?.time || 'N/A' : 'None'}
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="overview-card monthly">
-              <div className="card-icon">📊</div>
+            <div className="overview-card monthly-card">
+              <div className="card-background">
+                <div className="card-pattern"></div>
+              </div>
               <div className="card-content">
-                <h3>This Month</h3>
-                <p className="card-number">{monthlyStats.completed}</p>
-                <p className="card-label">Completed</p>
+                <div className="card-header">
+                  <div className="card-icon monthly-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M3 3V21H21V3H3ZM9 17L5 13L6.5 11.5L9 14L17.5 5.5L19 7L9 17Z" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <h3>This Month</h3>
+                </div>
+                <div className="card-stats">
+                  <div className="stat-number">{monthlyStats.completed}</div>
+                  <div className="stat-label">Completed</div>
+                  <div className="stat-change positive">
+                    {Math.round((monthlyStats.completed / Math.max(monthlyStats.total, 1)) * 100)}% completion rate
+                  </div>
+                </div>
               </div>
             </div>
 
             {hasAdvancedAnalytics && (
-              <div className="overview-card revenue">
-                <div className="card-icon">💰</div>
+              <div className="overview-card revenue-card">
+                <div className="card-background">
+                  <div className="card-pattern"></div>
+                </div>
                 <div className="card-content">
-                  <h3>Revenue</h3>
-                  <p className="card-number">{formatPrice(monthlyStats.revenue)}</p>
-                  <p className="card-label">This Month</p>
+                  <div className="card-header">
+                    <div className="card-icon revenue-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2V22M17 5H9.5C8.83696 5 8.20107 5.26339 7.73223 5.73223C7.26339 6.20107 7 6.83696 7 7.5C7 8.16304 7.26339 8.79893 7.73223 9.26777C8.20107 9.73661 8.83696 10 9.5 10H14.5C15.163 10 15.7989 10.2634 16.2678 10.7322C16.7366 11.2011 17 11.837 17 12.5C17 13.163 16.7366 13.7989 16.2678 14.2678C15.7989 14.7366 15.163 15 14.5 15H7" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                    <h3>Revenue</h3>
+                  </div>
+                  <div className="card-stats">
+                    <div className="stat-number">{formatPrice(monthlyStats.revenue)}</div>
+                    <div className="stat-label">This Month</div>
+                    <div className="stat-change positive">
+                      Average: {formatPrice(monthlyStats.revenue / Math.max(monthlyStats.completed, 1))}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Filters and Controls */}
+        {/* Enhanced Filters and Controls */}
         <div className="appointments-controls">
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search by customer, pet, or service..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-            <span className="search-icon">🔍</span>
+          <div className="controls-header">
+            <h3>Find & Filter Appointments</h3>
+            <div className="active-filters">
+              {(searchTerm || selectedDate || selectedStatus !== 'all') && (
+                <span className="active-indicator">
+                  {[
+                    searchTerm && 'Search',
+                    selectedDate && 'Date',
+                    selectedStatus !== 'all' && 'Status'
+                  ].filter(Boolean).join(', ')} active
+                </span>
+              )}
+            </div>
           </div>
 
-          <div className="filter-row">
+          <div className="search-section">
+            <div className="search-bar">
+              <div className="search-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
+                  <path d="21 21L16.65 16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Search by customer name, pet, or service..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+              {searchTerm && (
+                <button 
+                  className="clear-search"
+                  onClick={() => setSearchTerm('')}
+                  title="Clear search"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              )}
+            </div>
+
             <div className="date-filter">
+              <div className="date-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2"/>
+                  <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2"/>
+                  <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+                </svg>
+              </div>
               <input
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 className="date-input"
+                placeholder="Filter by date"
               />
+              {selectedDate && (
+                <button 
+                  className="clear-date"
+                  onClick={() => setSelectedDate('')}
+                  title="Clear date filter"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              )}
             </div>
+          </div>
 
+          <div className="status-filters-section">
+            <div className="filters-header">
+              <span className="filters-label">Filter by Status</span>
+              {selectedStatus !== 'all' && (
+                <button 
+                  className="clear-filters"
+                  onClick={() => setSelectedStatus('all')}
+                >
+                  Clear filter
+                </button>
+              )}
+            </div>
             <div className="status-filters">
               {statusOptions.map(status => (
                 <button
@@ -488,8 +609,8 @@ const BookingsManagement = () => {
                   style={{ '--status-color': status.color }}
                   onClick={() => setSelectedStatus(status.value)}
                 >
-                  {status.label}
-                  <span className="filter-count">{statusCounts[status.value]}</span>
+                  <span className="filter-label">{status.label}</span>
+                  <span className="filter-count">{statusCounts[status.value] || 0}</span>
                 </button>
               ))}
             </div>
@@ -522,58 +643,114 @@ const BookingsManagement = () => {
         ) : (
           <div className="appointments-list">
             {filteredAppointments.map(appointment => (
-              <div key={appointment.id} className="appointment-card">
+              <div key={appointment.id} className="appointment-card modern-card">
+                <div className="card-border-accent"></div>
+                
                 <div className="appointment-header">
-                  <div className="appointment-time">
-                    <div className="date">{formatDate(appointment.date)}</div>
-                    <div className="time">{formatTime(appointment.time)}</div>
-                    <div className="time-until">{getTimeUntilAppointment(appointment.date, appointment.time)}</div>
+                  <div className="appointment-datetime">
+                    <div className="date-section">
+                      <div className="date-primary">{formatDate(appointment.date)}</div>
+                      <div className="time-primary">{formatTime(appointment.time)}</div>
+                    </div>
+                    <div className="time-info">
+                      <div className="time-until">{getTimeUntilAppointment(appointment.date, appointment.time)}</div>
+                      <div className="duration">{appointment.duration || 60} min</div>
+                    </div>
                   </div>
                   
                   <div className="appointment-status">
                     <span 
-                      className={`status-badge status-${appointment.status}`}
+                      className={`status-badge modern-badge status-${appointment.status}`}
                       style={{ backgroundColor: getStatusColor(appointment.status) }}
                     >
-                      {getStatusIcon(appointment.status)}
-                      {statusOptions.find(opt => opt.value === appointment.status)?.label}
+                      <span className="status-icon">{getStatusIcon(appointment.status)}</span>
+                      <span className="status-text">{statusOptions.find(opt => opt.value === appointment.status)?.label}</span>
                     </span>
                   </div>
                 </div>
 
-                <div className="appointment-details">
-                  <div className="customer-info">
-                    <h3 className="customer-name">{appointment.customerName}</h3>
-                    <p className="customer-contact">{appointment.customerEmail} • {appointment.customerPhone}</p>
+                <div className="appointment-content">
+                  <div className="customer-section">
+                    <div className="customer-avatar">
+                      <span className="avatar-initial">
+                        {appointment.customerName?.charAt(0)?.toUpperCase() || 'A'}
+                      </span>
+                    </div>
+                    <div className="customer-details">
+                      <h3 className="customer-name">{appointment.customerName}</h3>
+                      <div className="contact-info">
+                        <div className="contact-item">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" strokeWidth="2"/>
+                            <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2"/>
+                          </svg>
+                          <span>{appointment.customerEmail}</span>
+                        </div>
+                        <div className="contact-item">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M22 16.92V19.92C22 20.92 21.11 21.92 19.95 21.92C8.91 21.92 2 14.92 2 3.92C2 2.76 3 1.92 4 1.92H7C8.1 1.92 9 2.82 9 3.92V6.92C9 7.92 8.1 8.92 7 8.92H5C5 12.92 8.13 16.92 12 16.92V14.92C12 13.82 12.9 12.92 14 12.92H17C18.1 12.92 19 13.82 19 14.92V16.92H22Z" stroke="currentColor" strokeWidth="2"/>
+                          </svg>
+                          <span>{appointment.customerPhone}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="service-info">
-                    <div className="service-row">
+                  <div className="service-section">
+                    <div className="service-grid">
                       <div className="service-item">
-                        <span className="service-label">Service:</span>
-                        <span className="service-value">{appointment.serviceName}</span>
+                        <div className="service-icon">🐕</div>
+                        <div className="service-content">
+                          <span className="service-label">Service</span>
+                          <span className="service-value">{appointment.serviceName}</span>
+                        </div>
                       </div>
                       <div className="service-item">
-                        <span className="service-label">Pet:</span>
-                        <span className="service-value">{appointment.petName} ({appointment.petType})</span>
+                        <div className="service-icon">🐾</div>
+                        <div className="service-content">
+                          <span className="service-label">Pet</span>
+                          <span className="service-value">{appointment.petName} ({appointment.petType})</span>
+                        </div>
                       </div>
                       <div className="service-item">
-                        <span className="service-label">Price:</span>
-                        <span className="service-value price">{formatPrice(appointment.price)}</span>
+                        <div className="service-icon">💰</div>
+                        <div className="service-content">
+                          <span className="service-label">Price</span>
+                          <span className="service-value price">{formatPrice(appointment.price)}</span>
+                        </div>
                       </div>
                     </div>
 
-                    {appointment.notes && (
-                      <div className="appointment-notes">
-                        <span className="notes-label">Notes:</span>
-                        <span className="notes-text">{appointment.notes}</span>
-                      </div>
-                    )}
+                    {(appointment.notes || appointment.specialRequirements) && (
+                      <div className="additional-info">
+                        {appointment.notes && (
+                          <div className="info-item notes">
+                            <div className="info-header">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2"/>
+                                <polyline points="14,2 14,8 20,8" stroke="currentColor" strokeWidth="2"/>
+                                <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" strokeWidth="2"/>
+                                <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" strokeWidth="2"/>
+                              </svg>
+                              <span>Notes</span>
+                            </div>
+                            <p className="info-text">{appointment.notes}</p>
+                          </div>
+                        )}
 
-                    {appointment.specialRequirements && (
-                      <div className="special-requirements">
-                        <span className="requirements-label">Special Requirements:</span>
-                        <span className="requirements-text">{appointment.specialRequirements}</span>
+                        {appointment.specialRequirements && (
+                          <div className="info-item requirements">
+                            <div className="info-header">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                                <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2"/>
+                              </svg>
+                              <span>Special Requirements</span>
+                            </div>
+                            <p className="info-text">{appointment.specialRequirements}</p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -581,31 +758,46 @@ const BookingsManagement = () => {
 
                 <div className="appointment-actions">
                   <button 
-                    className="action-btn details"
+                    className="action-btn primary-action"
                     onClick={() => openDetailsModal(appointment)}
                   >
-                    👁️ Details
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" strokeWidth="2"/>
+                      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                    Details
                   </button>
                   
                   <button 
-                    className="action-btn status"
+                    className="action-btn secondary-action"
                     onClick={() => openStatusModal(appointment)}
                   >
-                    📝 Update Status
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M11 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H16C17.1 20 18 19.1 18 18V13" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M18.5 2.5C19.3 1.7 20.7 1.7 21.5 2.5C22.3 3.3 22.3 4.7 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                    Update Status
                   </button>
 
                   <button 
-                    className="action-btn contact"
+                    className="action-btn contact-action"
                     onClick={() => window.location.href = `tel:${appointment.customerPhone}`}
                   >
-                    📞 Call
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M22 16.92V19.92C22 20.92 21.11 21.92 19.95 21.92C8.91 21.92 2 14.92 2 3.92C2 2.76 3 1.92 4 1.92H7C8.1 1.92 9 2.82 9 3.92V6.92C9 7.92 8.1 8.92 7 8.92H5C5 12.92 8.13 16.92 12 16.92V14.92C12 13.82 12.9 12.92 14 12.92H17C18.1 12.92 19 13.82 19 14.92V16.92H22Z" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                    Call
                   </button>
 
                   <button 
-                    className="action-btn email"
+                    className="action-btn email-action"
                     onClick={() => window.location.href = `mailto:${appointment.customerEmail}`}
                   >
-                    ✉️ Email
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" strokeWidth="2"/>
+                      <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                    Email
                   </button>
                 </div>
               </div>
