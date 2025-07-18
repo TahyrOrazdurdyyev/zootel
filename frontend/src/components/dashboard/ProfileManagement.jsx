@@ -25,13 +25,13 @@ const ProfileManagement = () => {
     logoUrl: '',
     logoFile: null,
     businessHours: {
-      monday: '',
-      tuesday: '',
-      wednesday: '',
-      thursday: '',
-      friday: '',
-      saturday: '',
-      sunday: ''
+      monday: { open: '09:00', close: '17:00' },
+      tuesday: { open: '09:00', close: '17:00' },
+      wednesday: { open: '09:00', close: '17:00' },
+      thursday: { open: '09:00', close: '17:00' },
+      friday: { open: '09:00', close: '17:00' },
+      saturday: { closed: true },
+      sunday: { closed: true }
     },
     images: []
   });
@@ -80,13 +80,13 @@ const ProfileManagement = () => {
           logoUrl: data.data.logoUrl || '',
           logoFile: null,
           businessHours: data.data.businessHours || {
-            monday: '',
-            tuesday: '',
-            wednesday: '',
-            thursday: '',
-            friday: '',
-            saturday: '',
-            sunday: ''
+            monday: { open: '09:00', close: '17:00' },
+            tuesday: { open: '09:00', close: '17:00' },
+            wednesday: { open: '09:00', close: '17:00' },
+            thursday: { open: '09:00', close: '17:00' },
+            friday: { open: '09:00', close: '17:00' },
+            saturday: { closed: true },
+            sunday: { closed: true }
           },
           images: data.data.images || []
         });
@@ -167,12 +167,70 @@ const ProfileManagement = () => {
     }));
   };
 
+  const parseBusinessHours = (value) => {
+    if (!value || value.toLowerCase().includes('closed')) {
+      return { closed: true };
+    }
+    
+    // Parse time range like "9:00 AM - 6:00 PM" or "09:00 - 17:00"
+    const timePattern = /(\d{1,2}):?(\d{0,2})\s*(AM|PM)?\s*-\s*(\d{1,2}):?(\d{0,2})\s*(AM|PM)?/i;
+    const match = value.match(timePattern);
+    
+    if (match) {
+      let [, startHour, startMin = '00', startPeriod, endHour, endMin = '00', endPeriod] = match;
+      
+      // Convert to 24-hour format
+      startHour = parseInt(startHour);
+      endHour = parseInt(endHour);
+      
+      if (startPeriod && startPeriod.toLowerCase() === 'pm' && startHour !== 12) {
+        startHour += 12;
+      } else if (startPeriod && startPeriod.toLowerCase() === 'am' && startHour === 12) {
+        startHour = 0;
+      }
+      
+      if (endPeriod && endPeriod.toLowerCase() === 'pm' && endHour !== 12) {
+        endHour += 12;
+      } else if (endPeriod && endPeriod.toLowerCase() === 'am' && endHour === 12) {
+        endHour = 0;
+      }
+      
+      const open = `${startHour.toString().padStart(2, '0')}:${startMin.padStart(2, '0')}`;
+      const close = `${endHour.toString().padStart(2, '0')}:${endMin.padStart(2, '0')}`;
+      
+      return { open, close };
+    }
+    
+    // If parsing fails, return a default open hours
+    return { open: '09:00', close: '17:00' };
+  };
+
+  const formatBusinessHoursForDisplay = (hoursObj) => {
+    if (!hoursObj || hoursObj.closed) {
+      return 'Closed';
+    }
+    
+    if (hoursObj.open && hoursObj.close) {
+      const formatTime = (time24) => {
+        const [hours, minutes] = time24.split(':');
+        const hour = parseInt(hours);
+        const period = hour >= 12 ? 'PM' : 'AM';
+        const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+        return `${displayHour}:${minutes} ${period}`;
+      };
+      
+      return `${formatTime(hoursObj.open)} - ${formatTime(hoursObj.close)}`;
+    }
+    
+    return '';
+  };
+
   const handleBusinessHoursChange = (day, value) => {
     setFormData(prev => ({
       ...prev,
       businessHours: {
         ...prev.businessHours,
-        [day]: value
+        [day]: parseBusinessHours(value)
       }
     }));
   };
@@ -417,7 +475,7 @@ const ProfileManagement = () => {
                     <div className="hours-inputs">
                       <input
                         type="text"
-                        value={formData.businessHours[day.key] || ''}
+                        value={formatBusinessHoursForDisplay(formData.businessHours[day.key]) || ''}
                         onChange={(e) => handleBusinessHoursChange(day.key, e.target.value)}
                         placeholder="e.g., 9:00 AM - 6:00 PM or Closed"
                         disabled={!hasFeature('profileCustomization')}
