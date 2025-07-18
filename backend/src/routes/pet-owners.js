@@ -1,6 +1,7 @@
 import express from 'express';
 import { verifyToken, requireRole } from '../middleware/auth.js';
 import { pool } from '../config/database.js';
+import { uploadPetPhoto, getFileUrl, deleteFile } from '../middleware/upload.js';
 
 const router = express.Router();
 
@@ -1037,6 +1038,83 @@ router.get('/dashboard-stats', verifyToken, requirePetOwner, async (req, res) =>
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to get dashboard statistics'
+    });
+  }
+});
+
+// POST /api/pet-owners/pets/upload-photos - Upload pet photos
+router.post('/pets/upload-photos', verifyToken, requirePetOwner, uploadPetPhoto.array('photos', 5), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'No photos uploaded'
+      });
+    }
+
+    // Process uploaded files and return their URLs
+    const uploadedPhotos = req.files.map(file => ({
+      filename: file.filename,
+      originalName: file.originalname,
+      url: getFileUrl(file.filename),
+      size: file.size
+    }));
+
+    res.json({
+      success: true,
+      message: 'Photos uploaded successfully',
+      data: uploadedPhotos
+    });
+
+  } catch (error) {
+    console.error('Error uploading pet photos:', error);
+    
+    // Clean up uploaded files on error
+    if (req.files) {
+      req.files.forEach(file => {
+        deleteFile(file.filename);
+      });
+    }
+    
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to upload photos'
+    });
+  }
+});
+
+// DELETE /api/pet-owners/pets/delete-photo/:filename - Delete pet photo
+router.delete('/pets/delete-photo/:filename', verifyToken, requirePetOwner, async (req, res) => {
+  try {
+    const { filename } = req.params;
+    
+    // Validate filename to prevent directory traversal
+    if (!filename || filename.includes('/') || filename.includes('\\')) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Invalid filename'
+      });
+    }
+
+    const deleted = deleteFile(filename);
+    
+    if (deleted) {
+      res.json({
+        success: true,
+        message: 'Photo deleted successfully'
+      });
+    } else {
+      res.status(404).json({
+        error: 'Not Found',
+        message: 'Photo not found'
+      });
+    }
+
+  } catch (error) {
+    console.error('Error deleting pet photo:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to delete photo'
     });
   }
 });

@@ -13,6 +13,8 @@ const MyPets = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -76,12 +78,80 @@ const MyPets = () => {
         allergies: [],
         medications: [],
         conditions: [],
-
         lastCheckup: ''
       },
       behaviorNotes: '',
       specialNeeds: ''
     });
+    setSelectedFiles([]);
+  };
+
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 5) {
+      setError('Maximum 5 photos allowed');
+      return;
+    }
+    
+    // Validate file types and sizes
+    const validFiles = files.filter(file => {
+      const isValidType = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type);
+      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
+      
+      if (!isValidType) {
+        setError('Only JPEG, PNG, and WebP images are allowed');
+        return false;
+      }
+      if (!isValidSize) {
+        setError('File size must be less than 5MB');
+        return false;
+      }
+      return true;
+    });
+
+    setSelectedFiles(validFiles);
+    setError('');
+  };
+
+  const uploadPhotos = async () => {
+    if (selectedFiles.length === 0) return [];
+
+    setPhotoUploading(true);
+    try {
+      const formData = new FormData();
+      selectedFiles.forEach(file => {
+        formData.append('photos', file);
+      });
+
+      const response = await authenticatedApiCall(currentUser, '/api/pet-owners/pets/upload-photos', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return result.data.map(photo => photo.url);
+      } else {
+        throw new Error('Failed to upload photos');
+      }
+    } catch (error) {
+      console.error('Error uploading photos:', error);
+      setError('Failed to upload photos');
+      return [];
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
+
+  const removePhoto = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      photos: prev.photos.filter((_, i) => i !== index)
+    }));
+  };
+
+  const removeSelectedFile = (index) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleInputChange = (e) => {
@@ -154,6 +224,7 @@ const MyPets = () => {
     setShowEditModal(false);
     setShowDeleteConfirm(false);
     setSelectedPet(null);
+    setSelectedFiles([]);
     setError('');
   };
 
@@ -169,6 +240,25 @@ const MyPets = () => {
     setError('');
 
     try {
+      // Upload new photos if any are selected
+      let uploadedPhotoUrls = [];
+      if (selectedFiles.length > 0) {
+        uploadedPhotoUrls = await uploadPhotos();
+        if (selectedFiles.length > 0 && uploadedPhotoUrls.length === 0) {
+          // If upload failed, stop submission
+          setFormLoading(false);
+          return;
+        }
+      }
+
+      // Combine existing photos with newly uploaded ones
+      const allPhotos = [...formData.photos, ...uploadedPhotoUrls];
+
+      const petData = {
+        ...formData,
+        photos: allPhotos
+      };
+
       const url = showEditModal ? `/api/pet-owners/pets/${selectedPet.id}` : '/api/pet-owners/pets';
       const method = showEditModal ? 'PUT' : 'POST';
 
@@ -177,7 +267,7 @@ const MyPets = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(petData)
       });
 
       if (response.ok) {
@@ -420,6 +510,85 @@ const MyPets = () => {
                     onChange={handleInputChange}
                   />
                 </div>
+              </div>
+
+              <div className="form-section">
+                <h4>Pet Photos</h4>
+                
+                <div className="form-group">
+                  <label htmlFor="photos">Upload Photos (Max 5 photos, 5MB each)</label>
+                  <input
+                    type="file"
+                    id="photos"
+                    multiple
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={handleFileSelect}
+                    className="file-input"
+                  />
+                  <div className="file-input-help">
+                    Supported formats: JPEG, PNG, WebP. Maximum 5 photos, 5MB each.
+                  </div>
+                </div>
+
+                {/* Show selected files for upload */}
+                {selectedFiles.length > 0 && (
+                  <div className="selected-files">
+                    <h5>Selected Photos for Upload:</h5>
+                    <div className="files-preview">
+                      {selectedFiles.map((file, index) => (
+                        <div key={index} className="file-preview">
+                          <img 
+                            src={URL.createObjectURL(file)} 
+                            alt={`Preview ${index + 1}`}
+                            className="file-preview-image"
+                          />
+                          <div className="file-info">
+                            <span className="file-name">{file.name}</span>
+                            <span className="file-size">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                          </div>
+                          <button 
+                            type="button" 
+                            className="remove-file-btn"
+                            onClick={() => removeSelectedFile(index)}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Show existing photos */}
+                {formData.photos.length > 0 && (
+                  <div className="existing-photos">
+                    <h5>Current Photos:</h5>
+                    <div className="photos-grid">
+                      {formData.photos.map((photo, index) => (
+                        <div key={index} className="photo-item">
+                          <img 
+                            src={`${process.env.REACT_APP_API_URL || 'https://zootel.shop'}${photo}`} 
+                            alt={`Pet photo ${index + 1}`}
+                            className="pet-photo"
+                          />
+                          <button 
+                            type="button" 
+                            className="remove-photo-btn"
+                            onClick={() => removePhoto(index)}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {photoUploading && (
+                  <div className="upload-status">
+                    <span className="uploading-text">Uploading photos...</span>
+                  </div>
+                )}
               </div>
 
               <div className="form-section">

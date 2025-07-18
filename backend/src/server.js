@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import admin, { initializeFirebase, seedSuperadmin } from './config/firebase.js';
 import { testConnection, createDatabase, createTables, seedDemoData, migrateEmployeesTable, migrateCompaniesTable } from './config/database.js';
 import authRoutes from './routes/auth.js';
@@ -23,6 +25,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// ES6 __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Initialize Firebase Admin SDK
 initializeFirebase();
 
@@ -35,6 +41,9 @@ app.use(cors({
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve static files (uploaded images)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Health check route
 app.get('/api/health', (req, res) => {
