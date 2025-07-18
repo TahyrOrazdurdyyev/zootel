@@ -245,32 +245,7 @@ const OwnerDashboardOverview = () => {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="overview-card quick-actions">
-          <div className="card-header">
-            <h3>Quick Actions</h3>
-          </div>
-          <div className="card-content">
-            <div className="actions-grid">
-              <button className="action-btn primary">
-                <span className="action-icon">📅</span>
-                <span className="action-text">Book Service</span>
-              </button>
-              <button className="action-btn secondary">
-                <span className="action-icon">🐕</span>
-                <span className="action-text">Add Pet</span>
-              </button>
-              <button className="action-btn">
-                <span className="action-icon">🔍</span>
-                <span className="action-text">Find Services</span>
-              </button>
-              <button className="action-btn">
-                <span className="action-icon">💬</span>
-                <span className="action-text">Message Provider</span>
-              </button>
-            </div>
-          </div>
-        </div>
+
       </div>
     </div>
   );
