@@ -349,31 +349,77 @@
   font-size: 0.95rem;
 }
 
-.hours-inputs {
+.hours-controls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
   flex: 1;
 }
 
-.hours-inputs input {
+.closed-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #374151;
+  min-width: 80px;
+}
+
+.closed-toggle input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.time-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.time-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.time-input-group label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.time-input-group input[type="time"] {
   background: #FFFFFF;
   border: 2px solid #e5e7eb;
   border-radius: 6px;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem;
   font-size: 0.9rem;
   color: #374151;
   width: 120px;
+  cursor: pointer;
 }
 
-.hours-inputs input:focus {
+.time-input-group input[type="time"]:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
-.hours-inputs span {
+.time-input-group input[type="time"]:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.time-separator {
   color: #6b7280;
   font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0 0.25rem;
+  align-self: flex-end;
+  margin-bottom: 0.5rem;
 }
 
 /* Day Hours (alternative layout) */

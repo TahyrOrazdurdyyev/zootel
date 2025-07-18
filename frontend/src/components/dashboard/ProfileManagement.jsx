@@ -167,70 +167,27 @@ const ProfileManagement = () => {
     }));
   };
 
-  const parseBusinessHours = (value) => {
-    if (!value || value.toLowerCase().includes('closed')) {
-      return { closed: true };
-    }
-    
-    // Parse time range like "9:00 AM - 6:00 PM" or "09:00 - 17:00"
-    const timePattern = /(\d{1,2}):?(\d{0,2})\s*(AM|PM)?\s*-\s*(\d{1,2}):?(\d{0,2})\s*(AM|PM)?/i;
-    const match = value.match(timePattern);
-    
-    if (match) {
-      let [, startHour, startMin = '00', startPeriod, endHour, endMin = '00', endPeriod] = match;
-      
-      // Convert to 24-hour format
-      startHour = parseInt(startHour);
-      endHour = parseInt(endHour);
-      
-      if (startPeriod && startPeriod.toLowerCase() === 'pm' && startHour !== 12) {
-        startHour += 12;
-      } else if (startPeriod && startPeriod.toLowerCase() === 'am' && startHour === 12) {
-        startHour = 0;
-      }
-      
-      if (endPeriod && endPeriod.toLowerCase() === 'pm' && endHour !== 12) {
-        endHour += 12;
-      } else if (endPeriod && endPeriod.toLowerCase() === 'am' && endHour === 12) {
-        endHour = 0;
-      }
-      
-      const open = `${startHour.toString().padStart(2, '0')}:${startMin.padStart(2, '0')}`;
-      const close = `${endHour.toString().padStart(2, '0')}:${endMin.padStart(2, '0')}`;
-      
-      return { open, close };
-    }
-    
-    // If parsing fails, return a default open hours
-    return { open: '09:00', close: '17:00' };
-  };
-
-  const formatBusinessHoursForDisplay = (hoursObj) => {
-    if (!hoursObj || hoursObj.closed) {
-      return 'Closed';
-    }
-    
-    if (hoursObj.open && hoursObj.close) {
-      const formatTime = (time24) => {
-        const [hours, minutes] = time24.split(':');
-        const hour = parseInt(hours);
-        const period = hour >= 12 ? 'PM' : 'AM';
-        const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-        return `${displayHour}:${minutes} ${period}`;
-      };
-      
-      return `${formatTime(hoursObj.open)} - ${formatTime(hoursObj.close)}`;
-    }
-    
-    return '';
-  };
-
-  const handleBusinessHoursChange = (day, value) => {
+  const handleBusinessHoursChange = (day, field, value) => {
     setFormData(prev => ({
       ...prev,
       businessHours: {
         ...prev.businessHours,
-        [day]: parseBusinessHours(value)
+        [day]: {
+          ...prev.businessHours[day],
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  const toggleClosed = (day) => {
+    setFormData(prev => ({
+      ...prev,
+      businessHours: {
+        ...prev.businessHours,
+        [day]: prev.businessHours[day]?.closed 
+          ? { open: '09:00', close: '17:00' }
+          : { closed: true }
       }
     }));
   };
@@ -469,29 +426,60 @@ const ProfileManagement = () => {
               <p>Set your operating hours for each day of the week</p>
               
               <div className="hours-grid">
-                {daysOfWeek.map(day => (
-                  <div key={day.key} className="hours-row">
-                    <label className="day-label">{day.label}</label>
-                    <div className="hours-inputs">
-                      <input
-                        type="text"
-                        value={formatBusinessHoursForDisplay(formData.businessHours[day.key]) || ''}
-                        onChange={(e) => handleBusinessHoursChange(day.key, e.target.value)}
-                        placeholder="e.g., 9:00 AM - 6:00 PM or Closed"
-                        disabled={!hasFeature('profileCustomization')}
-                      />
+                {daysOfWeek.map(day => {
+                  const dayHours = formData.businessHours[day.key] || { open: '09:00', close: '17:00' };
+                  const isClosed = dayHours.closed;
+                  
+                  return (
+                    <div key={day.key} className="hours-row">
+                      <label className="day-label">{day.label}</label>
+                      <div className="hours-controls">
+                        <label className="closed-toggle">
+                          <input
+                            type="checkbox"
+                            checked={isClosed}
+                            onChange={() => toggleClosed(day.key)}
+                            disabled={!hasFeature('profileCustomization')}
+                          />
+                          <span>Closed</span>
+                        </label>
+                        
+                        {!isClosed && (
+                          <div className="time-inputs">
+                            <div className="time-input-group">
+                              <label>Open</label>
+                              <input
+                                type="time"
+                                value={dayHours.open || '09:00'}
+                                onChange={(e) => handleBusinessHoursChange(day.key, 'open', e.target.value)}
+                                disabled={!hasFeature('profileCustomization')}
+                              />
+                            </div>
+                            <span className="time-separator">to</span>
+                            <div className="time-input-group">
+                              <label>Close</label>
+                              <input
+                                type="time"
+                                value={dayHours.close || '17:00'}
+                                onChange={(e) => handleBusinessHoursChange(day.key, 'close', e.target.value)}
+                                disabled={!hasFeature('profileCustomization')}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               
               <div className="hours-examples">
-                <h4>Examples:</h4>
+                <h4>Tips:</h4>
                 <ul>
-                  <li><strong>Regular hours:</strong> 9:00 AM - 6:00 PM</li>
-                  <li><strong>Split hours:</strong> 9:00 AM - 12:00 PM, 2:00 PM - 6:00 PM</li>
-                  <li><strong>Closed:</strong> Closed</li>
-                  <li><strong>24 hours:</strong> 24 Hours</li>
+                  <li><strong>Standard hours:</strong> Use the time pickers to set opening and closing times</li>
+                  <li><strong>Closed days:</strong> Check the "Closed" checkbox for days you're not open</li>
+                  <li><strong>24-hour format:</strong> Times are displayed in 24-hour format (e.g., 17:00 = 5:00 PM)</li>
+                  <li><strong>Consistency:</strong> Make sure your hours reflect your actual availability</li>
                 </ul>
               </div>
             </div>
