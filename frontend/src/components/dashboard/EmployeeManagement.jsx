@@ -96,6 +96,9 @@ const EmployeeManagement = () => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Fetched employees data:', data.data);
+        console.log('First employee specialties:', data.data[0]?.specialties);
+        console.log('First employee workingHours:', data.data[0]?.workingHours);
         setEmployees(data.data || []);
       } else {
         setError('Failed to load employees');
@@ -313,13 +316,20 @@ const EmployeeManagement = () => {
       });
 
       if (response.ok) {
+        console.log('Save response successful, refreshing data...');
         await fetchEmployees();
         await fetchStats();
         setSuccess(selectedEmployee ? 'Employee updated successfully!' : 'Employee added successfully!');
-        clearModals();
-        setTimeout(() => setSuccess(''), 3000);
+        console.log('Success message set, clearing modals in 1 second...');
+        setTimeout(() => {
+          console.log('Clearing modals now...');
+          clearModals();
+        }, 1000);
+        setTimeout(() => setSuccess(''), 4000);
       } else {
+        console.error('Save response failed:', response.status);
         const errorData = await response.json();
+        console.error('Error data:', errorData);
         setError(errorData.message || 'Failed to save employee');
       }
     } catch (error) {
