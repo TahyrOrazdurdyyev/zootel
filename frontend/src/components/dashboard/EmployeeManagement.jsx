@@ -386,16 +386,35 @@ const EmployeeManagement = () => {
   };
 
   const handleAvailabilityChange = (day, field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      workingHours: {
-        ...prev.workingHours,
-        [day]: {
-          ...prev.workingHours[day],
-          [field]: value
-        }
+    setFormData(prev => {
+      const currentDay = prev.workingHours[day] || {};
+      
+      // If setting available to true and no start/end times exist, set defaults
+      if (field === 'available' && value === true && !currentDay.start && !currentDay.end) {
+        return {
+          ...prev,
+          workingHours: {
+            ...prev.workingHours,
+            [day]: {
+              available: true,
+              start: '09:00',
+              end: '17:00'
+            }
+          }
+        };
       }
-    }));
+      
+      return {
+        ...prev,
+        workingHours: {
+          ...prev.workingHours,
+          [day]: {
+            ...currentDay,
+            [field]: value
+          }
+        }
+      };
+    });
   };
 
   const formatDate = (dateString) => {
@@ -609,7 +628,7 @@ const EmployeeManagement = () => {
                           </div>
                         )}
 
-                        {employee.skills?.length > 0 && (
+                        {(employee.specialties || employee.skills)?.length > 0 && (
                           <div className="skills-section">
                             <div className="skills-header">
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -618,11 +637,11 @@ const EmployeeManagement = () => {
                               <span>Skills</span>
                             </div>
                             <div className="employee-skills">
-                              {employee.skills.slice(0, 3).map((skill, index) => (
+                              {(employee.specialties || employee.skills || []).slice(0, 3).map((skill, index) => (
                                 <span key={index} className="skill-tag modern-skill">{skill}</span>
                               ))}
-                              {employee.skills.length > 3 && (
-                                <span className="skill-tag modern-skill more">+{employee.skills.length - 3} more</span>
+                              {(employee.specialties || employee.skills || []).length > 3 && (
+                                <span className="skill-tag modern-skill more">+{(employee.specialties || employee.skills || []).length - 3} more</span>
                               )}
                             </div>
                           </div>
