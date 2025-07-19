@@ -151,7 +151,7 @@
   transform: scale(1.1);
 }
 
-.sidebar-user {
+.company-dashboard .sidebar-user {
   padding: 1.5rem 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
@@ -161,7 +161,7 @@
   backdrop-filter: blur(10px);
 }
 
-.sidebar-user .user-avatar {
+.company-dashboard .sidebar-user .user-avatar {
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -179,25 +179,25 @@
   overflow: hidden;
 }
 
-.company-avatar-image {
+.company-dashboard .company-avatar-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
 }
 
-.user-avatar.small {
+.company-dashboard .user-avatar.small {
   width: 32px;
   height: 32px;
   font-size: 0.9rem;
 }
 
-.user-info {
+.company-dashboard .user-info {
   text-align: center;
   flex: 1;
 }
 
-.user-name {
+.company-dashboard .user-name {
   font-weight: 600;
   color: white;
   font-size: 0.95rem;
@@ -208,7 +208,7 @@
   margin-bottom: 0.25rem;
 }
 
-.user-email {
+.company-dashboard .user-email {
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.8rem;
   white-space: nowrap;
@@ -217,7 +217,7 @@
   margin-bottom: 0.5rem;
 }
 
-.user-role {
+.company-dashboard .user-role {
   color: white;
   font-size: 0.75rem;
   font-weight: 500;
@@ -230,11 +230,11 @@
   margin-bottom: 0.5rem;
 }
 
-.sidebar-subscription {
+.company-dashboard .sidebar-subscription {
   width: 100%;
 }
 
-.sidebar-subscription .subscription-status {
+.company-dashboard .sidebar-subscription .subscription-status {
   background-color: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 0.5rem 0.75rem;
@@ -244,7 +244,7 @@
   box-sizing: border-box;
 }
 
-.sidebar-subscription .status-indicator {
+.company-dashboard .sidebar-subscription .status-indicator {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -252,7 +252,7 @@
   margin-bottom: 0.5rem;
 }
 
-.sidebar-subscription .status-dot {
+.company-dashboard .sidebar-subscription .status-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -260,7 +260,7 @@
   flex-shrink: 0;
 }
 
-.sidebar-subscription .status-text {
+.company-dashboard .sidebar-subscription .status-text {
   font-size: 0.75rem;
   color: white;
   font-weight: 500;
@@ -270,7 +270,7 @@
   text-overflow: ellipsis;
 }
 
-.sidebar-subscription .status-action-btn {
+.company-dashboard .sidebar-subscription .status-action-btn {
   font-size: 0.65rem;
   padding: 0.25rem 0.5rem;
   background: rgba(255, 255, 255, 0.2);
@@ -283,7 +283,7 @@
   text-align: center;
 }
 
-.sidebar-subscription .status-action-btn:hover {
+.company-dashboard .sidebar-subscription .status-action-btn:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
 }
@@ -500,7 +500,7 @@
     display: none;
   }
   
-  .sidebar-user {
+  .company-dashboard .sidebar-user {
     justify-content: center;
   }
 }
