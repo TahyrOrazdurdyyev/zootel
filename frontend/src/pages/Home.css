@@ -2,12 +2,14 @@
   min-height: 100vh;
   margin-left: 0;
   width: 100%;
+  overflow-x: hidden;
 }
 
 .home .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
+  width: 100%;
 }
 
 /* Hero Section */
@@ -43,6 +45,7 @@
   color: #FFFFFF;
   max-width: 800px;
   padding: 2rem;
+  width: 100%;
 }
 
 .home .hero-title {
@@ -228,14 +231,30 @@
 
 /* Enhanced Mobile Responsiveness */
 @media (max-width: 768px) {
+  .home {
+    overflow-x: hidden;
+    width: 100%;
+  }
+  
+  .home .container {
+    max-width: 100%;
+    padding: 0 1rem;
+    margin: 0;
+    width: 100%;
+  }
+  
   .hero {
-    min-height: 60vh;
-    padding: 1rem 0;
+    min-height: 100vh;
+    padding: 0;
+    width: 100%;
+    margin: 0;
   }
   
   .hero-content {
-    padding: 1.5rem;
+    padding: 2rem 1rem;
     max-width: 100%;
+    width: 100%;
+    margin: 0;
   }
 
   .hero-title {
@@ -243,83 +262,111 @@
     margin-bottom: 1rem;
     line-height: 1.2;
   }
+  
+  .hero-overlay {
+    margin: 1rem 0;
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
 
   .hero-subtitle {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .hero-description {
     font-size: 1.1rem;
     margin-bottom: 1.5rem;
+    line-height: 1.5;
   }
 
   .home .cta-button {
-    padding: 0.8rem 2rem;
-    font-size: 1rem;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    width: auto;
+    display: inline-block;
   }
 
   .features-grid,
   .why-choose-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    padding: 0 1rem;
   }
 
   .feature-card,
   .why-choose-card {
     padding: 1.5rem;
+    margin: 0;
   }
 
   .section-title {
     font-size: 2rem;
+    padding: 0 1rem;
   }
 
   .section-subtitle {
     font-size: 1rem;
+    padding: 0 1rem;
+  }
+  
+  .why-choose,
+  .features {
+    padding: 3rem 0;
   }
 }
 
 @media (max-width: 480px) {
-  .container {
-    padding: 0 1rem;
+  .home .container {
+    padding: 0 0.75rem;
   }
   
   .hero {
-    min-height: 50vh;
+    min-height: 100vh;
+  }
+  
+  .hero-content {
+    padding: 1.5rem 0.75rem;
   }
 
   .hero-title {
-    font-size: 1.8rem;
+    font-size: 2rem;
     margin-bottom: 0.8rem;
+    line-height: 1.1;
+  }
+  
+  .hero-overlay {
+    margin: 1rem 0;
+    padding: 1.25rem;
   }
 
   .hero-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .hero-description {
     font-size: 1rem;
     margin-bottom: 1.2rem;
+    line-height: 1.4;
   }
 
   .home .cta-button {
-    padding: 0.7rem 1.5rem;
-    font-size: 0.9rem;
-    width: 100%;
-    max-width: 280px;
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
+    width: auto;
   }
 
   .feature-card,
   .why-choose-card {
-    padding: 1.2rem;
+    padding: 1.25rem;
   }
-
-  .feature-title,
-  .why-choose-title {
-    font-size: 1.1rem;
-  }
-
-  .feature-description,
-  .why-choose-description {
-    font-size: 0.9rem;
-  }
-
+  
   .section-title {
-    font-size: 1.8rem;
+    font-size: 1.75rem;
   }
-
+  
   .section-subtitle {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 } 

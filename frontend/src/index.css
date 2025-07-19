@@ -21,6 +21,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -29,6 +34,25 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: var(--text-color);
   background-color: var(--secondary-color);
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Mobile-specific global styles */
+@media (max-width: 768px) {
+  html, body, #root {
+    width: 100% !important;
+    max-width: none !important;
+    overflow-x: hidden;
+  }
+  
+  * {
+    max-width: 100%;
+  }
 }
 
 code {
