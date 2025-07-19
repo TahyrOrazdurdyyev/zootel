@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useSubscription } from '../contexts/SubscriptionContext';
-import { Link } from 'react-router-dom';
+import { SubscriptionProvider } from '../contexts/SubscriptionContext';
+import logoImage from '../assets/images/Zootel.svg';
 import './CompanyDashboard.css';
-import logoImage from '../assets/images/2.png';
 import { TrialBanner, SubscriptionStatus } from '../components/FeatureGate';
 
 // Dashboard components

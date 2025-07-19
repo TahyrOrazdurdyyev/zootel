@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import logoImage from '../assets/images/Zootel.svg';
 import './Header.css';
-import logoImage from '../assets/images/2.png';
 
 const Header = () => {
   const { currentUser, userRole, logout, isAuthenticated } = useAuth();

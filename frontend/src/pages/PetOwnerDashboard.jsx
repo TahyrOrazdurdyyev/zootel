@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import './PetOwnerDashboard.css';
-import logoImage from '../assets/images/2.png';
+import logoImage from '../assets/images/Zootel.svg';
 
 // Dashboard components
 import OwnerDashboardOverview from '../components/pet-owner/OwnerDashboardOverview';
