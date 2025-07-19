@@ -49,6 +49,41 @@ const CompanyDashboard = () => {
     fetchCompanyProfile();
   }, [currentUser]);
 
+  // Handle window resize for mobile responsiveness
+  useEffect(() => {
+    const handleResize = () => {
+      // Auto-close sidebar on mobile when window is resized
+      if (window.innerWidth <= 768) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    // Set initial state based on screen size
+    handleResize();
+
+    // Add resize listener
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Prevent body scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (sidebarOpen && window.innerWidth <= 768) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [sidebarOpen]);
+
   // Redirect if not a pet company
   useEffect(() => {
     if (userRole && userRole !== 'pet_company' && userRole !== 'superadmin') {
@@ -122,7 +157,7 @@ const CompanyDashboard = () => {
   }
 
   return (
-    <div className="company-dashboard">
+    <div className={`company-dashboard ${sidebarOpen ? 'sidebar-open' : ''}`}>
       {/* Sidebar */}
       <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         {/* Logo/Brand */}
@@ -164,7 +199,13 @@ const CompanyDashboard = () => {
             <button
               key={item.id}
               className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => {
+                setActiveTab(item.id);
+                // Auto-close sidebar on mobile after navigation
+                if (window.innerWidth <= 768) {
+                  setSidebarOpen(false);
+                }
+              }}
             >
               <span className="nav-icon">{item.icon}</span>
               {sidebarOpen && <span className="nav-text">{item.name}</span>}
@@ -172,14 +213,31 @@ const CompanyDashboard = () => {
           ))}
         </nav>
 
-        {/* Sidebar footer */}
+        {/* Logout */}
         <div className="sidebar-footer">
           <button className="logout-btn" onClick={handleLogout}>
             <span className="nav-icon">🚪</span>
-            {sidebarOpen && <span className="nav-text">Logout</span>}
+            {sidebarOpen && <span>Logout</span>}
           </button>
         </div>
       </aside>
+
+      {/* Mobile Overlay */}
+      {sidebarOpen && window.innerWidth <= 768 && (
+        <div 
+          className="mobile-overlay"
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 999
+          }}
+        />
+      )}
 
       {/* Main content */}
       <main className="dashboard-main">
