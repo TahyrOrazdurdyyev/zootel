@@ -205,11 +205,6 @@
   padding: 0 0.5rem;
 }
 
-/* Hide user-email completely to prevent conflicts with other dashboard CSS */
-.company-dashboard .user-email {
-  display: none !important;
-}
-
 
 
 
