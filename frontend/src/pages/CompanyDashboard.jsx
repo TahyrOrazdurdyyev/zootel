@@ -153,18 +153,9 @@ const CompanyDashboard = () => {
               currentUser.email.charAt(0).toUpperCase()
             )}
           </div>
-          {sidebarOpen && (
-            <div className="user-info">
-              <div className="user-name">
-                {companyProfile?.name || currentUser.displayName || 'Pet Company'}
-              </div>
-            </div>
-          )}
-          {sidebarOpen && (
-            <div className="sidebar-subscription">
-              <SubscriptionStatus />
-            </div>
-          )}
+          <div className="sidebar-subscription">
+            <SubscriptionStatus />
+          </div>
         </div>
 
         {/* Navigation */}
