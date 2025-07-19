@@ -186,6 +186,13 @@ const CompanyDashboard = () => {
         {/* Top bar */}
         <header className="dashboard-header">
           <div className="header-left">
+            {/* Mobile sidebar toggle button */}
+            <button 
+              className="mobile-sidebar-toggle"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              <span>☰</span>
+            </button>
             <h1 className="page-title">
               {navigationItems.find(item => item.id === activeTab)?.name || 'Dashboard'}
             </h1>
@@ -213,34 +220,23 @@ const CompanyDashboard = () => {
 
         {/* Page content */}
         <div className="dashboard-content">
-          {/* Trial Banner */}
-          <TrialBanner />
-          
-          {/* Access Control - Show content only if has access */}
-          {hasAccess() ? (
-            <ActiveComponent />
-          ) : (
-            <div className="access-required">
-              <div className="access-required-content">
-                <div className="access-icon">🔒</div>
-                <h2>Subscription Required</h2>
-                <p>You need an active subscription to access the company dashboard.</p>
-                {subscriptionData.status === 'inactive' ? (
-                  <p>Start your free trial to begin managing your pet service business.</p>
-                ) : (
-                  <p>Your subscription has expired. Please renew to continue using the dashboard.</p>
-                )}
-                <div className="access-actions">
-                  <button 
-                    className="start-trial-btn"
-                    onClick={() => window.location.href = '/pricing'}
-                  >
-                    {subscriptionData.status === 'inactive' ? 'Start Free Trial' : 'Renew Subscription'}
-                  </button>
+          <div className="content-container">
+            {/* Trial Banner */}
+            <TrialBanner />
+            
+            {/* Access Control - Show content only if has access */}
+            {hasAccess() ? (
+              <ActiveComponent />
+            ) : (
+              <div className="access-required">
+                <div className="access-required-content">
+                  <div className="access-icon">🔒</div>
+                  <h2>Upgrade Required</h2>
+                  <p>This feature requires a premium subscription. Please upgrade your plan to access this functionality.</p>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </main>
     </div>
