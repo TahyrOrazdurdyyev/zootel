@@ -20,6 +20,34 @@ const CompanyDashboard = () => {
   const { hasAccess, subscriptionData } = useSubscription();
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [companyProfile, setCompanyProfile] = useState(null);
+
+  // Fetch company profile data
+  useEffect(() => {
+    const fetchCompanyProfile = async () => {
+      if (!currentUser) return;
+      
+      try {
+        const token = await currentUser.getIdToken();
+        const baseUrl = import.meta.env.VITE_API_URL || 'https://zootel.shop';
+        const response = await fetch(`${baseUrl}/api/companies/profile`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setCompanyProfile(data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching company profile:', error);
+      }
+    };
+
+    fetchCompanyProfile();
+  }, [currentUser]);
 
   // Redirect if not a pet company
   useEffect(() => {
@@ -113,19 +141,30 @@ const CompanyDashboard = () => {
         {/* User info */}
         <div className="sidebar-user">
           <div className="user-avatar">
-            {currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : currentUser.email.charAt(0).toUpperCase()}
+            {companyProfile?.logoUrl ? (
+              <img 
+                src={companyProfile.logoUrl} 
+                alt="Company Logo" 
+                className="company-avatar-image"
+              />
+            ) : (
+              companyProfile?.name ? companyProfile.name.charAt(0).toUpperCase() : 
+              currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 
+              currentUser.email.charAt(0).toUpperCase()
+            )}
           </div>
           {sidebarOpen && (
             <div className="user-info">
               <div className="user-name">
-                {currentUser.displayName || 'Pet Company'}
+                {companyProfile?.name || currentUser.displayName || 'Pet Company'}
               </div>
               <div className="user-email">{currentUser.email}</div>
               <div className="user-role">{userRole}</div>
-              {/* Subscription Status */}
-              <div className="sidebar-subscription">
-                <SubscriptionStatus />
-              </div>
+            </div>
+          )}
+          {sidebarOpen && (
+            <div className="sidebar-subscription">
+              <SubscriptionStatus />
             </div>
           )}
         </div>
