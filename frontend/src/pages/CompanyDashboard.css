@@ -205,27 +205,14 @@
   padding: 0 0.5rem;
 }
 
+/* Hide user-email completely to prevent conflicts with other dashboard CSS */
 .company-dashboard .user-email {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.8rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 0.5rem;
+  display: none !important;
 }
 
-.company-dashboard .user-role {
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 0.2rem 0.5rem;
-  border-radius: 10px;
-  display: inline-block;
-  margin-bottom: 0.5rem;
-}
+
+
+
 
 .company-dashboard .sidebar-subscription {
   width: 100%;

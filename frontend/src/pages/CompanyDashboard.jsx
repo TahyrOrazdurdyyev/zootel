@@ -158,7 +158,6 @@ const CompanyDashboard = () => {
               <div className="user-name">
                 {companyProfile?.name || currentUser.displayName || 'Pet Company'}
               </div>
-              <div className="user-email">{currentUser.email}</div>
             </div>
           )}
           {sidebarOpen && (
