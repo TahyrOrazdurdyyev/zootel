@@ -75,8 +75,8 @@
 }
 
 .home .cta-button {
-  background-color: white;
-  color: var(--primary-color);
+  background-color: #fff !important;
+  color: var(--primary-color) !important;
   padding: 1rem 2.5rem;
   border: none;
   border-radius: 50px;
@@ -84,7 +84,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 15px #0003 !important;
 }
 
 .home .cta-button:hover {
@@ -248,7 +248,7 @@
     margin-bottom: 1.5rem;
   }
 
-  .cta-button {
+  .home .cta-button {
     padding: 0.8rem 2rem;
     font-size: 1rem;
   }
@@ -292,7 +292,7 @@
     margin-bottom: 1.2rem;
   }
 
-  .cta-button {
+  .home .cta-button {
     padding: 0.7rem 1.5rem;
     font-size: 0.9rem;
     width: 100%;
