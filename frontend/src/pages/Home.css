@@ -75,10 +75,10 @@
 }
 
 .home .cta-button {
-  background-color: #fff !important;
-  color: var(--primary-color) !important;
+  background-color: transparent !important;
+  color: white !important;
   padding: 1rem 2.5rem;
-  border: none;
+  border: 2px solid white !important;
   border-radius: 50px;
   font-size: 1.1rem;
   font-weight: 600;
@@ -90,7 +90,8 @@
 .home .cta-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  background-color: #f8f9fa;
+  background-color: white !important;
+  color: var(--primary-color) !important;
 }
 
 .home .cta-button.secondary {
