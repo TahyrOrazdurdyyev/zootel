@@ -1,0 +1,569 @@
+# Zootel Platform GraphQL Schema
+
+scalar Time
+scalar Upload
+
+# User types
+type User {
+  id: ID!
+  firebaseUID: String!
+  email: String!
+  firstName: String
+  lastName: String
+  gender: String
+  dateOfBirth: Time
+  phone: String
+  address: String
+  country: String
+  state: String
+  city: String
+  timezone: String
+  avatarURL: String
+  emergencyContact: String
+  vetContact: String
+  notificationMethods: [String!]!
+  marketingOptIn: Boolean!
+  pets: [Pet!]!
+  bookings: [Booking!]!
+  orders: [Order!]!
+  chats: [Chat!]!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+# Pet types
+type PetType {
+  id: ID!
+  name: String!
+  breeds: [Breed!]!
+  createdAt: Time!
+}
+
+type Breed {
+  id: ID!
+  name: String!
+  petType: PetType!
+  createdAt: Time!
+}
+
+type Pet {
+  id: ID!
+  user: User!
+  name: String!
+  petType: PetType!
+  breed: Breed
+  gender: String
+  dateOfBirth: Time
+  weight: Float
+  microchipID: String
+  sterilized: Boolean!
+  photoURL: String
+  photoGallery: [String!]!
+  vaccinations: String
+  allergies: [String!]!
+  medications: String
+  specialNeeds: String
+  vetContact: String
+  notes: String
+  bookings: [Booking!]!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+# Company types
+type Plan {
+  id: ID!
+  name: String!
+  price: Float!
+  features: [String!]!
+  freeTrialEnabled: Boolean!
+  freeTrialDays: Int!
+  maxEmployees: Int!
+  templatesAccess: Boolean!
+  demoModeAccess: Boolean!
+  includedAIAgents: [String!]!
+  aiAgentAddons: [String!]!
+  companies: [Company!]!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type PaymentSettings {
+  id: ID!
+  stripeEnabled: Boolean!
+  commissionEnabled: Boolean!
+  commissionPercentage: Float!
+  stripePublishableKey: String
+  stripeSecretKey: String
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type Company {
+  id: ID!
+  owner: User!
+  name: String!
+  description: String
+  categories: [String!]!
+  country: String
+  state: String
+  city: String
+  address: String
+  phone: String
+  email: String
+  website: String
+  logoURL: String
+  mediaGallery: [String!]!
+  businessHours: String
+  plan: Plan
+  trialExpired: Boolean!
+  specialPartner: Boolean!
+  manualEnabledCRM: Boolean!
+  manualEnabledAIAgents: Boolean!
+  isDemo: Boolean!
+  isActive: Boolean!
+  employees: [Employee!]!
+  services: [Service!]!
+  products: [Product!]!
+  bookings: [Booking!]!
+  orders: [Order!]!
+  chats: [Chat!]!
+  aiAgents: [AIAgent!]!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type Employee {
+  id: ID!
+  company: Company!
+  username: String!
+  firstName: String
+  lastName: String
+  email: String
+  phone: String
+  role: String
+  permissions: [String!]!
+  isActive: Boolean!
+  bookings: [Booking!]!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+# Service types
+type ServiceCategory {
+  id: ID!
+  name: String!
+  icon: String
+  services: [Service!]!
+  products: [Product!]!
+  createdAt: Time!
+}
+
+type Service {
+  id: ID!
+  company: Company!
+  category: ServiceCategory!
+  name: String!
+  description: String
+  price: Float!
+  duration: Int
+  imageURL: String
+  isActive: Boolean!
+  bookings: [Booking!]!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type Product {
+  id: ID!
+  company: Company!
+  category: ServiceCategory!
+  name: String!
+  description: String
+  price: Float!
+  stock: Int!
+  lowStockAlert: Int!
+  imageURL: String
+  imageGallery: [String!]!
+  isActive: Boolean!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+# Booking types
+type Booking {
+  id: ID!
+  user: User!
+  company: Company!
+  service: Service!
+  pet: Pet!
+  employee: Employee
+  dateTime: Time!
+  duration: Int
+  price: Float!
+  status: BookingStatus!
+  notes: String
+  paymentID: String
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+# Order types
+type Order {
+  id: ID!
+  user: User!
+  company: Company!
+  orderItems: String!
+  totalAmount: Float!
+  status: OrderStatus!
+  shippingAddress: String
+  paymentID: String
+  trackingNumber: String
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+# Chat types
+type Chat {
+  id: ID!
+  user: User!
+  company: Company!
+  lastMessage: String
+  lastMessageAt: Time!
+  isActive: Boolean!
+  messages: [Message!]!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type Message {
+  id: ID!
+  chat: Chat!
+  senderID: String!
+  senderType: SenderType!
+  content: String!
+  messageType: MessageType!
+  metadata: String
+  createdAt: Time!
+}
+
+enum SenderType {
+  USER
+  EMPLOYEE
+  AI_AGENT
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+}
+
+# AI types
+type AIAgent {
+  id: ID!
+  company: Company!
+  name: String!
+  type: String!
+  systemPrompt: String!
+  isActive: Boolean!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+# Notification types
+type NotificationSchedule {
+  id: ID!
+  user: User!
+  type: String!
+  title: String!
+  message: String!
+  scheduledFor: Time!
+  sent: Boolean!
+  sentAt: Time
+  createdAt: Time!
+}
+
+# Input types
+input RegisterInput {
+  email: String!
+  password: String!
+  firstName: String!
+  lastName: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input EmployeeLoginInput {
+  username: String!
+  password: String!
+}
+
+input UserUpdateInput {
+  firstName: String
+  lastName: String
+  gender: String
+  dateOfBirth: Time
+  phone: String
+  address: String
+  country: String
+  state: String
+  city: String
+  timezone: String
+  emergencyContact: String
+  vetContact: String
+  notificationMethods: [String!]
+  marketingOptIn: Boolean
+}
+
+input PetCreateInput {
+  name: String!
+  petTypeID: ID!
+  breedID: ID
+  gender: String
+  dateOfBirth: Time
+  weight: Float
+  microchipID: String
+  sterilized: Boolean
+  allergies: [String!]
+  specialNeeds: String
+  vetContact: String
+  notes: String
+}
+
+input PetUpdateInput {
+  name: String
+  petTypeID: ID
+  breedID: ID
+  gender: String
+  dateOfBirth: Time
+  weight: Float
+  microchipID: String
+  sterilized: Boolean
+  allergies: [String!]
+  specialNeeds: String
+  vetContact: String
+  notes: String
+}
+
+input BookingCreateInput {
+  companyID: ID!
+  serviceID: ID!
+  petID: ID!
+  dateTime: Time!
+  notes: String
+}
+
+input OrderCreateInput {
+  companyID: ID!
+  orderItems: String!
+  shippingAddress: String!
+}
+
+input CompanyCreateInput {
+  name: String!
+  description: String
+  categories: [String!]!
+  country: String!
+  state: String!
+  city: String!
+  address: String!
+  phone: String!
+  email: String!
+  website: String
+}
+
+input ServiceCreateInput {
+  categoryID: ID!
+  name: String!
+  description: String
+  price: Float!
+  duration: Int
+}
+
+input ProductCreateInput {
+  categoryID: ID!
+  name: String!
+  description: String
+  price: Float!
+  stock: Int!
+  lowStockAlert: Int
+}
+
+# Response types
+type AuthResponse {
+  user: User!
+  token: String!
+}
+
+type MessageResponse {
+  success: Boolean!
+  message: String!
+}
+
+# Queries
+type Query {
+  # User queries
+  me: User
+  user(id: ID!): User
+  
+  # Pet queries
+  petTypes: [PetType!]!
+  breeds(petTypeID: ID): [Breed!]!
+  pets: [Pet!]!
+  pet(id: ID!): Pet
+  
+  # Company queries
+  companies(limit: Int, offset: Int, search: String, categories: [String!], location: String): [Company!]!
+  company(id: ID!): Company
+  myCompany: Company
+  
+  # Service queries
+  serviceCategories: [ServiceCategory!]!
+  services(companyID: ID, categoryID: ID, limit: Int, offset: Int): [Service!]!
+  service(id: ID!): Service
+  
+  # Product queries
+  products(companyID: ID, categoryID: ID, limit: Int, offset: Int): [Product!]!
+  product(id: ID!): Product
+  
+  # Booking queries
+  bookings(status: BookingStatus, limit: Int, offset: Int): [Booking!]!
+  booking(id: ID!): Booking
+  companyBookings(status: BookingStatus, limit: Int, offset: Int): [Booking!]!
+  
+  # Order queries
+  orders(status: OrderStatus, limit: Int, offset: Int): [Order!]!
+  order(id: ID!): Order
+  companyOrders(status: OrderStatus, limit: Int, offset: Int): [Order!]!
+  
+  # Chat queries
+  chats: [Chat!]!
+  chat(id: ID!): Chat
+  messages(chatID: ID!, limit: Int, offset: Int): [Message!]!
+  
+  # Admin queries
+  plans: [Plan!]!
+  paymentSettings: PaymentSettings
+  allCompanies(limit: Int, offset: Int): [Company!]!
+  
+  # AI queries
+  aiAgents: [AIAgent!]!
+}
+
+# Mutations
+type Mutation {
+  # Auth mutations
+  register(input: RegisterInput!): AuthResponse!
+  login(input: LoginInput!): AuthResponse!
+  employeeLogin(input: EmployeeLoginInput!): AuthResponse!
+  logout: MessageResponse!
+  
+  # User mutations
+  updateProfile(input: UserUpdateInput!): User!
+  uploadAvatar(file: Upload!): User!
+  
+  # Pet mutations
+  createPet(input: PetCreateInput!): Pet!
+  updatePet(id: ID!, input: PetUpdateInput!): Pet!
+  deletePet(id: ID!): MessageResponse!
+  uploadPetPhoto(petID: ID!, file: Upload!): Pet!
+  
+  # Company mutations
+  createCompany(input: CompanyCreateInput!): Company!
+  updateCompany(input: CompanyCreateInput!): Company!
+  uploadCompanyLogo(file: Upload!): Company!
+  
+  # Service mutations
+  createService(input: ServiceCreateInput!): Service!
+  updateService(id: ID!, input: ServiceCreateInput!): Service!
+  deleteService(id: ID!): MessageResponse!
+  
+  # Product mutations
+  createProduct(input: ProductCreateInput!): Product!
+  updateProduct(id: ID!, input: ProductCreateInput!): Product!
+  deleteProduct(id: ID!): MessageResponse!
+  
+  # Booking mutations
+  createBooking(input: BookingCreateInput!): Booking!
+  updateBookingStatus(id: ID!, status: BookingStatus!): Booking!
+  cancelBooking(id: ID!): MessageResponse!
+  
+  # Order mutations
+  createOrder(input: OrderCreateInput!): Order!
+  updateOrderStatus(id: ID!, status: OrderStatus!): Order!
+  cancelOrder(id: ID!): MessageResponse!
+  
+  # Chat mutations
+  createChat(companyID: ID!): Chat!
+  sendMessage(chatID: ID!, content: String!, messageType: MessageType): Message!
+  
+  # AI mutations
+  processAIMessage(chatID: ID!, message: String!, agentType: String!): Message!
+  activateAIAgent(agentType: String!): AIAgent!
+  deactivateAIAgent(agentType: String!): MessageResponse!
+  
+  # Admin mutations
+  createPlan(input: PlanCreateInput!): Plan!
+  updatePaymentSettings(input: PaymentSettingsInput!): PaymentSettings!
+  createServiceCategory(name: String!, icon: String): ServiceCategory!
+  createPetType(name: String!): PetType!
+  createBreed(name: String!, petTypeID: ID!): Breed!
+  
+  # Company admin mutations
+  toggleSpecialPartner(companyID: ID!): Company!
+  toggleManualCRM(companyID: ID!): Company!
+  toggleManualAI(companyID: ID!): Company!
+  blockCompany(companyID: ID!): Company!
+  unblockCompany(companyID: ID!): Company!
+}
+
+# Additional input types for admin
+input PlanCreateInput {
+  name: String!
+  price: Float!
+  features: [String!]!
+  freeTrialEnabled: Boolean!
+  freeTrialDays: Int!
+  maxEmployees: Int!
+  templatesAccess: Boolean!
+  demoModeAccess: Boolean!
+  includedAIAgents: [String!]!
+  aiAgentAddons: [String!]!
+}
+
+input PaymentSettingsInput {
+  stripeEnabled: Boolean!
+  commissionEnabled: Boolean!
+  commissionPercentage: Float!
+  stripePublishableKey: String
+  stripeSecretKey: String
+}
+
+# Subscriptions for real-time features
+type Subscription {
+  messageAdded(chatID: ID!): Message!
+  bookingStatusUpdated(companyID: ID!): Booking!
+  orderStatusUpdated(companyID: ID!): Order!
+  notificationReceived: NotificationSchedule!
+} 
