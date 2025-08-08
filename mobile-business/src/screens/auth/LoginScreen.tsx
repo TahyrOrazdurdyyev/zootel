@@ -1,13 +1,27 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { useAuth } from '../../context/AuthContext';
 
 const LoginScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
 
-  const handleLogin = () => {
-    // TODO: Implement login logic
-    console.log('Login attempt:', username);
+  const handleLogin = async () => {
+    if (!username.trim() || !password.trim()) {
+      Alert.alert('Error', 'Please enter both username and password');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await login({ username: username.trim(), password });
+    } catch (error) {
+      Alert.alert('Login Failed', error instanceof Error ? error.message : 'Please check your credentials and try again');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -16,10 +30,12 @@ const LoginScreen = () => {
       
       <TextInput
         style={styles.input}
-        placeholder="Username"
+        placeholder="Business Email"
         value={username}
         onChangeText={setUsername}
+        keyboardType="email-address"
         autoCapitalize="none"
+        autoComplete="email"
       />
       
       <TextInput
@@ -28,10 +44,19 @@ const LoginScreen = () => {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        autoComplete="password"
       />
       
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
+      <TouchableOpacity 
+        style={[styles.button, isLoading && styles.buttonDisabled]} 
+        onPress={handleLogin}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.buttonText}>Login</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -70,6 +95,9 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
 });
 

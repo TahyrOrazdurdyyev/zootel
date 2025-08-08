@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "815616635431",
+    "project_id": "zootel-be723",
+    "storage_bucket": "zootel-be723.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:815616635431:android:b606f2dbb1fbb46a721402",
+        "android_client_info": {
+          "package_name": "com.zootel.business"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "815616635431-rg9k4ih54i93tvkebspqfqsskcsjt8du.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwzNJm3qIDw2mQgqvsB218zvhAxXaN8gg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "815616635431-rg9k4ih54i93tvkebspqfqsskcsjt8du.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "815616635431-fl67gvs81jmf91u4eg44om16oqav87e4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.zootel.petowner"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:815616635431:android:069095665b81dad3721402",
+        "android_client_info": {
+          "package_name": "com.zootel.petowner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "815616635431-rg9k4ih54i93tvkebspqfqsskcsjt8du.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwzNJm3qIDw2mQgqvsB218zvhAxXaN8gg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "815616635431-rg9k4ih54i93tvkebspqfqsskcsjt8du.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "815616635431-fl67gvs81jmf91u4eg44om16oqav87e4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.zootel.petowner"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

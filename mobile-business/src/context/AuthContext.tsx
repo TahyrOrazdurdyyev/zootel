@@ -1,65 +1,92 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
-interface User {
-  id: string;
-  username: string;
-  companyId: string;
-  role: string;
-  permissions: string[];
-}
+import { Employee, LoginCredentials } from '../types';
+import ApiService from '../services/apiService';
+import * as SecureStore from 'expo-secure-store';
 
 interface AuthContextType {
-  user: User | null;
+  employee: Employee | null;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
+  isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [employee, setEmployee] = useState<Employee | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored auth token
     checkAuthStatus();
   }, []);
 
   const checkAuthStatus = async () => {
     try {
-      // TODO: Check AsyncStorage for auth token
-      setIsLoading(false);
+      const token = await SecureStore.getItemAsync('accessToken');
+      if (token) {
+        const currentEmployee = await ApiService.getCurrentEmployee();
+        setEmployee(currentEmployee);
+      }
     } catch (error) {
       console.error('Auth check failed:', error);
+      // Clear invalid token
+      await SecureStore.deleteItemAsync('accessToken');
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const login = async (username: string, password: string) => {
+  const login = async (credentials: LoginCredentials) => {
     try {
       setIsLoading(true);
-      // TODO: Implement login API call
-      console.log('Login attempt:', username);
-      setIsLoading(false);
+      const tokens = await ApiService.login(credentials);
+      
+      // Store tokens securely
+      await SecureStore.setItemAsync('accessToken', tokens.accessToken);
+      await SecureStore.setItemAsync('refreshToken', tokens.refreshToken);
+      
+      // Get employee data
+      const currentEmployee = await ApiService.getCurrentEmployee();
+      
+      // Check if employee is active
+      if (!currentEmployee.active) {
+        await logout();
+        throw new Error('Account is disabled. Please contact your administrator.');
+      }
+      
+      setEmployee(currentEmployee);
     } catch (error) {
       console.error('Login failed:', error);
-      setIsLoading(false);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const logout = async () => {
     try {
-      // TODO: Clear AsyncStorage
-      setUser(null);
+      await ApiService.logout();
     } catch (error) {
       console.error('Logout failed:', error);
+    } finally {
+      // Clear local state and secure storage
+      setEmployee(null);
+      await SecureStore.deleteItemAsync('accessToken');
+      await SecureStore.deleteItemAsync('refreshToken');
     }
   };
 
+  const isAuthenticated = employee !== null && employee.active;
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ 
+      employee, 
+      isLoading, 
+      login, 
+      logout, 
+      isAuthenticated 
+    }}>
       {children}
     </AuthContext.Provider>
   );
