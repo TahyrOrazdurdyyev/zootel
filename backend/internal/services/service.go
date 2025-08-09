@@ -450,12 +450,60 @@ func (s *ServiceService) GetServiceCategories() ([]*models.ServiceCategory, erro
 
 // UploadServiceImage uploads an image for a service
 func (s *ServiceService) UploadServiceImage(serviceID string, file interface{}) (string, error) {
-	// TODO: Implement actual file upload and database update
-	return "mock-image-url", nil
+	// This would typically be handled by the UploadService
+	// For now, we'll update the service with the uploaded image ID
+
+	// Validate that service exists
+	_, err := s.GetServiceByID(serviceID)
+	if err != nil {
+		return "", fmt.Errorf("service not found: %w", err)
+	}
+
+	// In a real implementation, file would be processed by UploadService
+	// For now, we expect file to be the file ID from a previous upload
+	var imageID string
+	var imageURL string
+
+	if fileID, ok := file.(string); ok {
+		imageID = fileID
+		// Generate URL based on file ID (this would typically come from UploadService)
+		imageURL = fmt.Sprintf("/uploads/services/%s", fileID)
+	} else {
+		return "", fmt.Errorf("invalid file data")
+	}
+
+	// Update service with new image
+	query := `UPDATE services SET image_id = $2, image_url = $3, updated_at = $4 WHERE id = $1`
+	_, err = s.db.Exec(query, serviceID, imageID, imageURL, time.Now())
+	if err != nil {
+		return "", fmt.Errorf("failed to update service image: %w", err)
+	}
+
+	return imageURL, nil
 }
 
 // DeleteServiceImage deletes an image for a service
 func (s *ServiceService) DeleteServiceImage(serviceID, imageID string) error {
-	// TODO: Implement actual file deletion and database update
+	// Validate that service exists
+	service, err := s.GetServiceByID(serviceID)
+	if err != nil {
+		return fmt.Errorf("service not found: %w", err)
+	}
+
+	// Check if the image belongs to this service
+	if service.ImageID != imageID {
+		return fmt.Errorf("image does not belong to this service")
+	}
+
+	// Clear image from service
+	query := `UPDATE services SET image_id = '', image_url = '', updated_at = $2 WHERE id = $1`
+	_, err = s.db.Exec(query, serviceID, time.Now())
+	if err != nil {
+		return fmt.Errorf("failed to remove service image: %w", err)
+	}
+
+	// Note: In a real implementation, you would also delete the actual file
+	// This would be handled by the UploadService or file storage service
+
 	return nil
 }

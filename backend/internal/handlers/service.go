@@ -1,8 +1,15 @@
 package handlers
 
 import (
+	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
+
+	"github.com/google/uuid"
 
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/models"
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/services"
@@ -348,7 +355,7 @@ func (h *ServiceHandler) GetServiceCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"categories": categories})
 }
 
-// UploadServiceImage handles service image upload
+// UploadServiceImage handles service image uploads
 func (h *ServiceHandler) UploadServiceImage(c *gin.Context) {
 	serviceID := c.Param("serviceId")
 	if serviceID == "" {
@@ -356,39 +363,69 @@ func (h *ServiceHandler) UploadServiceImage(c *gin.Context) {
 		return
 	}
 
-	file, header, err := c.Request.FormFile("image")
+	// Get the uploaded file
+	file, header, err := c.Request.FormFile("file")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Image file is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
 		return
 	}
 	defer file.Close()
 
 	// Validate file type
-	contentType := header.Header.Get("Content-Type")
-	if contentType != "image/jpeg" && contentType != "image/png" && contentType != "image/webp" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Only JPEG, PNG, and WebP images are allowed"})
+	if !strings.HasPrefix(header.Header.Get("Content-Type"), "image/") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Only image files are allowed"})
 		return
 	}
 
-	// Validate file size (max 5MB)
+	// Validate file size (5MB limit)
 	if header.Size > 5*1024*1024 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Image size must be less than 5MB"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "File size must be less than 5MB"})
 		return
 	}
 
-	imageURL, err := h.serviceService.UploadServiceImage(serviceID, file)
+	// For now, we'll use a simple approach - generate a unique filename
+	// In a real implementation, you'd integrate with a proper file storage service
+	fileID := uuid.New().String()
+	fileName := fmt.Sprintf("%s_%s", fileID, header.Filename)
+
+	// Create uploads directory if it doesn't exist
+	uploadsDir := "./uploads/services"
+	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create upload directory"})
+		return
+	}
+
+	// Save file to disk
+	filePath := filepath.Join(uploadsDir, fileName)
+	dst, err := os.Create(filePath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload image"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+		return
+	}
+	defer dst.Close()
+
+	if _, err := io.Copy(dst, file); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+		return
+	}
+
+	// Update service with image information
+	imageURL, err := h.serviceService.UploadServiceImage(serviceID, fileID)
+	if err != nil {
+		// Clean up the uploaded file if database update fails
+		os.Remove(filePath)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update service with image"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":   "Image uploaded successfully",
+		"image_id":  fileID,
 		"image_url": imageURL,
 	})
 }
 
-// DeleteServiceImage deletes a service image
+// DeleteServiceImage handles service image deletion
 func (h *ServiceHandler) DeleteServiceImage(c *gin.Context) {
 	serviceID := c.Param("serviceId")
 	imageID := c.Param("imageId")
@@ -400,8 +437,15 @@ func (h *ServiceHandler) DeleteServiceImage(c *gin.Context) {
 
 	err := h.serviceService.DeleteServiceImage(serviceID, imageID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete image"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
+	}
+
+	// Also delete the physical file
+	filePath := filepath.Join("./uploads/services", fmt.Sprintf("%s_*", imageID))
+	matches, _ := filepath.Glob(filePath)
+	for _, match := range matches {
+		os.Remove(match)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Image deleted successfully"})

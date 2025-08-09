@@ -83,6 +83,7 @@ func main() {
 	addonService := serviceContainer.AddonService()
 	integrationService := serviceContainer.IntegrationService()
 	uploadService := serviceContainer.UploadService()
+	serviceService := serviceContainer.ServiceService()
 
 	// Initialize handlers
 	userHandler := handlers.NewUserHandler(userService)
@@ -99,6 +100,7 @@ func main() {
 	addonHandler := handlers.NewAddonHandler(addonService, db)
 	integrationHandler := handlers.NewIntegrationHandler(integrationService)
 	uploadHandler := handlers.NewUploadHandler(uploadService)
+	serviceHandler := handlers.NewServiceHandler(serviceService)
 
 	// Initialize GraphQL handlers
 	graphqlHandler := graphql.NewGraphQLHandler(
@@ -271,6 +273,8 @@ func main() {
 				companies.POST("/services", companyHandler.CreateService)
 				companies.PUT("/services/:id", companyHandler.UpdateService)
 				companies.DELETE("/services/:id", companyHandler.DeleteService)
+				companies.POST("/services/:serviceId/upload-image", serviceHandler.UploadServiceImage)
+				companies.DELETE("/services/:serviceId/images/:imageId", serviceHandler.DeleteServiceImage)
 
 				// Products management
 				companies.GET("/products", companyHandler.GetCompanyProducts)

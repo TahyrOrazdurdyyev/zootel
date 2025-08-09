@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import FileUpload from '../ui/FileUpload';
 import {
   XMarkIcon,
   PhotoIcon,
@@ -35,6 +36,8 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
   const [employees, setEmployees] = useState([]);
   const [petTypes, setPetTypes] = useState([]);
   const [errors, setErrors] = useState({});
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const daysOfWeek = [
     { value: 'monday', label: 'Monday' },
@@ -71,6 +74,15 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
         cancellation_policy: service.cancellation_policy || 'Free cancellation up to 24 hours before appointment',
         is_active: service.is_active !== undefined ? service.is_active : true
       });
+      
+      // Set uploaded images if service has image
+      if (service.image_url) {
+        setUploadedImages([{
+          id: service.image_id,
+          fileName: 'service-image',
+          url: service.image_url
+        }]);
+      }
     }
   }, [service]);
 
@@ -129,6 +141,47 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
         ? [...prev[name], value]
         : prev[name].filter(item => item !== value)
     }));
+  };
+
+  const handleImageUpload = async (files) => {
+    if (!files || files.length === 0) return;
+
+    setIsUploadingImage(true);
+    try {
+      const file = files[0];
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+
+      // Upload to general upload endpoint first
+      const uploadResponse = await apiCall('/api/uploads/gallery', {
+        method: 'POST',
+        body: uploadFormData
+      });
+
+      if (uploadResponse.success && uploadResponse.data.files && uploadResponse.data.files.length > 0) {
+        const uploadedFile = uploadResponse.data.files[0];
+        setFormData(prev => ({
+          ...prev,
+          image_id: uploadedFile.id
+        }));
+        setUploadedImages([uploadedFile]);
+      } else {
+        alert('Failed to upload image. Please try again.');
+      }
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleImageRemove = (fileId) => {
+    setFormData(prev => ({
+      ...prev,
+      image_id: ''
+    }));
+    setUploadedImages([]);
   };
 
   const validateForm = () => {
@@ -235,6 +288,27 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="Describe your service..."
                 />
+              </div>
+
+              {/* Service Image Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Service Image
+                </label>
+                <FileUpload
+                  onFilesSelected={handleImageUpload}
+                  maxFiles={1}
+                  acceptedTypes={['image/*']}
+                  maxSizePerFile={5 * 1024 * 1024} // 5MB
+                  showPreview={true}
+                  uploadedFiles={uploadedImages}
+                  onFileRemove={handleImageRemove}
+                  isUploading={isUploadingImage}
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-6"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Upload an image that will represent your service in the marketplace. Max 5MB.
+                </p>
               </div>
 
               <div>
