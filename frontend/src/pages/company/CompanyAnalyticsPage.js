@@ -11,6 +11,7 @@ import {
   ClockIcon,
   PhoneIcon
 } from '@heroicons/react/24/outline';
+import { Line, Bar } from 'react-chartjs-2'; // Added for charts
 
 const CompanyAnalyticsPage = () => {
   const { user } = useAuth();
@@ -29,6 +30,14 @@ const CompanyAnalyticsPage = () => {
       fetchUserCompany();
     }
   }, [user]);
+
+  // Format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB'
+    }).format(amount || 0);
+  };
 
   const fetchUserCompany = async () => {
     try {
@@ -89,13 +98,6 @@ const CompanyAnalyticsPage = () => {
     { id: 'customers', name: 'Клиенты', icon: UsersIcon },
     { id: 'performance', name: 'Эффективность', icon: TrendingUpIcon },
   ];
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB'
-    }).format(amount || 0);
-  };
 
   const formatNumber = (num) => {
     return new Intl.NumberFormat('ru-RU').format(num || 0);
@@ -342,32 +344,486 @@ const TopServicesWidget = ({ companyId }) => {
 };
 
 // Placeholder views - to be implemented with detailed analytics
-const RevenueAnalyticsView = ({ companyId, dateRange }) => (
-  <div className="card">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">Анализ доходов</h3>
-    <p className="text-gray-600">Подробный анализ доходов за {dateRange}</p>
-  </div>
-);
+const RevenueAnalyticsView = ({ companyId, dateRange }) => {
+  const [revenueData, setRevenueData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-const BookingAnalyticsView = ({ companyId, dateRange }) => (
-  <div className="card">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">Анализ бронирований</h3>
-    <p className="text-gray-600">Подробный анализ бронирований за {dateRange}</p>
-  </div>
-);
+  useEffect(() => {
+    const fetchRevenueAnalytics = async () => {
+      try {
+        const [revenueResponse, avgCheckResponse] = await Promise.all([
+          fetch(`/api/companies/${companyId}/analytics/revenue?days=${getDaysFromRange(dateRange)}`),
+          fetch(`/api/companies/${companyId}/analytics/average-check?days=${getDaysFromRange(dateRange)}`)
+        ]);
 
-const CustomerAnalyticsView = ({ companyId, dateRange }) => (
-  <div className="card">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">Анализ клиентов</h3>
-    <p className="text-gray-600">Подробный анализ клиентской базы за {dateRange}</p>
-  </div>
-);
+        const revenueData = await revenueResponse.json();
+        const avgCheckData = await avgCheckResponse.json();
 
-const PerformanceAnalyticsView = ({ companyId, dateRange }) => (
-  <div className="card">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">Анализ эффективности</h3>
-    <p className="text-gray-600">Подробный анализ эффективности за {dateRange}</p>
-  </div>
-);
+        setRevenueData({
+          revenue: revenueData.data,
+          averageCheck: avgCheckData.data
+        });
+      } catch (error) {
+        console.error('Error fetching revenue analytics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (companyId) {
+      fetchRevenueAnalytics();
+    }
+  }, [companyId, dateRange]);
+
+  const getDaysFromRange = (range) => {
+    switch (range) {
+      case '7d': return 7;
+      case '30d': return 30;
+      case '90d': return 90;
+      case '1y': return 365;
+      default: return 30;
+    }
+  };
+
+  if (loading) {
+    return <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div></div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Анализ доходов за {dateRange}</h3>
+        
+        {/* Revenue Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Общий доход</h4>
+            <p className="text-2xl font-bold text-green-600">{formatCurrency(revenueData?.revenue?.total_revenue || 0)}</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Средний чек</h4>
+            <p className="text-2xl font-bold text-blue-600">{formatCurrency(revenueData?.averageCheck?.overall_avg_check || 0)}</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Транзакций</h4>
+            <p className="text-2xl font-bold text-purple-600">{revenueData?.revenue?.total_transactions || 0}</p>
+          </div>
+        </div>
+
+        {/* Average Check Trends Chart */}
+        {revenueData?.averageCheck?.daily_trends && (
+          <div className="mt-6">
+            <h4 className="text-md font-semibold text-gray-900 mb-4">Тренд среднего чека</h4>
+            <div className="h-64">
+              <Line
+                data={{
+                  labels: revenueData.averageCheck.daily_trends.map(item => item.date),
+                  datasets: [{
+                    label: 'Средний чек',
+                    data: revenueData.averageCheck.daily_trends.map(item => item.combined_avg_check),
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    fill: true,
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: { y: { beginAtZero: true } }
+                }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const BookingAnalyticsView = ({ companyId, dateRange }) => {
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBookingAnalytics = async () => {
+      try {
+        const [bookingsResponse, cancellationResponse, repeatOrdersResponse] = await Promise.all([
+          fetch(`/api/companies/${companyId}/analytics/bookings?days=${getDaysFromRange(dateRange)}`),
+          fetch(`/api/companies/${companyId}/analytics/cancellations?days=${getDaysFromRange(dateRange)}`),
+          fetch(`/api/companies/${companyId}/analytics/repeat-orders?days=${getDaysFromRange(dateRange)}`)
+        ]);
+
+        const bookingsData = await bookingsResponse.json();
+        const cancellationData = await cancellationResponse.json();
+        const repeatOrdersData = await repeatOrdersResponse.json();
+
+        setAnalyticsData({
+          bookings: bookingsData.data,
+          cancellations: cancellationData.data,
+          repeatOrders: repeatOrdersData.data
+        });
+      } catch (error) {
+        console.error('Error fetching booking analytics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (companyId) {
+      fetchBookingAnalytics();
+    }
+  }, [companyId, dateRange]);
+
+  const getDaysFromRange = (range) => {
+    switch (range) {
+      case '7d': return 7;
+      case '30d': return 30;
+      case '90d': return 90;
+      case '1y': return 365;
+      default: return 30;
+    }
+  };
+
+  if (loading) {
+    return <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div></div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Booking Overview */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Статистика бронирований</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Всего бронирований</h4>
+            <p className="text-2xl font-bold text-blue-600">{analyticsData?.bookings?.total_bookings || 0}</p>
+          </div>
+          <div className="bg-green-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Завершено</h4>
+            <p className="text-2xl font-bold text-green-600">{analyticsData?.bookings?.completed_bookings || 0}</p>
+          </div>
+          <div className="bg-red-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Отменено</h4>
+            <p className="text-2xl font-bold text-red-600">{analyticsData?.cancellations?.cancelled_bookings || 0}</p>
+          </div>
+          <div className="bg-yellow-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">% отмен</h4>
+            <p className="text-2xl font-bold text-yellow-600">{(analyticsData?.cancellations?.cancellation_rate || 0).toFixed(1)}%</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Repeat Orders Analytics */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Повторные заказы</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Всего клиентов</h4>
+            <p className="text-2xl font-bold text-purple-600">{analyticsData?.repeatOrders?.total_customers || 0}</p>
+          </div>
+          <div className="bg-indigo-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Повторных клиентов</h4>
+            <p className="text-2xl font-bold text-indigo-600">{analyticsData?.repeatOrders?.repeat_customers || 0}</p>
+          </div>
+          <div className="bg-pink-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">% повторов</h4>
+            <p className="text-2xl font-bold text-pink-600">{(analyticsData?.repeatOrders?.repeat_rate || 0).toFixed(1)}%</p>
+          </div>
+        </div>
+
+        <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+          <h4 className="text-sm font-medium text-gray-600">Доход от повторных клиентов</h4>
+          <p className="text-xl font-bold text-gray-900">{formatCurrency(analyticsData?.repeatOrders?.repeat_customer_revenue || 0)}</p>
+          <p className="text-sm text-gray-600">Среднее заказов на клиента: {(analyticsData?.repeatOrders?.avg_orders_per_customer || 0).toFixed(1)}</p>
+        </div>
+      </div>
+
+      {/* Cancellation Trends */}
+      {analyticsData?.cancellations?.cancellation_trends && (
+        <div className="card">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Тренд отмен</h3>
+          <div className="h-64">
+            <Bar
+              data={{
+                labels: analyticsData.cancellations.cancellation_trends.map(item => item.date),
+                datasets: [{
+                  label: 'Отмены по дням',
+                  data: analyticsData.cancellations.cancellation_trends.map(item => item.count),
+                  backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                  borderColor: 'rgba(239, 68, 68, 1)',
+                  borderWidth: 1,
+                }]
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } }
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const CustomerAnalyticsView = ({ companyId, dateRange }) => {
+  const [customerData, setCustomerData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCustomerAnalytics = async () => {
+      try {
+        const [segmentationResponse, refundsResponse] = await Promise.all([
+          fetch(`/api/companies/${companyId}/analytics/customer-segmentation?days=${getDaysFromRange(dateRange)}`),
+          fetch(`/api/companies/${companyId}/analytics/refunds?days=${getDaysFromRange(dateRange)}`)
+        ]);
+
+        const segmentationData = await segmentationResponse.json();
+        const refundsData = await refundsResponse.json();
+
+        setCustomerData({
+          segmentation: segmentationData.data,
+          refunds: refundsData.data
+        });
+      } catch (error) {
+        console.error('Error fetching customer analytics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (companyId) {
+      fetchCustomerAnalytics();
+    }
+  }, [companyId, dateRange]);
+
+  const getDaysFromRange = (range) => {
+    switch (range) {
+      case '7d': return 7;
+      case '30d': return 30;
+      case '90d': return 90;
+      case '1y': return 365;
+      default: return 30;
+    }
+  };
+
+  if (loading) {
+    return <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div></div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Customer Segmentation */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Сегментация клиентов</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-green-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Новые клиенты</h4>
+            <p className="text-2xl font-bold text-green-600">{customerData?.segmentation?.new_customers || 0}</p>
+            <p className="text-sm text-green-600">{(customerData?.segmentation?.new_customer_rate || 0).toFixed(1)}%</p>
+          </div>
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Возвращающиеся</h4>
+            <p className="text-2xl font-bold text-blue-600">{customerData?.segmentation?.returning_customers || 0}</p>
+            <p className="text-sm text-blue-600">{(customerData?.segmentation?.returning_customer_rate || 0).toFixed(1)}%</p>
+          </div>
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">VIP клиенты</h4>
+            <p className="text-2xl font-bold text-purple-600">{customerData?.segmentation?.high_value_customers || 0}</p>
+          </div>
+          <div className="bg-orange-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Средний LTV</h4>
+            <p className="text-xl font-bold text-orange-600">{formatCurrency(customerData?.segmentation?.avg_customer_lifetime_value || 0)}</p>
+          </div>
+        </div>
+
+        {/* Customer Value Distribution */}
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-red-600">{customerData?.segmentation?.high_value_customers || 0}</div>
+            <div className="text-sm text-gray-600">Высокая ценность (10k+)</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-yellow-600">{customerData?.segmentation?.medium_value_customers || 0}</div>
+            <div className="text-sm text-gray-600">Средняя ценность (5k-10k)</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-gray-600">{customerData?.segmentation?.low_value_customers || 0}</div>
+            <div className="text-sm text-gray-600">Низкая ценность (<5k)</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Refunds Analytics */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Анализ возвратов</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Всего платежей</h4>
+            <p className="text-2xl font-bold text-gray-600">{customerData?.refunds?.total_payments || 0}</p>
+          </div>
+          <div className="bg-red-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Возвратов</h4>
+            <p className="text-2xl font-bold text-red-600">{customerData?.refunds?.refunded_payments || 0}</p>
+          </div>
+          <div className="bg-yellow-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">% возвратов</h4>
+            <p className="text-2xl font-bold text-yellow-600">{(customerData?.refunds?.refund_rate || 0).toFixed(1)}%</p>
+          </div>
+          <div className="bg-orange-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Сумма возвратов</h4>
+            <p className="text-xl font-bold text-orange-600">{formatCurrency(customerData?.refunds?.total_refund_amount || 0)}</p>
+          </div>
+        </div>
+
+        {/* Refund Trends */}
+        {customerData?.refunds?.refund_trends && (
+          <div className="mt-6">
+            <h4 className="text-md font-semibold text-gray-900 mb-4">Тренд возвратов</h4>
+            <div className="h-64">
+              <Line
+                data={{
+                  labels: customerData.refunds.refund_trends.map(item => item.date),
+                  datasets: [{
+                    label: 'Сумма возвратов',
+                    data: customerData.refunds.refund_trends.map(item => item.amount),
+                    borderColor: 'rgb(239, 68, 68)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    fill: true,
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: { y: { beginAtZero: true } }
+                }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const PerformanceAnalyticsView = ({ companyId, dateRange }) => {
+  const [performanceData, setPerformanceData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPerformanceAnalytics = async () => {
+      try {
+        const response = await fetch(`/api/companies/${companyId}/analytics/team-workload?days=${getDaysFromRange(dateRange)}`);
+        const data = await response.json();
+        setPerformanceData(data.data);
+      } catch (error) {
+        console.error('Error fetching performance analytics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (companyId) {
+      fetchPerformanceAnalytics();
+    }
+  }, [companyId, dateRange]);
+
+  const getDaysFromRange = (range) => {
+    switch (range) {
+      case '7d': return 7;
+      case '30d': return 30;
+      case '90d': return 90;
+      case '1y': return 365;
+      default: return 30;
+    }
+  };
+
+  if (loading) {
+    return <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div></div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Team Overview */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Обзор команды</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Всего бронирований</h4>
+            <p className="text-2xl font-bold text-blue-600">{performanceData?.total_team_bookings || 0}</p>
+          </div>
+          <div className="bg-green-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Часов работы</h4>
+            <p className="text-2xl font-bold text-green-600">{(performanceData?.total_team_hours || 0).toFixed(1)}</p>
+          </div>
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Доход команды</h4>
+            <p className="text-xl font-bold text-purple-600">{formatCurrency(performanceData?.total_team_revenue || 0)}</p>
+          </div>
+          <div className="bg-orange-50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600">Загруженность</h4>
+            <p className="text-2xl font-bold text-orange-600">{(performanceData?.avg_utilization || 0).toFixed(1)}%</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Employee Performance Table */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Производительность сотрудников</h3>
+        
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Сотрудник</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Бронирования</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Часы работы</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Загруженность</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Доход</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {performanceData?.employee_workload?.map((employee, index) => (
+                <tr key={employee.employee_id || index}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">{employee.name}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {employee.completed_bookings}/{employee.total_bookings}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{employee.work_hours.toFixed(1)}ч</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="text-sm text-gray-900">{employee.utilization.toFixed(1)}%</div>
+                      <div className="ml-2 w-16 bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-blue-600 h-2 rounded-full" 
+                          style={{ width: `${Math.min(employee.utilization, 100)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{formatCurrency(employee.revenue_generated)}</div>
+                  </td>
+                </tr>
+              )) || []}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default CompanyAnalyticsPage; 

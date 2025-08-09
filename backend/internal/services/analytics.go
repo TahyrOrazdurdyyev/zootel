@@ -961,6 +961,487 @@ func (s *AnalyticsService) GetCompanyAnalytics(companyID string, days int) (map[
 	return analytics, nil
 }
 
+// GetRepeatOrdersAnalytics returns repeat orders statistics for a company
+func (s *AnalyticsService) GetRepeatOrdersAnalytics(companyID string, days int) (map[string]interface{}, error) {
+	analytics := make(map[string]interface{})
+
+	// Total customers and repeat customers
+	var totalCustomers, repeatCustomers int
+	err := s.db.QueryRow(`
+		WITH customer_stats AS (
+			SELECT 
+				user_id,
+				COUNT(*) as order_count
+			FROM (
+				SELECT user_id FROM bookings WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+				UNION ALL
+				SELECT user_id FROM orders WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+			) combined_orders
+			GROUP BY user_id
+		)
+		SELECT 
+			COUNT(*) as total_customers,
+			COUNT(CASE WHEN order_count > 1 THEN 1 END) as repeat_customers
+		FROM customer_stats
+	`, companyID, days, days).Scan(&totalCustomers, &repeatCustomers)
+
+	if err != nil {
+		return nil, err
+	}
+
+	analytics["total_customers"] = totalCustomers
+	analytics["repeat_customers"] = repeatCustomers
+
+	if totalCustomers > 0 {
+		analytics["repeat_rate"] = float64(repeatCustomers) / float64(totalCustomers) * 100
+	} else {
+		analytics["repeat_rate"] = 0.0
+	}
+
+	// Average orders per customer
+	var avgOrdersPerCustomer float64
+	s.db.QueryRow(`
+		WITH customer_orders AS (
+			SELECT 
+				user_id,
+				COUNT(*) as order_count
+			FROM (
+				SELECT user_id FROM bookings WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+				UNION ALL
+				SELECT user_id FROM orders WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+			) combined_orders
+			GROUP BY user_id
+		)
+		SELECT AVG(order_count) FROM customer_orders
+	`, companyID, days, days).Scan(&avgOrdersPerCustomer)
+
+	analytics["avg_orders_per_customer"] = avgOrdersPerCustomer
+
+	// Repeat customer revenue
+	var repeatCustomerRevenue float64
+	s.db.QueryRow(`
+		WITH repeat_customers AS (
+			SELECT user_id
+			FROM (
+				SELECT user_id FROM bookings WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+				UNION ALL
+				SELECT user_id FROM orders WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+			) combined_orders
+			GROUP BY user_id
+			HAVING COUNT(*) > 1
+		)
+		SELECT 
+			COALESCE(SUM(b.price), 0) + COALESCE(SUM(o.total_amount), 0)
+		FROM repeat_customers rc
+		LEFT JOIN bookings b ON rc.user_id = b.user_id AND b.company_id = $1 AND b.status = 'completed'
+		LEFT JOIN orders o ON rc.user_id = o.user_id AND o.company_id = $1 AND o.status = 'completed'
+	`, companyID, days, days, companyID, companyID).Scan(&repeatCustomerRevenue)
+
+	analytics["repeat_customer_revenue"] = repeatCustomerRevenue
+
+	return analytics, nil
+}
+
+// GetCancellationAnalytics returns detailed cancellation analytics for a company
+func (s *AnalyticsService) GetCancellationAnalytics(companyID string, days int) (map[string]interface{}, error) {
+	analytics := make(map[string]interface{})
+
+	// Booking cancellations
+	var totalBookings, cancelledBookings int
+	var cancelledRevenue float64
+
+	err := s.db.QueryRow(`
+		SELECT 
+			COUNT(*) as total_bookings,
+			COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_bookings,
+			COALESCE(SUM(CASE WHEN status = 'cancelled' THEN price END), 0) as cancelled_revenue
+		FROM bookings 
+		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+	`, companyID, days).Scan(&totalBookings, &cancelledBookings, &cancelledRevenue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	analytics["total_bookings"] = totalBookings
+	analytics["cancelled_bookings"] = cancelledBookings
+	analytics["cancelled_revenue"] = cancelledRevenue
+
+	if totalBookings > 0 {
+		analytics["cancellation_rate"] = float64(cancelledBookings) / float64(totalBookings) * 100
+	} else {
+		analytics["cancellation_rate"] = 0.0
+	}
+
+	// Cancellation reasons (if available in notes)
+	cancellationQuery := `
+		SELECT 
+			DATE(created_at) as date,
+			COUNT(*) as cancellations
+		FROM bookings 
+		WHERE company_id = $1 AND status = 'cancelled' AND created_at >= NOW() - INTERVAL '%d days'
+		GROUP BY DATE(created_at)
+		ORDER BY date
+	`
+
+	rows, err := s.db.Query(fmt.Sprintf(cancellationQuery, days), companyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var cancellationTrends []map[string]interface{}
+	for rows.Next() {
+		var date time.Time
+		var count int
+		err := rows.Scan(&date, &count)
+		if err != nil {
+			continue
+		}
+		cancellationTrends = append(cancellationTrends, map[string]interface{}{
+			"date":  date.Format("2006-01-02"),
+			"count": count,
+		})
+	}
+
+	analytics["cancellation_trends"] = cancellationTrends
+
+	return analytics, nil
+}
+
+// GetRefundAnalytics returns detailed refund analytics for a company
+func (s *AnalyticsService) GetRefundAnalytics(companyID string, days int) (map[string]interface{}, error) {
+	analytics := make(map[string]interface{})
+
+	// Refund statistics
+	var totalPayments, refundedPayments int
+	var totalRefundAmount float64
+
+	err := s.db.QueryRow(`
+		SELECT 
+			COUNT(p.id) as total_payments,
+			COUNT(CASE WHEN p.status LIKE '%refund%' THEN 1 END) as refunded_payments,
+			COALESCE(SUM(r.amount), 0) as total_refund_amount
+		FROM payments p
+		LEFT JOIN refunds r ON p.id = r.payment_id
+		WHERE p.company_id = $1 AND p.created_at >= NOW() - INTERVAL '%d days'
+	`, companyID, days).Scan(&totalPayments, &refundedPayments, &totalRefundAmount)
+
+	if err != nil {
+		return nil, err
+	}
+
+	analytics["total_payments"] = totalPayments
+	analytics["refunded_payments"] = refundedPayments
+	analytics["total_refund_amount"] = totalRefundAmount
+
+	if totalPayments > 0 {
+		analytics["refund_rate"] = float64(refundedPayments) / float64(totalPayments) * 100
+	} else {
+		analytics["refund_rate"] = 0.0
+	}
+
+	// Refund trends by day
+	refundTrendsQuery := `
+		SELECT 
+			DATE(r.created_at) as date,
+			COUNT(*) as refund_count,
+			SUM(r.amount) as refund_amount
+		FROM refunds r
+		JOIN payments p ON r.payment_id = p.id
+		WHERE p.company_id = $1 AND r.created_at >= NOW() - INTERVAL '%d days'
+		GROUP BY DATE(r.created_at)
+		ORDER BY date
+	`
+
+	rows, err := s.db.Query(fmt.Sprintf(refundTrendsQuery, days), companyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var refundTrends []map[string]interface{}
+	for rows.Next() {
+		var date time.Time
+		var count int
+		var amount float64
+		err := rows.Scan(&date, &count, &amount)
+		if err != nil {
+			continue
+		}
+		refundTrends = append(refundTrends, map[string]interface{}{
+			"date":   date.Format("2006-01-02"),
+			"count":  count,
+			"amount": amount,
+		})
+	}
+
+	analytics["refund_trends"] = refundTrends
+
+	return analytics, nil
+}
+
+// GetTeamWorkloadAnalytics returns team workload and employee utilization analytics
+func (s *AnalyticsService) GetTeamWorkloadAnalytics(companyID string, days int) (map[string]interface{}, error) {
+	analytics := make(map[string]interface{})
+
+	// Employee workload statistics
+	workloadQuery := `
+		SELECT 
+			e.id,
+			e.first_name,
+			e.last_name,
+			COUNT(b.id) as total_bookings,
+			COUNT(CASE WHEN b.status = 'completed' THEN 1 END) as completed_bookings,
+			COALESCE(SUM(CASE WHEN b.status = 'completed' THEN b.duration END), 0) as total_work_minutes,
+			COALESCE(SUM(CASE WHEN b.status = 'completed' THEN b.price END), 0) as revenue_generated
+		FROM employees e
+		LEFT JOIN bookings b ON e.id = b.employee_id AND b.created_at >= NOW() - INTERVAL '%d days'
+		WHERE e.company_id = $1 AND e.is_active = true
+		GROUP BY e.id, e.first_name, e.last_name
+		ORDER BY total_bookings DESC
+	`
+
+	rows, err := s.db.Query(fmt.Sprintf(workloadQuery, days), companyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var employeeWorkload []map[string]interface{}
+	totalBookings := 0
+	totalMinutes := 0
+	totalRevenue := 0.0
+
+	for rows.Next() {
+		var employeeID, firstName, lastName string
+		var bookings, completedBookings, workMinutes int
+		var revenue float64
+
+		err := rows.Scan(&employeeID, &firstName, &lastName, &bookings, &completedBookings, &workMinutes, &revenue)
+		if err != nil {
+			continue
+		}
+
+		utilization := 0.0
+		if workMinutes > 0 {
+			// Assuming 8 hours per day as full utilization
+			maxMinutes := days * 8 * 60
+			utilization = float64(workMinutes) / float64(maxMinutes) * 100
+		}
+
+		employeeData := map[string]interface{}{
+			"employee_id":        employeeID,
+			"name":               fmt.Sprintf("%s %s", firstName, lastName),
+			"total_bookings":     bookings,
+			"completed_bookings": completedBookings,
+			"work_minutes":       workMinutes,
+			"work_hours":         float64(workMinutes) / 60,
+			"utilization":        utilization,
+			"revenue_generated":  revenue,
+		}
+
+		employeeWorkload = append(employeeWorkload, employeeData)
+		totalBookings += bookings
+		totalMinutes += workMinutes
+		totalRevenue += revenue
+	}
+
+	analytics["employee_workload"] = employeeWorkload
+	analytics["total_team_bookings"] = totalBookings
+	analytics["total_team_hours"] = float64(totalMinutes) / 60
+	analytics["total_team_revenue"] = totalRevenue
+
+	// Calculate average utilization
+	avgUtilization := 0.0
+	if len(employeeWorkload) > 0 {
+		var totalUtil float64
+		for _, emp := range employeeWorkload {
+			if util, exists := emp["utilization"]; exists {
+				if utilFloat, ok := util.(float64); ok {
+					totalUtil += utilFloat
+				}
+			}
+		}
+		avgUtilization = totalUtil / float64(len(employeeWorkload))
+	}
+	analytics["avg_utilization"] = avgUtilization
+
+	return analytics, nil
+}
+
+// GetAverageCheckTrends returns average check trends over time periods
+func (s *AnalyticsService) GetAverageCheckTrends(companyID string, days int) (map[string]interface{}, error) {
+	analytics := make(map[string]interface{})
+
+	// Daily average check trends
+	trendsQuery := `
+		SELECT 
+			DATE(created_at) as date,
+			COUNT(*) as transaction_count,
+			AVG(CASE WHEN status = 'completed' THEN price END) as avg_booking_check,
+			AVG(CASE WHEN status = 'completed' THEN total_amount END) as avg_order_check
+		FROM (
+			SELECT created_at, price, status, NULL as total_amount FROM bookings WHERE company_id = $1
+			UNION ALL
+			SELECT created_at, NULL as price, status, total_amount FROM orders WHERE company_id = $1
+		) combined_transactions
+		WHERE created_at >= NOW() - INTERVAL '%d days'
+		GROUP BY DATE(created_at)
+		ORDER BY date
+	`
+
+	rows, err := s.db.Query(fmt.Sprintf(trendsQuery, days), companyID, companyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var trends []map[string]interface{}
+	var totalAvgCheck float64
+	var trendCount int
+
+	for rows.Next() {
+		var date time.Time
+		var transactionCount int
+		var avgBookingCheck, avgOrderCheck sql.NullFloat64
+
+		err := rows.Scan(&date, &transactionCount, &avgBookingCheck, &avgOrderCheck)
+		if err != nil {
+			continue
+		}
+
+		combinedAvg := 0.0
+		if avgBookingCheck.Valid && avgOrderCheck.Valid {
+			combinedAvg = (avgBookingCheck.Float64 + avgOrderCheck.Float64) / 2
+		} else if avgBookingCheck.Valid {
+			combinedAvg = avgBookingCheck.Float64
+		} else if avgOrderCheck.Valid {
+			combinedAvg = avgOrderCheck.Float64
+		}
+
+		trends = append(trends, map[string]interface{}{
+			"date":               date.Format("2006-01-02"),
+			"transaction_count":  transactionCount,
+			"avg_booking_check":  avgBookingCheck.Float64,
+			"avg_order_check":    avgOrderCheck.Float64,
+			"combined_avg_check": combinedAvg,
+		})
+
+		totalAvgCheck += combinedAvg
+		trendCount++
+	}
+
+	analytics["daily_trends"] = trends
+	if trendCount > 0 {
+		analytics["overall_avg_check"] = totalAvgCheck / float64(trendCount)
+	} else {
+		analytics["overall_avg_check"] = 0.0
+	}
+
+	return analytics, nil
+}
+
+// GetCustomerSegmentationAnalytics returns new vs returning customer analytics
+func (s *AnalyticsService) GetCustomerSegmentationAnalytics(companyID string, days int) (map[string]interface{}, error) {
+	analytics := make(map[string]interface{})
+
+	// New vs Returning customers
+	segmentationQuery := `
+		WITH customer_history AS (
+			SELECT 
+				user_id,
+				MIN(created_at) as first_transaction,
+				COUNT(*) as total_transactions
+			FROM (
+				SELECT user_id, created_at FROM bookings WHERE company_id = $1
+				UNION ALL
+				SELECT user_id, created_at FROM orders WHERE company_id = $1
+			) all_transactions
+			GROUP BY user_id
+		),
+		period_customers AS (
+			SELECT DISTINCT user_id
+			FROM (
+				SELECT user_id FROM bookings WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+				UNION
+				SELECT user_id FROM orders WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+			) period_transactions
+		)
+		SELECT 
+			COUNT(pc.user_id) as total_period_customers,
+			COUNT(CASE WHEN ch.first_transaction >= NOW() - INTERVAL '%d days' THEN 1 END) as new_customers,
+			COUNT(CASE WHEN ch.first_transaction < NOW() - INTERVAL '%d days' THEN 1 END) as returning_customers,
+			AVG(ch.total_transactions) as avg_transactions_per_customer
+		FROM period_customers pc
+		JOIN customer_history ch ON pc.user_id = ch.user_id
+	`
+
+	var totalCustomers, newCustomers, returningCustomers int
+	var avgTransactions float64
+
+	err := s.db.QueryRow(fmt.Sprintf(segmentationQuery, days, days, days, days), companyID, companyID, companyID, companyID).Scan(
+		&totalCustomers, &newCustomers, &returningCustomers, &avgTransactions,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	analytics["total_customers"] = totalCustomers
+	analytics["new_customers"] = newCustomers
+	analytics["returning_customers"] = returningCustomers
+	analytics["avg_transactions_per_customer"] = avgTransactions
+
+	if totalCustomers > 0 {
+		analytics["new_customer_rate"] = float64(newCustomers) / float64(totalCustomers) * 100
+		analytics["returning_customer_rate"] = float64(returningCustomers) / float64(totalCustomers) * 100
+	} else {
+		analytics["new_customer_rate"] = 0.0
+		analytics["returning_customer_rate"] = 0.0
+	}
+
+	// Customer lifetime value segments
+	clvQuery := `
+		WITH customer_value AS (
+			SELECT 
+				user_id,
+				COALESCE(SUM(b.price), 0) + COALESCE(SUM(o.total_amount), 0) as lifetime_value
+			FROM (
+				SELECT DISTINCT user_id FROM (
+					SELECT user_id FROM bookings WHERE company_id = $1
+					UNION 
+					SELECT user_id FROM orders WHERE company_id = $1
+				) all_customers
+			) customers
+			LEFT JOIN bookings b ON customers.user_id = b.user_id AND b.company_id = $1 AND b.status = 'completed'
+			LEFT JOIN orders o ON customers.user_id = o.user_id AND o.company_id = $1 AND o.status = 'completed'
+			GROUP BY user_id
+		)
+		SELECT 
+			COUNT(CASE WHEN lifetime_value >= 10000 THEN 1 END) as high_value_customers,
+			COUNT(CASE WHEN lifetime_value >= 5000 AND lifetime_value < 10000 THEN 1 END) as medium_value_customers,
+			COUNT(CASE WHEN lifetime_value < 5000 THEN 1 END) as low_value_customers,
+			AVG(lifetime_value) as avg_customer_lifetime_value
+		FROM customer_value
+	`
+
+	var highValue, mediumValue, lowValue int
+	var avgCLV float64
+
+	err = s.db.QueryRow(clvQuery, companyID, companyID, companyID, companyID).Scan(&highValue, &mediumValue, &lowValue, &avgCLV)
+	if err != nil {
+		return nil, err
+	}
+
+	analytics["high_value_customers"] = highValue
+	analytics["medium_value_customers"] = mediumValue
+	analytics["low_value_customers"] = lowValue
+	analytics["avg_customer_lifetime_value"] = avgCLV
+
+	return analytics, nil
+}
+
 // GetPetTypePopularity returns popularity statistics for different pet types
 func (s *AnalyticsService) GetPetTypePopularity() ([]map[string]interface{}, error) {
 	query := `

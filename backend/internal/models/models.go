@@ -205,16 +205,38 @@ type Booking struct {
 	UserID     string    `json:"user_id" db:"user_id"`
 	CompanyID  string    `json:"company_id" db:"company_id"`
 	ServiceID  string    `json:"service_id" db:"service_id"`
-	PetID      string    `json:"pet_id" db:"pet_id"`
+	PetID      *string   `json:"pet_id" db:"pet_id"`
 	EmployeeID *string   `json:"employee_id" db:"employee_id"`
 	DateTime   time.Time `json:"date_time" db:"date_time"`
-	Duration   int       `json:"duration" db:"duration"`
+	Duration   int       `json:"duration" db:"duration"` // in minutes
 	Price      float64   `json:"price" db:"price"`
-	Status     string    `json:"status" db:"status"` // pending, confirmed, in_progress, completed, cancelled
-	Notes      string    `json:"notes" db:"notes"`
+	Status     string    `json:"status" db:"status"` // pending, confirmed, in_progress, completed, cancelled, rejected
+	Notes      *string   `json:"notes" db:"notes"`
 	PaymentID  *string   `json:"payment_id" db:"payment_id"`
 	CreatedAt  time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
+
+	// Extended information for company views
+	CustomerInfo *CustomerInfo `json:"customer_info,omitempty"`
+	PetInfo      *PetInfo      `json:"pet_info,omitempty"`
+	ServiceName  string        `json:"service_name,omitempty"`
+	EmployeeName string        `json:"employee_name,omitempty"`
+}
+
+// CustomerInfo contains customer details for company views
+type CustomerInfo struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Phone     string `json:"phone"`
+}
+
+// PetInfo contains pet details for company views
+type PetInfo struct {
+	Name      string `json:"name"`
+	Gender    string `json:"gender"`
+	PetType   string `json:"pet_type"`
+	BreedName string `json:"breed_name"`
 }
 
 // Order represents a product order

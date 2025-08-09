@@ -295,6 +295,12 @@ func main() {
 
 				// Analytics
 				companies.GET("/analytics", analyticsHandler.GetCompanyAnalytics)
+				companies.GET("/analytics/repeat-orders", analyticsHandler.GetRepeatOrdersAnalytics)
+				companies.GET("/analytics/cancellations", analyticsHandler.GetCancellationAnalytics)
+				companies.GET("/analytics/refunds", analyticsHandler.GetRefundAnalytics)
+				companies.GET("/analytics/team-workload", analyticsHandler.GetTeamWorkloadAnalytics)
+				companies.GET("/analytics/average-check", analyticsHandler.GetAverageCheckTrends)
+				companies.GET("/analytics/customer-segmentation", analyticsHandler.GetCustomerSegmentationAnalytics)
 
 				// Website Integration
 				companies.POST("/integration/enable", integrationHandler.EnableWebsiteIntegration)

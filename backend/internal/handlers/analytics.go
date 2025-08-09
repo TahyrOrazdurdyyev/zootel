@@ -116,6 +116,180 @@ func (h *AnalyticsHandler) GetUserSegmentation(c *gin.Context) {
 	})
 }
 
+// GetRepeatOrdersAnalytics returns repeat orders analytics for a company
+func (h *AnalyticsHandler) GetRepeatOrdersAnalytics(c *gin.Context) {
+	companyID := c.Param("company_id")
+	if companyID == "" {
+		if id, exists := c.Get("company_id"); exists {
+			companyID = id.(string)
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+			return
+		}
+	}
+
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 1 || days > 365 {
+		days = 30
+	}
+
+	analytics, err := h.analyticsService.GetRepeatOrdersAnalytics(companyID, days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    analytics,
+	})
+}
+
+// GetCancellationAnalytics returns cancellation analytics for a company
+func (h *AnalyticsHandler) GetCancellationAnalytics(c *gin.Context) {
+	companyID := c.Param("company_id")
+	if companyID == "" {
+		if id, exists := c.Get("company_id"); exists {
+			companyID = id.(string)
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+			return
+		}
+	}
+
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 1 || days > 365 {
+		days = 30
+	}
+
+	analytics, err := h.analyticsService.GetCancellationAnalytics(companyID, days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    analytics,
+	})
+}
+
+// GetRefundAnalytics returns refund analytics for a company
+func (h *AnalyticsHandler) GetRefundAnalytics(c *gin.Context) {
+	companyID := c.Param("company_id")
+	if companyID == "" {
+		if id, exists := c.Get("company_id"); exists {
+			companyID = id.(string)
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+			return
+		}
+	}
+
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 1 || days > 365 {
+		days = 30
+	}
+
+	analytics, err := h.analyticsService.GetRefundAnalytics(companyID, days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    analytics,
+	})
+}
+
+// GetTeamWorkloadAnalytics returns team workload analytics for a company
+func (h *AnalyticsHandler) GetTeamWorkloadAnalytics(c *gin.Context) {
+	companyID := c.Param("company_id")
+	if companyID == "" {
+		if id, exists := c.Get("company_id"); exists {
+			companyID = id.(string)
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+			return
+		}
+	}
+
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 1 || days > 365 {
+		days = 30
+	}
+
+	analytics, err := h.analyticsService.GetTeamWorkloadAnalytics(companyID, days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    analytics,
+	})
+}
+
+// GetAverageCheckTrends returns average check trends for a company
+func (h *AnalyticsHandler) GetAverageCheckTrends(c *gin.Context) {
+	companyID := c.Param("company_id")
+	if companyID == "" {
+		if id, exists := c.Get("company_id"); exists {
+			companyID = id.(string)
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+			return
+		}
+	}
+
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 1 || days > 365 {
+		days = 30
+	}
+
+	analytics, err := h.analyticsService.GetAverageCheckTrends(companyID, days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    analytics,
+	})
+}
+
+// GetCustomerSegmentationAnalytics returns customer segmentation analytics for a company
+func (h *AnalyticsHandler) GetCustomerSegmentationAnalytics(c *gin.Context) {
+	companyID := c.Param("company_id")
+	if companyID == "" {
+		if id, exists := c.Get("company_id"); exists {
+			companyID = id.(string)
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+			return
+		}
+	}
+
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 1 || days > 365 {
+		days = 30
+	}
+
+	analytics, err := h.analyticsService.GetCustomerSegmentationAnalytics(companyID, days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    analytics,
+	})
+}
+
 // GetTopPerformingCompanies returns top companies by performance metrics
 func (h *AnalyticsHandler) GetTopPerformingCompanies(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))

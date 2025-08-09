@@ -119,13 +119,13 @@ func (s *BookingService) CreateBooking(req *BookingRequest) (*models.Booking, er
 		UserID:     req.UserID,
 		CompanyID:  req.CompanyID,
 		ServiceID:  req.ServiceID,
-		PetID:      req.PetID,
+		PetID:      &req.PetID,
 		EmployeeID: req.EmployeeID,
 		DateTime:   req.DateTime,
 		Duration:   service.Duration,
 		Price:      service.Price,
 		Status:     "pending",
-		Notes:      req.Notes,
+		Notes:      &req.Notes,
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}
@@ -419,21 +419,39 @@ func (s *BookingService) GetBookingsByUser(userID string, status string, limit i
 
 // GetBookingsByCompany returns bookings for a specific company
 func (s *BookingService) GetBookingsByCompany(companyID string, startDate, endDate time.Time, status string) ([]models.Booking, error) {
-	whereClause := "WHERE company_id = $1 AND date_time >= $2 AND date_time <= $3"
+	whereClause := "WHERE b.company_id = $1 AND b.date_time >= $2 AND b.date_time <= $3"
 	args := []interface{}{companyID, startDate, endDate}
 	argIndex := 4
 
 	if status != "" {
-		whereClause += fmt.Sprintf(" AND status = $%d", argIndex)
+		whereClause += fmt.Sprintf(" AND b.status = $%d", argIndex)
 		args = append(args, status)
 	}
 
 	query := fmt.Sprintf(`
-		SELECT id, user_id, company_id, service_id, pet_id, employee_id,
-			   date_time, duration, price, status, notes, payment_id,
-			   created_at, updated_at
-		FROM bookings %s
-		ORDER BY date_time ASC
+		SELECT 
+			b.id, b.user_id, b.company_id, b.service_id, b.pet_id, b.employee_id,
+			b.date_time, b.duration, b.price, b.status, b.notes, b.payment_id,
+			b.created_at, b.updated_at,
+			-- Customer information
+			u.first_name, u.last_name, u.email, u.phone,
+			-- Pet information
+			p.name as pet_name, p.gender as pet_gender,
+			-- Pet type and breed information
+			pt.name as pet_type, br.name as breed_name,
+			-- Service information
+			s.name as service_name,
+			-- Employee information
+			e.first_name as employee_first_name, e.last_name as employee_last_name
+		FROM bookings b
+		LEFT JOIN users u ON b.user_id = u.id
+		LEFT JOIN pets p ON b.pet_id = p.id
+		LEFT JOIN pet_types pt ON p.pet_type_id = pt.id
+		LEFT JOIN breeds br ON p.breed_id = br.id
+		LEFT JOIN services s ON b.service_id = s.id
+		LEFT JOIN employees e ON b.employee_id = e.id
+		%s
+		ORDER BY b.date_time ASC
 	`, whereClause)
 
 	rows, err := s.db.Query(query, args...)
@@ -445,15 +463,41 @@ func (s *BookingService) GetBookingsByCompany(companyID string, startDate, endDa
 	var bookings []models.Booking
 	for rows.Next() {
 		var booking models.Booking
+		var customerFirstName, customerLastName, customerEmail, customerPhone sql.NullString
+		var petName, petGender, petType, breedName, serviceName sql.NullString
+		var employeeFirstName, employeeLastName sql.NullString
+
 		err := rows.Scan(
 			&booking.ID, &booking.UserID, &booking.CompanyID, &booking.ServiceID,
 			&booking.PetID, &booking.EmployeeID, &booking.DateTime, &booking.Duration,
 			&booking.Price, &booking.Status, &booking.Notes, &booking.PaymentID,
 			&booking.CreatedAt, &booking.UpdatedAt,
+			&customerFirstName, &customerLastName, &customerEmail, &customerPhone,
+			&petName, &petGender, &petType, &breedName, &serviceName,
+			&employeeFirstName, &employeeLastName,
 		)
 		if err != nil {
 			return nil, err
 		}
+
+		// Add customer and pet information to booking
+		booking.CustomerInfo = &models.CustomerInfo{
+			FirstName: customerFirstName.String,
+			LastName:  customerLastName.String,
+			Email:     customerEmail.String,
+			Phone:     customerPhone.String,
+		}
+
+		booking.PetInfo = &models.PetInfo{
+			Name:      petName.String,
+			Gender:    petGender.String,
+			PetType:   petType.String,
+			BreedName: breedName.String,
+		}
+
+		booking.ServiceName = serviceName.String
+		booking.EmployeeName = fmt.Sprintf("%s %s", employeeFirstName.String, employeeLastName.String)
+
 		bookings = append(bookings, booking)
 	}
 
