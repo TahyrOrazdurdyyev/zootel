@@ -19,9 +19,9 @@ const CartPage = () => {
   } = useCart();
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('ru-RU', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'RUB'
+      currency: 'USD'
     }).format(price);
   };
 
@@ -32,17 +32,17 @@ const CartPage = () => {
           <div className="text-center">
             <ShoppingBagIcon className="mx-auto h-24 w-24 text-gray-300" />
             <h1 className="mt-6 text-3xl font-bold text-gray-900">
-              Корзина пуста
+              Cart is Empty
             </h1>
             <p className="mt-4 text-lg text-gray-600">
-              Добавьте товары или услуги в корзину, чтобы продолжить покупки
+              Add products or services to your cart to continue shopping
             </p>
             <div className="mt-8">
               <Link
                 to="/marketplace"
                 className="btn-primary text-lg px-8 py-4"
               >
-                Перейти к покупкам
+                Go Shopping
               </Link>
             </div>
           </div>
@@ -57,10 +57,10 @@ const CartPage = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Корзина ({getTotalItems()} товаров)
+            Cart ({getTotalItems()} items)
           </h1>
           <p className="mt-2 text-gray-600">
-            Проверьте выбранные товары и услуги перед оформлением заказа
+            Check the selected products and services before placing your order
           </p>
         </div>
 
@@ -71,13 +71,13 @@ const CartPage = () => {
               <div className="p-6 border-b border-gray-200">
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-semibold text-gray-900">
-                    Товары в корзине
+                    Items in Cart
                   </h2>
                   <button
                     onClick={clearCart}
                     className="text-red-500 hover:text-red-700 text-sm font-medium"
                   >
-                    Очистить корзину
+                    Clear Cart
                   </button>
                 </div>
               </div>
@@ -102,7 +102,7 @@ const CartPage = () => {
                           {item.company || item.provider}
                         </p>
                         <p className="text-sm text-gray-500 capitalize">
-                          {item.type === 'service' ? 'Услуга' : 'Товар'}
+                          {item.type === 'service' ? 'Service' : 'Product'}
                         </p>
                         {item.description && (
                           <p className="mt-1 text-sm text-gray-600 line-clamp-2">
@@ -140,7 +140,7 @@ const CartPage = () => {
                         </div>
                         {item.quantity > 1 && (
                           <div className="text-sm text-gray-500">
-                            {formatPrice(item.price)} за шт.
+                            {formatPrice(item.price)} per item
                           </div>
                         )}
                       </div>
@@ -149,7 +149,7 @@ const CartPage = () => {
                       <button
                         onClick={() => removeItem(item.id, item.type)}
                         className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full"
-                        title="Удалить из корзины"
+                        title="Remove from cart"
                       >
                         <TrashIcon className="h-5 w-5" />
                       </button>
@@ -164,23 +164,23 @@ const CartPage = () => {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Итого по заказу
+                Order Total
               </h2>
 
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Товары ({getTotalItems()} шт.)</span>
+                  <span className="text-gray-600">Items ({getTotalItems()} items)</span>
                   <span className="font-medium">{formatPrice(getTotalPrice())}</span>
                 </div>
 
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Доставка</span>
-                  <span className="font-medium">Рассчитается при оформлении</span>
+                  <span className="text-gray-600">Shipping</span>
+                  <span className="font-medium">Will be calculated at checkout</span>
                 </div>
 
                 <div className="border-t border-gray-200 pt-3">
                   <div className="flex justify-between">
-                    <span className="text-lg font-semibold text-gray-900">Итого</span>
+                    <span className="text-lg font-semibold text-gray-900">Total</span>
                     <span className="text-lg font-semibold text-gray-900">
                       {formatPrice(getTotalPrice())}
                     </span>
@@ -193,30 +193,30 @@ const CartPage = () => {
                   to="/checkout"
                   className="w-full btn-primary text-center text-lg py-3"
                 >
-                  Перейти к оформлению
+                  Proceed to Checkout
                 </Link>
                 
                 <Link
                   to="/marketplace"
                   className="w-full btn-secondary text-center"
                 >
-                  Продолжить покупки
+                  Continue Shopping
                 </Link>
               </div>
 
               {/* Promo Code */}
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <h3 className="text-sm font-medium text-gray-900 mb-3">
-                  Промокод
+                  Promo Code
                 </h3>
                 <div className="flex space-x-2">
                   <input
                     type="text"
-                    placeholder="Введите промокод"
+                    placeholder="Enter promo code"
                     className="flex-1 input-field text-sm"
                   />
                   <button className="btn-secondary text-sm px-4 py-2">
-                    Применить
+                    Apply
                   </button>
                 </div>
               </div>
@@ -227,10 +227,10 @@ const CartPage = () => {
                   <svg className="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                   </svg>
-                  <span>Безопасная оплата</span>
+                  <span>Secure Payment</span>
                 </div>
                 <p className="mt-1 text-xs text-gray-500">
-                  Ваши данные защищены SSL-шифрованием
+                  Your data is protected by SSL encryption
                 </p>
               </div>
             </div>
@@ -240,7 +240,7 @@ const CartPage = () => {
         {/* Recently Viewed */}
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Возможно, вас заинтересует
+            Maybe you'll be interested in
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((item) => (
@@ -250,17 +250,17 @@ const CartPage = () => {
                 </div>
                 <div className="p-4">
                   <h3 className="font-semibold text-gray-900 mb-2">
-                    Рекомендуемый товар {item}
+                    Recommended Product {item}
                   </h3>
                   <p className="text-sm text-gray-600 mb-3">
-                    Описание товара или услуги
+                    Product or service description
                   </p>
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-bold text-primary-500">
                       {formatPrice(1500 + item * 100)}
                     </span>
                     <button className="btn-primary text-sm px-4 py-2">
-                      Добавить
+                      Add to Cart
                     </button>
                   </div>
                 </div>

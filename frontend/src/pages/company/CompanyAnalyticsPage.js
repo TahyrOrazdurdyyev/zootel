@@ -33,9 +33,9 @@ const CompanyAnalyticsPage = () => {
 
   // Format currency
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('ru-RU', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'RUB'
+      currency: 'USD'
     }).format(amount || 0);
   };
 
@@ -92,22 +92,22 @@ const CompanyAnalyticsPage = () => {
   }, [companyId, dateRange]);
 
   const views = [
-    { id: 'dashboard', name: 'Обзор', icon: ChartBarIcon },
-    { id: 'revenue', name: 'Доходы', icon: CurrencyDollarIcon },
-    { id: 'bookings', name: 'Бронирования', icon: CalendarDaysIcon },
-    { id: 'customers', name: 'Клиенты', icon: UsersIcon },
-    { id: 'performance', name: 'Эффективность', icon: TrendingUpIcon },
+    { id: 'dashboard', name: 'Overview', icon: ChartBarIcon },
+    { id: 'revenue', name: 'Revenue', icon: CurrencyDollarIcon },
+    { id: 'bookings', name: 'Bookings', icon: CalendarDaysIcon },
+    { id: 'customers', name: 'Customers', icon: UsersIcon },
+    { id: 'performance', name: 'Performance', icon: TrendingUpIcon },
   ];
 
   const formatNumber = (num) => {
-    return new Intl.NumberFormat('ru-RU').format(num || 0);
+    return new Intl.NumberFormat('en-US').format(num || 0);
   };
 
   const renderContent = () => {
     if (!companyId) {
       return (
         <div className="text-center py-12">
-          <p className="text-gray-500">Компания не найдена</p>
+          <p className="text-gray-500">Company not found</p>
         </div>
       );
     }
@@ -121,25 +121,25 @@ const CompanyAnalyticsPage = () => {
             {/* Quick Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <QuickMetricCard
-                title="Сегодняшний доход"
+                title="Today's Revenue"
                 value={formatCurrency(metrics?.todayRevenue)}
                 icon={CurrencyDollarIcon}
                 color="green"
               />
               <QuickMetricCard
-                title="Новые бронирования"
+                title="New Bookings"
                 value={formatNumber(metrics?.newBookings)}
                 icon={CalendarDaysIcon}
                 color="blue"
               />
               <QuickMetricCard
-                title="Новые клиенты"
+                title="New Customers"
                 value={formatNumber(metrics?.newCustomers)}
                 icon={UsersIcon}
                 color="purple"
               />
               <QuickMetricCard
-                title="Рейтинг"
+                title="Rating"
                 value={`${metrics?.averageRating || 0}/5`}
                 icon={StarIcon}
                 color="yellow"
@@ -177,9 +177,9 @@ const CompanyAnalyticsPage = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Аналитика компании</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Company Analytics</h1>
             <p className="mt-2 text-gray-600">
-              Отслеживайте производительность вашего бизнеса
+              Track your business performance
             </p>
           </div>
           
@@ -189,10 +189,10 @@ const CompanyAnalyticsPage = () => {
               onChange={(e) => setDateRange(e.target.value)}
               className="input-field"
             >
-              <option value="7d">7 дней</option>
-              <option value="30d">30 дней</option>
-              <option value="90d">90 дней</option>
-              <option value="1y">1 год</option>
+              <option value="7d">7 days</option>
+              <option value="30d">30 days</option>
+              <option value="90d">90 days</option>
+              <option value="1y">1 year</option>
             </select>
           </div>
         </div>
@@ -258,9 +258,9 @@ const RecentBookingsWidget = ({ companyId }) => {
   useEffect(() => {
     // Mock data - replace with API call
     setBookings([
-      { id: 1, customerName: 'Анна Иванова', service: 'Груминг', time: '14:00', status: 'confirmed' },
-      { id: 2, customerName: 'Петр Сидоров', service: 'Стрижка', time: '15:30', status: 'pending' },
-      { id: 3, customerName: 'Мария Козлова', service: 'Мытье', time: '16:00', status: 'completed' },
+      { id: 1, customerName: 'Anna Ivanova', service: 'Grooming', time: '14:00', status: 'confirmed' },
+      { id: 2, customerName: 'Peter Sidorov', service: 'Haircut', time: '15:30', status: 'pending' },
+      { id: 3, customerName: 'Maria Kozlova', service: 'Bath', time: '16:00', status: 'completed' },
     ]);
   }, [companyId]);
 
@@ -272,9 +272,9 @@ const RecentBookingsWidget = ({ companyId }) => {
     };
     
     const labels = {
-      confirmed: 'Подтверждено',
-      pending: 'Ожидает',
-      completed: 'Завершено',
+      confirmed: 'Confirmed',
+      pending: 'Pending',
+      completed: 'Completed',
     };
 
     return (
@@ -286,7 +286,7 @@ const RecentBookingsWidget = ({ companyId }) => {
 
   return (
     <div className="card">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Последние бронирования</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Bookings</h3>
       <div className="space-y-3">
         {bookings.map((booking) => (
           <div key={booking.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -300,7 +300,7 @@ const RecentBookingsWidget = ({ companyId }) => {
       </div>
       <div className="mt-4">
         <button className="text-sm text-orange-600 hover:text-orange-500">
-          Посмотреть все бронирования →
+          View all bookings →
         </button>
       </div>
     </div>
@@ -314,26 +314,26 @@ const TopServicesWidget = ({ companyId }) => {
   useEffect(() => {
     // Mock data - replace with API call
     setServices([
-      { name: 'Груминг', bookings: 45, revenue: 67500 },
-      { name: 'Стрижка', bookings: 32, revenue: 48000 },
-      { name: 'Мытье', bookings: 28, revenue: 21000 },
-      { name: 'Маникюр', bookings: 15, revenue: 22500 },
+      { name: 'Grooming', bookings: 45, revenue: 2250 },
+      { name: 'Haircut', bookings: 32, revenue: 1600 },
+      { name: 'Bath', bookings: 28, revenue: 700 },
+      { name: 'Nail Trim', bookings: 15, revenue: 750 },
     ]);
   }, [companyId]);
 
   return (
     <div className="card">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Популярные услуги</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Popular Services</h3>
       <div className="space-y-3">
         {services.map((service, index) => (
           <div key={index} className="flex items-center justify-between">
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-900">{service.name}</p>
-              <p className="text-sm text-gray-600">{service.bookings} бронирований</p>
+              <p className="text-sm text-gray-600">{service.bookings} bookings</p>
             </div>
             <div className="text-right">
               <p className="text-sm font-medium text-gray-900">
-                {new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(service.revenue)}
+                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(service.revenue)}
               </p>
             </div>
           </div>
@@ -392,20 +392,20 @@ const RevenueAnalyticsView = ({ companyId, dateRange }) => {
   return (
     <div className="space-y-6">
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Анализ доходов за {dateRange}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Analysis for {dateRange}</h3>
         
         {/* Revenue Summary */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Общий доход</h4>
+            <h4 className="text-sm font-medium text-gray-600">Total Revenue</h4>
             <p className="text-2xl font-bold text-green-600">{formatCurrency(revenueData?.revenue?.total_revenue || 0)}</p>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Средний чек</h4>
+            <h4 className="text-sm font-medium text-gray-600">Average Check</h4>
             <p className="text-2xl font-bold text-blue-600">{formatCurrency(revenueData?.averageCheck?.overall_avg_check || 0)}</p>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Транзакций</h4>
+            <h4 className="text-sm font-medium text-gray-600">Transactions</h4>
             <p className="text-2xl font-bold text-purple-600">{revenueData?.revenue?.total_transactions || 0}</p>
           </div>
         </div>
@@ -413,13 +413,13 @@ const RevenueAnalyticsView = ({ companyId, dateRange }) => {
         {/* Average Check Trends Chart */}
         {revenueData?.averageCheck?.daily_trends && (
           <div className="mt-6">
-            <h4 className="text-md font-semibold text-gray-900 mb-4">Тренд среднего чека</h4>
+            <h4 className="text-md font-semibold text-gray-900 mb-4">Average Check Trend</h4>
             <div className="h-64">
               <Line
                 data={{
                   labels: revenueData.averageCheck.daily_trends.map(item => item.date),
                   datasets: [{
-                    label: 'Средний чек',
+                    label: 'Average Check',
                     data: revenueData.averageCheck.daily_trends.map(item => item.combined_avg_check),
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(255, 99, 132, 0.1)',

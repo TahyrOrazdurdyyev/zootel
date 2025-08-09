@@ -40,15 +40,15 @@ const CheckoutPage = () => {
   const [errors, setErrors] = useState({});
 
   const steps = [
-    { id: 1, name: 'Доставка', icon: TruckIcon },
-    { id: 2, name: 'Оплата', icon: CreditCardIcon },
-    { id: 3, name: 'Подтверждение', icon: DocumentCheckIcon }
+    { id: 1, name: 'Shipping', icon: TruckIcon },
+    { id: 2, name: 'Payment', icon: CreditCardIcon },
+    { id: 3, name: 'Confirmation', icon: DocumentCheckIcon }
   ];
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('ru-RU', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'RUB'
+      currency: 'USD'
     }).format(price);
   };
 

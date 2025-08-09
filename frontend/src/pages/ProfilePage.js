@@ -20,23 +20,23 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   
   const [profileData, setProfileData] = useState({
-    firstName: 'Анна',
-    lastName: 'Петрова',
+    firstName: 'Anna',
+    lastName: 'Johnson',
     gender: 'female',
     dateOfBirth: '1990-05-15',
-    email: 'anna.petrova@example.com',
-    phone: '+79161234567',
-    address: 'ул. Пушкина, д. 10, кв. 5',
-    country: 'Russia',
-    state: 'Moscow',
-    city: 'Moscow',
-    timezone: 'Europe/Moscow',
-    emergencyName: 'Петров Сергей',
-    emergencyRelation: 'муж',
-    emergencyPhone: '+79167654321',
-    vetName: 'Ветклиника "Доктор Айболит"',
-    vetClinic: 'Центр ветеринарной медицины',
-    vetPhone: '+74951234567',
+    email: 'anna.johnson@example.com',
+    phone: '+12345678901',
+    address: '123 Main St, Apt 5',
+    country: 'United States',
+    state: 'California',
+    city: 'Los Angeles',
+    timezone: 'America/Los_Angeles',
+    emergencyName: 'John Johnson',
+    emergencyRelation: 'husband',
+    emergencyPhone: '+12345678902',
+    vetName: 'Happy Pets Veterinary Clinic',
+    vetClinic: 'Pet Care Medical Center',
+    vetPhone: '+12345551234',
     notificationMethods: ['email', 'push'],
     marketingOptIn: true,
     avatarUrl: null // Added avatarUrl to state
@@ -45,9 +45,9 @@ const ProfilePage = () => {
   const [pets, setPets] = useState([
     {
       id: 1,
-      name: 'Мурзик',
+      name: 'Mursik',
       species: 'cat',
-      breed: 'Британская короткошерстная',
+      breed: 'British Shorthair',
       gender: 'male',
       dateOfBirth: '2020-03-10',
       weight: 4.2,
@@ -55,23 +55,23 @@ const ProfilePage = () => {
       sterilized: true,
       photoUrl: null,
       vaccinations: [
-        { vaccine: 'Комплексная вакцина', date: '2023-03-15', expiry: '2024-03-15' },
-        { vaccine: 'Бешенство', date: '2023-03-15', expiry: '2024-03-15' }
+        { vaccine: 'Complex vaccine', date: '2023-03-15', expiry: '2024-03-15' },
+        { vaccine: 'Rabies', date: '2023-03-15', expiry: '2024-03-15' }
       ],
-      allergies: ['курица'],
-      medications: 'Витамины для шерсти - 1 таблетка в день',
-      specialNeeds: 'Диетическое питание',
-      vetContact: 'Доктор Иванов, +74951234567',
-      notes: 'Очень спокойный и ласковый кот'
+      allergies: ['chicken'],
+      medications: 'Vitamins for coat - 1 tablet per day',
+      specialNeeds: 'Dietary food',
+      vetContact: 'Dr. Ivanov, +74951234567',
+      notes: 'Very calm and affectionate cat'
     }
   ]);
 
   const tabs = [
-    { id: 'personal', name: 'Личные данные', icon: UserIcon },
-    { id: 'contact', name: 'Контакты', icon: UserIcon },
-    { id: 'emergency', name: 'Экстренные контакты', icon: UserIcon },
-    { id: 'preferences', name: 'Настройки', icon: UserIcon },
-    { id: 'pets', name: 'Питомцы', icon: UserIcon }
+    { id: 'personal', name: 'Personal Data', icon: UserIcon },
+    { id: 'contact', name: 'Contacts', icon: UserIcon },
+    { id: 'emergency', name: 'Emergency Contacts', icon: UserIcon },
+    { id: 'preferences', name: 'Preferences', icon: UserIcon },
+    { id: 'pets', name: 'Pets', icon: UserIcon }
   ];
 
   const handleInputChange = (field, value) => {
@@ -109,10 +109,10 @@ const ProfilePage = () => {
 
       const result = await response.json();
       handleInputChange('avatarUrl', result.file.url);
-      alert('Фото профиля загружено успешно!');
+      alert('Profile photo uploaded successfully!');
     } catch (error) {
       console.error('Error uploading avatar:', error);
-      alert('Ошибка при загрузке фото. Попробуйте снова.');
+      alert('Error uploading photo. Please try again.');
     }
   };
 
@@ -183,10 +183,10 @@ const ProfilePage = () => {
 
       const result = await response.json();
       updatePet(petId, { photoUrl: result.file.url });
-      alert('Фото питомца загружено успешно!');
+      alert('Pet photo uploaded successfully!');
     } catch (error) {
       console.error('Error uploading pet photo:', error);
-      alert('Ошибка при загрузке фото питомца. Попробуйте снова.');
+      alert('Error uploading pet photo. Please try again.');
     }
   };
 
@@ -195,7 +195,7 @@ const ProfilePage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Имя
+            First Name
           </label>
           <input
             type="text"
@@ -208,7 +208,7 @@ const ProfilePage = () => {
         
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Фамилия
+            Last Name
           </label>
           <input
             type="text"
@@ -223,7 +223,7 @@ const ProfilePage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Пол
+            Gender
           </label>
           <select
             value={profileData.gender}
@@ -231,16 +231,16 @@ const ProfilePage = () => {
             disabled={!isEditing}
             className="input-field"
           >
-            <option value="">Выберите пол</option>
-            <option value="male">Мужской</option>
-            <option value="female">Женский</option>
-            <option value="other">Другой</option>
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
           </select>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Дата рождения (возраст: {calculateAge(profileData.dateOfBirth)} лет)
+            Date of Birth (Age: {calculateAge(profileData.dateOfBirth)} years)
           </label>
           <input
             type="date"
@@ -254,7 +254,7 @@ const ProfilePage = () => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Фото профиля
+          Profile Photo
         </label>
         {isEditing ? (
           <div className="space-y-4">
@@ -282,10 +282,10 @@ const ProfilePage = () => {
             >
               <div>
                 <p className="text-sm font-medium text-gray-700">
-                  Загрузите фото профиля
+                  Upload profile photo
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  JPG, PNG или WebP до 5MB
+                  JPG, PNG or WebP up to 5MB
                 </p>
               </div>
             </FileUpload>
@@ -326,10 +326,10 @@ const ProfilePage = () => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Телефон
+          Phone
         </label>
         <PhoneInput
-          country={'ru'}
+          country={'us'}
           value={profileData.phone}
           onChange={(phone) => handleInputChange('phone', phone)}
           disabled={!isEditing}
@@ -340,7 +340,7 @@ const ProfilePage = () => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Адрес
+          Address
         </label>
         <textarea
           value={profileData.address}
@@ -354,7 +354,7 @@ const ProfilePage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Страна
+            Country
           </label>
           <select
             value={profileData.country}
@@ -362,16 +362,16 @@ const ProfilePage = () => {
             disabled={!isEditing}
             className="input-field"
           >
-            <option value="Russia">Россия</option>
-            <option value="Ukraine">Украина</option>
-            <option value="Belarus">Беларусь</option>
-            <option value="Kazakhstan">Казахстан</option>
+            <option value="United States">United States</option>
+            <option value="Ukraine">Ukraine</option>
+            <option value="Belarus">Belarus</option>
+            <option value="Kazakhstan">Kazakhstan</option>
           </select>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Регион
+            Region
           </label>
           <input
             type="text"
@@ -384,7 +384,7 @@ const ProfilePage = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Город
+            City
           </label>
           <input
             type="text"
@@ -398,7 +398,7 @@ const ProfilePage = () => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Часовой пояс
+          Timezone
         </label>
         <select
           value={profileData.timezone}
@@ -406,10 +406,10 @@ const ProfilePage = () => {
           disabled={!isEditing}
           className="input-field"
         >
-          <option value="Europe/Moscow">Москва (GMT+3)</option>
-          <option value="Europe/Kiev">Киев (GMT+2)</option>
-          <option value="Asia/Yekaterinburg">Екатеринбург (GMT+5)</option>
-          <option value="Asia/Novosibirsk">Новосибирск (GMT+7)</option>
+          <option value="America/Los_Angeles">Los Angeles (GMT-7)</option>
+          <option value="Europe/Kiev">Kiev (GMT+2)</option>
+          <option value="Asia/Yekaterinburg">Yekaterinburg (GMT+5)</option>
+          <option value="Asia/Novosibirsk">Novosibirsk (GMT+7)</option>
         </select>
       </div>
     </div>
@@ -418,16 +418,16 @@ const ProfilePage = () => {
   const renderEmergencyTab = () => (
     <div className="space-y-6">
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <h3 className="text-lg font-medium text-yellow-800 mb-2">Экстренный контакт</h3>
+        <h3 className="text-lg font-medium text-yellow-800 mb-2">Emergency Contact</h3>
         <p className="text-sm text-yellow-700">
-          Укажите контакт человека, к которому можно обратиться в экстренной ситуации
+          Specify a contact person to whom you can turn in an emergency situation
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Имя и отношение
+            Name and Relation
           </label>
           <input
             type="text"
@@ -435,16 +435,16 @@ const ProfilePage = () => {
             onChange={(e) => handleInputChange('emergencyName', e.target.value)}
             disabled={!isEditing}
             className="input-field"
-            placeholder="Иван Петров (брат)"
+            placeholder="John Johnson (husband)"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Телефон экстренного контакта
+            Emergency Contact Phone
           </label>
           <PhoneInput
-            country={'ru'}
+            country={'us'}
             value={profileData.emergencyPhone}
             onChange={(phone) => handleInputChange('emergencyPhone', phone)}
             disabled={!isEditing}
@@ -455,16 +455,16 @@ const ProfilePage = () => {
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-lg font-medium text-blue-800 mb-2">Ветеринарный контакт</h3>
+        <h3 className="text-lg font-medium text-blue-800 mb-2">Veterinary Contact</h3>
         <p className="text-sm text-blue-700">
-          Контакты вашего основного ветеринара или клиники
+          Contact details of your main veterinarian or clinic
         </p>
       </div>
 
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Имя ветеринара
+            Veterinarian Name
           </label>
           <input
             type="text"
@@ -477,7 +477,7 @@ const ProfilePage = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Название клиники
+            Clinic Name
           </label>
           <input
             type="text"
@@ -490,10 +490,10 @@ const ProfilePage = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Телефон ветклиники
+            Veterinary Clinic Phone
           </label>
           <PhoneInput
-            country={'ru'}
+            country={'us'}
             value={profileData.vetPhone}
             onChange={(phone) => handleInputChange('vetPhone', phone)}
             disabled={!isEditing}
@@ -508,12 +508,12 @@ const ProfilePage = () => {
   const renderPreferencesTab = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Уведомления</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Notifications</h3>
         <div className="space-y-3">
           {[
-            { id: 'email', label: 'Email уведомления' },
-            { id: 'push', label: 'Push уведомления' },
-            { id: 'sms', label: 'SMS уведомления' }
+            { id: 'email', label: 'Email notifications' },
+            { id: 'push', label: 'Push notifications' },
+            { id: 'sms', label: 'SMS notifications' }
           ].map((method) => (
             <label key={method.id} className="flex items-center">
               <input
@@ -537,7 +537,7 @@ const ProfilePage = () => {
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Маркетинг</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Marketing</h3>
         <label className="flex items-center">
           <input
             type="checkbox"
@@ -547,7 +547,7 @@ const ProfilePage = () => {
             className="h-4 w-4 text-primary-500 focus:ring-primary-500 border-gray-300 rounded"
           />
           <span className="ml-2 text-sm text-gray-700">
-            Получать маркетинговые материалы и специальные предложения
+            Receive marketing materials and special offers
           </span>
         </label>
       </div>
@@ -557,13 +557,13 @@ const ProfilePage = () => {
   const renderPetsTab = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium text-gray-900">Мои питомцы</h3>
+        <h3 className="text-lg font-medium text-gray-900">My Pets</h3>
         <button
           onClick={addPet}
           className="btn-primary flex items-center space-x-2"
         >
           <PlusIcon className="w-4 h-4" />
-          <span>Добавить питомца</span>
+          <span>Add Pet</span>
         </button>
       </div>
 
@@ -572,7 +572,7 @@ const ProfilePage = () => {
           <div key={pet.id} className="card">
             <div className="flex justify-between items-start mb-4">
               <h4 className="text-lg font-medium text-gray-900">
-                {pet.name || 'Новый питомец'}
+                {pet.name || 'New Pet'}
               </h4>
               <button
                 onClick={() => deletePet(pet.id)}
@@ -585,52 +585,52 @@ const ProfilePage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Кличка
+                  Name
                 </label>
                 <input
                   type="text"
                   value={pet.name}
                   onChange={(e) => updatePet(pet.id, { name: e.target.value })}
                   className="input-field"
-                  placeholder="Кличка питомца"
+                  placeholder="Pet name"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Вид
+                  Species
                 </label>
                 <select
                   value={pet.species}
                   onChange={(e) => updatePet(pet.id, { species: e.target.value })}
                   className="input-field"
                 >
-                  <option value="">Выберите вид</option>
-                  <option value="dog">Собака</option>
-                  <option value="cat">Кошка</option>
-                  <option value="bird">Птица</option>
-                  <option value="rabbit">Кролик</option>
-                  <option value="fish">Рыба</option>
-                  <option value="other">Другое</option>
+                  <option value="">Select species</option>
+                  <option value="dog">Dog</option>
+                  <option value="cat">Cat</option>
+                  <option value="bird">Bird</option>
+                  <option value="rabbit">Rabbit</option>
+                  <option value="fish">Fish</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Порода
+                  Breed
                 </label>
                 <input
                   type="text"
                   value={pet.breed}
                   onChange={(e) => updatePet(pet.id, { breed: e.target.value })}
                   className="input-field"
-                  placeholder="Порода"
+                  placeholder="Breed"
                 />
               </div>
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Фото питомца
+                  Pet Photo
                 </label>
                 <div className="flex items-start space-x-4">
                   <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
@@ -656,10 +656,10 @@ const ProfilePage = () => {
                     >
                       <div>
                         <p className="text-sm font-medium text-gray-700">
-                          Загрузите фото питомца
+                          Upload pet photo
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
-                          JPG, PNG или WebP до 5MB
+                          JPG, PNG or WebP up to 5MB
                         </p>
                       </div>
                     </FileUpload>
@@ -669,22 +669,22 @@ const ProfilePage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Пол
+                  Gender
                 </label>
                 <select
                   value={pet.gender}
                   onChange={(e) => updatePet(pet.id, { gender: e.target.value })}
                   className="input-field"
                 >
-                  <option value="">Выберите пол</option>
-                  <option value="male">Мужской</option>
-                  <option value="female">Женский</option>
+                  <option value="">Select gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Дата рождения (возраст: {pet.dateOfBirth ? calculateAge(pet.dateOfBirth) : 0} лет)
+                  Date of Birth (Age: {pet.dateOfBirth ? calculateAge(pet.dateOfBirth) : 0} years)
                 </label>
                 <input
                   type="date"
@@ -696,7 +696,7 @@ const ProfilePage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Вес (кг)
+                  Weight (kg)
                 </label>
                 <input
                   type="number"
@@ -710,7 +710,7 @@ const ProfilePage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Номер микрочипа
+                  Microchip Number
                 </label>
                 <input
                   type="text"
@@ -730,7 +730,7 @@ const ProfilePage = () => {
                     className="h-4 w-4 text-primary-500 focus:ring-primary-500 border-gray-300 rounded"
                   />
                   <span className="ml-2 text-sm text-gray-700">
-                    Стерилизован/кастрирован
+                    Sterilized/Neutered
                   </span>
                 </label>
               </div>
@@ -739,53 +739,53 @@ const ProfilePage = () => {
             <div className="mt-4 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Аллергии
+                  Allergies
                 </label>
                 <input
                   type="text"
                   value={pet.allergies.join(', ')}
                   onChange={(e) => updatePet(pet.id, { allergies: e.target.value.split(', ').filter(a => a.trim()) })}
                   className="input-field"
-                  placeholder="курица, говядина"
+                  placeholder="chicken, beef"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Лекарства и дозировки
+                  Medications and Dosages
                 </label>
                 <textarea
                   value={pet.medications}
                   onChange={(e) => updatePet(pet.id, { medications: e.target.value })}
                   className="input-field"
                   rows={2}
-                  placeholder="Витамины для шерсти - 1 таблетка в день"
+                  placeholder="Vitamins for coat - 1 tablet per day"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Особые потребности
+                  Special Needs
                 </label>
                 <textarea
                   value={pet.specialNeeds}
                   onChange={(e) => updatePet(pet.id, { specialNeeds: e.target.value })}
                   className="input-field"
                   rows={2}
-                  placeholder="Диетическое питание, особенности поведения"
+                  placeholder="Dietary food, specific behavior"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Заметки
+                  Notes
                 </label>
                 <textarea
                   value={pet.notes}
                   onChange={(e) => updatePet(pet.id, { notes: e.target.value })}
                   className="input-field"
                   rows={3}
-                  placeholder="Дополнительная информация о питомце"
+                  placeholder="Additional information about the pet"
                 />
               </div>
             </div>
@@ -803,10 +803,10 @@ const ProfilePage = () => {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Профиль пользователя
+                User Profile
               </h1>
               <p className="text-gray-600">
-                Управляйте своей личной информацией и питомцами
+                Manage your personal information and pets
               </p>
             </div>
             <button
@@ -814,7 +814,7 @@ const ProfilePage = () => {
               className={`btn-${isEditing ? 'secondary' : 'primary'} flex items-center space-x-2`}
             >
               <PencilIcon className="w-4 h-4" />
-              <span>{isEditing ? 'Отменить' : 'Редактировать'}</span>
+              <span>{isEditing ? 'Cancel' : 'Edit'}</span>
             </button>
           </div>
         </div>
@@ -854,7 +854,7 @@ const ProfilePage = () => {
                   onClick={() => setIsEditing(false)}
                   className="btn-secondary"
                 >
-                  Отменить
+                  Cancel
                 </button>
                 <button
                   onClick={() => {
@@ -863,7 +863,7 @@ const ProfilePage = () => {
                   }}
                   className="btn-primary"
                 >
-                  Сохранить изменения
+                  Save Changes
                 </button>
               </div>
             </div>
