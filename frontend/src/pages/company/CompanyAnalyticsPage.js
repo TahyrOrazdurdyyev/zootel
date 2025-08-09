@@ -653,7 +653,7 @@ const CustomerAnalyticsView = ({ companyId, dateRange }) => {
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-gray-600">{customerData?.segmentation?.low_value_customers || 0}</div>
-            <div className="text-sm text-gray-600">Низкая ценность (<5k)</div>
+            <div className="text-sm text-gray-600">Низкая ценность ({'<'}5k)</div>
           </div>
         </div>
       </div>
