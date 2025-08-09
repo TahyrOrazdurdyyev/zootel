@@ -153,6 +153,12 @@ const Header = () => {
                   Dashboard
                 </Link>
                 <Link 
+                  to="/company/services" 
+                  className="text-gray-700 hover:text-orange-500 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Services
+                </Link>
+                <Link 
                   to="/company/chat" 
                   className="text-gray-700 hover:text-orange-500 px-3 py-2 rounded-md text-sm font-medium"
                 >
