@@ -7,40 +7,147 @@ const ChatPage = () => {
   const [activeChat, setActiveChat] = useState(null);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // TODO: Fetch user chats
-    setChats([
-      { id: '1', companyName: 'Happy Pets Clinic', lastMessage: 'Thank you for booking!', timestamp: '2 mins ago' },
-      { id: '2', companyName: 'Pet Grooming Pro', lastMessage: 'Your appointment is confirmed', timestamp: '1 hour ago' }
-    ]);
-  }, []);
+    loadUserChats();
+  }, [user]);
 
   useEffect(() => {
     if (activeChat) {
-      // TODO: Fetch messages for active chat
+      loadChatMessages(activeChat.id);
+      // Poll for new messages every 5 seconds
+      const interval = setInterval(() => {
+        loadChatMessages(activeChat.id);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [activeChat]);
+
+  const loadUserChats = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch('/api/chat/user', {
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setChats(data.chats || []);
+      } else {
+        console.error('Failed to load chats');
+        // Fallback to demo data
+        setChats([
+          { id: '1', companyName: 'Happy Pets Clinic', lastMessage: 'Thank you for booking!', timestamp: '2 mins ago' },
+          { id: '2', companyName: 'Pet Grooming Pro', lastMessage: 'Your appointment is confirmed', timestamp: '1 hour ago' }
+        ]);
+      }
+    } catch (error) {
+      console.error('Error loading chats:', error);
+      // Fallback to demo data
+      setChats([
+        { id: '1', companyName: 'Happy Pets Clinic', lastMessage: 'Thank you for booking!', timestamp: '2 mins ago' },
+        { id: '2', companyName: 'Pet Grooming Pro', lastMessage: 'Your appointment is confirmed', timestamp: '1 hour ago' }
+      ]);
+    }
+  };
+
+  const loadChatMessages = async (chatId) => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch(`/api/chat/${chatId}/messages`, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setMessages(data.messages || []);
+        
+        // Mark messages as read
+        await fetch(`/api/chat/${chatId}/read`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${user.token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+      } else {
+        console.error('Failed to load messages');
+        // Fallback to demo data
+        setMessages([
+          { id: '1', sender: 'company', content: 'Hello! How can we help you today?', timestamp: '10:00 AM' },
+          { id: '2', sender: 'user', content: 'I have a question about my booking', timestamp: '10:05 AM' },
+          { id: '3', sender: 'company', content: 'Of course! What would you like to know?', timestamp: '10:06 AM' }
+        ]);
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error);
+      // Fallback to demo data
       setMessages([
         { id: '1', sender: 'company', content: 'Hello! How can we help you today?', timestamp: '10:00 AM' },
         { id: '2', sender: 'user', content: 'I have a question about my booking', timestamp: '10:05 AM' },
         { id: '3', sender: 'company', content: 'Of course! What would you like to know?', timestamp: '10:06 AM' }
       ]);
     }
-  }, [activeChat]);
+  };
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!message.trim() || !activeChat || !user) return;
 
-    // TODO: Send message via API
+    const messageText = message.trim();
+    setMessage('');
+    setIsLoading(true);
+
+    // Add user message immediately for better UX
     const newMessage = {
       id: Date.now().toString(),
       sender: 'user',
-      content: message,
+      content: messageText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     
-    setMessages([...messages, newMessage]);
-    setMessage('');
+    setMessages(prev => [...prev, newMessage]);
+
+    try {
+      const response = await fetch(`/api/chat/${activeChat.id}/messages`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: activeChat.id,
+          sender_type: 'user',
+          message_text: messageText
+        }),
+      });
+
+      if (response.ok) {
+        // Reload messages to get the server response
+        await loadChatMessages(activeChat.id);
+      } else {
+        console.error('Failed to send message');
+        alert('Failed to send message. Please try again.');
+        // Remove the failed message
+        setMessages(prev => prev.filter(msg => msg.id !== newMessage.id));
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message. Please try again.');
+      // Remove the failed message
+      setMessages(prev => prev.filter(msg => msg.id !== newMessage.id));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -56,19 +163,26 @@ const ChatPage = () => {
                 <h2 className="text-lg font-semibold text-gray-900">Conversations</h2>
               </div>
               <div className="overflow-y-auto h-full">
-                {chats.map((chat) => (
-                  <div
-                    key={chat.id}
-                    onClick={() => setActiveChat(chat)}
-                    className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
-                      activeChat?.id === chat.id ? 'bg-orange-50 border-orange-200' : ''
-                    }`}
-                  >
-                    <h3 className="font-semibold text-gray-900">{chat.companyName}</h3>
-                    <p className="text-sm text-gray-600 truncate">{chat.lastMessage}</p>
-                    <p className="text-xs text-gray-400 mt-1">{chat.timestamp}</p>
+                {chats.length === 0 ? (
+                  <div className="p-4 text-center text-gray-500">
+                    <p>No conversations yet</p>
+                    <p className="text-sm mt-2">Start chatting with companies from your bookings</p>
                   </div>
-                ))}
+                ) : (
+                  chats.map((chat) => (
+                    <div
+                      key={chat.id}
+                      onClick={() => setActiveChat(chat)}
+                      className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
+                        activeChat?.id === chat.id ? 'bg-orange-50 border-orange-200' : ''
+                      }`}
+                    >
+                      <h3 className="font-semibold text-gray-900">{chat.companyName || chat.company_name}</h3>
+                      <p className="text-sm text-gray-600 truncate">{chat.lastMessage || chat.last_message}</p>
+                      <p className="text-xs text-gray-400 mt-1">{chat.timestamp || 'Recently'}</p>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -78,33 +192,42 @@ const ChatPage = () => {
                 <>
                   {/* Chat Header */}
                   <div className="p-4 border-b border-gray-200 bg-white">
-                    <h3 className="text-lg font-semibold text-gray-900">{activeChat.companyName}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">{activeChat.companyName || activeChat.company_name}</h3>
                     <p className="text-sm text-gray-600">Usually responds within an hour</p>
                   </div>
 
                   {/* Messages */}
                   <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                    {messages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div
-                          className={`max-w-xs px-4 py-2 rounded-lg ${
-                            msg.sender === 'user'
-                              ? 'bg-orange-500 text-white'
-                              : 'bg-gray-200 text-gray-900'
-                          }`}
-                        >
-                          <p>{msg.content}</p>
-                          <p className={`text-xs mt-1 ${
-                            msg.sender === 'user' ? 'text-orange-100' : 'text-gray-500'
-                          }`}>
-                            {msg.timestamp}
-                          </p>
+                    {messages.length === 0 ? (
+                      <div className="flex items-center justify-center h-full text-gray-500">
+                        <div className="text-center">
+                          <p>No messages yet</p>
+                          <p className="text-sm mt-2">Start the conversation!</p>
                         </div>
                       </div>
-                    ))}
+                    ) : (
+                      messages.map((msg) => (
+                        <div
+                          key={msg.id}
+                          className={`flex ${(msg.sender === 'user' || msg.sender_type === 'user') ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div
+                            className={`max-w-xs px-4 py-2 rounded-lg ${
+                              (msg.sender === 'user' || msg.sender_type === 'user')
+                                ? 'bg-orange-500 text-white'
+                                : 'bg-gray-200 text-gray-900'
+                            }`}
+                          >
+                            <p>{msg.content || msg.message_text}</p>
+                            <p className={`text-xs mt-1 ${
+                              (msg.sender === 'user' || msg.sender_type === 'user') ? 'text-orange-100' : 'text-gray-500'
+                            }`}>
+                              {msg.timestamp || new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
 
                   {/* Message Input */}
@@ -115,13 +238,15 @@ const ChatPage = () => {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Type your message..."
-                        className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                        disabled={isLoading}
+                        className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 disabled:opacity-50"
                       />
                       <button
                         type="submit"
-                        className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+                        disabled={!message.trim() || isLoading}
+                        className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Send
+                        {isLoading ? 'Sending...' : 'Send'}
                       </button>
                     </div>
                   </form>

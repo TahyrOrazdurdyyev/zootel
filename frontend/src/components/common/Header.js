@@ -144,6 +144,29 @@ const Header = () => {
               </>
             )}
 
+            {user && user.role === 'company_owner' && (
+              <>
+                <Link 
+                  to="/company" 
+                  className="text-gray-700 hover:text-orange-500 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Dashboard
+                </Link>
+                <Link 
+                  to="/company/chat" 
+                  className="text-gray-700 hover:text-orange-500 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Customer Chat
+                </Link>
+                <Link 
+                  to="/company/analytics" 
+                  className="text-gray-700 hover:text-orange-500 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Analytics
+                </Link>
+              </>
+            )}
+
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}

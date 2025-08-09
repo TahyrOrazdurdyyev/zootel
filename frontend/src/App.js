@@ -25,6 +25,7 @@ import AnalyticsPage from './pages/admin/AnalyticsPage';
 // Company pages
 import CompanyDashboard from './pages/company/CompanyDashboard';
 import CompanyAnalyticsPage from './pages/company/CompanyAnalyticsPage';
+import EmployeeChatPage from './pages/company/EmployeeChatPage';
 
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -78,6 +79,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<CompanyDashboard />} />
                     <Route path="/analytics" element={<CompanyAnalyticsPage />} />
+                    <Route path="/chat" element={<EmployeeChatPage />} />
                   </Routes>
                 </ProtectedRoute>
               } />
