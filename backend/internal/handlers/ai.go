@@ -399,3 +399,125 @@ func (h *AIHandler) TestAIAgent(c *gin.Context) {
 		"note":    "This is a test request using demo data",
 	})
 }
+
+// ProcessMessage handles general AI message processing (legacy endpoint)
+func (h *AIHandler) ProcessMessage(c *gin.Context) {
+	var req struct {
+		Message   string                 `json:"message" binding:"required"`
+		AgentType string                 `json:"agent_type"`
+		Context   map[string]interface{} `json:"context"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user and company context
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	companyID, exists := c.Get("company_id")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company context required"})
+		return
+	}
+
+	// Convert to AIRequest format
+	aiRequest := &services.AIRequest{
+		UserID:      userID.(string),
+		CompanyID:   companyID.(string),
+		AgentKey:    req.AgentType,
+		UserMessage: req.Message,
+		Context:     req.Context,
+	}
+
+	// Default to customer support if no agent specified
+	if aiRequest.AgentKey == "" {
+		aiRequest.AgentKey = "customer_support"
+	}
+
+	response, err := h.aiService.ProcessAIRequest(aiRequest)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    response,
+	})
+}
+
+// ActivateAgent activates an AI agent for a company
+func (h *AIHandler) ActivateAgent(c *gin.Context) {
+	agentType := c.Param("type")
+	if agentType == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Agent type is required"})
+		return
+	}
+
+	// Get company context
+	companyID, exists := c.Get("company_id")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company context required"})
+		return
+	}
+
+	// Check if user has permission (company owner or admin)
+	userRole, _ := c.Get("user_role")
+	if userRole != "company_owner" && userRole != "super_admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
+		return
+	}
+
+	// For now, return success - full implementation would update company AI agent settings
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "AI agent activated",
+		"data": gin.H{
+			"company_id": companyID,
+			"agent_type": agentType,
+			"status":     "active",
+		},
+		"note": "Full activation logic to be implemented - would update company.manual_enabled_ai_agents",
+	})
+}
+
+// DeactivateAgent deactivates an AI agent for a company
+func (h *AIHandler) DeactivateAgent(c *gin.Context) {
+	agentType := c.Param("type")
+	if agentType == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Agent type is required"})
+		return
+	}
+
+	// Get company context
+	companyID, exists := c.Get("company_id")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company context required"})
+		return
+	}
+
+	// Check if user has permission (company owner or admin)
+	userRole, _ := c.Get("user_role")
+	if userRole != "company_owner" && userRole != "super_admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
+		return
+	}
+
+	// For now, return success - full implementation would update company AI agent settings
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "AI agent deactivated",
+		"data": gin.H{
+			"company_id": companyID,
+			"agent_type": agentType,
+			"status":     "inactive",
+		},
+		"note": "Full deactivation logic to be implemented - would update company.manual_enabled_ai_agents",
+	})
+}

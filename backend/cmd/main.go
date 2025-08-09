@@ -295,7 +295,10 @@ func main() {
 			ai := protected.Group("/ai")
 			{
 				ai.POST("/request", aiHandler.ProcessAIRequest)
+				ai.POST("/chat", aiHandler.ProcessMessage) // Legacy endpoint
 				ai.GET("/agents", aiHandler.GetAvailableAgents)
+				ai.POST("/agents/:type/activate", aiHandler.ActivateAgent)
+				ai.POST("/agents/:type/deactivate", aiHandler.DeactivateAgent)
 				ai.GET("/company/:companyId/agents", aiHandler.GetCompanyAIAgents)
 				ai.GET("/usage/stats", aiHandler.GetAIUsageStats)
 				ai.POST("/booking-assistant", aiHandler.BookingAssistantRequest)
