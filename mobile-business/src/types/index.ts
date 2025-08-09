@@ -189,39 +189,36 @@ export interface CalendarEvent {
 
 // Navigation Types
 export type RootStackParamList = {
-  // Auth Stack
-  Login: undefined;
-  ForgotPassword: undefined;
+  // Auth Screens
+  SplashScreen: undefined;
+  LoginScreen: undefined;
   
-  // Main Stack
-  Dashboard: undefined;
-  Bookings: undefined;
-  Calendar: undefined;
-  Chat: undefined;
-  Services: undefined;
-  Inventory: undefined;
-  Analytics: undefined;
-  Settings: undefined;
-  Employees: undefined;
+  // Main App Screens
+  DashboardScreen: undefined;
+  ServicesScreen: undefined;
+  ServiceFormScreen: { serviceId?: string };
+  BookingsScreen: undefined;
+  CalendarScreen: undefined;
+  ChatScreen: undefined;
+  InventoryScreen: undefined;
   
-  // AI Stack
-  AIAssistant: {
-    agentKey?: string;
-  };
+  // Settings Screens  
+  SettingsScreen: undefined;
+  IntegrationSettingsScreen: undefined;
+  ProfileScreen: undefined;
   
-  // Service Management
-  ServiceForm: {
-    serviceId?: string;
-    mode: 'create' | 'edit';
-  };
+  // AI Screens
+  AIAssistantScreen: { agentKey?: string };
   
-  // Booking Management
-  BookingDetail: {
-    bookingId: string;
-  };
+  // Main Tab Navigator
+  MainTabs: undefined;
   
-  // Settings
-  IntegrationSettings: undefined;
+  // Other Screens
+  NotificationsScreen: undefined;
+  AnalyticsScreen: undefined;
+  EmployeesScreen: undefined;
+  OrdersScreen: undefined;
+  CompanyProfileScreen: undefined;
 };
 
 // Helper type for navigation

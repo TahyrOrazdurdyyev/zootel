@@ -62,7 +62,7 @@ const MainTabs = () => (
             iconName = focused ? 'settings' : 'settings-outline';
             break;
           default:
-            iconName = 'circle';
+            iconName = 'ellipse-outline' as any;
         }
 
         return <Ionicons name={iconName} size={size} color={color} />;
