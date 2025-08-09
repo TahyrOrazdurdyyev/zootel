@@ -13,6 +13,7 @@ type User struct {
 	Email               string         `json:"email" db:"email"`
 	FirstName           string         `json:"first_name" db:"first_name"`
 	LastName            string         `json:"last_name" db:"last_name"`
+	Role                string         `json:"role" db:"role"`     // pet_owner, company_owner, employee, super_admin
 	Gender              string         `json:"gender" db:"gender"` // male, female, other
 	DateOfBirth         *time.Time     `json:"date_of_birth" db:"date_of_birth"`
 	Phone               string         `json:"phone" db:"phone"`
@@ -100,30 +101,33 @@ type Pet struct {
 
 // Company represents a pet care business
 type Company struct {
-	ID                    string         `json:"id" db:"id"`
-	OwnerID               string         `json:"owner_id" db:"owner_id"`
-	Name                  string         `json:"name" db:"name"`
-	Description           string         `json:"description" db:"description"`
-	Categories            pq.StringArray `json:"categories" db:"categories"`
-	Country               string         `json:"country" db:"country"`
-	State                 string         `json:"state" db:"state"`
-	City                  string         `json:"city" db:"city"`
-	Address               string         `json:"address" db:"address"`
-	Phone                 string         `json:"phone" db:"phone"`
-	Email                 string         `json:"email" db:"email"`
-	Website               string         `json:"website" db:"website"`
-	LogoURL               string         `json:"logo_url" db:"logo_url"`
-	MediaGallery          pq.StringArray `json:"media_gallery" db:"media_gallery"`
-	BusinessHours         string         `json:"business_hours" db:"business_hours"` // JSON string
-	PlanID                string         `json:"plan_id" db:"plan_id"`
-	TrialExpired          bool           `json:"trial_expired" db:"trial_expired"`
-	SpecialPartner        bool           `json:"special_partner" db:"special_partner"`
-	ManualEnabledCRM      bool           `json:"manual_enabled_crm" db:"manual_enabled_crm"`
-	ManualEnabledAIAgents bool           `json:"manual_enabled_ai_agents" db:"manual_enabled_ai_agents"`
-	IsDemo                bool           `json:"is_demo" db:"is_demo"`
-	IsActive              bool           `json:"is_active" db:"is_active"`
-	CreatedAt             time.Time      `json:"created_at" db:"created_at"`
-	UpdatedAt             time.Time      `json:"updated_at" db:"updated_at"`
+	ID                        string         `json:"id" db:"id"`
+	OwnerID                   string         `json:"owner_id" db:"owner_id"`
+	Name                      string         `json:"name" db:"name"`
+	Description               string         `json:"description" db:"description"`
+	Categories                pq.StringArray `json:"categories" db:"categories"`
+	Country                   string         `json:"country" db:"country"`
+	State                     string         `json:"state" db:"state"`
+	City                      string         `json:"city" db:"city"`
+	Address                   string         `json:"address" db:"address"`
+	Phone                     string         `json:"phone" db:"phone"`
+	Email                     string         `json:"email" db:"email"`
+	Website                   string         `json:"website" db:"website"`
+	LogoURL                   string         `json:"logo_url" db:"logo_url"`
+	MediaGallery              pq.StringArray `json:"media_gallery" db:"media_gallery"`
+	BusinessHours             string         `json:"business_hours" db:"business_hours"` // JSON string
+	PlanID                    string         `json:"plan_id" db:"plan_id"`
+	TrialExpired              bool           `json:"trial_expired" db:"trial_expired"`
+	SpecialPartner            bool           `json:"special_partner" db:"special_partner"`
+	ManualEnabledCRM          bool           `json:"manual_enabled_crm" db:"manual_enabled_crm"`
+	ManualEnabledAIAgents     bool           `json:"manual_enabled_ai_agents" db:"manual_enabled_ai_agents"`
+	IsDemo                    bool           `json:"is_demo" db:"is_demo"`
+	IsActive                  bool           `json:"is_active" db:"is_active"`
+	WebsiteIntegrationEnabled bool           `json:"website_integration_enabled" db:"website_integration_enabled"`
+	APIKey                    string         `json:"api_key,omitempty" db:"api_key"`
+	PublishToMarketplace      bool           `json:"publish_to_marketplace" db:"publish_to_marketplace"`
+	CreatedAt                 time.Time      `json:"created_at" db:"created_at"`
+	UpdatedAt                 time.Time      `json:"updated_at" db:"updated_at"`
 }
 
 // Employee represents a company employee
@@ -153,17 +157,28 @@ type ServiceCategory struct {
 
 // Service represents a company service
 type Service struct {
-	ID          string    `json:"id" db:"id"`
-	CompanyID   string    `json:"company_id" db:"company_id"`
-	CategoryID  string    `json:"category_id" db:"category_id"`
-	Name        string    `json:"name" db:"name"`
-	Description string    `json:"description" db:"description"`
-	Price       float64   `json:"price" db:"price"`
-	Duration    int       `json:"duration" db:"duration"` // minutes
-	ImageURL    string    `json:"image_url" db:"image_url"`
-	IsActive    bool      `json:"is_active" db:"is_active"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
+	ID                 string         `json:"id" db:"id"`
+	CompanyID          string         `json:"company_id" db:"company_id"`
+	CategoryID         string         `json:"category_id" db:"category_id"`
+	Name               string         `json:"name" db:"name"`
+	Description        string         `json:"description" db:"description"`
+	Price              float64        `json:"price" db:"price"`
+	Duration           int            `json:"duration" db:"duration"` // minutes
+	ImageURL           string         `json:"image_url" db:"image_url"`
+	ImageID            string         `json:"image_id" db:"image_id"`
+	PetTypes           pq.StringArray `json:"pet_types" db:"pet_types"`
+	AvailableDays      pq.StringArray `json:"available_days" db:"available_days"`
+	StartTime          string         `json:"start_time" db:"start_time"`
+	EndTime            string         `json:"end_time" db:"end_time"`
+	AssignedEmployees  pq.StringArray `json:"assigned_employees" db:"assigned_employees"`
+	MaxBookingsPerSlot int            `json:"max_bookings_per_slot" db:"max_bookings_per_slot"`
+	BufferTimeBefore   int            `json:"buffer_time_before" db:"buffer_time_before"`
+	BufferTimeAfter    int            `json:"buffer_time_after" db:"buffer_time_after"`
+	AdvanceBookingDays int            `json:"advance_booking_days" db:"advance_booking_days"`
+	CancellationPolicy string         `json:"cancellation_policy" db:"cancellation_policy"`
+	IsActive           bool           `json:"is_active" db:"is_active"`
+	CreatedAt          time.Time      `json:"created_at" db:"created_at"`
+	UpdatedAt          time.Time      `json:"updated_at" db:"updated_at"`
 }
 
 // Product represents a company product
@@ -263,4 +278,149 @@ type AIAgent struct {
 	IsActive     bool      `json:"is_active" db:"is_active"`
 	CreatedAt    time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+}
+
+// AvailableAddon represents addons available for purchase
+type AvailableAddon struct {
+	ID          int       `json:"id" db:"id"`
+	Name        string    `json:"name" db:"name"`
+	Description string    `json:"description" db:"description"`
+	Price       float64   `json:"price" db:"price"`
+	Type        string    `json:"type" db:"type"` // ai_agent, feature, storage, etc.
+	IsActive    bool      `json:"is_active" db:"is_active"`
+	CreatedAt   time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
+}
+
+// CompanyAddon represents addons assigned to companies
+type CompanyAddon struct {
+	ID         int       `json:"id" db:"id"`
+	CompanyID  string    `json:"company_id" db:"company_id"`
+	AddonType  string    `json:"addon_type" db:"addon_type"`
+	AddonKey   string    `json:"addon_key" db:"addon_key"`
+	AddonValue string    `json:"addon_value" db:"addon_value"`
+	IsActive   bool      `json:"is_active" db:"is_active"`
+	CreatedAt  time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
+}
+
+// AddonRequest represents request to add addon to company
+type AddonRequest struct {
+	CompanyID  string `json:"company_id" binding:"required"`
+	AddonType  string `json:"addon_type" binding:"required"`
+	AddonKey   string `json:"addon_key" binding:"required"`
+	AddonValue string `json:"addon_value" binding:"required"`
+}
+
+// CompanyAddonSummary represents addon summary for a company
+type CompanyAddonSummary struct {
+	CompanyID    string  `json:"company_id" db:"company_id"`
+	CompanyName  string  `json:"company_name" db:"company_name"`
+	TotalAddons  int     `json:"total_addons" db:"total_addons"`
+	ActiveAddons int     `json:"active_addons" db:"active_addons"`
+	TotalCost    float64 `json:"total_cost" db:"total_cost"`
+}
+
+// Integration models
+type IntegrationFeatureRequest struct {
+	AllowedDomains []string `json:"allowed_domains"`
+	Features       []string `json:"features"`
+}
+
+type APIKeyResponse struct {
+	APIKey    string    `json:"api_key"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type IntegrationSettings struct {
+	WebsiteIntegrationEnabled bool      `json:"website_integration_enabled"`
+	APIKey                    string    `json:"api_key,omitempty"`
+	APIKeyCreatedAt           time.Time `json:"api_key_created_at"`
+	AllowedDomains            []string  `json:"allowed_domains"`
+	PublishToMarketplace      bool      `json:"publish_to_marketplace"`
+}
+
+type IntegrationFeature struct {
+	FeatureKey   string    `json:"feature_key"`
+	FeatureValue string    `json:"feature_value"`
+	IsEnabled    bool      `json:"is_enabled"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+type MarketplaceEligibility struct {
+	CanToggle bool   `json:"can_toggle"`
+	Reason    string `json:"reason,omitempty"`
+}
+
+type SourceAnalytic struct {
+	SourceType       string    `json:"source_type"`
+	InteractionCount int       `json:"interaction_count"`
+	UniqueUsers      int       `json:"unique_users"`
+	TotalValue       float64   `json:"total_value"`
+	Date             time.Time `json:"date"`
+}
+
+type SourceSummary struct {
+	TotalInteractions int     `json:"total_interactions"`
+	UniqueVisitors    int     `json:"unique_visitors"`
+	Bookings          int     `json:"bookings"`
+	Purchases         int     `json:"purchases"`
+	TotalValue        float64 `json:"total_value"`
+}
+
+// Cart models
+type ShoppingCart struct {
+	ID        string    `json:"id" db:"id"`
+	UserID    string    `json:"user_id" db:"user_id"`
+	SessionID string    `json:"session_id" db:"session_id"`
+	Status    string    `json:"status" db:"status"`
+	ExpiresAt time.Time `json:"expires_at" db:"expires_at"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+}
+
+type CartItem struct {
+	ID                  string    `json:"id" db:"id"`
+	CartID              string    `json:"cart_id" db:"cart_id"`
+	CompanyID           string    `json:"company_id" db:"company_id"`
+	ItemType            string    `json:"item_type" db:"item_type"`
+	ItemID              string    `json:"item_id" db:"item_id"`
+	Quantity            int       `json:"quantity" db:"quantity"`
+	UnitPrice           float64   `json:"unit_price" db:"unit_price"`
+	TotalPrice          float64   `json:"total_price" db:"total_price"`
+	SelectedOptions     string    `json:"selected_options" db:"selected_options"`
+	SpecialInstructions string    `json:"special_instructions" db:"special_instructions"`
+	CreatedAt           time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt           time.Time `json:"updated_at" db:"updated_at"`
+}
+
+type CartTotal struct {
+	Subtotal       float64 `json:"subtotal"`
+	DiscountAmount float64 `json:"discount_amount"`
+	TaxAmount      float64 `json:"tax_amount"`
+	Total          float64 `json:"total"`
+	ItemCount      int     `json:"item_count"`
+}
+
+type SavedItem struct {
+	ID        string    `json:"id" db:"id"`
+	UserID    string    `json:"user_id" db:"user_id"`
+	CompanyID string    `json:"company_id" db:"company_id"`
+	ItemType  string    `json:"item_type" db:"item_type"`
+	ItemID    string    `json:"item_id" db:"item_id"`
+	Notes     string    `json:"notes" db:"notes"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+}
+
+type CartAbandonment struct {
+	ID                  string     `json:"id" db:"id"`
+	CartID              string     `json:"cart_id" db:"cart_id"`
+	UserID              string     `json:"user_id" db:"user_id"`
+	Email               string     `json:"email" db:"email"`
+	TotalValue          float64    `json:"total_value" db:"total_value"`
+	ItemsCount          int        `json:"items_count" db:"items_count"`
+	AbandonedAt         time.Time  `json:"abandoned_at" db:"abandoned_at"`
+	RecoveryEmailSent   bool       `json:"recovery_email_sent" db:"recovery_email_sent"`
+	RecoveryEmailSentAt *time.Time `json:"recovery_email_sent_at" db:"recovery_email_sent_at"`
 }

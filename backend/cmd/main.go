@@ -9,10 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
-	"zootel-backend/internal/database"
-	"zootel-backend/internal/handlers"
-	"zootel-backend/internal/middleware"
-	"zootel-backend/internal/services"
+	"github.com/TahyrOrazdurdyyev/zootel/backend/api/graphql"
+	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/database"
+	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/handlers"
+	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/middleware"
+	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/services"
 )
 
 func main() {
@@ -28,17 +29,28 @@ func main() {
 	}
 	defer db.Close()
 
-	// Initialize services
-	userService := services.NewUserService(db)
-	companyService := services.NewCompanyService(db)
-	petService := services.NewPetService(db)
-	bookingService := services.NewBookingService(db)
-	orderService := services.NewOrderService(db)
-	chatService := services.NewChatService(db)
-	paymentService := services.NewPaymentService(db)
-	aiService := services.NewAIService(db)
-	analyticsService := services.NewAnalyticsService(db)
-	notificationService := services.NewNotificationService(db)
+	// Initialize service container
+	serviceContainer := services.NewServiceContainer(db)
+	if err := serviceContainer.InitializeServices(); err != nil {
+		log.Fatalf("Failed to initialize services: %v", err)
+	}
+	defer serviceContainer.Cleanup()
+
+	// Get services from container
+	userService := serviceContainer.UserService()
+	companyService := serviceContainer.CompanyService()
+	petService := serviceContainer.PetService()
+	bookingService := serviceContainer.BookingService()
+	orderService := serviceContainer.OrderService()
+	chatService := serviceContainer.ChatService()
+	paymentService := serviceContainer.PaymentService()
+	aiService := serviceContainer.AIService()
+	analyticsService := serviceContainer.AnalyticsService()
+	notificationService := serviceContainer.NotificationService()
+	adminService := serviceContainer.AdminService()
+	addonService := serviceContainer.AddonService()
+	integrationService := serviceContainer.IntegrationService()
+	serviceService := serviceContainer.ServiceService()
 
 	// Initialize handlers
 	userHandler := handlers.NewUserHandler(userService)
@@ -49,8 +61,20 @@ func main() {
 	chatHandler := handlers.NewChatHandler(chatService)
 	paymentHandler := handlers.NewPaymentHandler(paymentService)
 	aiHandler := handlers.NewAIHandler(aiService)
-	adminHandler := handlers.NewAdminHandler(userService, companyService)
+	adminHandler := handlers.NewAdminHandler(adminService)
 	authHandler := handlers.NewAuthHandler(userService)
+	analyticsHandler := handlers.NewAnalyticsHandler(analyticsService)
+	addonHandler := handlers.NewAddonHandler(addonService, db)
+	integrationHandler := handlers.NewIntegrationHandler(integrationService)
+
+	// Initialize GraphQL handlers
+	graphqlHandler := graphql.NewGraphQLHandler(
+		userService,
+		companyService,
+		serviceService,
+		bookingService,
+		petService,
+	)
 
 	// Set up Gin router
 	r := gin.Default()
@@ -75,6 +99,10 @@ func main() {
 			"service": "zootel-backend",
 		})
 	})
+
+	// GraphQL endpoints
+	r.POST("/graphql", graphqlHandler.HandleGraphQL)
+	r.GET("/graphql", graphqlHandler.HandleGraphQLPlayground)
 
 	// API routes
 	api := r.Group("/api/v1")
@@ -107,6 +135,14 @@ func main() {
 			marketplace.GET("/products", companyHandler.GetPublicProducts)
 			marketplace.GET("/categories", companyHandler.GetServiceCategories)
 			marketplace.GET("/search", companyHandler.Search)
+		}
+
+		// Public integration endpoints (for website widgets)
+		integration := api.Group("/integration")
+		{
+			integration.POST("/validate-key", integrationHandler.ValidateAPIKey)
+			integration.GET("/domain-access", integrationHandler.CheckDomainAccess)
+			integration.POST("/record-interaction", integrationHandler.RecordWidgetInteraction)
 		}
 
 		// Protected routes requiring authentication
@@ -209,7 +245,18 @@ func main() {
 				companies.GET("/chats", chatHandler.GetCompanyChats)
 
 				// Analytics
-				companies.GET("/analytics", analyticsService.GetCompanyAnalytics)
+				companies.GET("/analytics", analyticsHandler.GetCompanyAnalytics)
+
+				// Website Integration
+				companies.POST("/integration/enable", integrationHandler.EnableWebsiteIntegration)
+				companies.DELETE("/integration/disable", integrationHandler.DisableWebsiteIntegration)
+				companies.GET("/integration/settings", integrationHandler.GetIntegrationSettings)
+				companies.PUT("/integration/settings", integrationHandler.UpdateIntegrationSettings)
+				companies.POST("/integration/regenerate-key", integrationHandler.RegenerateAPIKey)
+				companies.GET("/integration/features", integrationHandler.GetIntegrationFeatures)
+				companies.GET("/integration/marketplace-eligibility", integrationHandler.GetMarketplaceEligibility)
+				companies.PUT("/integration/marketplace-visibility", integrationHandler.UpdateMarketplaceVisibility)
+				companies.GET("/integration/analytics", integrationHandler.GetSourceAnalytics)
 			}
 
 			// AI endpoints
@@ -261,9 +308,22 @@ func main() {
 				admin.PUT("/companies/:id/unblock", adminHandler.UnblockCompany)
 
 				// Global analytics
-				admin.GET("/analytics", analyticsService.GetGlobalAnalytics)
-				admin.GET("/analytics/registrations", analyticsService.GetRegistrationAnalytics)
-				admin.GET("/analytics/bookings", analyticsService.GetBookingAnalytics)
+				admin.GET("/analytics", analyticsHandler.GetGlobalAnalytics)
+				admin.GET("/analytics/registrations", analyticsHandler.GetRegistrationAnalytics)
+				admin.GET("/analytics/bookings", analyticsHandler.GetBookingAnalytics)
+
+				// Addon management
+				admin.GET("/addons", addonHandler.GetAvailableAddons)
+				admin.POST("/addons", addonHandler.CreateAvailableAddon)
+				admin.PUT("/addons/:id", addonHandler.UpdateAvailableAddon)
+
+				// Company addon management
+				admin.GET("/companies/:companyId/addons", addonHandler.GetCompanyAddons)
+				admin.GET("/companies/:companyId/addon-summary", addonHandler.GetCompanyAddonSummary)
+				admin.POST("/companies/:companyId/addons", addonHandler.AddCompanyAddon)
+				admin.DELETE("/companies/:companyId/addons/:addonId", addonHandler.RemoveCompanyAddon)
+				admin.GET("/companies/:companyId/addon-check", addonHandler.CheckCompanyAddon)
+				admin.GET("/companies/addon-summaries", addonHandler.GetAllCompaniesAddonSummary)
 			}
 		}
 	}
@@ -292,5 +352,6 @@ func main() {
 	}
 
 	log.Printf("Starting Zootel Backend API on %s:%s", host, port)
+	log.Printf("GraphQL Playground available at: http://%s:%s/graphql", host, port)
 	log.Fatal(http.ListenAndServe(host+":"+port, r))
 }
