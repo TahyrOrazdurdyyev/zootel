@@ -1,26 +1,27 @@
 package handlers
 
 import (
-	"database/sql"
 	"net/http"
-	"strconv"
 
-	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/models"
+	"database/sql"
+
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/services"
 	"github.com/gin-gonic/gin"
 )
 
 type AddonHandler struct {
-	addonService services.AddonServiceInterface
+	addonService *services.AddonService
+	db           *sql.DB
 }
 
-func NewAddonHandler(addonService services.AddonServiceInterface, db *sql.DB) *AddonHandler {
+func NewAddonHandler(addonService *services.AddonService, db *sql.DB) *AddonHandler {
 	return &AddonHandler{
 		addonService: addonService,
+		db:           db,
 	}
 }
 
-// GetAvailableAddons returns all available addons for SuperAdmin
+// GetAvailableAddons returns all available addons for purchase
 func (h *AddonHandler) GetAvailableAddons(c *gin.Context) {
 	addons, err := h.addonService.GetAvailableAddons()
 	if err != nil {
@@ -28,49 +29,13 @@ func (h *AddonHandler) GetAvailableAddons(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"addons": addons})
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    addons,
+	})
 }
 
-// CreateAvailableAddon creates a new available addon (SuperAdmin only)
-func (h *AddonHandler) CreateAvailableAddon(c *gin.Context) {
-	var addon models.AvailableAddon
-	if err := c.ShouldBindJSON(&addon); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.addonService.CreateAvailableAddon(&addon); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create addon"})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{"addon": addon})
-}
-
-// UpdateAvailableAddon updates an available addon (SuperAdmin only)
-func (h *AddonHandler) UpdateAvailableAddon(c *gin.Context) {
-	addonID, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid addon ID"})
-		return
-	}
-
-	var addon models.AvailableAddon
-	if err := c.ShouldBindJSON(&addon); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	addon.ID = addonID
-	if err := h.addonService.UpdateAvailableAddon(&addon); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update addon"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"addon": addon})
-}
-
-// GetCompanyAddons returns all addons for a specific company
+// GetCompanyAddons returns all addons purchased by the company
 func (h *AddonHandler) GetCompanyAddons(c *gin.Context) {
 	companyID := c.Param("companyId")
 	if companyID == "" {
@@ -84,125 +49,247 @@ func (h *AddonHandler) GetCompanyAddons(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"addons": addons})
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    addons,
+	})
 }
 
-// GetCompanyAddonSummary returns addon summary for a company
-func (h *AddonHandler) GetCompanyAddonSummary(c *gin.Context) {
+// PurchaseAddon handles addon purchase requests
+func (h *AddonHandler) PurchaseAddon(c *gin.Context) {
 	companyID := c.Param("companyId")
 	if companyID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
 	}
 
-	summary, err := h.addonService.GetCompanyAddonSummary(companyID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get company addon summary"})
-		return
+	var request struct {
+		AddonType    string `json:"addon_type" binding:"required"`
+		AddonKey     string `json:"addon_key" binding:"required"`
+		BillingCycle string `json:"billing_cycle" binding:"required"` // monthly, yearly, one_time
 	}
 
-	c.JSON(http.StatusOK, gin.H{"summary": summary})
-}
-
-// AddCompanyAddon adds an addon to a company (SuperAdmin only)
-func (h *AddonHandler) AddCompanyAddon(c *gin.Context) {
-	companyID := c.Param("companyId")
-	if companyID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
-		return
-	}
-
-	var request models.AddonRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Ensure companyID matches URL parameter
-	if request.CompanyID != companyID {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID mismatch"})
-		return
-	}
-
-	addon := &models.CompanyAddon{
-		CompanyID:  companyID,
-		AddonType:  request.AddonType,
-		AddonKey:   request.AddonKey,
-		AddonValue: request.AddonValue,
-		IsActive:   true,
-	}
-
-	if err := h.addonService.AddCompanyAddon(addon); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add addon to company"})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{"addon": addon})
-}
-
-// RemoveCompanyAddon removes/deactivates an addon from a company
-func (h *AddonHandler) RemoveCompanyAddon(c *gin.Context) {
-	companyID := c.Param("companyId")
-	addonID, err := strconv.Atoi(c.Param("addonId"))
+	addon, err := h.addonService.PurchaseAddon(companyID, request.AddonType, request.AddonKey, request.BillingCycle)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid addon ID"})
-		return
-	}
-
-	if err := h.addonService.RemoveCompanyAddon(companyID, addonID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove addon"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Addon removed successfully"})
-}
-
-// CheckCompanyAddon checks if company has specific addon
-func (h *AddonHandler) CheckCompanyAddon(c *gin.Context) {
-	companyID := c.Param("companyId")
-	addonType := c.Query("type")
-	addonKey := c.Query("key")
-
-	if companyID == "" || addonType == "" || addonKey == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required parameters"})
-		return
-	}
-
-	hasAddon, addonValue, err := h.addonService.CheckCompanyAddon(companyID, addonType, addonKey)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check addon"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"has_addon":   hasAddon,
-		"addon_value": addonValue,
+		"success": true,
+		"data":    addon,
+		"message": "Addon purchase initiated successfully",
 	})
 }
 
-// GetAllCompaniesAddonSummary returns addon summary for all companies (SuperAdmin only)
-func (h *AddonHandler) GetAllCompaniesAddonSummary(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
-	search := c.Query("search")
+// CancelAddon handles addon cancellation
+func (h *AddonHandler) CancelAddon(c *gin.Context) {
+	companyID := c.Param("companyId")
+	addonID := c.Param("addonId")
 
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 || limit > 100 {
-		limit = 50
+	if companyID == "" || addonID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID and Addon ID are required"})
+		return
 	}
 
-	summaries, total, err := h.addonService.GetAllCompaniesAddonSummary(page, limit, search)
+	err := h.addonService.CancelAddon(companyID, addonID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get companies addon summary"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"summaries": summaries,
-		"total":     total,
-		"page":      page,
-		"limit":     limit,
+		"success": true,
+		"message": "Addon cancelled successfully",
+	})
+}
+
+// Admin endpoints
+
+// ManuallyEnableAddon allows SuperAdmin to manually enable addons for companies
+func (h *AddonHandler) ManuallyEnableAddon(c *gin.Context) {
+	companyID := c.Param("companyId")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	var request struct {
+		AddonType string `json:"addon_type" binding:"required"`
+		AddonKey  string `json:"addon_key" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := h.addonService.ManuallyEnableAddon(companyID, request.AddonType, request.AddonKey)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Addon manually enabled successfully",
+	})
+}
+
+// GetAddonPricing returns pricing information for all addons (Admin only)
+func (h *AddonHandler) GetAddonPricing(c *gin.Context) {
+	query := `
+		SELECT id, addon_type, addon_key, name, description,
+		       monthly_price, yearly_price, one_time_price, is_available,
+		       created_at, updated_at
+		FROM addon_pricing 
+		ORDER BY addon_type, name`
+
+	rows, err := h.db.Query(query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get addon pricing"})
+		return
+	}
+	defer rows.Close()
+
+	var pricing []map[string]interface{}
+	for rows.Next() {
+		var item map[string]interface{} = make(map[string]interface{})
+		var id, addonType, addonKey, name, description string
+		var monthlyPrice, yearlyPrice float64
+		var oneTimePrice sql.NullFloat64
+		var isAvailable bool
+		var createdAt, updatedAt string
+
+		err := rows.Scan(&id, &addonType, &addonKey, &name, &description,
+			&monthlyPrice, &yearlyPrice, &oneTimePrice, &isAvailable,
+			&createdAt, &updatedAt)
+		if err != nil {
+			continue
+		}
+
+		item["id"] = id
+		item["addon_type"] = addonType
+		item["addon_key"] = addonKey
+		item["name"] = name
+		item["description"] = description
+		item["monthly_price"] = monthlyPrice
+		item["yearly_price"] = yearlyPrice
+		if oneTimePrice.Valid {
+			item["one_time_price"] = oneTimePrice.Float64
+		}
+		item["is_available"] = isAvailable
+		item["created_at"] = createdAt
+		item["updated_at"] = updatedAt
+
+		pricing = append(pricing, item)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    pricing,
+	})
+}
+
+// UpdateAddonPricing updates pricing for an addon (Admin only)
+func (h *AddonHandler) UpdateAddonPricing(c *gin.Context) {
+	addonID := c.Param("addonId")
+	if addonID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Addon ID is required"})
+		return
+	}
+
+	var request struct {
+		Name         string   `json:"name"`
+		Description  string   `json:"description"`
+		MonthlyPrice float64  `json:"monthly_price"`
+		YearlyPrice  float64  `json:"yearly_price"`
+		OneTimePrice *float64 `json:"one_time_price"`
+		IsAvailable  bool     `json:"is_available"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	query := `
+		UPDATE addon_pricing 
+		SET name = $2, description = $3, monthly_price = $4, yearly_price = $5,
+		    one_time_price = $6, is_available = $7, updated_at = NOW()
+		WHERE id = $1`
+
+	_, err := h.db.Exec(query, addonID, request.Name, request.Description,
+		request.MonthlyPrice, request.YearlyPrice, request.OneTimePrice, request.IsAvailable)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update addon pricing"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Addon pricing updated successfully",
+	})
+}
+
+// CreateAddonPricing creates new addon pricing (Admin only)
+func (h *AddonHandler) CreateAddonPricing(c *gin.Context) {
+	var request struct {
+		AddonType    string   `json:"addon_type" binding:"required"`
+		AddonKey     string   `json:"addon_key" binding:"required"`
+		Name         string   `json:"name" binding:"required"`
+		Description  string   `json:"description"`
+		MonthlyPrice float64  `json:"monthly_price"`
+		YearlyPrice  float64  `json:"yearly_price"`
+		OneTimePrice *float64 `json:"one_time_price"`
+		IsAvailable  bool     `json:"is_available"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	query := `
+		INSERT INTO addon_pricing (
+			id, addon_type, addon_key, name, description,
+			monthly_price, yearly_price, one_time_price, is_available,
+			created_at, updated_at
+		) VALUES (
+			gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW()
+		) RETURNING id`
+
+	var newID string
+	err := h.db.QueryRow(query, request.AddonType, request.AddonKey, request.Name,
+		request.Description, request.MonthlyPrice, request.YearlyPrice,
+		request.OneTimePrice, request.IsAvailable).Scan(&newID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create addon pricing"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"data":    map[string]string{"id": newID},
+		"message": "Addon pricing created successfully",
+	})
+}
+
+// ProcessBilling handles recurring billing for addons (cron job endpoint)
+func (h *AddonHandler) ProcessBilling(c *gin.Context) {
+	err := h.addonService.ProcessAddonBilling()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process addon billing"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Addon billing processed successfully",
 	})
 }

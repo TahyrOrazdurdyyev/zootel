@@ -318,16 +318,38 @@ type AvailableAddon struct {
 	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
 }
 
-// CompanyAddon represents addons assigned to companies
+// CompanyAddon represents purchased addons for a company
 type CompanyAddon struct {
-	ID         int       `json:"id" db:"id"`
-	CompanyID  string    `json:"company_id" db:"company_id"`
-	AddonType  string    `json:"addon_type" db:"addon_type"`
-	AddonKey   string    `json:"addon_key" db:"addon_key"`
-	AddonValue string    `json:"addon_value" db:"addon_value"`
-	IsActive   bool      `json:"is_active" db:"is_active"`
-	CreatedAt  time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
+	ID            string     `json:"id" db:"id"`
+	CompanyID     string     `json:"company_id" db:"company_id"`
+	AddonType     string     `json:"addon_type" db:"addon_type"` // ai_agent, extra_employee, crm_feature
+	AddonKey      string     `json:"addon_key" db:"addon_key"`   // agent key or feature key
+	Price         float64    `json:"price" db:"price"`
+	BillingCycle  string     `json:"billing_cycle" db:"billing_cycle"` // monthly, yearly, one_time
+	Status        string     `json:"status" db:"status"`               // active, inactive, cancelled
+	AutoRenew     bool       `json:"auto_renew" db:"auto_renew"`
+	PurchasedAt   time.Time  `json:"purchased_at" db:"purchased_at"`
+	ExpiresAt     *time.Time `json:"expires_at" db:"expires_at"`
+	CancelledAt   *time.Time `json:"cancelled_at" db:"cancelled_at"`
+	LastBilledAt  *time.Time `json:"last_billed_at" db:"last_billed_at"`
+	NextBillingAt *time.Time `json:"next_billing_at" db:"next_billing_at"`
+	CreatedAt     time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at" db:"updated_at"`
+}
+
+// AddonPricing represents pricing for different addons
+type AddonPricing struct {
+	ID           string    `json:"id" db:"id"`
+	AddonType    string    `json:"addon_type" db:"addon_type"`
+	AddonKey     string    `json:"addon_key" db:"addon_key"`
+	Name         string    `json:"name" db:"name"`
+	Description  string    `json:"description" db:"description"`
+	MonthlyPrice float64   `json:"monthly_price" db:"monthly_price"`
+	YearlyPrice  float64   `json:"yearly_price" db:"yearly_price"`
+	OneTimePrice *float64  `json:"one_time_price" db:"one_time_price"`
+	IsAvailable  bool      `json:"is_available" db:"is_available"`
+	CreatedAt    time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
 }
 
 // AddonRequest represents request to add addon to company

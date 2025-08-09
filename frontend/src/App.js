@@ -27,6 +27,7 @@ import CompanyDashboard from './pages/company/CompanyDashboard';
 import CompanyAnalyticsPage from './pages/company/CompanyAnalyticsPage';
 import EmployeeChatPage from './pages/company/EmployeeChatPage';
 import ServicesManagementPage from './pages/company/ServicesManagementPage';
+import AddonManagementPage from './pages/company/AddonManagementPage';
 
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -82,6 +83,7 @@ function App() {
                     <Route path="/analytics" element={<CompanyAnalyticsPage />} />
                     <Route path="/chat" element={<EmployeeChatPage />} />
                     <Route path="/services" element={<ServicesManagementPage />} />
+                    <Route path="/addons" element={<AddonManagementPage />} />
                   </Routes>
                 </ProtectedRoute>
               } />

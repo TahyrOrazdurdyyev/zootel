@@ -259,7 +259,13 @@ func main() {
 				uploads.GET("/files/:fileId", uploadHandler.GetFileInfo)
 			}
 
-			// Company management endpoints (for company owners)
+			// Addon endpoints
+			addons := protected.Group("/addons")
+			{
+				addons.GET("/available", addonHandler.GetAvailableAddons)
+			}
+
+			// Company addon endpoints
 			companies := protected.Group("/companies")
 			companies.Use(middleware.CompanyOwnerMiddleware())
 			{
@@ -402,6 +408,13 @@ func main() {
 				admin.DELETE("/companies/:companyId/addons/:addonId", addonHandler.RemoveCompanyAddon)
 				admin.GET("/companies/:companyId/addon-check", addonHandler.CheckCompanyAddon)
 				admin.GET("/companies/addon-summaries", addonHandler.GetAllCompaniesAddonSummary)
+
+				// Admin addon management
+				admin.GET("/addon-pricing", addonHandler.GetAddonPricing)
+				admin.POST("/addon-pricing", addonHandler.CreateAddonPricing)
+				admin.PUT("/addon-pricing/:addonId", addonHandler.UpdateAddonPricing)
+				admin.POST("/companies/:companyId/addons/enable", addonHandler.ManuallyEnableAddon)
+				admin.POST("/addon-billing/process", addonHandler.ProcessBilling)
 			}
 		}
 	}
