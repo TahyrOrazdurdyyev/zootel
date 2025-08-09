@@ -454,3 +454,24 @@ func (h *ChatHandler) GetChatStatistics(c *gin.Context) {
 		},
 	})
 }
+
+// HandleWebSocket handles WebSocket connections for real-time chat
+func (h *ChatHandler) HandleWebSocket(c *gin.Context) {
+	chatID := c.Param("chatId")
+	if chatID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Chat ID is required"})
+		return
+	}
+
+	// For now, return a placeholder response
+	// In production, this would upgrade to WebSocket and handle real-time messaging
+	c.JSON(http.StatusNotImplemented, gin.H{
+		"error":   "WebSocket chat not fully implemented yet",
+		"chat_id": chatID,
+		"message": "Use REST endpoints for chat functionality",
+		"endpoints": gin.H{
+			"get_messages": "/api/v1/chats/" + chatID + "/messages",
+			"send_message": "/api/v1/chats/" + chatID + "/messages",
+		},
+	})
+}

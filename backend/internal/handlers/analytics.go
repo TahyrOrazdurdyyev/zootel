@@ -293,3 +293,142 @@ func (h *AnalyticsHandler) GetAnalyticsOverview(c *gin.Context) {
 		},
 	})
 }
+
+// GetGlobalRevenueTrends returns global revenue trends over specified time period
+func (h *AnalyticsHandler) GetGlobalRevenueTrends(c *gin.Context) {
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 1 || days > 365 {
+		days = 30
+	}
+
+	// Get revenue trends for all companies (empty companyID)
+	trends, err := h.analyticsService.GetRevenueTrends("", days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"trends": trends,
+			"period": days,
+		},
+	})
+}
+
+// GetGlobalRegistrationTrends returns user registration trends over specified time period
+func (h *AnalyticsHandler) GetGlobalRegistrationTrends(c *gin.Context) {
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 1 || days > 365 {
+		days = 30
+	}
+
+	// Get registration trends for all companies (empty companyID)
+	trends, err := h.analyticsService.GetUserRegistrationTrends("", days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"trends": trends,
+			"period": days,
+		},
+	})
+}
+
+// GetGlobalUserSegmentation returns global user segmentation data
+func (h *AnalyticsHandler) GetGlobalUserSegmentation(c *gin.Context) {
+	// Get segmentation for all companies (empty companyID)
+	segmentation, err := h.analyticsService.GetUserSegmentation("")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    segmentation,
+	})
+}
+
+// GetTopPerformingCompanies returns top performing companies
+func (h *AnalyticsHandler) GetTopPerformingCompanies(c *gin.Context) {
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if limit < 1 || limit > 50 {
+		limit = 10
+	}
+
+	companies, err := h.analyticsService.GetTopPerformingCompanies(limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"companies": companies,
+			"limit":     limit,
+		},
+	})
+}
+
+// GetServiceCategoryPerformance returns service category performance metrics
+func (h *AnalyticsHandler) GetServiceCategoryPerformance(c *gin.Context) {
+	performance, err := h.analyticsService.GetServiceCategoryPerformance()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    performance,
+	})
+}
+
+// GetPetTypePopularity returns pet type popularity metrics
+func (h *AnalyticsHandler) GetPetTypePopularity(c *gin.Context) {
+	popularity, err := h.analyticsService.GetPetTypePopularity()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    popularity,
+	})
+}
+
+// GetCohortAnalysis returns cohort analysis data
+func (h *AnalyticsHandler) GetCohortAnalysis(c *gin.Context) {
+	cohorts, err := h.analyticsService.GetCohortAnalysis()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    cohorts,
+	})
+}
+
+// GetGeographicDistribution returns geographic distribution of users
+func (h *AnalyticsHandler) GetGeographicDistribution(c *gin.Context) {
+	distribution, err := h.analyticsService.GetGeographicDistribution()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    distribution,
+	})
+}

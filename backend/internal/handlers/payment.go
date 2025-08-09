@@ -292,3 +292,78 @@ func (h *PaymentHandler) ProcessSubscriptionPayment(c *gin.Context) {
 		"plan_id":    req.PlanID,
 	})
 }
+
+// ConfirmPayment confirms a payment intent
+func (h *PaymentHandler) ConfirmPayment(c *gin.Context) {
+	var req struct {
+		PaymentIntentID string `json:"payment_intent_id" binding:"required"`
+		PaymentMethodID string `json:"payment_method_id"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	// Confirm the payment using PaymentService
+	payment, err := h.paymentService.ConfirmPayment(req.PaymentIntentID, req.PaymentMethodID, userID.(string))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Payment confirmed successfully",
+		"data":    payment,
+	})
+}
+
+// GetPaymentHistory retrieves payment history for a user
+func (h *PaymentHandler) GetPaymentHistory(c *gin.Context) {
+	// Get user ID from context
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	// Parse query parameters
+	limitStr := c.DefaultQuery("limit", "20")
+	offsetStr := c.DefaultQuery("offset", "0")
+	status := c.Query("status")
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 || limit > 100 {
+		limit = 20
+	}
+
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil || offset < 0 {
+		offset = 0
+	}
+
+	// Get payment history from service
+	payments, total, err := h.paymentService.GetPaymentHistory(userID.(string), limit, offset, status)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"payments": payments,
+			"total":    total,
+			"limit":    limit,
+			"offset":   offset,
+		},
+	})
+}

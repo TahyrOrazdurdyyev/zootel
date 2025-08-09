@@ -8,11 +8,16 @@ import (
 
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/models"
 	"github.com/google/uuid"
+	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/refund"
 	"github.com/stripe/stripe-go/v76"
 	"github.com/stripe/stripe-go/v76/customer"
-	"github.com/stripe/stripe-go/v76/paymentintent"
-	"github.com/stripe/stripe-go/v76/refund"
 	"github.com/stripe/stripe-go/v76/webhook"
+	// "github.com/stripe/stripe-go/v76"
+	// "github.com/stripe/stripe-go/v76/customer"
+	// "github.com/stripe/stripe-go/v76/paymentintent"
+	// "github.com/stripe/stripe-go/v76/refund"
+	// "github.com/stripe/stripe-go/v76/webhook"
 )
 
 type PaymentService struct {
@@ -24,7 +29,7 @@ type PaymentService struct {
 }
 
 func NewPaymentService(db *sql.DB, stripeSecretKey, webhookSecret string) *PaymentService {
-	stripe.Key = stripeSecretKey
+	// stripe.Key = stripeSecretKey
 
 	return &PaymentService{
 		db:              db,
@@ -550,4 +555,126 @@ func (s *PaymentService) updateRelatedEntitiesStatus(paymentIntentID, status str
 	}
 
 	return nil
+}
+
+// ConfirmPayment confirms a payment intent and creates a payment record
+func (s *PaymentService) ConfirmPayment(paymentIntentID, paymentMethodID, userID string) (*models.Payment, error) {
+	// Get payment intent from Stripe
+	pi, err := paymentintent.Get(paymentIntentID, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify the payment intent belongs to the user (via metadata or customer)
+	if pi.Customer != nil {
+		// Get customer to verify user
+		customer, err := customer.Get(*pi.Customer, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		if customer.Metadata["user_id"] != userID {
+			return nil, fmt.Errorf("payment intent does not belong to user")
+		}
+	}
+
+	// Create payment record in database
+	payment := &models.Payment{
+		ID:                uuid.New().String(),
+		UserID:            userID,
+		Amount:            float64(pi.Amount) / 100, // Convert from cents
+		Currency:          string(pi.Currency),
+		Status:            string(pi.Status),
+		StripePaymentID:   pi.ID,
+		PaymentMethodType: "card", // Default, could be enhanced
+		CreatedAt:         time.Now(),
+		UpdatedAt:         time.Now(),
+	}
+
+	// Extract additional data from metadata if available
+	if companyID, ok := pi.Metadata["company_id"]; ok {
+		payment.CompanyID = &companyID
+	}
+	if bookingID, ok := pi.Metadata["booking_id"]; ok {
+		payment.BookingID = &bookingID
+	}
+	if orderID, ok := pi.Metadata["order_id"]; ok {
+		payment.OrderID = &orderID
+	}
+
+	// Insert payment record
+	_, err = s.db.Exec(`
+		INSERT INTO payments (id, user_id, company_id, booking_id, order_id, amount, currency, 
+							 status, stripe_payment_id, payment_method_type, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+	`, payment.ID, payment.UserID, payment.CompanyID, payment.BookingID, payment.OrderID,
+		payment.Amount, payment.Currency, payment.Status, payment.StripePaymentID,
+		payment.PaymentMethodType, payment.CreatedAt, payment.UpdatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return payment, nil
+}
+
+// GetPaymentHistory retrieves payment history for a user with pagination
+func (s *PaymentService) GetPaymentHistory(userID string, limit, offset int, status string) ([]models.Payment, int, error) {
+	var payments []models.Payment
+	var totalCount int
+
+	// Build query conditions
+	whereClause := "WHERE user_id = $1"
+	args := []interface{}{userID}
+	argIndex := 2
+
+	if status != "" {
+		whereClause += fmt.Sprintf(" AND status = $%d", argIndex)
+		args = append(args, status)
+		argIndex++
+	}
+
+	// Get total count
+	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM payments %s", whereClause)
+	err := s.db.QueryRow(countQuery, args...).Scan(&totalCount)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Get payments with pagination
+	query := fmt.Sprintf(`
+		SELECT id, user_id, company_id, booking_id, order_id, amount, currency,
+			   status, stripe_payment_id, payment_method_type, created_at, updated_at
+		FROM payments %s
+		ORDER BY created_at DESC
+		LIMIT $%d OFFSET $%d
+	`, whereClause, argIndex, argIndex+1)
+
+	args = append(args, limit, offset)
+
+	rows, err := s.db.Query(query, args...)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var payment models.Payment
+		err := rows.Scan(
+			&payment.ID, &payment.UserID, &payment.CompanyID, &payment.BookingID,
+			&payment.OrderID, &payment.Amount, &payment.Currency, &payment.Status,
+			&payment.StripePaymentID, &payment.PaymentMethodType,
+			&payment.CreatedAt, &payment.UpdatedAt,
+		)
+		if err != nil {
+			return nil, 0, err
+		}
+		payments = append(payments, payment)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, 0, err
+	}
+
+	return payments, totalCount, nil
 }

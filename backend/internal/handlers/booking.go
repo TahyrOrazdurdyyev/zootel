@@ -200,7 +200,67 @@ func (h *BookingHandler) CheckAvailability(c *gin.Context) {
 	})
 }
 
-// UpdateBookingStatus updates the status of a booking
+// UpdateBooking updates a booking
+func (h *BookingHandler) UpdateBooking(c *gin.Context) {
+	bookingID := c.Param("id")
+	if bookingID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Booking ID is required"})
+		return
+	}
+
+	var updates map[string]interface{}
+	if err := c.ShouldBindJSON(&updates); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	// First get the booking to check ownership
+	booking, err := h.bookingService.GetBookingByID(bookingID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Booking not found"})
+		return
+	}
+
+	// Check if user owns this booking or is from the company
+	userRole, _ := c.Get("user_role")
+	companyID, _ := c.Get("company_id")
+
+	canUpdate := false
+	if booking.UserID == userID.(string) {
+		canUpdate = true
+	} else if userRole == "company_owner" && booking.CompanyID == companyID.(string) {
+		canUpdate = true
+	} else if userRole == "employee" && booking.CompanyID == companyID.(string) {
+		canUpdate = true
+	}
+
+	if !canUpdate {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You don't have permission to update this booking"})
+		return
+	}
+
+	// Update booking using the service
+	updatedBooking, err := h.bookingService.UpdateBooking(bookingID, updates)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Booking updated successfully",
+		"data":    updatedBooking,
+	})
+}
+
+// UpdateBookingStatus updates booking status
 func (h *BookingHandler) UpdateBookingStatus(c *gin.Context) {
 	bookingID := c.Param("id")
 	if bookingID == "" {

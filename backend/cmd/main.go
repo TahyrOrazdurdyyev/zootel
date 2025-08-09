@@ -1,13 +1,17 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
 
+	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/auth"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"google.golang.org/api/option"
 
 	"github.com/TahyrOrazdurdyyev/zootel/backend/api/graphql"
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/database"
@@ -20,6 +24,34 @@ func main() {
 	// Load environment variables
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using system environment variables")
+	}
+
+	// Initialize Firebase Auth
+	var authClient *auth.Client
+	firebaseCredentials := os.Getenv("FIREBASE_CREDENTIALS_PATH")
+	if firebaseCredentials == "" {
+		// Initialize Firebase without credentials file (using default application credentials)
+		app, err := firebase.NewApp(context.Background(), nil)
+		if err != nil {
+			log.Printf("Warning: Failed to initialize Firebase app: %v", err)
+		} else {
+			authClient, err = app.Auth(context.Background())
+			if err != nil {
+				log.Printf("Warning: Failed to initialize Firebase Auth: %v", err)
+			}
+		}
+	} else {
+		// Initialize Firebase with credentials file
+		opt := option.WithCredentialsFile(firebaseCredentials)
+		app, err := firebase.NewApp(context.Background(), nil, opt)
+		if err != nil {
+			log.Printf("Warning: Failed to initialize Firebase app with credentials: %v", err)
+		} else {
+			authClient, err = app.Auth(context.Background())
+			if err != nil {
+				log.Printf("Warning: Failed to initialize Firebase Auth: %v", err)
+			}
+		}
 	}
 
 	// Initialize database
@@ -147,7 +179,7 @@ func main() {
 
 		// Protected routes requiring authentication
 		protected := api.Group("/")
-		protected.Use(middleware.AuthMiddleware())
+		protected.Use(middleware.AuthMiddleware(authClient, db))
 		{
 			// User profile endpoints
 			users := protected.Group("/users")
@@ -196,7 +228,7 @@ func main() {
 				chats.GET("/", chatHandler.GetUserChats)
 				chats.POST("/", chatHandler.CreateChat)
 				chats.GET("/:id", chatHandler.GetChat)
-				chats.GET("/:id/messages", chatHandler.GetMessages)
+				chats.GET("/:id/messages", chatHandler.GetChatMessages)
 				chats.POST("/:id/messages", chatHandler.SendMessage)
 			}
 
@@ -262,10 +294,15 @@ func main() {
 			// AI endpoints
 			ai := protected.Group("/ai")
 			{
-				ai.POST("/chat", aiHandler.ProcessMessage)
+				ai.POST("/request", aiHandler.ProcessAIRequest)
 				ai.GET("/agents", aiHandler.GetAvailableAgents)
-				ai.POST("/agents/:type/activate", aiHandler.ActivateAgent)
-				ai.POST("/agents/:type/deactivate", aiHandler.DeactivateAgent)
+				ai.GET("/company/:companyId/agents", aiHandler.GetCompanyAIAgents)
+				ai.GET("/usage/stats", aiHandler.GetAIUsageStats)
+				ai.POST("/booking-assistant", aiHandler.BookingAssistantRequest)
+				ai.POST("/customer-support", aiHandler.CustomerSupportRequest)
+				ai.POST("/medical-vet", aiHandler.MedicalVetRequest)
+				ai.POST("/analytics-narrator", aiHandler.AnalyticsNarratorRequest)
+				ai.POST("/test/:agentKey", aiHandler.TestAIAgent)
 			}
 
 			// SuperAdmin endpoints
@@ -308,9 +345,15 @@ func main() {
 				admin.PUT("/companies/:id/unblock", adminHandler.UnblockCompany)
 
 				// Global analytics
-				admin.GET("/analytics", analyticsHandler.GetGlobalAnalytics)
-				admin.GET("/analytics/registrations", analyticsHandler.GetRegistrationAnalytics)
-				admin.GET("/analytics/bookings", analyticsHandler.GetBookingAnalytics)
+				admin.GET("/analytics/dashboard", analyticsHandler.GetGlobalDashboard)
+				admin.GET("/analytics/revenue-trends", analyticsHandler.GetGlobalRevenueTrends)
+				admin.GET("/analytics/registration-trends", analyticsHandler.GetGlobalRegistrationTrends)
+				admin.GET("/analytics/user-segmentation", analyticsHandler.GetGlobalUserSegmentation)
+				admin.GET("/analytics/top-companies", analyticsHandler.GetTopPerformingCompanies)
+				admin.GET("/analytics/service-performance", analyticsHandler.GetServiceCategoryPerformance)
+				admin.GET("/analytics/pet-popularity", analyticsHandler.GetPetTypePopularity)
+				admin.GET("/analytics/cohort", analyticsHandler.GetCohortAnalysis)
+				admin.GET("/analytics/geographic", analyticsHandler.GetGeographicDistribution)
 
 				// Addon management
 				admin.GET("/addons", addonHandler.GetAvailableAddons)
@@ -334,7 +377,7 @@ func main() {
 	// Webhook endpoints
 	webhooks := r.Group("/webhooks")
 	{
-		webhooks.POST("/stripe", paymentHandler.StripeWebhook)
+		webhooks.POST("/stripe", paymentHandler.HandleWebhook)
 	}
 
 	// Start notification cron job

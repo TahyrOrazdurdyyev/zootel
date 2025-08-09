@@ -227,6 +227,87 @@ func (s *BookingService) CheckAvailability(serviceID string, date time.Time, emp
 	return availableSlots, nil
 }
 
+// UpdateBooking updates a booking with provided fields
+func (s *BookingService) UpdateBooking(bookingID string, updates map[string]interface{}) (*models.Booking, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	// Build dynamic update query
+	setParts := []string{}
+	args := []interface{}{}
+	argIndex := 1
+
+	// Add updated_at automatically
+	setParts = append(setParts, fmt.Sprintf("updated_at = $%d", argIndex))
+	args = append(args, time.Now())
+	argIndex++
+
+	// Handle each possible update field
+	if dateTime, ok := updates["date_time"]; ok {
+		setParts = append(setParts, fmt.Sprintf("date_time = $%d", argIndex))
+		args = append(args, dateTime)
+		argIndex++
+	}
+
+	if notes, ok := updates["notes"]; ok {
+		setParts = append(setParts, fmt.Sprintf("notes = $%d", argIndex))
+		args = append(args, notes)
+		argIndex++
+	}
+
+	if employeeID, ok := updates["employee_id"]; ok {
+		setParts = append(setParts, fmt.Sprintf("employee_id = $%d", argIndex))
+		args = append(args, employeeID)
+		argIndex++
+	}
+
+	if status, ok := updates["status"]; ok {
+		setParts = append(setParts, fmt.Sprintf("status = $%d", argIndex))
+		args = append(args, status)
+		argIndex++
+	}
+
+	if duration, ok := updates["duration"]; ok {
+		setParts = append(setParts, fmt.Sprintf("duration = $%d", argIndex))
+		args = append(args, duration)
+		argIndex++
+	}
+
+	if len(setParts) == 1 { // Only updated_at
+		return nil, fmt.Errorf("no valid fields to update")
+	}
+
+	// Add the booking ID as the last argument
+	args = append(args, bookingID)
+
+	query := fmt.Sprintf(`
+		UPDATE bookings 
+		SET %s 
+		WHERE id = $%d
+		RETURNING id, user_id, company_id, service_id, pet_id, employee_id,
+				  date_time, duration, price, status, notes, created_at, updated_at
+	`, strings.Join(setParts, ", "), argIndex)
+
+	var booking models.Booking
+	err = tx.QueryRow(query, args...).Scan(
+		&booking.ID, &booking.UserID, &booking.CompanyID, &booking.ServiceID,
+		&booking.PetID, &booking.EmployeeID, &booking.DateTime, &booking.Duration,
+		&booking.Price, &booking.Status, &booking.Notes, &booking.CreatedAt, &booking.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return &booking, nil
+}
+
 // UpdateBookingStatus updates booking status and sends notifications
 func (s *BookingService) UpdateBookingStatus(bookingID, newStatus string, notes string) error {
 	tx, err := s.db.Begin()
