@@ -24,7 +24,7 @@ type ServiceContainer struct {
 	notificationService *NotificationService
 	analyticsService    *AnalyticsService
 	adminService        *AdminService
-	addonService        AddonServiceInterface
+	addonService        *AddonService
 	integrationService  IntegrationServiceInterface
 	cartService         CartServiceInterface
 	demoService         *DemoService
@@ -98,7 +98,7 @@ func (c *ServiceContainer) InitializeServices() error {
 	c.orderService = NewOrderService(c.db)
 	c.initialized["order"] = true
 
-	c.addonService = NewAddonService(c.db)
+	c.addonService = NewAddonService(c.db, c.PaymentService())
 	c.initialized["addon"] = true
 
 	c.integrationService = NewIntegrationService(c.db)
@@ -169,7 +169,7 @@ func (c *ServiceContainer) AdminService() *AdminService {
 	return c.adminService
 }
 
-func (c *ServiceContainer) AddonService() AddonServiceInterface {
+func (c *ServiceContainer) AddonService() *AddonService {
 	return c.addonService
 }
 

@@ -5,6 +5,7 @@ import (
 
 	"database/sql"
 
+	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/models"
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/services"
 	"github.com/gin-gonic/gin"
 )
@@ -291,5 +292,198 @@ func (h *AddonHandler) ProcessBilling(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "Addon billing processed successfully",
+	})
+}
+
+// CreateAvailableAddon creates new available addon (Admin only)
+func (h *AddonHandler) CreateAvailableAddon(c *gin.Context) {
+	// This is an alias for CreateAddonPricing
+	h.CreateAddonPricing(c)
+}
+
+// UpdateAvailableAddon updates available addon (Admin only)
+func (h *AddonHandler) UpdateAvailableAddon(c *gin.Context) {
+	// This is an alias for UpdateAddonPricing
+	h.UpdateAddonPricing(c)
+}
+
+// GetCompanyAddonSummary returns addon summary for a specific company
+func (h *AddonHandler) GetCompanyAddonSummary(c *gin.Context) {
+	companyID := c.Param("companyId")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	addons, err := h.addonService.GetCompanyAddons(companyID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get company addon summary"})
+		return
+	}
+
+	// Create summary
+	summary := map[string]interface{}{
+		"company_id":    companyID,
+		"total_addons":  len(addons),
+		"active_addons": 0,
+		"monthly_cost":  0.0,
+		"addons":        addons,
+	}
+
+	for _, addon := range addons {
+		if addon.Status == "active" {
+			summary["active_addons"] = summary["active_addons"].(int) + 1
+			if addon.BillingCycle == "monthly" {
+				summary["monthly_cost"] = summary["monthly_cost"].(float64) + addon.Price
+			} else if addon.BillingCycle == "yearly" {
+				summary["monthly_cost"] = summary["monthly_cost"].(float64) + (addon.Price / 12)
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    summary,
+	})
+}
+
+// AddCompanyAddon manually adds addon to company (Admin only)
+func (h *AddonHandler) AddCompanyAddon(c *gin.Context) {
+	companyID := c.Param("companyId")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	var request struct {
+		AddonType string `json:"addon_type" binding:"required"`
+		AddonKey  string `json:"addon_key" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := h.addonService.ManuallyEnableAddon(companyID, request.AddonType, request.AddonKey)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Addon added to company successfully",
+	})
+}
+
+// RemoveCompanyAddon removes addon from company (Admin only)
+func (h *AddonHandler) RemoveCompanyAddon(c *gin.Context) {
+	companyID := c.Param("companyId")
+	addonID := c.Param("addonId")
+
+	if companyID == "" || addonID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID and Addon ID are required"})
+		return
+	}
+
+	err := h.addonService.CancelAddon(companyID, addonID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Addon removed from company successfully",
+	})
+}
+
+// CheckCompanyAddon checks if company has specific addon
+func (h *AddonHandler) CheckCompanyAddon(c *gin.Context) {
+	companyID := c.Param("companyId")
+	addonType := c.Query("addon_type")
+	addonKey := c.Query("addon_key")
+
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	if addonType == "" || addonKey == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "addon_type and addon_key query parameters are required"})
+		return
+	}
+
+	addons, err := h.addonService.GetCompanyAddons(companyID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check company addon"})
+		return
+	}
+
+	hasAddon := false
+	var foundAddon *models.CompanyAddon
+	for _, addon := range addons {
+		if addon.AddonType == addonType && addon.AddonKey == addonKey && addon.Status == "active" {
+			hasAddon = true
+			foundAddon = addon
+			break
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":   true,
+		"has_addon": hasAddon,
+		"addon":     foundAddon,
+	})
+}
+
+// GetAllCompaniesAddonSummary returns addon summary for all companies (Admin only)
+func (h *AddonHandler) GetAllCompaniesAddonSummary(c *gin.Context) {
+	query := `
+		SELECT 
+			c.id, c.name,
+			COUNT(ca.id) as total_addons,
+			COUNT(CASE WHEN ca.status = 'active' THEN 1 END) as active_addons,
+			COALESCE(SUM(CASE 
+				WHEN ca.status = 'active' AND ca.billing_cycle = 'monthly' THEN ca.price
+				WHEN ca.status = 'active' AND ca.billing_cycle = 'yearly' THEN ca.price / 12
+				ELSE 0
+			END), 0) as monthly_revenue
+		FROM companies c
+		LEFT JOIN company_addons ca ON c.id = ca.company_id
+		GROUP BY c.id, c.name
+		ORDER BY monthly_revenue DESC`
+
+	rows, err := h.db.Query(query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get companies addon summary"})
+		return
+	}
+	defer rows.Close()
+
+	var summaries []map[string]interface{}
+	for rows.Next() {
+		var companyID, companyName string
+		var totalAddons, activeAddons int
+		var monthlyRevenue float64
+
+		err := rows.Scan(&companyID, &companyName, &totalAddons, &activeAddons, &monthlyRevenue)
+		if err != nil {
+			continue
+		}
+
+		summaries = append(summaries, map[string]interface{}{
+			"company_id":      companyID,
+			"company_name":    companyName,
+			"total_addons":    totalAddons,
+			"active_addons":   activeAddons,
+			"monthly_revenue": monthlyRevenue,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    summaries,
 	})
 }

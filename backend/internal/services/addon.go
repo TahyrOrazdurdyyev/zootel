@@ -170,12 +170,13 @@ func (s *AddonService) PurchaseAddon(companyID, addonType, addonKey, billingCycl
 	// Handle payment based on stripe_enabled setting
 	if paymentSettings.StripeEnabled {
 		// Process payment through Stripe
-		paymentIntent, err := s.paymentService.CreatePaymentIntent(&models.PaymentRequest{
+		_, err := s.paymentService.CreatePaymentIntent(&PaymentRequest{
 			UserID:      companyID, // Company acts as user for billing
+			CompanyID:   companyID,
 			Amount:      price,
 			Currency:    "usd",
 			Description: fmt.Sprintf("Addon: %s (%s)", pricing.Name, billingCycle),
-			Metadata: map[string]string{
+			Metadata: map[string]interface{}{
 				"addon_id":   addon.ID,
 				"addon_type": addonType,
 				"addon_key":  addonKey,
@@ -187,7 +188,7 @@ func (s *AddonService) PurchaseAddon(companyID, addonType, addonKey, billingCycl
 
 		// Store payment intent ID for later confirmation
 		addon.Status = "pending_payment"
-		// You would store payment_intent_id in metadata or separate field
+		// Payment intent created successfully, addon will be activated after payment confirmation
 	} else {
 		// Payment disabled - activate addon immediately
 		addon.Status = "active"
@@ -514,12 +515,13 @@ func (s *AddonService) processAddonRenewal(addonID string) error {
 
 	if paymentSettings.StripeEnabled {
 		// Process payment for renewal
-		_, err := s.paymentService.CreatePaymentIntent(&models.PaymentRequest{
+		_, err := s.paymentService.CreatePaymentIntent(&PaymentRequest{
 			UserID:      addon.CompanyID,
+			CompanyID:   addon.CompanyID,
 			Amount:      addon.Price,
 			Currency:    "usd",
 			Description: fmt.Sprintf("Addon Renewal: %s", addon.AddonKey),
-			Metadata: map[string]string{
+			Metadata: map[string]interface{}{
 				"addon_id": addon.ID,
 				"type":     "renewal",
 			},
