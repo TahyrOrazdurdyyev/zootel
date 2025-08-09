@@ -1,6 +1,7 @@
 ﻿package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -100,26 +101,49 @@ func (h *AdminHandler) GetPaymentSettings(c *gin.Context) {
 		return
 	}
 
+	// Don't expose sensitive keys in response
+	sanitizedSettings := map[string]interface{}{
+		"id":                    settings.ID,
+		"stripe_enabled":        settings.StripeEnabled,
+		"commission_enabled":    settings.CommissionEnabled,
+		"commission_percentage": settings.CommissionPercentage,
+		"has_stripe_keys":       settings.StripePublishableKey != "" && settings.StripeSecretKey != "",
+		"created_at":            settings.CreatedAt,
+		"updated_at":            settings.UpdatedAt,
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"data":    settings,
+		"data":    sanitizedSettings,
 	})
 }
 
 func (h *AdminHandler) UpdatePaymentSettings(c *gin.Context) {
-	var settings models.PaymentSettings
-	if err := c.ShouldBindJSON(&settings); err != nil {
+	var req services.UpdatePaymentSettingsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := h.adminService.UpdatePaymentSettings(&settings); err != nil {
+	settings, err := h.adminService.UpdatePaymentSettings(&req)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Don't expose sensitive keys in response
+	sanitizedSettings := map[string]interface{}{
+		"id":                    settings.ID,
+		"stripe_enabled":        settings.StripeEnabled,
+		"commission_enabled":    settings.CommissionEnabled,
+		"commission_percentage": settings.CommissionPercentage,
+		"has_stripe_keys":       settings.StripePublishableKey != "" && settings.StripeSecretKey != "",
+		"updated_at":            settings.UpdatedAt,
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
+		"data":    sanitizedSettings,
 		"message": "Payment settings updated successfully",
 	})
 }
@@ -500,6 +524,73 @@ func (h *AdminHandler) GetGlobalAnalytics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    analytics,
+	})
+}
+
+// Free Trial Management
+
+// ExtendCompanyFreeTrial extends free trial for a company
+func (h *AdminHandler) ExtendCompanyFreeTrial(c *gin.Context) {
+	companyID := c.Param("company_id")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	var req struct {
+		AdditionalDays int    `json:"additional_days" binding:"required"`
+		Reason         string `json:"reason"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.AdditionalDays <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Additional days must be positive"})
+		return
+	}
+
+	err := h.adminService.ExtendCompanyFreeTrial(companyID, req.AdditionalDays)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": fmt.Sprintf("Free trial extended by %d days", req.AdditionalDays),
+	})
+}
+
+// GetCompaniesWithExpiredTrials returns companies with expired trials
+func (h *AdminHandler) GetCompaniesWithExpiredTrials(c *gin.Context) {
+	companies, err := h.adminService.GetCompaniesWithExpiredTrials()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    companies,
+		"count":   len(companies),
+	})
+}
+
+// GetCompaniesOnFreeTrial returns companies currently on free trial
+func (h *AdminHandler) GetCompaniesOnFreeTrial(c *gin.Context) {
+	companies, err := h.adminService.GetCompaniesOnFreeTrial()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    companies,
+		"count":   len(companies),
 	})
 }
 

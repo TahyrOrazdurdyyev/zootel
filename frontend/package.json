@@ -19,7 +19,9 @@
     "moment": "^2.29.4",
     "react-hot-toast": "^2.4.1",
     "date-fns": "^2.30.0",
-    "react-phone-input-2": "^2.15.1"
+    "react-phone-input-2": "^2.15.1",
+    "chart.js": "^4.4.0",
+    "react-chartjs-2": "^5.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^3.1.0",

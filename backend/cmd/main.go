@@ -82,7 +82,7 @@ func main() {
 	adminService := serviceContainer.AdminService()
 	addonService := serviceContainer.AddonService()
 	integrationService := serviceContainer.IntegrationService()
-	serviceService := serviceContainer.ServiceService()
+	uploadService := serviceContainer.UploadService()
 
 	// Initialize handlers
 	userHandler := handlers.NewUserHandler(userService)
@@ -98,12 +98,13 @@ func main() {
 	analyticsHandler := handlers.NewAnalyticsHandler(analyticsService)
 	addonHandler := handlers.NewAddonHandler(addonService, db)
 	integrationHandler := handlers.NewIntegrationHandler(integrationService)
+	uploadHandler := handlers.NewUploadHandler(uploadService)
 
 	// Initialize GraphQL handlers
 	graphqlHandler := graphql.NewGraphQLHandler(
 		userService,
 		companyService,
-		serviceService,
+		serviceContainer.ServiceService(),
 		bookingService,
 		petService,
 	)
@@ -123,6 +124,9 @@ func main() {
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	config.AllowCredentials = true
 	r.Use(cors.New(config))
+
+	// Serve static files (uploaded images)
+	r.Static("/uploads", "./uploads")
 
 	// Basic health check endpoint
 	r.GET("/health", func(c *gin.Context) {
@@ -187,7 +191,7 @@ func main() {
 				users.GET("/profile", userHandler.GetProfile)
 				users.PUT("/profile", userHandler.UpdateProfile)
 				users.DELETE("/profile", userHandler.DeleteProfile)
-				users.POST("/upload-avatar", userHandler.UploadAvatar)
+				users.POST("/upload-avatar", uploadHandler.UploadAvatar)
 			}
 
 			// Pet management endpoints
@@ -198,7 +202,7 @@ func main() {
 				pets.GET("/:id", petHandler.GetPet)
 				pets.PUT("/:id", petHandler.UpdatePet)
 				pets.DELETE("/:id", petHandler.DeletePet)
-				pets.POST("/:id/upload-photo", petHandler.UploadPetPhoto)
+				pets.POST("/:petId/upload-photo", uploadHandler.UploadPetPhoto)
 			}
 
 			// Booking endpoints
@@ -238,6 +242,19 @@ func main() {
 				payments.POST("/create-intent", paymentHandler.CreatePaymentIntent)
 				payments.POST("/confirm", paymentHandler.ConfirmPayment)
 				payments.GET("/history", paymentHandler.GetPaymentHistory)
+			}
+
+			// Upload endpoints
+			uploads := protected.Group("/uploads")
+			{
+				uploads.POST("/avatar", uploadHandler.UploadAvatar)
+				uploads.POST("/pet/:petId/photo", uploadHandler.UploadPetPhoto)
+				uploads.POST("/service/:serviceId/image", uploadHandler.UploadServiceImage)
+				uploads.POST("/company/:companyId/logo", uploadHandler.UploadCompanyLogo)
+				uploads.POST("/gallery", uploadHandler.UploadGallery)
+				uploads.GET("/files", uploadHandler.GetFiles)
+				uploads.DELETE("/files/:fileId", uploadHandler.DeleteFile)
+				uploads.GET("/files/:fileId", uploadHandler.GetFileInfo)
 			}
 
 			// Company management endpoints (for company owners)
@@ -346,6 +363,11 @@ func main() {
 				admin.PUT("/companies/:id/toggle-manual-ai", adminHandler.ToggleManualAI)
 				admin.PUT("/companies/:id/block", adminHandler.BlockCompany)
 				admin.PUT("/companies/:id/unblock", adminHandler.UnblockCompany)
+
+				// Free trial management
+				admin.POST("/companies/:company_id/extend-trial", adminHandler.ExtendCompanyFreeTrial)
+				admin.GET("/companies/expired-trials", adminHandler.GetCompaniesWithExpiredTrials)
+				admin.GET("/companies/on-trial", adminHandler.GetCompaniesOnFreeTrial)
 
 				// Global analytics
 				admin.GET("/analytics/dashboard", analyticsHandler.GetGlobalDashboard)

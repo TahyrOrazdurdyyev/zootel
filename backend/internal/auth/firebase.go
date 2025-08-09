@@ -116,27 +116,46 @@ func (f *FirebaseAuth) RevokeRefreshTokens(ctx context.Context, uid string) erro
 }
 
 // ImportUsers imports multiple users
-func (f *FirebaseAuth) ImportUsers(ctx context.Context, users []*auth.UserToImport, options *auth.UserImportOptions) (*auth.UserImportResult, error) {
-	result, err := f.client.ImportUsers(ctx, users, options)
+func (f *FirebaseAuth) ImportUsers(ctx context.Context, users []*auth.UserToImport) (*auth.UserImportResult, error) {
+	result, err := f.client.ImportUsers(ctx, users)
 	if err != nil {
 		return nil, fmt.Errorf("failed to import users: %v", err)
 	}
 	return result, nil
 }
 
-// ListUsers lists all users
-func (f *FirebaseAuth) ListUsers(ctx context.Context, maxResults int, pageToken string) (*auth.ExportedUserRecord, error) {
-	pager := auth.MaxResults(maxResults)
+// ListUsers lists all users with pagination
+func (f *FirebaseAuth) ListUsers(ctx context.Context, maxResults int, pageToken string) ([]*auth.ExportedUserRecord, string, error) {
+	var pager *auth.UserIterator
+
 	if pageToken != "" {
-		pager = auth.StartAfterToken(pageToken)
+		pager = f.client.Users(ctx, pageToken)
+	} else {
+		pager = f.client.Users(ctx, "")
 	}
 
-	iter := f.client.Users(ctx, pager)
-	user, err := iter.Next()
-	if err != nil {
-		return nil, fmt.Errorf("failed to list users: %v", err)
+	var users []*auth.ExportedUserRecord
+	var nextPageToken string
+	count := 0
+
+	for count < maxResults {
+		user, err := pager.Next()
+		if err != nil {
+			// Check if we've reached the end
+			if err.Error() == "no more items in iterator" {
+				break
+			}
+			return nil, "", fmt.Errorf("failed to list users: %v", err)
+		}
+
+		users = append(users, user)
+		count++
 	}
-	return user, nil
+
+	// Get next page token if available
+	nextPageToken = pager.PageInfo().Token
+
+	return users, nextPageToken, nil
 }
 
 // GenerateEmailVerificationLink generates email verification link

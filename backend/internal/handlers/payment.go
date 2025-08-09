@@ -4,7 +4,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/services"
 	"github.com/gin-gonic/gin"
@@ -123,23 +122,13 @@ func (h *PaymentHandler) GetCompanyPayments(c *gin.Context) {
 		return
 	}
 
-	// Parse date range
-	startDateStr := c.DefaultQuery("start_date", time.Now().AddDate(0, -1, 0).Format("2006-01-02"))
-	endDateStr := c.DefaultQuery("end_date", time.Now().Format("2006-01-02"))
-
-	startDate, err := time.Parse("2006-01-02", startDateStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid start_date format"})
-		return
+	// Parse days parameter instead of date range
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 1 || days > 365 {
+		days = 30
 	}
 
-	endDate, err := time.Parse("2006-01-02", endDateStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid end_date format"})
-		return
-	}
-
-	payments, err := h.paymentService.GetPaymentsByCompany(companyID, startDate, endDate)
+	payments, err := h.paymentService.GetPaymentsByCompany(companyID, days)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -148,9 +137,8 @@ func (h *PaymentHandler) GetCompanyPayments(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
-			"payments":   payments,
-			"start_date": startDate,
-			"end_date":   endDate,
+			"payments": payments,
+			"period":   days,
 		},
 	})
 }
@@ -187,10 +175,15 @@ func (h *PaymentHandler) GetPayment(c *gin.Context) {
 		return
 	}
 
-	// TODO: Implement GetPaymentByID method in PaymentService
-	c.JSON(http.StatusNotImplemented, gin.H{
-		"error":      "GetPaymentByID not implemented yet",
-		"payment_id": paymentID,
+	payment, err := h.paymentService.GetPaymentByID(paymentID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    payment,
 	})
 }
 
@@ -227,11 +220,15 @@ func (h *PaymentHandler) UpdatePaymentStatus(c *gin.Context) {
 		return
 	}
 
-	// TODO: Implement UpdatePaymentStatus method in PaymentService
-	c.JSON(http.StatusNotImplemented, gin.H{
-		"error":      "UpdatePaymentStatus not implemented yet",
-		"payment_id": paymentID,
-		"status":     req.Status,
+	err := h.paymentService.UpdatePaymentStatus(paymentID, req.Status)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Payment status updated successfully",
 	})
 }
 
@@ -243,10 +240,15 @@ func (h *PaymentHandler) GetPaymentMethods(c *gin.Context) {
 		return
 	}
 
-	// TODO: Implement GetUserPaymentMethods method in PaymentService
-	c.JSON(http.StatusNotImplemented, gin.H{
-		"error":   "GetUserPaymentMethods not implemented yet",
-		"user_id": userID.(string),
+	methods, err := h.paymentService.GetUserPaymentMethods(userID.(string))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    methods,
 	})
 }
 
@@ -258,10 +260,15 @@ func (h *PaymentHandler) CreateSetupIntent(c *gin.Context) {
 		return
 	}
 
-	// TODO: Implement CreateSetupIntent method in PaymentService
-	c.JSON(http.StatusNotImplemented, gin.H{
-		"error":   "CreateSetupIntent not implemented yet",
-		"user_id": userID.(string),
+	setupIntent, err := h.paymentService.CreateSetupIntent(userID.(string))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    setupIntent,
 	})
 }
 
@@ -284,12 +291,16 @@ func (h *PaymentHandler) ProcessSubscriptionPayment(c *gin.Context) {
 		return
 	}
 
-	// TODO: Implement CreateSubscription method in PaymentService
-	c.JSON(http.StatusNotImplemented, gin.H{
-		"error":      "CreateSubscription not implemented yet",
-		"user_id":    userID.(string),
-		"company_id": req.CompanyID,
-		"plan_id":    req.PlanID,
+	// Get subscription result from service
+	subscription, err := h.paymentService.CreateSubscription(userID.(string), req.PlanID, req.PaymentMethodID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    subscription,
 	})
 }
 

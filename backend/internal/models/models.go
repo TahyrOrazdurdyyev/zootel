@@ -56,6 +56,7 @@ type PaymentSettings struct {
 	CommissionPercentage float64   `json:"commission_percentage" db:"commission_percentage"`
 	StripePublishableKey string    `json:"stripe_publishable_key" db:"stripe_publishable_key"`
 	StripeSecretKey      string    `json:"stripe_secret_key" db:"stripe_secret_key"`
+	StripeWebhookSecret  string    `json:"stripe_webhook_secret" db:"stripe_webhook_secret"`
 	CreatedAt            time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt            time.Time `json:"updated_at" db:"updated_at"`
 }
@@ -423,4 +424,53 @@ type CartAbandonment struct {
 	AbandonedAt         time.Time  `json:"abandoned_at" db:"abandoned_at"`
 	RecoveryEmailSent   bool       `json:"recovery_email_sent" db:"recovery_email_sent"`
 	RecoveryEmailSentAt *time.Time `json:"recovery_email_sent_at" db:"recovery_email_sent_at"`
+}
+
+// Payment represents a payment transaction
+type Payment struct {
+	ID                    string     `json:"id" db:"id"`
+	UserID                string     `json:"user_id" db:"user_id"`
+	CompanyID             *string    `json:"company_id" db:"company_id"`
+	BookingID             *string    `json:"booking_id" db:"booking_id"`
+	OrderID               *string    `json:"order_id" db:"order_id"`
+	StripePaymentIntentID string     `json:"stripe_payment_intent_id" db:"stripe_payment_intent_id"`
+	Amount                float64    `json:"amount" db:"amount"`
+	Currency              string     `json:"currency" db:"currency"`
+	Status                string     `json:"status" db:"status"` // pending, succeeded, failed, canceled, refunded, partially_refunded
+	CommissionAmount      float64    `json:"commission_amount" db:"commission_amount"`
+	PlatformAmount        float64    `json:"platform_amount" db:"platform_amount"` // Amount held by platform (with commission)
+	CompanyAmount         float64    `json:"company_amount" db:"company_amount"`   // Amount to be transferred to company
+	TransferredAt         *time.Time `json:"transferred_at" db:"transferred_at"`   // When money was transferred to company
+	PaymentMethodType     string     `json:"payment_method_type" db:"payment_method_type"`
+	CreatedAt             time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt             time.Time  `json:"updated_at" db:"updated_at"`
+}
+
+// Refund represents payment refunds
+type Refund struct {
+	ID             string    `json:"id" db:"id"`
+	PaymentID      string    `json:"payment_id" db:"payment_id"`
+	StripeRefundID string    `json:"stripe_refund_id" db:"stripe_refund_id"`
+	Amount         float64   `json:"amount" db:"amount"`
+	Reason         string    `json:"reason" db:"reason"`
+	Status         string    `json:"status" db:"status"` // pending, succeeded, failed
+	CreatedAt      time.Time `json:"created_at" db:"created_at"`
+}
+
+// FileUpload represents uploaded files
+type FileUpload struct {
+	ID           string    `json:"id" db:"id"`
+	OriginalName string    `json:"original_name" db:"original_name"`
+	FileName     string    `json:"file_name" db:"file_name"`
+	FilePath     string    `json:"file_path" db:"file_path"`
+	FileSize     int64     `json:"file_size" db:"file_size"`
+	MimeType     string    `json:"mime_type" db:"mime_type"`
+	Purpose      string    `json:"purpose" db:"purpose"`         // avatar, pet, service, gallery, etc.
+	EntityType   string    `json:"entity_type" db:"entity_type"` // user, pet, service, company
+	EntityID     string    `json:"entity_id" db:"entity_id"`
+	UploaderID   string    `json:"uploader_id" db:"uploader_id"`
+	UploaderType string    `json:"uploader_type" db:"uploader_type"` // user, employee
+	IsPublic     bool      `json:"is_public" db:"is_public"`
+	CreatedAt    time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
 }

@@ -31,6 +31,7 @@ type ServiceContainer struct {
 	emailService        *EmailService
 	smsService          *SMSService
 	webhookService      *WebhookService
+	uploadService       *UploadService
 
 	// Service initialization status
 	initialized map[string]bool
@@ -64,29 +65,38 @@ func (c *ServiceContainer) InitializeServices() error {
 	c.petService = NewPetService(c.db)
 	c.initialized["pet"] = true
 
-	c.bookingService = NewBookingService(c.db)
-	c.initialized["booking"] = true
-
-	c.orderService = NewOrderService(c.db)
-	c.initialized["order"] = true
-
-	c.chatService = NewChatService(c.db)
-	c.initialized["chat"] = true
-
-	c.aiService = NewAIService(c.db)
-	c.initialized["ai"] = true
-
 	c.paymentService = NewPaymentService(c.db)
 	c.initialized["payment"] = true
 
-	c.notificationService = NewNotificationService(c.db)
-	c.initialized["notification"] = true
+	c.aiService = NewAIService(c.db)
+	c.initialized["ai"] = true
 
 	c.analyticsService = NewAnalyticsService(c.db)
 	c.initialized["analytics"] = true
 
 	c.adminService = NewAdminService(c.db)
 	c.initialized["admin"] = true
+
+	// Initialize notification service with credential file
+	c.notificationService = NewNotificationService(c.db, "")
+	c.initialized["notification"] = true
+
+	// Initialize email and SMS services
+	c.emailService = NewEmailService(c.db)
+	c.initialized["email"] = true
+
+	c.smsService = NewSMSService(c.db)
+	c.initialized["sms"] = true
+
+	// Initialize services that depend on notification/email/sms
+	c.bookingService = NewBookingService(c.db, c.notificationService, c.emailService, c.smsService)
+	c.initialized["booking"] = true
+
+	c.chatService = NewChatService(c.db, c.aiService)
+	c.initialized["chat"] = true
+
+	c.orderService = NewOrderService(c.db)
+	c.initialized["order"] = true
 
 	c.addonService = NewAddonService(c.db)
 	c.initialized["addon"] = true
@@ -100,14 +110,11 @@ func (c *ServiceContainer) InitializeServices() error {
 	c.demoService = NewDemoService(c.db)
 	c.initialized["demo"] = true
 
-	c.emailService = NewEmailService(c.db)
-	c.initialized["email"] = true
-
-	c.smsService = NewSMSService(c.db)
-	c.initialized["sms"] = true
-
 	c.webhookService = NewWebhookService(c.db)
 	c.initialized["webhook"] = true
+
+	c.uploadService = NewUploadService(c.db)
+	c.initialized["upload"] = true
 
 	log.Println("All services initialized successfully")
 	return nil
@@ -188,6 +195,10 @@ func (c *ServiceContainer) SMSService() *SMSService {
 
 func (c *ServiceContainer) WebhookService() *WebhookService {
 	return c.webhookService
+}
+
+func (c *ServiceContainer) UploadService() *UploadService {
+	return c.uploadService
 }
 
 // Cleanup method

@@ -109,67 +109,246 @@ func (s *AdminService) DeletePlan(planID string) error {
 }
 
 // Payment Settings Management
-func (s *AdminService) GetPaymentSettings() (*models.PaymentSettings, error) {
-	query := `
-		SELECT id, stripe_enabled, commission_enabled, commission_percentage,
-			   stripe_publishable_key, stripe_secret_key, created_at, updated_at
-		FROM payment_settings LIMIT 1`
 
+// GetPaymentSettings returns current payment settings
+func (s *AdminService) GetPaymentSettings() (*models.PaymentSettings, error) {
 	var settings models.PaymentSettings
-	err := s.db.QueryRow(query).Scan(
+	err := s.db.QueryRow(`
+		SELECT id, stripe_enabled, commission_enabled, commission_percentage,
+			   stripe_publishable_key, stripe_secret_key, stripe_webhook_secret,
+			   created_at, updated_at
+		FROM payment_settings LIMIT 1
+	`).Scan(
 		&settings.ID, &settings.StripeEnabled, &settings.CommissionEnabled,
 		&settings.CommissionPercentage, &settings.StripePublishableKey,
-		&settings.StripeSecretKey, &settings.CreatedAt, &settings.UpdatedAt,
+		&settings.StripeSecretKey, &settings.StripeWebhookSecret,
+		&settings.CreatedAt, &settings.UpdatedAt,
 	)
 
-	if err == sql.ErrNoRows {
-		// Create default settings if none exist
-		return s.createDefaultPaymentSettings()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Create default settings if none exist
+			return s.CreateDefaultPaymentSettings()
+		}
+		return nil, err
 	}
 
-	return &settings, err
+	return &settings, nil
 }
 
-func (s *AdminService) createDefaultPaymentSettings() (*models.PaymentSettings, error) {
+// CreateDefaultPaymentSettings creates default payment settings
+func (s *AdminService) CreateDefaultPaymentSettings() (*models.PaymentSettings, error) {
 	settings := &models.PaymentSettings{
 		ID:                   uuid.New().String(),
-		StripeEnabled:        false,
-		CommissionEnabled:    false,
-		CommissionPercentage: 0.0,
+		StripeEnabled:        false, // Disabled by default
+		CommissionEnabled:    true,  // Commission enabled by default
+		CommissionPercentage: 10.0,  // 10% default commission
 		CreatedAt:            time.Now(),
 		UpdatedAt:            time.Now(),
 	}
 
-	query := `
-		INSERT INTO payment_settings (id, stripe_enabled, commission_enabled,
-									 commission_percentage, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6)`
+	_, err := s.db.Exec(`
+		INSERT INTO payment_settings (id, stripe_enabled, commission_enabled, commission_percentage,
+									 stripe_publishable_key, stripe_secret_key, stripe_webhook_secret,
+									 created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+	`, settings.ID, settings.StripeEnabled, settings.CommissionEnabled,
+		settings.CommissionPercentage, settings.StripePublishableKey,
+		settings.StripeSecretKey, settings.StripeWebhookSecret,
+		settings.CreatedAt, settings.UpdatedAt)
 
-	_, err := s.db.Exec(query,
-		settings.ID, settings.StripeEnabled, settings.CommissionEnabled,
-		settings.CommissionPercentage, settings.CreatedAt, settings.UpdatedAt,
-	)
+	if err != nil {
+		return nil, err
+	}
 
-	return settings, err
+	return settings, nil
 }
 
-func (s *AdminService) UpdatePaymentSettings(settings *models.PaymentSettings) error {
-	settings.UpdatedAt = time.Now()
+// UpdatePaymentSettings updates payment settings
+func (s *AdminService) UpdatePaymentSettings(req *UpdatePaymentSettingsRequest) (*models.PaymentSettings, error) {
+	// Get current settings
+	currentSettings, err := s.GetPaymentSettings()
+	if err != nil {
+		return nil, err
+	}
 
-	query := `
-		UPDATE payment_settings SET 
-			stripe_enabled = $2, commission_enabled = $3,
-			commission_percentage = $4, stripe_publishable_key = $5,
-			stripe_secret_key = $6, updated_at = $7
-		WHERE id = $1`
+	// Update only provided fields
+	if req.StripeEnabled != nil {
+		currentSettings.StripeEnabled = *req.StripeEnabled
+	}
+	if req.CommissionEnabled != nil {
+		currentSettings.CommissionEnabled = *req.CommissionEnabled
+	}
+	if req.CommissionPercentage != nil {
+		// Validate commission percentage
+		if *req.CommissionPercentage < 0 || *req.CommissionPercentage > 100 {
+			return nil, fmt.Errorf("commission percentage must be between 0 and 100")
+		}
+		currentSettings.CommissionPercentage = *req.CommissionPercentage
+	}
+	if req.StripePublishableKey != nil {
+		currentSettings.StripePublishableKey = *req.StripePublishableKey
+	}
+	if req.StripeSecretKey != nil {
+		currentSettings.StripeSecretKey = *req.StripeSecretKey
+	}
+	if req.StripeWebhookSecret != nil {
+		currentSettings.StripeWebhookSecret = *req.StripeWebhookSecret
+	}
 
-	_, err := s.db.Exec(query,
-		settings.ID, settings.StripeEnabled, settings.CommissionEnabled,
-		settings.CommissionPercentage, settings.StripePublishableKey,
-		settings.StripeSecretKey, settings.UpdatedAt,
-	)
+	currentSettings.UpdatedAt = time.Now()
+
+	// Update in database
+	_, err = s.db.Exec(`
+		UPDATE payment_settings SET
+			stripe_enabled = $2,
+			commission_enabled = $3,
+			commission_percentage = $4,
+			stripe_publishable_key = $5,
+			stripe_secret_key = $6,
+			stripe_webhook_secret = $7,
+			updated_at = $8
+		WHERE id = $1
+	`, currentSettings.ID, currentSettings.StripeEnabled, currentSettings.CommissionEnabled,
+		currentSettings.CommissionPercentage, currentSettings.StripePublishableKey,
+		currentSettings.StripeSecretKey, currentSettings.StripeWebhookSecret,
+		currentSettings.UpdatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return currentSettings, nil
+}
+
+// Free Trial Management
+
+// ExtendCompanyFreeTrial extends free trial for a specific company
+func (s *AdminService) ExtendCompanyFreeTrial(companyID string, additionalDays int) error {
+	if additionalDays <= 0 {
+		return fmt.Errorf("additional days must be positive")
+	}
+
+	// Get current company trial info
+	var currentTrialEnd sql.NullTime
+	err := s.db.QueryRow(`
+		SELECT trial_ends_at FROM companies WHERE id = $1
+	`, companyID).Scan(&currentTrialEnd)
+
+	if err != nil {
+		return err
+	}
+
+	// Calculate new trial end date
+	var newTrialEnd time.Time
+	if currentTrialEnd.Valid && currentTrialEnd.Time.After(time.Now()) {
+		// Extend from current trial end
+		newTrialEnd = currentTrialEnd.Time.AddDate(0, 0, additionalDays)
+	} else {
+		// Start new trial from now
+		newTrialEnd = time.Now().AddDate(0, 0, additionalDays)
+	}
+
+	// Update company trial end date
+	_, err = s.db.Exec(`
+		UPDATE companies SET 
+			trial_ends_at = $2, 
+			trial_expired = false,
+			updated_at = $3
+		WHERE id = $1
+	`, companyID, newTrialEnd, time.Now())
 
 	return err
+}
+
+// GetCompaniesWithExpiredTrials returns companies with expired trials
+func (s *AdminService) GetCompaniesWithExpiredTrials() ([]models.Company, error) {
+	query := `
+		SELECT id, owner_id, name, description, categories, country, state, city, address,
+			   phone, email, website, logo_url, media_gallery, business_hours,
+			   plan_id, trial_expired, special_partner, manual_enabled_crm, manual_enabled_ai_agents,
+			   is_demo, is_active, website_integration_enabled, api_key, publish_to_marketplace,
+			   created_at, updated_at
+		FROM companies 
+		WHERE trial_expired = true OR (trial_ends_at IS NOT NULL AND trial_ends_at < NOW())
+		ORDER BY created_at DESC
+	`
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var companies []models.Company
+	for rows.Next() {
+		var company models.Company
+		err := rows.Scan(
+			&company.ID, &company.OwnerID, &company.Name, &company.Description,
+			&company.Categories, &company.Country, &company.State, &company.City, &company.Address,
+			&company.Phone, &company.Email, &company.Website, &company.LogoURL, &company.MediaGallery,
+			&company.BusinessHours, &company.PlanID, &company.TrialExpired, &company.SpecialPartner,
+			&company.ManualEnabledCRM, &company.ManualEnabledAIAgents, &company.IsDemo, &company.IsActive,
+			&company.WebsiteIntegrationEnabled, &company.APIKey, &company.PublishToMarketplace,
+			&company.CreatedAt, &company.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		companies = append(companies, company)
+	}
+
+	return companies, nil
+}
+
+// GetCompaniesOnFreeTrial returns companies currently on free trial
+func (s *AdminService) GetCompaniesOnFreeTrial() ([]models.Company, error) {
+	query := `
+		SELECT id, owner_id, name, description, categories, country, state, city, address,
+			   phone, email, website, logo_url, media_gallery, business_hours,
+			   plan_id, trial_expired, special_partner, manual_enabled_crm, manual_enabled_ai_agents,
+			   is_demo, is_active, website_integration_enabled, api_key, publish_to_marketplace,
+			   created_at, updated_at
+		FROM companies 
+		WHERE trial_ends_at IS NOT NULL AND trial_ends_at > NOW() AND trial_expired = false
+		ORDER BY trial_ends_at ASC
+	`
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var companies []models.Company
+	for rows.Next() {
+		var company models.Company
+		err := rows.Scan(
+			&company.ID, &company.OwnerID, &company.Name, &company.Description,
+			&company.Categories, &company.Country, &company.State, &company.City, &company.Address,
+			&company.Phone, &company.Email, &company.Website, &company.LogoURL, &company.MediaGallery,
+			&company.BusinessHours, &company.PlanID, &company.TrialExpired, &company.SpecialPartner,
+			&company.ManualEnabledCRM, &company.ManualEnabledAIAgents, &company.IsDemo, &company.IsActive,
+			&company.WebsiteIntegrationEnabled, &company.APIKey, &company.PublishToMarketplace,
+			&company.CreatedAt, &company.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		companies = append(companies, company)
+	}
+
+	return companies, nil
+}
+
+// Request structs for admin operations
+type UpdatePaymentSettingsRequest struct {
+	StripeEnabled        *bool    `json:"stripe_enabled"`
+	CommissionEnabled    *bool    `json:"commission_enabled"`
+	CommissionPercentage *float64 `json:"commission_percentage"`
+	StripePublishableKey *string  `json:"stripe_publishable_key"`
+	StripeSecretKey      *string  `json:"stripe_secret_key"`
+	StripeWebhookSecret  *string  `json:"stripe_webhook_secret"`
 }
 
 // Service Categories Management

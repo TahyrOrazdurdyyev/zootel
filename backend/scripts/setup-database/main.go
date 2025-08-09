@@ -328,6 +328,27 @@ func runMigrations(db *sql.DB) error {
 	return nil
 }
 
+/*
+Usage:
+  cd backend/scripts/setup-database && go run . [command]
+
+Commands:
+  migrate     - Run pending migrations
+  rollback    - Rollback last migration
+  status      - Show migration status
+  reset       - Reset database (drop all tables)
+  seed        - Run seed data
+  --create-db - Create database if it doesn't exist
+
+Examples:
+  cd backend/scripts/setup-database && go run . migrate
+  cd backend/scripts/setup-database && go run . --create-db migrate
+  cd backend/scripts/setup-database && go run . seed
+
+Or build and run:
+  cd backend/scripts/setup-database && go build . && ./setup-database migrate
+*/
+
 func rollbackMigration(db *sql.DB) error {
 	fmt.Println("🔄 Rolling back last migration...")
 

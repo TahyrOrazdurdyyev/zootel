@@ -107,7 +107,12 @@ func (s *WebhookService) TriggerPaymentSucceeded(payment *models.Payment) error 
 		"created_at":               payment.CreatedAt,
 	}
 
-	return s.triggerWebhook("payment.succeeded", payment.CompanyID, eventData)
+	companyID := ""
+	if payment.CompanyID != nil {
+		companyID = *payment.CompanyID
+	}
+
+	return s.triggerWebhook("payment.succeeded", companyID, eventData)
 }
 
 // TriggerProfileCompleted triggers profile_completed webhook
@@ -130,7 +135,6 @@ func (s *WebhookService) TriggerOrderCreated(order *models.Order) error {
 		"company_id":   order.CompanyID,
 		"total_amount": order.TotalAmount,
 		"status":       order.Status,
-		"items":        order.Items,
 		"created_at":   order.CreatedAt,
 	}
 

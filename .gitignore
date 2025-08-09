@@ -12,6 +12,15 @@ yarn-error.log*
 .env.production
 **/env.example
 
+# Firebase & Security
+**/config/serviceAccountKey.json
+**/serviceAccountKey.json
+firebase-adminsdk-*.json
+google-services.json
+GoogleService-Info.plist
+firebase-debug.log
+.firebase/
+
 # Go
 *.exe
 *.exe~

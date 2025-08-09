@@ -10,14 +10,22 @@ import RegisterPage from './pages/auth/RegisterPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import MarketplacePage from './pages/marketplace/MarketplacePage';
+import BusinessPage from './pages/BusinessPage';
 import BookingPage from './pages/BookingPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import ProfilePage from './pages/ProfilePage';
 import ChatPage from './pages/ChatPage';
-import BusinessPage from './pages/BusinessPage';
+
+// Admin pages
+import PaymentSettings from './pages/admin/PaymentSettings';
+import PlanSettings from './pages/admin/PlanSettings';
+import AnalyticsPage from './pages/admin/AnalyticsPage';
+
+// Company pages
 import CompanyDashboard from './pages/company/CompanyDashboard';
-import AdminDashboard from './pages/admin/AdminDashboard';
+import CompanyAnalyticsPage from './pages/company/CompanyAnalyticsPage';
+
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
@@ -67,14 +75,22 @@ function App() {
               {/* Company Dashboard */}
               <Route path="/company/*" element={
                 <ProtectedRoute requiredRole="company_owner">
-                  <CompanyDashboard />
+                  <Routes>
+                    <Route path="/" element={<CompanyDashboard />} />
+                    <Route path="/analytics" element={<CompanyAnalyticsPage />} />
+                  </Routes>
                 </ProtectedRoute>
               } />
               
               {/* Admin Dashboard */}
               <Route path="/admin/*" element={
                 <ProtectedRoute requiredRole="super_admin">
-                  <AdminDashboard />
+                  <Routes>
+                    <Route path="/" element={<div>Admin Dashboard</div>} />
+                    <Route path="/payment-settings" element={<PaymentSettings />} />
+                    <Route path="/plan-settings" element={<PlanSettings />} />
+                    <Route path="/analytics" element={<AnalyticsPage />} />
+                  </Routes>
                 </ProtectedRoute>
               } />
               

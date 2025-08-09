@@ -266,7 +266,7 @@ func (s *AIService) ProcessAIRequest(req *AIRequest) (*AIResponse, error) {
 // GetCompanyAIAgents returns available AI agents for a company
 func (s *AIService) GetCompanyAIAgents(companyID string) ([]AIAgent, error) {
 	// Get company's plan and manual settings
-	var planIncludedAgents, manualEnabledAgents []string
+	var planIncludedAgents []string
 	var hasManualAI bool
 
 	err := s.db.QueryRow(`

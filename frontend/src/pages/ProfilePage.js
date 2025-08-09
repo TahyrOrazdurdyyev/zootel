@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   UserIcon, 
-  PencilIcon,
-  PlusIcon,
-  TrashIcon,
-  CameraIcon
+  CameraIcon, 
+  PencilIcon, 
+  CheckIcon, 
+  XMarkIcon,
+  HeartIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import LocationSelect from '../components/ui/LocationSelect';
+import FileUpload from '../components/ui/FileUpload';
 
 const ProfilePage = () => {
   const { user } = useAuth();
@@ -34,7 +38,8 @@ const ProfilePage = () => {
     vetClinic: 'Центр ветеринарной медицины',
     vetPhone: '+74951234567',
     notificationMethods: ['email', 'push'],
-    marketingOptIn: true
+    marketingOptIn: true,
+    avatarUrl: null // Added avatarUrl to state
   });
 
   const [pets, setPets] = useState([
@@ -74,6 +79,41 @@ const ProfilePage = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleLocationChange = (location) => {
+    handleInputChange('country', location.country);
+    handleInputChange('state', location.state);
+    handleInputChange('city', location.city);
+  };
+
+  const handleAvatarUpload = async (files) => {
+    if (!files || files.length === 0) return;
+    
+    const file = files[0];
+    const formData = new FormData();
+    formData.append('file', file.file);
+
+    try {
+      const response = await fetch('/api/uploads/avatar', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload avatar');
+      }
+
+      const result = await response.json();
+      handleInputChange('avatarUrl', result.file.url);
+      alert('Фото профиля загружено успешно!');
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      alert('Ошибка при загрузке фото. Попробуйте снова.');
+    }
   };
 
   const calculateAge = (dateOfBirth) => {
@@ -119,6 +159,35 @@ const ProfilePage = () => {
 
   const deletePet = (petId) => {
     setPets(pets.filter(pet => pet.id !== petId));
+  };
+
+  const handlePetPhotoUpload = async (petId, files) => {
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    const formData = new FormData();
+    formData.append('file', file.file);
+
+    try {
+      const response = await fetch(`/api/uploads/pet/${petId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload pet photo');
+      }
+
+      const result = await response.json();
+      updatePet(petId, { photoUrl: result.file.url });
+      alert('Фото питомца загружено успешно!');
+    } catch (error) {
+      console.error('Error uploading pet photo:', error);
+      alert('Ошибка при загрузке фото питомца. Попробуйте снова.');
+    }
   };
 
   const renderPersonalTab = () => (
@@ -187,17 +256,55 @@ const ProfilePage = () => {
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Фото профиля
         </label>
-        <div className="flex items-center space-x-4">
-          <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
-            <UserIcon className="w-10 h-10 text-gray-400" />
+        {isEditing ? (
+          <div className="space-y-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                {profileData.avatarUrl ? (
+                  <img 
+                    src={profileData.avatarUrl} 
+                    alt="Avatar" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <UserIcon className="w-10 h-10 text-gray-400" />
+                )}
+              </div>
+            </div>
+            <FileUpload
+              onFilesSelect={handleAvatarUpload}
+              maxFiles={1}
+              maxFileSize={5 * 1024 * 1024} // 5MB
+              acceptedTypes={['image/jpeg', 'image/png', 'image/webp']}
+              allowMultiple={false}
+              showPreview={false}
+              className="max-w-md"
+            >
+              <div>
+                <p className="text-sm font-medium text-gray-700">
+                  Загрузите фото профиля
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  JPG, PNG или WebP до 5MB
+                </p>
+              </div>
+            </FileUpload>
           </div>
-          {isEditing && (
-            <button className="btn-secondary flex items-center space-x-2">
-              <CameraIcon className="w-4 h-4" />
-              <span>Загрузить фото</span>
-            </button>
-          )}
-        </div>
+        ) : (
+          <div className="flex items-center space-x-4">
+            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+              {profileData.avatarUrl ? (
+                <img 
+                  src={profileData.avatarUrl} 
+                  alt="Avatar" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <UserIcon className="w-10 h-10 text-gray-400" />
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -471,7 +578,7 @@ const ProfilePage = () => {
                 onClick={() => deletePet(pet.id)}
                 className="text-red-500 hover:text-red-700"
               >
-                <TrashIcon className="w-5 h-5" />
+                <XMarkIcon className="w-5 h-5" />
               </button>
             </div>
 
@@ -519,6 +626,45 @@ const ProfilePage = () => {
                   className="input-field"
                   placeholder="Порода"
                 />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Фото питомца
+                </label>
+                <div className="flex items-start space-x-4">
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                    {pet.photoUrl ? (
+                      <img 
+                        src={pet.photoUrl} 
+                        alt={pet.name} 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <HeartIcon className="w-8 h-8 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <FileUpload
+                      onFilesSelect={(files) => handlePetPhotoUpload(pet.id, files)}
+                      maxFiles={1}
+                      maxFileSize={5 * 1024 * 1024} // 5MB
+                      acceptedTypes={['image/jpeg', 'image/png', 'image/webp']}
+                      allowMultiple={false}
+                      showPreview={false}
+                      className="max-w-sm"
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">
+                          Загрузите фото питомца
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          JPG, PNG или WebP до 5MB
+                        </p>
+                      </div>
+                    </FileUpload>
+                  </div>
+                </div>
               </div>
 
               <div>

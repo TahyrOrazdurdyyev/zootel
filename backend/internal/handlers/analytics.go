@@ -37,7 +37,13 @@ func (h *AnalyticsHandler) GetRevenueTrends(c *gin.Context) {
 		days = 30
 	}
 
-	trends, err := h.analyticsService.GetRevenueTrends(days)
+	// Get company ID from context if available
+	companyID := ""
+	if cid, exists := c.Get("company_id"); exists {
+		companyID = cid.(string)
+	}
+
+	trends, err := h.analyticsService.GetRevenueTrends(companyID, days)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -224,19 +230,13 @@ func (h *AnalyticsHandler) GetGeographicDistribution(c *gin.Context) {
 
 // TrackEvent records an analytics event
 func (h *AnalyticsHandler) TrackEvent(c *gin.Context) {
-	var req struct {
-		EventType string                 `json:"event_type" binding:"required"`
-		UserID    string                 `json:"user_id"`
-		CompanyID string                 `json:"company_id"`
-		Metadata  map[string]interface{} `json:"metadata"`
-	}
-
+	var req services.TrackEventRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Get user context if available
+	// Get user context if not provided
 	if req.UserID == "" {
 		if userID, exists := c.Get("user_id"); exists {
 			req.UserID = userID.(string)
@@ -249,7 +249,7 @@ func (h *AnalyticsHandler) TrackEvent(c *gin.Context) {
 		}
 	}
 
-	err := h.analyticsService.TrackEvent(req.EventType, req.UserID, req.CompanyID, req.Metadata)
+	err := h.analyticsService.TrackEvent(&req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -270,8 +270,8 @@ func (h *AnalyticsHandler) GetAnalyticsOverview(c *gin.Context) {
 		return
 	}
 
-	// Get recent trends (last 7 days)
-	revenueTrends, _ := h.analyticsService.GetRevenueTrends(7)
+	// Get recent trends (last 7 days) - use empty company ID for global
+	revenueTrends, _ := h.analyticsService.GetRevenueTrends("", 7)
 	userTrends, _ := h.analyticsService.GetUserRegistrationTrends(7)
 	bookingTrends, _ := h.analyticsService.GetBookingTrends(7)
 
@@ -294,14 +294,13 @@ func (h *AnalyticsHandler) GetAnalyticsOverview(c *gin.Context) {
 	})
 }
 
-// GetGlobalRevenueTrends returns global revenue trends over specified time period
+// GetGlobalRevenueTrends returns global revenue trends
 func (h *AnalyticsHandler) GetGlobalRevenueTrends(c *gin.Context) {
 	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
 	if days < 1 || days > 365 {
 		days = 30
 	}
 
-	// Get revenue trends for all companies (empty companyID)
 	trends, err := h.analyticsService.GetRevenueTrends("", days)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -310,22 +309,18 @@ func (h *AnalyticsHandler) GetGlobalRevenueTrends(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"data": gin.H{
-			"trends": trends,
-			"period": days,
-		},
+		"data":    trends,
 	})
 }
 
-// GetGlobalRegistrationTrends returns user registration trends over specified time period
+// GetGlobalRegistrationTrends returns global user registration trends
 func (h *AnalyticsHandler) GetGlobalRegistrationTrends(c *gin.Context) {
 	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
 	if days < 1 || days > 365 {
 		days = 30
 	}
 
-	// Get registration trends for all companies (empty companyID)
-	trends, err := h.analyticsService.GetUserRegistrationTrends("", days)
+	trends, err := h.analyticsService.GetUserRegistrationTrends(days)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -333,17 +328,13 @@ func (h *AnalyticsHandler) GetGlobalRegistrationTrends(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"data": gin.H{
-			"trends": trends,
-			"period": days,
-		},
+		"data":    trends,
 	})
 }
 
-// GetGlobalUserSegmentation returns global user segmentation data
+// GetGlobalUserSegmentation returns global user segmentation
 func (h *AnalyticsHandler) GetGlobalUserSegmentation(c *gin.Context) {
-	// Get segmentation for all companies (empty companyID)
-	segmentation, err := h.analyticsService.GetUserSegmentation("")
+	segmentation, err := h.analyticsService.GetUserSegmentation()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -352,83 +343,5 @@ func (h *AnalyticsHandler) GetGlobalUserSegmentation(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    segmentation,
-	})
-}
-
-// GetTopPerformingCompanies returns top performing companies
-func (h *AnalyticsHandler) GetTopPerformingCompanies(c *gin.Context) {
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
-	if limit < 1 || limit > 50 {
-		limit = 10
-	}
-
-	companies, err := h.analyticsService.GetTopPerformingCompanies(limit)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data": gin.H{
-			"companies": companies,
-			"limit":     limit,
-		},
-	})
-}
-
-// GetServiceCategoryPerformance returns service category performance metrics
-func (h *AnalyticsHandler) GetServiceCategoryPerformance(c *gin.Context) {
-	performance, err := h.analyticsService.GetServiceCategoryPerformance()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    performance,
-	})
-}
-
-// GetPetTypePopularity returns pet type popularity metrics
-func (h *AnalyticsHandler) GetPetTypePopularity(c *gin.Context) {
-	popularity, err := h.analyticsService.GetPetTypePopularity()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    popularity,
-	})
-}
-
-// GetCohortAnalysis returns cohort analysis data
-func (h *AnalyticsHandler) GetCohortAnalysis(c *gin.Context) {
-	cohorts, err := h.analyticsService.GetCohortAnalysis()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    cohorts,
-	})
-}
-
-// GetGeographicDistribution returns geographic distribution of users
-func (h *AnalyticsHandler) GetGeographicDistribution(c *gin.Context) {
-	distribution, err := h.analyticsService.GetGeographicDistribution()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    distribution,
 	})
 }

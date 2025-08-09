@@ -20,7 +20,7 @@ func main() {
 	// Load Firebase configuration
 	serviceAccountKeyPath := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 	if serviceAccountKeyPath == "" {
-		serviceAccountKeyPath = "./config/serviceAccountKey.json"
+		serviceAccountKeyPath = "../../config/serviceAccountKey.json"
 	}
 
 	ctx := context.Background()
@@ -115,13 +115,16 @@ func main() {
 
 /*
 Usage:
-  go run scripts/createSuperAdmin.go
-  go run scripts/createSuperAdmin.go custom@email.com
-  go run scripts/createSuperAdmin.go custom@email.com customPassword123
+  cd backend/scripts/createSuperAdmin && go run .
+  cd backend/scripts/createSuperAdmin && go run . custom@email.com
+  cd backend/scripts/createSuperAdmin && go run . custom@email.com customPassword123
+
+Or build and run:
+  cd backend/scripts/createSuperAdmin && go build . && ./createSuperAdmin
 
 Prerequisites:
 1. Set GOOGLE_APPLICATION_CREDENTIALS environment variable
    OR place serviceAccountKey.json in ./config/ directory
 2. Ensure Firebase project is properly configured
-3. Run from the backend directory root
+3. Run from the backend/scripts/createSuperAdmin directory
 */
