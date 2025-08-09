@@ -15,33 +15,33 @@ const BusinessPage = () => {
   const features = [
     {
       icon: CalendarIcon,
-      title: 'Онлайн-бронирование',
-      description: 'Клиенты могут бронировать услуги 24/7 через веб-сайт и мобильное приложение'
+      title: 'Online Booking',
+      description: 'Clients can book services 24/7 through the website and mobile app'
     },
     {
       icon: UserGroupIcon,
-      title: 'Управление клиентами',
-      description: 'Ведите базу клиентов, историю обслуживания и медицинские карты питомцев'
+      title: 'Client Management',
+      description: 'Maintain client database, service history, and pet medical records'
     },
     {
       icon: ChartBarIcon,
-      title: 'Аналитика и отчеты',
-      description: 'Отслеживайте доходы, популярные услуги и эффективность работы'
+      title: 'Analytics and Reports',
+      description: 'Track revenues, popular services, and operational efficiency'
     },
     {
       icon: ChatBubbleLeftRightIcon,
-      title: 'Чат с клиентами',
-      description: 'Общайтесь с клиентами в реальном времени и отвечайте на вопросы'
+      title: 'Chat with Clients',
+      description: 'Communicate with clients in real-time and answer questions'
     },
     {
       icon: CurrencyDollarIcon,
-      title: 'Приём платежей',
-      description: 'Принимайте оплату онлайн и наличными с автоматическим учетом'
+      title: 'Payment Processing',
+      description: 'Accept online and cash payments with automatic accounting'
     },
     {
       icon: DevicePhoneMobileIcon,
-      title: 'Мобильное приложение',
-      description: 'Управляйте бизнесом из любой точки через мобильное приложение'
+      title: 'Mobile App',
+      description: 'Manage your business from anywhere through the mobile app'
     }
   ];
 
@@ -49,41 +49,41 @@ const BusinessPage = () => {
     {
       name: 'Starter',
       price: 2999,
-      description: 'Для небольших клиник и салонов',
+      description: 'For small clinics and salons',
       features: [
-        'До 5 сотрудников',
-        'Базовая CRM',
-        'Онлайн-бронирование',
-        'Базовая аналитика',
-        'Email поддержка'
+        'Up to 5 employees',
+        'Basic CRM',
+        'Online Booking',
+        'Basic Analytics',
+        'Email support'
       ],
       highlighted: false
     },
     {
       name: 'Professional',
       price: 4999,
-      description: 'Для растущих бизнесов',
+      description: 'For growing businesses',
       features: [
-        'До 15 сотрудников',
-        'Расширенная CRM',
-        'AI-помощники',
-        'Расширенная аналитика',
-        'Интеграции',
-        'Приоритетная поддержка'
+        'Up to 15 employees',
+        'Advanced CRM',
+        'AI assistants',
+        'Advanced Analytics',
+        'Integrations',
+        'Priority support'
       ],
       highlighted: true
     },
     {
       name: 'Enterprise',
       price: 9999,
-      description: 'Для крупных сетей',
+      description: 'For large networks',
       features: [
-        'Неограниченно сотрудников',
-        'Полная CRM',
-        'Все AI-агенты',
-        'Белая метка',
-        'API доступ',
-        'Персональный менеджер'
+        'Unlimited employees',
+        'Full CRM',
+        'All AI agents',
+        'White label',
+        'API access',
+        'Personal manager'
       ],
       highlighted: false
     }
@@ -91,30 +91,30 @@ const BusinessPage = () => {
 
   const testimonials = [
     {
-      name: 'Анна Козлова',
-      position: 'Владелец ветклиники "ВетЗабота"',
-      content: 'Zootel помог нам увеличить количество клиентов на 40% и оптимизировать расписание. Теперь мы не теряем записи и всегда знаем, когда ожидать клиента.',
+      name: 'Anna Kozlova',
+      position: 'Owner of "VetCare" Clinic',
+      content: 'Zootel helped us increase customers by 40% and optimize scheduling. Now we never lose appointments and always know when to expect clients.',
       avatar: '👩‍⚕️'
     },
     {
-      name: 'Дмитрий Павлов',
-      position: 'Директор сети "ПетГрум"',
-      content: 'Управление 3 салонами стало намного проще. Аналитика показывает, какие услуги популярны, а мобильное приложение позволяет контролировать все процессы.',
+      name: 'Dmitry Pavlov',
+      position: 'Director of "PetGroom" Chain',
+      content: 'Managing 3 salons has become much easier. Analytics shows which services are popular, and the mobile app allows control of all processes.',
       avatar: '👨‍💼'
     },
     {
-      name: 'Елена Морозова',
-      position: 'Владелец зоогостиницы',
-      content: 'Клиенты оценили возможность онлайн-бронирования. Теперь они могут забронировать место для питомца даже в отпуске, что очень удобно.',
+      name: 'Elena Morozova',
+      position: 'Pet Hotel Owner',
+      content: 'Clients appreciated the online booking feature. Now they can book a place for their pet even while on vacation, which is very convenient.',
       avatar: '👩‍💻'
     }
   ];
 
   const stats = [
-    { value: '500+', label: 'Довольных клиентов' },
-    { value: '50,000+', label: 'Обслуженных питомцев' },
-    { value: '99.9%', label: 'Время работы системы' },
-    { value: '24/7', label: 'Техническая поддержка' }
+    { value: '500+', label: 'Happy Clients' },
+    { value: '50,000+', label: 'Pets Served' },
+    { value: '99.9%', label: 'System Uptime' },
+    { value: '24/7', label: 'Technical Support' }
   ];
 
   return (
@@ -124,28 +124,28 @@ const BusinessPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
-              Развивайте свой{' '}
-              <span className="text-primary-500">Pet Care бизнес</span>{' '}
-              с Zootel
+              Develop your{' '}
+              <span className="text-primary-500">Pet Care business</span>{' '}
+              with Zootel
             </h1>
             <p className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
-              Полноценная CRM-система для ветеринарных клиник, груминг-салонов, 
-              зоогостиниц и других Pet Care бизнесов. Автоматизируйте процессы 
-              и увеличивайте прибыль.
+              Comprehensive CRM system for veterinary clinics, grooming salons, 
+              pet hotels, and other Pet Care businesses. Automate processes 
+              and increase profits.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/register"
                 className="btn-primary text-lg px-8 py-4"
               >
-                Попробовать бесплатно
+                Try for free
               </Link>
               <button className="btn-secondary text-lg px-8 py-4">
-                Смотреть демо
+                Watch demo
               </button>
             </div>
             <p className="mt-4 text-sm text-gray-500">
-              14 дней бесплатно • Без обязательств • Быстрая настройка
+              14 days free trial • No obligations • Quick setup
             </p>
           </div>
         </div>
@@ -156,10 +156,10 @@ const BusinessPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900">
-              Все инструменты для успешного бизнеса
+              All tools for successful business
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              Современная CRM-система, созданная специально для Pet Care индустрии
+              Modern CRM system created specifically for the Pet Care industry
             </p>
           </div>
 
@@ -204,10 +204,10 @@ const BusinessPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900">
-              Выберите подходящий план
+              Choose the right plan
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              Начните с бесплатного периода и выберите план по мере роста бизнеса
+              Start with a free period and choose a plan as your business grows
             </p>
           </div>
 
@@ -224,7 +224,7 @@ const BusinessPage = () => {
                 {plan.highlighted && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span className="bg-primary-500 text-white px-4 py-2 rounded-full text-sm font-medium">
-                      Популярный
+                      Popular
                     </span>
                   </div>
                 )}
@@ -240,7 +240,7 @@ const BusinessPage = () => {
                     <span className="text-4xl font-bold text-gray-900">
                       ₽{plan.price.toLocaleString()}
                     </span>
-                    <span className="text-gray-600">/месяц</span>
+                    <span className="text-gray-600">/month</span>
                   </div>
                 </div>
 
@@ -261,7 +261,7 @@ const BusinessPage = () => {
                         : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                     }`}
                   >
-                    Начать бесплатно
+                    Start for free
                   </button>
                 </div>
               </div>
@@ -275,10 +275,10 @@ const BusinessPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900">
-              Отзывы наших клиентов
+              Client Testimonials
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              Узнайте, как Zootel помогает бизнесам развиваться
+              Learn how Zootel helps businesses grow
             </p>
           </div>
 
@@ -311,21 +311,21 @@ const BusinessPage = () => {
       <section className="py-20 bg-gradient-to-r from-primary-500 to-primary-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-6">
-            Готовы начать?
+            Ready to start?
           </h2>
           <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-            Присоединяйтесь к сотням Pet Care бизнесов, которые уже используют Zootel 
-            для роста и автоматизации своих процессов.
+            Join hundreds of Pet Care businesses that already use Zootel 
+            for growth and automation of their processes.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/register"
               className="bg-white text-primary-500 hover:bg-gray-100 font-bold py-4 px-8 rounded-lg text-lg transition-colors"
             >
-              Начать бесплатно
+              Start for free
             </Link>
             <button className="border-2 border-white text-white hover:bg-white hover:text-primary-500 font-bold py-4 px-8 rounded-lg text-lg transition-colors">
-              Связаться с нами
+              Contact us
             </button>
           </div>
         </div>

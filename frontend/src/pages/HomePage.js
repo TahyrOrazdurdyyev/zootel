@@ -109,26 +109,26 @@ const HomePage = () => {
   const howItWorksSteps = [
     {
       step: 1,
-      title: 'Найдите услугу',
-      description: 'Выберите нужную услугу или товар для вашего питомца',
+      title: 'Find a Service',
+      description: 'Choose the right service or product for your pet',
       icon: '🔍'
     },
     {
       step: 2,
-      title: 'Забронируйте',
-      description: 'Выберите удобное время и забронируйте онлайн',
+      title: 'Book Online',
+      description: 'Select a convenient time and book online',
       icon: '📅'
     },
     {
       step: 3,
-      title: 'Оплатите',
-      description: 'Безопасная оплата картой или наличными',
+      title: 'Pay Securely',
+      description: 'Secure payment by card or cash',
       icon: '💳'
     },
     {
       step: 4,
-      title: 'Получите услугу',
-      description: 'Приведите питомца и получите качественную услугу',
+      title: 'Get Service',
+      description: 'Bring your pet and receive quality service',
       icon: '🐕'
     }
   ];
@@ -136,24 +136,24 @@ const HomePage = () => {
   const customerReviews = [
     {
       id: 1,
-      name: 'Анна Петрова',
+      name: 'Anna Peterson',
       rating: 5,
-      text: 'Отличный сервис! Нашла ветеринара для своего кота очень быстро. Врач приехал на дом в тот же день.',
-      pet: 'Кот Мурзик'
+      text: 'Excellent service! Found a veterinarian for my cat very quickly. The doctor came home the same day.',
+      pet: 'Cat Whiskers'
     },
     {
       id: 2,
-      name: 'Дмитрий Сидоров',
+      name: 'David Smith',
       rating: 5,
-      text: 'Пользуюсь Zootel уже полгода. Удобно бронировать груминг для собаки, всегда качественная работа.',
-      pet: 'Собака Рекс'
+      text: 'I have been using Zootel for six months. It is convenient to book grooming for my dog, always quality work.',
+      pet: 'Dog Rex'
     },
     {
       id: 3,
-      name: 'Мария Иванова',
+      name: 'Maria Johnson',
       rating: 5,
-      text: 'Спасибо за возможность найти хорошую передержку! Оставляла своего попугая на две недели - все прошло отлично.',
-      pet: 'Попугай Кеша'
+      text: 'Thank you for the opportunity to find good pet sitting! Left my parrot for two weeks - everything went great.',
+      pet: 'Parrot Charlie'
     }
   ];
 

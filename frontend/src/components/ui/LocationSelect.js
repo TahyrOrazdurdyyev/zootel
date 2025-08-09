@@ -42,14 +42,14 @@ const LocationSelect = ({
 
   const mockStates = {
     'RU': [
-      { code: 'MOW', name: 'Москва' },
-      { code: 'SPE', name: 'Санкт-Петербург' },
-      { code: 'NSO', name: 'Новосибирская область' },
-      { code: 'SVE', name: 'Свердловская область' },
-      { code: 'KDA', name: 'Краснодарский край' },
-      { code: 'ROS', name: 'Ростовская область' },
-      { code: 'BA', name: 'Башкортостан' },
-      { code: 'TA', name: 'Татарстан' }
+      { code: 'MOW', name: 'Moscow' },
+      { code: 'SPE', name: 'Saint Petersburg' },
+      { code: 'NSO', name: 'Novosibirsk Region' },
+      { code: 'SVE', name: 'Sverdlovsk Region' },
+      { code: 'KDA', name: 'Krasnodar Region' },
+      { code: 'ROS', name: 'Rostov Region' },
+      { code: 'BA', name: 'Bashkortostan' },
+      { code: 'TA', name: 'Tatarstan' }
     ],
     'US': [
       { code: 'CA', name: 'California' },
@@ -68,16 +68,16 @@ const LocationSelect = ({
 
   const mockCities = {
     'RU-MOW': [
-      { id: 1, name: 'Москва' },
-      { id: 2, name: 'Зеленоград' },
-      { id: 3, name: 'Троицк' },
-      { id: 4, name: 'Московский' }
+      { id: 1, name: 'Moscow' },
+      { id: 2, name: 'Zelenograd' },
+      { id: 3, name: 'Troitsk' },
+      { id: 4, name: 'Moskovsky' }
     ],
     'RU-SPE': [
-      { id: 5, name: 'Санкт-Петербург' },
-      { id: 6, name: 'Колпино' },
-      { id: 7, name: 'Пушкин' },
-      { id: 8, name: 'Петергоф' }
+      { id: 5, name: 'Saint Petersburg' },
+      { id: 6, name: 'Kolpino' },
+      { id: 7, name: 'Pushkin' },
+      { id: 8, name: 'Peterhof' }
     ],
     'US-CA': [
       { id: 9, name: 'Los Angeles' },
