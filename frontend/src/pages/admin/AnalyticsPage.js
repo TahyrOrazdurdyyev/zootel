@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import AnalyticsDashboard from '../../components/analytics/AnalyticsDashboard';
+import LocationAnalytics from '../../components/analytics/LocationAnalytics';
 import {
   DocumentChartBarIcon,
   UsersIcon,
@@ -27,39 +28,51 @@ const AnalyticsPage = () => {
   const tabs = [
     {
       id: 'overview',
-      name: 'Обзор',
+      name: 'Overview',
       icon: DocumentChartBarIcon,
-      description: 'Общая статистика платформы'
+      description: 'Platform overview statistics'
     },
     {
       id: 'users',
-      name: 'Пользователи',
+      name: 'Users',
       icon: UsersIcon,
-      description: 'Аналитика пользователей и регистраций'
+      description: 'User analytics and registrations'
     },
     {
       id: 'companies',
-      name: 'Компании',
+      name: 'Companies',
       icon: BuildingOfficeIcon,
-      description: 'Производительность компаний'
+      description: 'Company performance'
     },
     {
       id: 'revenue',
-      name: 'Доходы',
+      name: 'Revenue',
       icon: CurrencyDollarIcon,
-      description: 'Финансовая аналитика'
+      description: 'Financial analytics'
     },
     {
-      id: 'bookings',
-      name: 'Бронирования',
-      icon: CalendarDaysIcon,
-      description: 'Статистика бронирований'
-    },
-    {
-      id: 'geography',
-      name: 'География',
+      id: 'location',
+      name: 'Location',
       icon: GlobeAltIcon,
-      description: 'Географическое распределение'
+      description: 'Geographic user distribution and trends'
+    },
+    {
+      id: 'cohort',
+      name: 'Cohort',
+      icon: CalendarDaysIcon,
+      description: 'User retention analysis'
+    },
+    {
+      id: 'segments',
+      name: 'Segments',
+      icon: ChartPieIcon,
+      description: 'User segmentation'
+    },
+    {
+      id: 'funnel',
+      name: 'Funnel',
+      icon: FunnelIcon,
+      description: 'Conversion funnel analysis'
     }
   ];
 
@@ -87,6 +100,9 @@ const AnalyticsPage = () => {
       
       case 'revenue':
         return <RevenueAnalyticsTab timeframe={timeframe} />;
+      
+      case 'location':
+        return <LocationAnalytics />;
       
       case 'bookings':
         return <BookingAnalyticsTab timeframe={timeframe} />;

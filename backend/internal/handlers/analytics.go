@@ -639,3 +639,103 @@ func (h *AnalyticsHandler) GetUsersByCountry(c *gin.Context) {
 		},
 	})
 }
+
+// GetUserLocationAnalytics returns comprehensive location analytics for SuperAdmin
+func (h *AnalyticsHandler) GetUserLocationAnalytics(c *gin.Context) {
+	analytics, err := h.analyticsService.GetUserLocationAnalytics()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    analytics,
+	})
+}
+
+// GetCompanyCustomerLocationStats returns location statistics for company's customers
+func (h *AnalyticsHandler) GetCompanyCustomerLocationStats(c *gin.Context) {
+	companyID := c.Param("companyId")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	stats, err := h.analyticsService.GetCompanyCustomerLocationStats(companyID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    stats,
+	})
+}
+
+// GetDetailedUserLocationReport returns detailed location report with user info
+func (h *AnalyticsHandler) GetDetailedUserLocationReport(c *gin.Context) {
+	country := c.Query("country")
+	state := c.Query("state")
+	city := c.Query("city")
+	role := c.Query("role")
+	limitStr := c.DefaultQuery("limit", "100")
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 100
+	}
+	if limit > 1000 {
+		limit = 1000
+	}
+
+	users, err := h.analyticsService.GetDetailedUserLocationReport(country, state, city, role, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    users,
+		"filters": gin.H{
+			"country": country,
+			"state":   state,
+			"city":    city,
+			"role":    role,
+			"limit":   limit,
+		},
+	})
+}
+
+// GetLocationTrends returns registration trends by location over time
+func (h *AnalyticsHandler) GetLocationTrends(c *gin.Context) {
+	periodStr := c.DefaultQuery("period", "30")
+	groupBy := c.DefaultQuery("group_by", "day") // day, week, month
+	country := c.Query("country")
+
+	period, err := strconv.Atoi(periodStr)
+	if err != nil || period <= 0 {
+		period = 30
+	}
+	if period > 365 {
+		period = 365
+	}
+
+	trends, err := h.analyticsService.GetLocationTrends(period, groupBy, country)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    trends,
+		"filters": gin.H{
+			"period":   period,
+			"group_by": groupBy,
+			"country":  country,
+		},
+	})
+}

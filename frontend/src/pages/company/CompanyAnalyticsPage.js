@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import AnalyticsDashboard from '../../components/analytics/AnalyticsDashboard';
+import CompanyLocationAnalytics from '../../components/analytics/CompanyLocationAnalytics';
 import {
   ChartBarIcon,
   CurrencyDollarIcon,
@@ -9,7 +10,8 @@ import {
   StarIcon,
   TrendingUpIcon,
   ClockIcon,
-  PhoneIcon
+  PhoneIcon,
+  GlobeAltIcon
 } from '@heroicons/react/24/outline';
 import { Line, Bar } from 'react-chartjs-2'; // Added for charts
 
@@ -96,6 +98,7 @@ const CompanyAnalyticsPage = () => {
     { id: 'revenue', name: 'Revenue', icon: CurrencyDollarIcon },
     { id: 'bookings', name: 'Bookings', icon: CalendarDaysIcon },
     { id: 'customers', name: 'Customers', icon: UsersIcon },
+    { id: 'location', name: 'Location', icon: GlobeAltIcon },
     { id: 'performance', name: 'Performance', icon: TrendingUpIcon },
   ];
 
@@ -162,6 +165,9 @@ const CompanyAnalyticsPage = () => {
       
       case 'customers':
         return <CustomerAnalyticsView companyId={companyId} dateRange={dateRange} />;
+      
+      case 'location':
+        return <CompanyLocationAnalytics companyId={companyId} />;
       
       case 'performance':
         return <PerformanceAnalyticsView companyId={companyId} dateRange={dateRange} />;

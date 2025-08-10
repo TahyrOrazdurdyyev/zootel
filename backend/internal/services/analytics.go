@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
+	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/models"
 	"github.com/google/uuid"
 )
 
@@ -1871,4 +1873,453 @@ func (s *AnalyticsService) GetUsersByCountry(country string, limit, offset int) 
 	}
 
 	return users, totalCount, nil
+}
+
+// GetUserLocationAnalytics returns comprehensive location analytics for SuperAdmin
+func (s *AnalyticsService) GetUserLocationAnalytics() (*models.LocationAnalyticsResponse, error) {
+	// Get overall statistics
+	totalStats, err := s.getTotalUserStatsByLocation()
+	if err != nil {
+		return nil, err
+	}
+
+	// Get role-based breakdown
+	roleBreakdown, err := s.getUserRolesByLocation()
+	if err != nil {
+		return nil, err
+	}
+
+	// Get top countries
+	topCountries, err := s.getTopCountriesByUsers()
+	if err != nil {
+		return nil, err
+	}
+
+	// Get recent registrations by location
+	recentRegistrations, err := s.getRecentRegistrationsByLocation(50)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.LocationAnalyticsResponse{
+		TotalStats:          totalStats,
+		RoleBreakdown:       roleBreakdown,
+		TopCountries:        topCountries,
+		RecentRegistrations: recentRegistrations,
+	}, nil
+}
+
+// getTotalUserStatsByLocation returns total user counts by location
+func (s *AnalyticsService) getTotalUserStatsByLocation() (*models.LocationStats, error) {
+	var stats models.LocationStats
+
+	// Total users
+	err := s.db.QueryRow("SELECT COUNT(*) FROM users WHERE deleted_at IS NULL").Scan(&stats.TotalUsers)
+	if err != nil {
+		return nil, err
+	}
+
+	// Users with location data
+	err = s.db.QueryRow(`
+		SELECT COUNT(*) FROM users 
+		WHERE country IS NOT NULL AND country != '' AND deleted_at IS NULL
+	`).Scan(&stats.UsersWithLocation)
+	if err != nil {
+		return nil, err
+	}
+
+	// Unique countries
+	err = s.db.QueryRow(`
+		SELECT COUNT(DISTINCT country) FROM users 
+		WHERE country IS NOT NULL AND country != '' AND deleted_at IS NULL
+	`).Scan(&stats.UniqueCountries)
+	if err != nil {
+		return nil, err
+	}
+
+	// Unique states
+	err = s.db.QueryRow(`
+		SELECT COUNT(DISTINCT state) FROM users 
+		WHERE state IS NOT NULL AND state != '' AND deleted_at IS NULL
+	`).Scan(&stats.UniqueStates)
+	if err != nil {
+		return nil, err
+	}
+
+	// Unique cities
+	err = s.db.QueryRow(`
+		SELECT COUNT(DISTINCT city) FROM users 
+		WHERE city IS NOT NULL AND city != '' AND deleted_at IS NULL
+	`).Scan(&stats.UniqueCities)
+	if err != nil {
+		return nil, err
+	}
+
+	return &stats, nil
+}
+
+// getUserRolesByLocation returns user role distribution by location
+func (s *AnalyticsService) getUserRolesByLocation() ([]models.LocationRoleBreakdown, error) {
+	query := `
+		SELECT 
+			country,
+			COALESCE(state, '') as state,
+			role,
+			COUNT(*) as count
+		FROM users 
+		WHERE country IS NOT NULL AND country != '' AND deleted_at IS NULL
+		GROUP BY country, state, role
+		ORDER BY country, state, role
+	`
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var breakdown []models.LocationRoleBreakdown
+	for rows.Next() {
+		var item models.LocationRoleBreakdown
+		err := rows.Scan(&item.Country, &item.State, &item.Role, &item.Count)
+		if err != nil {
+			return nil, err
+		}
+		breakdown = append(breakdown, item)
+	}
+
+	return breakdown, nil
+}
+
+// getTopCountriesByUsers returns top countries by user count
+func (s *AnalyticsService) getTopCountriesByUsers() ([]models.CountryStats, error) {
+	query := `
+		SELECT 
+			country,
+			COUNT(*) as total_users,
+			COUNT(CASE WHEN role = 'pet_owner' THEN 1 END) as pet_owners,
+			COUNT(CASE WHEN role = 'company' THEN 1 END) as companies,
+			COUNT(CASE WHEN created_at >= NOW() - INTERVAL '30 days' THEN 1 END) as recent_registrations
+		FROM users 
+		WHERE country IS NOT NULL AND country != '' AND deleted_at IS NULL
+		GROUP BY country
+		ORDER BY total_users DESC
+		LIMIT 20
+	`
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var countries []models.CountryStats
+	for rows.Next() {
+		var country models.CountryStats
+		err := rows.Scan(
+			&country.Country, &country.TotalUsers, &country.PetOwners,
+			&country.Companies, &country.RecentRegistrations,
+		)
+		if err != nil {
+			return nil, err
+		}
+		countries = append(countries, country)
+	}
+
+	return countries, nil
+}
+
+// getRecentRegistrationsByLocation returns recent user registrations with location data
+func (s *AnalyticsService) getRecentRegistrationsByLocation(limit int) ([]models.UserRegistrationData, error) {
+	query := `
+		SELECT 
+			id, email, first_name, last_name, phone,
+			COALESCE(country, '') as country,
+			COALESCE(state, '') as state,
+			COALESCE(city, '') as city,
+			role, created_at
+		FROM users 
+		WHERE deleted_at IS NULL
+		ORDER BY created_at DESC
+		LIMIT $1
+	`
+
+	rows, err := s.db.Query(query, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var registrations []models.UserRegistrationData
+	for rows.Next() {
+		var reg models.UserRegistrationData
+		err := rows.Scan(
+			&reg.ID, &reg.Email, &reg.FirstName, &reg.LastName, &reg.Phone,
+			&reg.Country, &reg.State, &reg.City, &reg.Role, &reg.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		registrations = append(registrations, reg)
+	}
+
+	return registrations, nil
+}
+
+// GetCompanyCustomerLocationStats returns location statistics for company's customers
+func (s *AnalyticsService) GetCompanyCustomerLocationStats(companyID string) (*models.CompanyLocationStats, error) {
+	// Get total customers with location data
+	var stats models.CompanyLocationStats
+
+	query := `
+		SELECT 
+			COUNT(DISTINCT u.id) as total_customers,
+			COUNT(DISTINCT CASE WHEN u.country IS NOT NULL AND u.country != '' THEN u.id END) as customers_with_location,
+			COUNT(DISTINCT u.country) as unique_countries,
+			COUNT(DISTINCT u.state) as unique_states,
+			COUNT(DISTINCT u.city) as unique_cities
+		FROM users u
+		WHERE u.id IN (
+			SELECT DISTINCT user_id FROM bookings WHERE company_id = $1
+			UNION
+			SELECT DISTINCT user_id FROM orders WHERE company_id = $1
+		) AND u.deleted_at IS NULL
+	`
+
+	err := s.db.QueryRow(query, companyID).Scan(
+		&stats.TotalCustomers, &stats.CustomersWithLocation,
+		&stats.UniqueCountries, &stats.UniqueStates, &stats.UniqueCities,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get top countries for this company
+	stats.TopCountries, err = s.getCompanyTopCountries(companyID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get top cities for this company
+	stats.TopCities, err = s.getCompanyTopCities(companyID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &stats, nil
+}
+
+// getCompanyTopCountries returns top countries for company's customers
+func (s *AnalyticsService) getCompanyTopCountries(companyID string) ([]models.LocationCount, error) {
+	query := `
+		SELECT 
+			u.country,
+			COUNT(DISTINCT u.id) as customer_count,
+			COUNT(b.id) as total_bookings,
+			COALESCE(SUM(b.price), 0) as total_revenue
+		FROM users u
+		LEFT JOIN bookings b ON u.id = b.user_id AND b.company_id = $1
+		WHERE u.country IS NOT NULL AND u.country != ''
+		AND u.id IN (
+			SELECT DISTINCT user_id FROM bookings WHERE company_id = $1
+			UNION
+			SELECT DISTINCT user_id FROM orders WHERE company_id = $1
+		) AND u.deleted_at IS NULL
+		GROUP BY u.country
+		ORDER BY customer_count DESC, total_revenue DESC
+		LIMIT 10
+	`
+
+	rows, err := s.db.Query(query, companyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var countries []models.LocationCount
+	for rows.Next() {
+		var country models.LocationCount
+		err := rows.Scan(&country.Location, &country.Count, &country.Bookings, &country.Revenue)
+		if err != nil {
+			return nil, err
+		}
+		countries = append(countries, country)
+	}
+
+	return countries, nil
+}
+
+// getCompanyTopCities returns top cities for company's customers
+func (s *AnalyticsService) getCompanyTopCities(companyID string) ([]models.LocationCount, error) {
+	query := `
+		SELECT 
+			CASE 
+				WHEN u.state IS NOT NULL AND u.state != '' 
+				THEN CONCAT(u.city, ', ', u.state, ', ', u.country)
+				ELSE CONCAT(u.city, ', ', u.country)
+			END as full_location,
+			COUNT(DISTINCT u.id) as customer_count,
+			COUNT(b.id) as total_bookings,
+			COALESCE(SUM(b.price), 0) as total_revenue
+		FROM users u
+		LEFT JOIN bookings b ON u.id = b.user_id AND b.company_id = $1
+		WHERE u.city IS NOT NULL AND u.city != ''
+		AND u.id IN (
+			SELECT DISTINCT user_id FROM bookings WHERE company_id = $1
+			UNION
+			SELECT DISTINCT user_id FROM orders WHERE company_id = $1
+		) AND u.deleted_at IS NULL
+		GROUP BY full_location, u.country, u.state, u.city
+		ORDER BY customer_count DESC, total_revenue DESC
+		LIMIT 15
+	`
+
+	rows, err := s.db.Query(query, companyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var cities []models.LocationCount
+	for rows.Next() {
+		var city models.LocationCount
+		err := rows.Scan(&city.Location, &city.Count, &city.Bookings, &city.Revenue)
+		if err != nil {
+			return nil, err
+		}
+		cities = append(cities, city)
+	}
+
+	return cities, nil
+}
+
+// GetDetailedUserLocationReport returns detailed user information filtered by location and role
+func (s *AnalyticsService) GetDetailedUserLocationReport(country, state, city, role string, limit int) ([]models.UserRegistrationData, error) {
+	query := `
+		SELECT 
+			id, email, first_name, last_name, phone,
+			COALESCE(country, '') as country,
+			COALESCE(state, '') as state,
+			COALESCE(city, '') as city,
+			role, created_at
+		FROM users 
+		WHERE deleted_at IS NULL
+	`
+
+	var conditions []string
+	var args []interface{}
+	argIndex := 1
+
+	if country != "" {
+		conditions = append(conditions, fmt.Sprintf("country = $%d", argIndex))
+		args = append(args, country)
+		argIndex++
+	}
+
+	if state != "" {
+		conditions = append(conditions, fmt.Sprintf("state = $%d", argIndex))
+		args = append(args, state)
+		argIndex++
+	}
+
+	if city != "" {
+		conditions = append(conditions, fmt.Sprintf("city = $%d", argIndex))
+		args = append(args, city)
+		argIndex++
+	}
+
+	if role != "" {
+		conditions = append(conditions, fmt.Sprintf("role = $%d", argIndex))
+		args = append(args, role)
+		argIndex++
+	}
+
+	if len(conditions) > 0 {
+		query += " AND " + strings.Join(conditions, " AND ")
+	}
+
+	query += fmt.Sprintf(" ORDER BY created_at DESC LIMIT $%d", argIndex)
+	args = append(args, limit)
+
+	rows, err := s.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []models.UserRegistrationData
+	for rows.Next() {
+		var user models.UserRegistrationData
+		err := rows.Scan(
+			&user.ID, &user.Email, &user.FirstName, &user.LastName, &user.Phone,
+			&user.Country, &user.State, &user.City, &user.Role, &user.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+// GetLocationTrends returns registration trends by location over time
+func (s *AnalyticsService) GetLocationTrends(period int, groupBy, country string) ([]models.LocationTrendData, error) {
+	var timeFormat string
+	switch groupBy {
+	case "week":
+		timeFormat = "YYYY-\"W\"WW"
+	case "month":
+		timeFormat = "YYYY-MM"
+	default: // day
+		timeFormat = "YYYY-MM-DD"
+	}
+
+	query := fmt.Sprintf(`
+		SELECT 
+			TO_CHAR(created_at, '%s') as period,
+			COALESCE(country, 'Unknown') as country,
+			role,
+			COUNT(*) as registrations
+		FROM users 
+		WHERE created_at >= NOW() - INTERVAL '%d days'
+		AND deleted_at IS NULL
+	`, timeFormat, period)
+
+	var args []interface{}
+	argIndex := 1
+
+	if country != "" {
+		query += fmt.Sprintf(" AND country = $%d", argIndex)
+		args = append(args, country)
+		argIndex++
+	}
+
+	query += " GROUP BY period, country, role ORDER BY period DESC, registrations DESC"
+
+	var rows *sql.Rows
+	var err error
+
+	if len(args) > 0 {
+		rows, err = s.db.Query(query, args...)
+	} else {
+		rows, err = s.db.Query(query)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var trends []models.LocationTrendData
+	for rows.Next() {
+		var trend models.LocationTrendData
+		err := rows.Scan(&trend.Period, &trend.Country, &trend.Role, &trend.Registrations)
+		if err != nil {
+			return nil, err
+		}
+		trends = append(trends, trend)
+	}
+
+	return trends, nil
 }

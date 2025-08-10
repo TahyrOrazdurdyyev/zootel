@@ -311,6 +311,7 @@ func main() {
 				companies.GET("/analytics/team-workload", analyticsHandler.GetTeamWorkloadAnalytics)
 				companies.GET("/analytics/average-check", analyticsHandler.GetAverageCheckTrends)
 				companies.GET("/analytics/customer-segmentation", analyticsHandler.GetCustomerSegmentationAnalytics)
+				companies.GET("/analytics/customer-location", analyticsHandler.GetCompanyCustomerLocationStats)
 
 				// Website Integration
 				companies.POST("/integration/enable", integrationHandler.EnableWebsiteIntegration)
@@ -430,6 +431,11 @@ func main() {
 				admin.GET("/analytics/regional", analyticsHandler.GetRegionalRegistrations)
 				admin.GET("/analytics/users/phone-data", analyticsHandler.GetAllUsersPhoneData)
 				admin.GET("/analytics/users/country/:country", analyticsHandler.GetUsersByCountry)
+
+				// Enhanced Location Analytics for SuperAdmin
+				admin.GET("/analytics/location/overview", analyticsHandler.GetUserLocationAnalytics)
+				admin.GET("/analytics/location/detailed", analyticsHandler.GetDetailedUserLocationReport)
+				admin.GET("/analytics/location/trends", analyticsHandler.GetLocationTrends)
 
 				// Discount management
 				admin.POST("/services/expire-sales", serviceHandler.ExpireOutdatedSales)
