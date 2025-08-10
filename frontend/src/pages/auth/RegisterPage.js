@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: '',
     agreeToTerms: false
@@ -36,35 +39,52 @@ const RegisterPage = () => {
     }
   };
 
+  const handlePhoneChange = (phone) => {
+    setFormData(prev => ({ ...prev, phone }));
+    // Clear phone error when user starts typing
+    if (errors.phone) {
+      setErrors(prev => ({
+        ...prev,
+        phone: ''
+      }));
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'Имя обязательно';
+      newErrors.firstName = 'First name is required';
     }
 
     if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Фамилия обязательна';
+      newErrors.lastName = 'Last name is required';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email обязателен';
+      newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Некорректный email';
+      newErrors.email = 'Invalid email format';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (formData.phone.length < 10) {
+      newErrors.phone = 'Please enter a valid phone number';
     }
 
     if (!formData.password) {
-      newErrors.password = 'Пароль обязателен';
+      newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Пароль должен содержать минимум 8 символов';
+      newErrors.password = 'Password must be at least 8 characters';
     }
 
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Пароли не совпадают';
+      newErrors.confirmPassword = 'Passwords do not match';
     }
 
     if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = 'Необходимо согласиться с условиями';
+      newErrors.agreeToTerms = 'You must agree to the terms and conditions';
     }
 
     return newErrors;
@@ -100,16 +120,13 @@ const RegisterPage = () => {
             <span className="text-white font-bold text-2xl">Z</span>
           </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-          Создать аккаунт
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Create your account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Или{' '}
-          <Link
-            to="/login"
-            className="font-medium text-primary-500 hover:text-primary-600"
-          >
-            войдите в существующий аккаунт
+          Or{' '}
+          <Link to="/login" className="font-medium text-primary-500 hover:text-primary-600">
+            sign in to your account
           </Link>
         </p>
       </div>
@@ -126,7 +143,7 @@ const RegisterPage = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-                  Имя
+                  First Name
                 </label>
                 <div className="mt-1">
                   <input
@@ -138,7 +155,7 @@ const RegisterPage = () => {
                     value={formData.firstName}
                     onChange={handleChange}
                     className={`input-field ${errors.firstName ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}`}
-                    placeholder="Ваше имя"
+                    placeholder="Your first name"
                   />
                   {errors.firstName && (
                     <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
@@ -148,7 +165,7 @@ const RegisterPage = () => {
 
               <div>
                 <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-                  Фамилия
+                  Last Name
                 </label>
                 <div className="mt-1">
                   <input
@@ -160,7 +177,7 @@ const RegisterPage = () => {
                     value={formData.lastName}
                     onChange={handleChange}
                     className={`input-field ${errors.lastName ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}`}
-                    placeholder="Ваша фамилия"
+                    placeholder="Your last name"
                   />
                   {errors.lastName && (
                     <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
@@ -192,8 +209,30 @@ const RegisterPage = () => {
             </div>
 
             <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                Phone Number
+              </label>
+              <div className="mt-1">
+                <PhoneInput
+                  country={'us'}
+                  value={formData.phone}
+                  onChange={handlePhoneChange}
+                  inputClass={`input-field !pl-14 ${errors.phone ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}`}
+                  containerClass="w-full"
+                  dropdownClass="bg-white border border-gray-300 rounded-md shadow-lg"
+                  enableSearch={true}
+                  searchPlaceholder="Search countries..."
+                  placeholder="Enter phone number"
+                />
+                {errors.phone && (
+                  <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                )}
+              </div>
+            </div>
+
+            <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Пароль
+                Password
               </label>
               <div className="mt-1 relative">
                 <input
@@ -205,7 +244,7 @@ const RegisterPage = () => {
                   value={formData.password}
                   onChange={handleChange}
                   className={`input-field pr-10 ${errors.password ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}`}
-                  placeholder="Минимум 8 символов"
+                  placeholder="Minimum 8 characters"
                 />
                 <button
                   type="button"
@@ -226,7 +265,7 @@ const RegisterPage = () => {
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Подтвердите пароль
+                Confirm Password
               </label>
               <div className="mt-1 relative">
                 <input
@@ -238,7 +277,7 @@ const RegisterPage = () => {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   className={`input-field pr-10 ${errors.confirmPassword ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}`}
-                  placeholder="Повторите пароль"
+                  placeholder="Repeat your password"
                 />
                 <button
                   type="button"
@@ -270,13 +309,13 @@ const RegisterPage = () => {
               </div>
               <div className="ml-3 text-sm">
                 <label htmlFor="agreeToTerms" className="text-gray-700">
-                  Я согласен с{' '}
+                  I agree to the{' '}
                   <Link to="/terms" className="text-primary-500 hover:text-primary-600">
-                    условиями использования
+                    Terms of Service
                   </Link>{' '}
-                  и{' '}
+                  and{' '}
                   <Link to="/privacy" className="text-primary-500 hover:text-primary-600">
-                    политикой конфиденциальности
+                    Privacy Policy
                   </Link>
                 </label>
                 {errors.agreeToTerms && (
@@ -294,10 +333,10 @@ const RegisterPage = () => {
                 {loading ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Создание аккаунта...
+                    Creating Account...
                   </div>
                 ) : (
-                  'Создать аккаунт'
+                  'Create Account'
                 )}
               </button>
             </div>
@@ -309,7 +348,7 @@ const RegisterPage = () => {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Или зарегистрируйтесь с</span>
+                <span className="px-2 bg-white text-gray-500">Or sign up with</span>
               </div>
             </div>
 
@@ -337,7 +376,7 @@ const RegisterPage = () => {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                <span className="ml-2">Google (скоро)</span>
+                <span className="ml-2">Google (Coming Soon)</span>
               </button>
             </div>
           </div>
