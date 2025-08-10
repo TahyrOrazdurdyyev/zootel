@@ -322,6 +322,16 @@ func main() {
 				companies.GET("/integration/marketplace-eligibility", integrationHandler.GetMarketplaceEligibility)
 				companies.PUT("/integration/marketplace-visibility", integrationHandler.UpdateMarketplaceVisibility)
 				companies.GET("/integration/analytics", integrationHandler.GetSourceAnalytics)
+
+				// Customer Data Access for Companies
+				companies.GET("/:companyId/customers", bookingHandler.GetCompanyCustomers)
+				companies.GET("/:companyId/customers/:userId/history", bookingHandler.GetCustomerBookingHistory)
+				companies.GET("/:companyId/bookings/with-customer-data", bookingHandler.GetBookingsWithCustomerData)
+
+				// Company Addons
+				companies.GET("/addons", addonHandler.GetCompanyAddons)
+				companies.POST("/addons/purchase", addonHandler.PurchaseAddon)
+				companies.DELETE("/addons/:id/cancel", addonHandler.CancelAddon)
 			}
 
 			// AI endpoints
@@ -425,18 +435,6 @@ func main() {
 				admin.POST("/services/expire-sales", serviceHandler.ExpireOutdatedSales)
 			}
 		}
-	}
-
-	// Company-specific endpoints
-	companies := protected.Group("/companies")
-	companies.Use(middleware.AuthMiddleware(authClient, db))
-	{
-		// ... existing company routes ...
-
-		// Customer Data Access for Companies
-		companies.GET("/:companyId/customers", bookingHandler.GetCompanyCustomers)
-		companies.GET("/:companyId/customers/:userId/history", bookingHandler.GetCustomerBookingHistory)
-		companies.GET("/:companyId/bookings/with-customer-data", bookingHandler.GetBookingsWithCustomerData)
 	}
 
 	// WebSocket endpoints for real-time chat
