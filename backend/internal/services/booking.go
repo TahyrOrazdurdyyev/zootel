@@ -417,45 +417,67 @@ func (s *BookingService) GetBookingsByUser(userID string, status string, limit i
 	return bookings, nil
 }
 
-// GetBookingsByCompany returns bookings for a specific company
-func (s *BookingService) GetBookingsByCompany(companyID string) ([]*BookingWithCustomerData, error) {
+// GetBookingsByCompany retrieves bookings by company ID with full customer data
+func (s *BookingService) GetBookingsByCompany(companyID string, startDate ...interface{}) ([]*models.BookingWithCustomerData, error) {
 	query := `
 		SELECT 
 			b.id, b.user_id, b.company_id, b.service_id, b.pet_id, b.employee_id,
-			b.booking_date, b.booking_time, b.duration, b.status, b.notes,
-			b.cancellation_reason, b.created_at, b.updated_at,
+			b.date_time, b.duration, b.price, b.status, b.notes, b.payment_id,
+			b.created_at, b.updated_at,
 			u.first_name, u.last_name, u.email, u.phone,
 			COALESCE(u.country, '') as country,
 			COALESCE(u.state, '') as state,
 			COALESCE(u.city, '') as city,
-			p.name as pet_name,
-			pt.name as pet_type_name,
+			COALESCE(p.name, '') as pet_name,
+			COALESCE(pt.name, '') as pet_type_name,
 			COALESCE(b.breed, '') as breed_name
 		FROM bookings b
 		JOIN users u ON b.user_id = u.id
 		LEFT JOIN pets p ON b.pet_id = p.id
 		LEFT JOIN pet_types pt ON p.pet_type_id = pt.id
-		WHERE b.company_id = $1
-		ORDER BY b.created_at DESC
-	`
+		WHERE b.company_id = $1`
 
-	rows, err := s.db.Query(query, companyID)
+	args := []interface{}{companyID}
+	argIndex := 2
+
+	// Handle optional date range and status parameters
+	if len(startDate) >= 2 {
+		if startTime, ok := startDate[0].(time.Time); ok {
+			if endTime, ok := startDate[1].(time.Time); ok {
+				query += fmt.Sprintf(" AND DATE(b.date_time) BETWEEN $%d AND $%d", argIndex, argIndex+1)
+				args = append(args, startTime, endTime)
+				argIndex += 2
+			}
+		}
+	}
+
+	if len(startDate) >= 3 {
+		if status, ok := startDate[2].(string); ok && status != "" {
+			query += fmt.Sprintf(" AND b.status = $%d", argIndex)
+			args = append(args, status)
+			argIndex++
+		}
+	}
+
+	query += " ORDER BY b.created_at DESC"
+
+	rows, err := s.db.Query(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query bookings: %w", err)
 	}
 	defer rows.Close()
 
-	var bookings []*BookingWithCustomerData
+	var bookings []*models.BookingWithCustomerData
 	for rows.Next() {
 		booking := &models.Booking{}
-		bookingWithData := &BookingWithCustomerData{Booking: booking}
+		bookingWithData := &models.BookingWithCustomerData{Booking: booking}
 
 		var petName, petTypeName, breedName sql.NullString
 
 		err := rows.Scan(
 			&booking.ID, &booking.UserID, &booking.CompanyID, &booking.ServiceID,
-			&booking.PetID, &booking.EmployeeID, &booking.BookingDate, &booking.BookingTime,
-			&booking.Duration, &booking.Status, &booking.Notes, &booking.CancellationReason,
+			&booking.PetID, &booking.EmployeeID, &booking.DateTime, &booking.Duration,
+			&booking.Price, &booking.Status, &booking.Notes, &booking.PaymentID,
 			&booking.CreatedAt, &booking.UpdatedAt,
 			&bookingWithData.Customer.FirstName, &bookingWithData.Customer.LastName,
 			&bookingWithData.Customer.Email, &bookingWithData.Customer.Phone,
@@ -471,7 +493,9 @@ func (s *BookingService) GetBookingsByCompany(companyID string) ([]*BookingWithC
 		bookingWithData.Customer.UserID = booking.UserID
 
 		// Set pet data
-		bookingWithData.Pet.PetID = *booking.PetID
+		if booking.PetID != nil {
+			bookingWithData.Pet.PetID = *booking.PetID
+		}
 		if petName.Valid {
 			bookingWithData.Pet.PetName = petName.String
 		}
@@ -489,7 +513,7 @@ func (s *BookingService) GetBookingsByCompany(companyID string) ([]*BookingWithC
 }
 
 // GetCompanyCustomers returns all customers who made at least one booking/order with the company
-func (s *BookingService) GetCompanyCustomers(companyID string) ([]CustomerData, error) {
+func (s *BookingService) GetCompanyCustomers(companyID string) ([]models.CustomerData, error) {
 	query := `
 		SELECT DISTINCT
 			u.id as user_id,
@@ -512,9 +536,9 @@ func (s *BookingService) GetCompanyCustomers(companyID string) ([]CustomerData, 
 	}
 	defer rows.Close()
 
-	var customers []CustomerData
+	var customers []models.CustomerData
 	for rows.Next() {
-		var customer CustomerData
+		var customer models.CustomerData
 		err := rows.Scan(
 			&customer.UserID, &customer.FirstName, &customer.LastName,
 			&customer.Email, &customer.Phone, &customer.Country,
@@ -530,12 +554,12 @@ func (s *BookingService) GetCompanyCustomers(companyID string) ([]CustomerData, 
 }
 
 // GetCustomerBookingHistory returns booking history for a specific customer
-func (s *BookingService) GetCustomerBookingHistory(companyID, userID string) ([]*BookingWithCustomerData, error) {
+func (s *BookingService) GetCustomerBookingHistory(companyID, userID string) ([]*models.BookingWithCustomerData, error) {
 	query := `
 		SELECT 
 			b.id, b.user_id, b.company_id, b.service_id, b.pet_id, b.employee_id,
-			b.booking_date, b.booking_time, b.duration, b.status, b.notes,
-			b.cancellation_reason, b.created_at, b.updated_at,
+			b.date_time, b.duration, b.price, b.status, b.notes, b.payment_id,
+			b.created_at, b.updated_at,
 			u.first_name, u.last_name, u.email, u.phone,
 			COALESCE(u.country, '') as country,
 			COALESCE(u.state, '') as state,
@@ -557,15 +581,15 @@ func (s *BookingService) GetCustomerBookingHistory(companyID, userID string) ([]
 	}
 	defer rows.Close()
 
-	var bookings []*BookingWithCustomerData
+	var bookings []*models.BookingWithCustomerData
 	for rows.Next() {
 		booking := &models.Booking{}
-		bookingWithData := &BookingWithCustomerData{Booking: booking}
+		bookingWithData := &models.BookingWithCustomerData{Booking: booking}
 
 		err := rows.Scan(
 			&booking.ID, &booking.UserID, &booking.CompanyID, &booking.ServiceID,
-			&booking.PetID, &booking.EmployeeID, &booking.BookingDate, &booking.BookingTime,
-			&booking.Duration, &booking.Status, &booking.Notes, &booking.CancellationReason,
+			&booking.PetID, &booking.EmployeeID, &booking.DateTime, &booking.Duration,
+			&booking.Price, &booking.Status, &booking.Notes, &booking.PaymentID,
 			&booking.CreatedAt, &booking.UpdatedAt,
 			&bookingWithData.Customer.FirstName, &bookingWithData.Customer.LastName,
 			&bookingWithData.Customer.Email, &bookingWithData.Customer.Phone,
@@ -902,28 +926,30 @@ func (s *BookingService) RescheduleBooking(bookingID string, newDateTime time.Ti
 	return tx.Commit()
 }
 
-// GetBookingsByEmployee returns bookings for a specific employee
+// GetBookingsByEmployee retrieves bookings by employee ID with optional date range and status filtering
 func (s *BookingService) GetBookingsByEmployee(employeeID string, startDate, endDate time.Time, status string) ([]models.Booking, error) {
-	whereClause := "WHERE employee_id = $1 AND date_time >= $2 AND date_time <= $3"
+	query := `
+		SELECT 
+			id, user_id, company_id, service_id, pet_id, employee_id,
+			date_time, duration, price, status, notes, payment_id,
+			created_at, updated_at
+		FROM bookings 
+		WHERE employee_id = $1
+		AND DATE(date_time) BETWEEN $2 AND $3`
+
 	args := []interface{}{employeeID, startDate, endDate}
 	argIndex := 4
 
 	if status != "" {
-		whereClause += fmt.Sprintf(" AND status = $%d", argIndex)
+		query += fmt.Sprintf(" AND status = $%d", argIndex)
 		args = append(args, status)
 	}
 
-	query := fmt.Sprintf(`
-		SELECT id, user_id, company_id, service_id, pet_id, employee_id,
-			   date_time, duration, price, status, notes, payment_id,
-			   created_at, updated_at
-		FROM bookings %s
-		ORDER BY date_time ASC
-	`, whereClause)
+	query += " ORDER BY date_time ASC"
 
 	rows, err := s.db.Query(query, args...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to query employee bookings: %w", err)
 	}
 	defer rows.Close()
 
@@ -937,7 +963,7 @@ func (s *BookingService) GetBookingsByEmployee(employeeID string, startDate, end
 			&booking.CreatedAt, &booking.UpdatedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan booking: %w", err)
 		}
 		bookings = append(bookings, booking)
 	}

@@ -390,7 +390,15 @@ func (h *BookingHandler) GetBookingCalendar(c *gin.Context) {
 	var queryErr error
 
 	if companyID != "" {
-		bookings, queryErr = h.bookingService.GetBookingsByCompany(companyID, startDate, endDate, "")
+		bookingsWithData, err := h.bookingService.GetBookingsByCompany(companyID, startDate, endDate, "")
+		if err != nil {
+			queryErr = err
+		} else {
+			// Convert BookingWithCustomerData to Booking
+			for _, bwd := range bookingsWithData {
+				bookings = append(bookings, *bwd.Booking)
+			}
+		}
 	} else if employeeID != "" {
 		bookings, queryErr = h.bookingService.GetBookingsByEmployee(employeeID, startDate, endDate, "")
 	} else {
@@ -468,7 +476,18 @@ func (h *BookingHandler) GetUpcomingBookings(c *gin.Context) {
 		// Get upcoming bookings for company
 		startDate := time.Now()
 		endDate := time.Now().AddDate(0, 0, 30) // Next 30 days
-		bookings, err = h.bookingService.GetBookingsByCompany(companyID, startDate, endDate, "confirmed")
+		bookingsWithData, queryErr := h.bookingService.GetBookingsByCompany(companyID, startDate, endDate, "confirmed")
+		if queryErr != nil {
+			err = queryErr
+		} else {
+			// Convert BookingWithCustomerData to Booking and limit results
+			for i, bwd := range bookingsWithData {
+				if i >= limit {
+					break
+				}
+				bookings = append(bookings, *bwd.Booking)
+			}
+		}
 	} else if userExists {
 		// Get upcoming bookings for user
 		bookings, err = h.bookingService.GetUpcomingBookings(userID.(string), limit)
