@@ -492,3 +492,28 @@ func (h *ServiceHandler) GetPublicServices(c *gin.Context) {
 		},
 	})
 }
+
+// GetActiveDiscountServices gets services with active discounts
+func (h *ServiceHandler) GetActiveDiscountServices(c *gin.Context) {
+	services, err := h.serviceService.GetActiveDiscountServices()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"services": services,
+		"count":    len(services),
+	})
+}
+
+// ExpireOutdatedSales expires sales that have passed their end date (admin only)
+func (h *ServiceHandler) ExpireOutdatedSales(c *gin.Context) {
+	err := h.serviceService.ExpireOutdatedSales()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Outdated sales expired successfully"})
+}

@@ -167,6 +167,11 @@ type Service struct {
 	Name               string         `json:"name" db:"name"`
 	Description        string         `json:"description" db:"description"`
 	Price              float64        `json:"price" db:"price"`
+	OriginalPrice      *float64       `json:"original_price" db:"original_price"`
+	DiscountPercentage *int           `json:"discount_percentage" db:"discount_percentage"`
+	IsOnSale           bool           `json:"is_on_sale" db:"is_on_sale"`
+	SaleStartDate      *time.Time     `json:"sale_start_date" db:"sale_start_date"`
+	SaleEndDate        *time.Time     `json:"sale_end_date" db:"sale_end_date"`
 	Duration           int            `json:"duration" db:"duration"` // minutes
 	ImageURL           string         `json:"image_url" db:"image_url"`
 	ImageID            string         `json:"image_id" db:"image_id"`

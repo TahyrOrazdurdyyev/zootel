@@ -57,42 +57,86 @@ func (s *ServiceService) GetCompanyServices(companyID string) ([]*models.Service
 	return services, nil
 }
 
-// GetServiceByID retrieves a specific service by ID
-func (s *ServiceService) GetServiceByID(serviceID string) (*models.Service, error) {
+// GetServicesByCompany retrieves services by company ID
+func (s *ServiceService) GetServicesByCompany(companyID string) ([]*models.Service, error) {
 	query := `
-		SELECT id, company_id, category_id, name, description, price, duration,
+		SELECT id, company_id, category_id, name, description, price, original_price,
+		       discount_percentage, is_on_sale, sale_start_date, sale_end_date, duration,
 		       image_url, image_id, pet_types, available_days, start_time, end_time,
 		       assigned_employees, max_bookings_per_slot, buffer_time_before,
 		       buffer_time_after, advance_booking_days, cancellation_policy,
 		       is_active, created_at, updated_at
 		FROM services 
-		WHERE id = $1`
+		WHERE company_id = $1 
+		ORDER BY created_at DESC
+	`
 
+	rows, err := s.db.Query(query, companyID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query services: %w", err)
+	}
+	defer rows.Close()
+
+	var services []*models.Service
+	for rows.Next() {
+		service := &models.Service{}
+		err := rows.Scan(
+			&service.ID, &service.CompanyID, &service.CategoryID, &service.Name,
+			&service.Description, &service.Price, &service.OriginalPrice,
+			&service.DiscountPercentage, &service.IsOnSale, &service.SaleStartDate, &service.SaleEndDate,
+			&service.Duration, &service.ImageURL, &service.ImageID, pq.Array(&service.PetTypes),
+			pq.Array(&service.AvailableDays), &service.StartTime, &service.EndTime,
+			pq.Array(&service.AssignedEmployees), &service.MaxBookingsPerSlot,
+			&service.BufferTimeBefore, &service.BufferTimeAfter, &service.AdvanceBookingDays,
+			&service.CancellationPolicy, &service.IsActive, &service.CreatedAt, &service.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan service: %w", err)
+		}
+		services = append(services, service)
+	}
+
+	return services, nil
+}
+
+// GetServiceByID retrieves a service by ID
+func (s *ServiceService) GetServiceByID(serviceID string) (*models.Service, error) {
 	service := &models.Service{}
+
+	query := `
+		SELECT id, company_id, category_id, name, description, price, original_price,
+		       discount_percentage, is_on_sale, sale_start_date, sale_end_date, duration,
+		       image_url, image_id, pet_types, available_days, start_time, end_time,
+		       assigned_employees, max_bookings_per_slot, buffer_time_before,
+		       buffer_time_after, advance_booking_days, cancellation_policy,
+		       is_active, created_at, updated_at
+		FROM services 
+		WHERE id = $1 AND is_active = true
+	`
+
 	err := s.db.QueryRow(query, serviceID).Scan(
 		&service.ID, &service.CompanyID, &service.CategoryID, &service.Name,
-		&service.Description, &service.Price, &service.Duration, &service.ImageURL,
-		&service.ImageID, pq.Array(&service.PetTypes), pq.Array(&service.AvailableDays),
-		&service.StartTime, &service.EndTime, pq.Array(&service.AssignedEmployees),
-		&service.MaxBookingsPerSlot, &service.BufferTimeBefore, &service.BufferTimeAfter,
-		&service.AdvanceBookingDays, &service.CancellationPolicy, &service.IsActive,
-		&service.CreatedAt, &service.UpdatedAt,
+		&service.Description, &service.Price, &service.OriginalPrice,
+		&service.DiscountPercentage, &service.IsOnSale, &service.SaleStartDate, &service.SaleEndDate,
+		&service.Duration, &service.ImageURL, &service.ImageID, pq.Array(&service.PetTypes),
+		pq.Array(&service.AvailableDays), &service.StartTime, &service.EndTime,
+		pq.Array(&service.AssignedEmployees), &service.MaxBookingsPerSlot,
+		&service.BufferTimeBefore, &service.BufferTimeAfter, &service.AdvanceBookingDays,
+		&service.CancellationPolicy, &service.IsActive, &service.CreatedAt, &service.UpdatedAt,
 	)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("service not found")
-		}
 		return nil, fmt.Errorf("failed to get service: %w", err)
 	}
 
 	return service, nil
 }
 
-// GetPublicServices retrieves public services with filters
+// GetPublicServices retrieves publicly available services for marketplace
 func (s *ServiceService) GetPublicServices(filters map[string]interface{}) ([]*models.Service, int, error) {
 	baseQuery := `
-		SELECT s.id, s.company_id, s.category_id, s.name, s.description, s.price, s.duration,
+		SELECT s.id, s.company_id, s.category_id, s.name, s.description, s.price, s.original_price,
+		       s.discount_percentage, s.is_on_sale, s.sale_start_date, s.sale_end_date, s.duration,
 		       s.image_url, s.image_id, s.pet_types, s.available_days, s.start_time, s.end_time,
 		       s.assigned_employees, s.max_bookings_per_slot, s.buffer_time_before,
 		       s.buffer_time_after, s.advance_booking_days, s.cancellation_policy,
@@ -164,12 +208,13 @@ func (s *ServiceService) GetPublicServices(filters map[string]interface{}) ([]*m
 		service := &models.Service{}
 		err := rows.Scan(
 			&service.ID, &service.CompanyID, &service.CategoryID, &service.Name,
-			&service.Description, &service.Price, &service.Duration, &service.ImageURL,
-			&service.ImageID, pq.Array(&service.PetTypes), pq.Array(&service.AvailableDays),
-			&service.StartTime, &service.EndTime, pq.Array(&service.AssignedEmployees),
-			&service.MaxBookingsPerSlot, &service.BufferTimeBefore, &service.BufferTimeAfter,
-			&service.AdvanceBookingDays, &service.CancellationPolicy, &service.IsActive,
-			&service.CreatedAt, &service.UpdatedAt,
+			&service.Description, &service.Price, &service.OriginalPrice,
+			&service.DiscountPercentage, &service.IsOnSale, &service.SaleStartDate, &service.SaleEndDate,
+			&service.Duration, &service.ImageURL, &service.ImageID, pq.Array(&service.PetTypes),
+			pq.Array(&service.AvailableDays), &service.StartTime, &service.EndTime,
+			pq.Array(&service.AssignedEmployees), &service.MaxBookingsPerSlot,
+			&service.BufferTimeBefore, &service.BufferTimeAfter, &service.AdvanceBookingDays,
+			&service.CancellationPolicy, &service.IsActive, &service.CreatedAt, &service.UpdatedAt,
 		)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to scan service: %w", err)
@@ -186,28 +231,34 @@ func (s *ServiceService) CreateService(service *models.Service) (*models.Service
 	service.CreatedAt = time.Now()
 	service.UpdatedAt = time.Now()
 
+	// Calculate discount price if on sale
+	if service.IsOnSale && service.DiscountPercentage != nil && service.OriginalPrice != nil {
+		discountAmount := (*service.OriginalPrice) * (float64(*service.DiscountPercentage) / 100.0)
+		service.Price = (*service.OriginalPrice) - discountAmount
+	}
+
 	query := `
 		INSERT INTO services (
-			id, company_id, category_id, name, description, price, duration,
+			id, company_id, category_id, name, description, price, original_price,
+			discount_percentage, is_on_sale, sale_start_date, sale_end_date, duration,
 			image_url, image_id, pet_types, available_days, start_time, end_time,
 			assigned_employees, max_bookings_per_slot, buffer_time_before,
 			buffer_time_after, advance_booking_days, cancellation_policy,
 			is_active, created_at, updated_at
 		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
-			$16, $17, $18, $19, $20, $21, $22
-		) RETURNING id, created_at, updated_at`
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27
+		)
+	`
 
-	err := s.db.QueryRow(
-		query,
+	_, err := s.db.Exec(query,
 		service.ID, service.CompanyID, service.CategoryID, service.Name,
-		service.Description, service.Price, service.Duration, service.ImageURL,
-		service.ImageID, pq.Array(service.PetTypes), pq.Array(service.AvailableDays),
-		service.StartTime, service.EndTime, pq.Array(service.AssignedEmployees),
-		service.MaxBookingsPerSlot, service.BufferTimeBefore, service.BufferTimeAfter,
-		service.AdvanceBookingDays, service.CancellationPolicy, service.IsActive,
-		service.CreatedAt, service.UpdatedAt,
-	).Scan(&service.ID, &service.CreatedAt, &service.UpdatedAt)
+		service.Description, service.Price, service.OriginalPrice,
+		service.DiscountPercentage, service.IsOnSale, service.SaleStartDate, service.SaleEndDate,
+		service.Duration, service.ImageURL, service.ImageID, pq.Array(service.PetTypes),
+		pq.Array(service.AvailableDays), service.StartTime, service.EndTime,
+		pq.Array(service.AssignedEmployees), service.MaxBookingsPerSlot,
+		service.BufferTimeBefore, service.BufferTimeAfter, service.AdvanceBookingDays,
+		service.CancellationPolicy, service.IsActive, service.CreatedAt, service.UpdatedAt)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create service: %w", err)
@@ -216,30 +267,35 @@ func (s *ServiceService) CreateService(service *models.Service) (*models.Service
 	return service, nil
 }
 
-// UpdateService updates an existing service
+// UpdateService updates a service
 func (s *ServiceService) UpdateService(service *models.Service) (*models.Service, error) {
 	service.UpdatedAt = time.Now()
 
+	// Calculate discount price if on sale
+	if service.IsOnSale && service.DiscountPercentage != nil && service.OriginalPrice != nil {
+		discountAmount := (*service.OriginalPrice) * (float64(*service.DiscountPercentage) / 100.0)
+		service.Price = (*service.OriginalPrice) - discountAmount
+	}
+
 	query := `
 		UPDATE services SET
-			category_id = $2, name = $3, description = $4, price = $5, duration = $6,
-			image_url = $7, image_id = $8, pet_types = $9, available_days = $10,
-			start_time = $11, end_time = $12, assigned_employees = $13,
-			max_bookings_per_slot = $14, buffer_time_before = $15, buffer_time_after = $16,
-			advance_booking_days = $17, cancellation_policy = $18, is_active = $19,
-			updated_at = $20
+			category_id = $2, name = $3, description = $4, price = $5, original_price = $6,
+			discount_percentage = $7, is_on_sale = $8, sale_start_date = $9, sale_end_date = $10,
+			duration = $11, image_url = $12, image_id = $13, pet_types = $14, available_days = $15,
+			start_time = $16, end_time = $17, assigned_employees = $18, max_bookings_per_slot = $19,
+			buffer_time_before = $20, buffer_time_after = $21, advance_booking_days = $22,
+			cancellation_policy = $23, is_active = $24, updated_at = $25
 		WHERE id = $1
-		RETURNING updated_at`
+	`
 
-	err := s.db.QueryRow(
-		query,
+	_, err := s.db.Exec(query,
 		service.ID, service.CategoryID, service.Name, service.Description,
-		service.Price, service.Duration, service.ImageURL, service.ImageID,
-		pq.Array(service.PetTypes), pq.Array(service.AvailableDays), service.StartTime,
-		service.EndTime, pq.Array(service.AssignedEmployees), service.MaxBookingsPerSlot,
-		service.BufferTimeBefore, service.BufferTimeAfter, service.AdvanceBookingDays,
-		service.CancellationPolicy, service.IsActive, service.UpdatedAt,
-	).Scan(&service.UpdatedAt)
+		service.Price, service.OriginalPrice, service.DiscountPercentage, service.IsOnSale,
+		service.SaleStartDate, service.SaleEndDate, service.Duration, service.ImageURL,
+		service.ImageID, pq.Array(service.PetTypes), pq.Array(service.AvailableDays),
+		service.StartTime, service.EndTime, pq.Array(service.AssignedEmployees),
+		service.MaxBookingsPerSlot, service.BufferTimeBefore, service.BufferTimeAfter,
+		service.AdvanceBookingDays, service.CancellationPolicy, service.IsActive, service.UpdatedAt)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to update service: %w", err)
@@ -506,4 +562,74 @@ func (s *ServiceService) DeleteServiceImage(serviceID, imageID string) error {
 	// This would be handled by the UploadService or file storage service
 
 	return nil
+}
+
+// ExpireOutdatedSales expires sales that have passed their end date
+func (s *ServiceService) ExpireOutdatedSales() error {
+	query := `
+		UPDATE services 
+		SET is_on_sale = false, 
+		    price = COALESCE(original_price, price),
+		    updated_at = CURRENT_TIMESTAMP
+		WHERE is_on_sale = true 
+		  AND sale_end_date IS NOT NULL 
+		  AND sale_end_date < CURRENT_TIMESTAMP
+	`
+
+	result, err := s.db.Exec(query)
+	if err != nil {
+		return fmt.Errorf("failed to expire outdated sales: %w", err)
+	}
+
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected > 0 {
+		fmt.Printf("Expired %d outdated sales\n", rowsAffected)
+	}
+
+	return nil
+}
+
+// GetActiveDiscountServices returns services with active discounts
+func (s *ServiceService) GetActiveDiscountServices() ([]*models.Service, error) {
+	query := `
+		SELECT id, company_id, category_id, name, description, price, original_price,
+		       discount_percentage, is_on_sale, sale_start_date, sale_end_date, duration,
+		       image_url, image_id, pet_types, available_days, start_time, end_time,
+		       assigned_employees, max_bookings_per_slot, buffer_time_before,
+		       buffer_time_after, advance_booking_days, cancellation_policy,
+		       is_active, created_at, updated_at
+		FROM services 
+		WHERE is_on_sale = true 
+		  AND is_active = true
+		  AND (sale_end_date IS NULL OR sale_end_date > CURRENT_TIMESTAMP)
+		  AND (sale_start_date IS NULL OR sale_start_date <= CURRENT_TIMESTAMP)
+		ORDER BY discount_percentage DESC, created_at DESC
+	`
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query discount services: %w", err)
+	}
+	defer rows.Close()
+
+	var services []*models.Service
+	for rows.Next() {
+		service := &models.Service{}
+		err := rows.Scan(
+			&service.ID, &service.CompanyID, &service.CategoryID, &service.Name,
+			&service.Description, &service.Price, &service.OriginalPrice,
+			&service.DiscountPercentage, &service.IsOnSale, &service.SaleStartDate, &service.SaleEndDate,
+			&service.Duration, &service.ImageURL, &service.ImageID, pq.Array(&service.PetTypes),
+			pq.Array(&service.AvailableDays), &service.StartTime, &service.EndTime,
+			pq.Array(&service.AssignedEmployees), &service.MaxBookingsPerSlot,
+			&service.BufferTimeBefore, &service.BufferTimeAfter, &service.AdvanceBookingDays,
+			&service.CancellationPolicy, &service.IsActive, &service.CreatedAt, &service.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan discount service: %w", err)
+		}
+		services = append(services, service)
+	}
+
+	return services, nil
 }

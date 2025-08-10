@@ -317,9 +317,9 @@ const MarketplacePage = () => {
                     </div>
                     
                     {/* Discount Badge */}
-                    {item.discount && (
+                    {item.is_on_sale && item.discount_percentage && (
                       <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-sm font-bold">
-                        -{item.discount}%
+                        -{item.discount_percentage}%
                       </div>
                     )}
 
@@ -337,7 +337,7 @@ const MarketplacePage = () => {
 
                     {/* Type Badge */}
                     <div className="absolute bottom-3 left-3 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
-                      {item.type === 'service' ? 'Услуга' : 'Товар'}
+                      {item.type === 'service' ? 'Service' : 'Product'}
                     </div>
                   </div>
 
@@ -364,7 +364,7 @@ const MarketplacePage = () => {
                           ))}
                           {item.features.length > 2 && (
                             <span className="text-xs text-gray-500">
-                              +{item.features.length - 2} еще
+                              +{item.features.length - 2} more
                             </span>
                           )}
                         </div>
@@ -375,12 +375,12 @@ const MarketplacePage = () => {
                     <div className="flex items-center justify-between mb-3 text-sm text-gray-600">
                       <div className="flex items-center">
                         <StarIcon className="h-4 w-4 text-yellow-400 fill-current" />
-                        <span className="ml-1 font-medium">{item.rating}</span>
-                        <span className="ml-1">({item.reviews})</span>
+                        <span className="ml-1 font-medium">{item.rating || '5.0'}</span>
+                        <span className="ml-1">({item.reviews || '0'})</span>
                       </div>
                       <div className="flex items-center">
                         <MapPinIcon className="h-4 w-4" />
-                        <span className="ml-1 text-xs">{item.location}</span>
+                        <span className="ml-1 text-xs">{item.location || 'Location'}</span>
                       </div>
                     </div>
 
@@ -391,9 +391,9 @@ const MarketplacePage = () => {
                           <span className="text-lg font-bold text-primary-500">
                             {formatPrice(item.price)}
                           </span>
-                          {item.originalPrice && (
+                          {item.is_on_sale && item.original_price && (
                             <span className="text-sm text-gray-500 line-through">
-                              {formatPrice(item.originalPrice)}
+                              {formatPrice(item.original_price)}
                             </span>
                           )}
                         </div>
@@ -404,7 +404,7 @@ const MarketplacePage = () => {
                         className="btn-primary flex items-center space-x-1 text-sm px-3 py-2"
                       >
                         <ShoppingCartIcon className="h-4 w-4" />
-                        <span>{item.type === 'service' ? 'Заказать' : 'В корзину'}</span>
+                        <span>{item.type === 'service' ? 'Book' : 'Add to Cart'}</span>
                       </button>
                     </div>
                   </div>

@@ -15,21 +15,26 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category_id: '',
-    pet_types: [],
+    categoryId: '',
     price: '',
-    duration: '60',
-    image_id: '',
-    available_days: [],
-    start_time: '09:00',
-    end_time: '17:00',
-    assigned_employees: [],
-    max_bookings_per_slot: '1',
-    buffer_time_before: '15',
-    buffer_time_after: '15',
-    advance_booking_days: '7',
-    cancellation_policy: 'Free cancellation up to 24 hours before appointment',
-    is_active: true
+    originalPrice: '',
+    discountPercentage: '',
+    isOnSale: false,
+    saleStartDate: '',
+    saleEndDate: '',
+    duration: '',
+    petTypes: [],
+    availableDays: [],
+    startTime: '09:00',
+    endTime: '17:00',
+    assignedEmployees: [],
+    maxBookingsPerSlot: '1',
+    bufferTimeBefore: '0',
+    bufferTimeAfter: '0',
+    advanceBookingDays: '30',
+    cancellationPolicy: '',
+    isActive: true,
+    ...initialData
   });
   
   const [categories, setCategories] = useState([]);
@@ -110,20 +115,11 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    
-    if (type === 'checkbox') {
-      setFormData(prev => ({
-        ...prev,
-        [name]: checked
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+  const handleInputChange = (name, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
     
     // Clear error when user starts typing
     if (errors[name]) {
@@ -333,43 +329,147 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                 {errors.category_id && <p className="text-red-500 text-xs mt-1">{errors.category_id}</p>}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Price ($) *
+              {/* Price */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Price (USD) *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.price}
+                  onChange={(e) => handleInputChange('price', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                    errors.price ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="0.00"
+                />
+                {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
+              </div>
+
+              {/* Discount Section */}
+              <div className="space-y-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-gray-700">
+                    Enable Sale/Discount
                   </label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    min="0"
-                    step="0.01"
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                      errors.price ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder="0.00"
-                  />
-                  {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.isOnSale}
+                      onChange={(e) => handleInputChange('isOnSale', e.target.checked)}
+                      className="sr-only"
+                    />
+                    <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer ${formData.isOnSale ? 'bg-orange-600' : 'bg-gray-200'} relative`}>
+                      <div className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform ${formData.isOnSale ? 'translate-x-full border-white' : ''}`}></div>
+                    </div>
+                  </label>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Duration (minutes) *
-                  </label>
-                  <input
-                    type="number"
-                    name="duration"
-                    value={formData.duration}
-                    onChange={handleInputChange}
-                    min="15"
-                    step="15"
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                      errors.duration ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  />
-                  {errors.duration && <p className="text-red-500 text-xs mt-1">{errors.duration}</p>}
-                </div>
+                {formData.isOnSale && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Original Price */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Original Price (USD) *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.originalPrice}
+                        onChange={(e) => {
+                          const originalPrice = parseFloat(e.target.value) || 0;
+                          const discountPercentage = parseInt(formData.discountPercentage) || 0;
+                          const discountedPrice = originalPrice - (originalPrice * discountPercentage / 100);
+                          
+                          handleInputChange('originalPrice', e.target.value);
+                          if (discountPercentage > 0) {
+                            handleInputChange('price', discountedPrice.toFixed(2));
+                          }
+                        }}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                          errors.originalPrice ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="0.00"
+                      />
+                      {errors.originalPrice && <p className="text-red-500 text-xs mt-1">{errors.originalPrice}</p>}
+                    </div>
+
+                    {/* Discount Percentage */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Discount Percentage (%) *
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="99"
+                        value={formData.discountPercentage}
+                        onChange={(e) => {
+                          const discountPercentage = parseInt(e.target.value) || 0;
+                          const originalPrice = parseFloat(formData.originalPrice) || 0;
+                          const discountedPrice = originalPrice - (originalPrice * discountPercentage / 100);
+                          
+                          handleInputChange('discountPercentage', e.target.value);
+                          if (originalPrice > 0) {
+                            handleInputChange('price', discountedPrice.toFixed(2));
+                          }
+                        }}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                          errors.discountPercentage ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="e.g., 30"
+                      />
+                      {errors.discountPercentage && <p className="text-red-500 text-xs mt-1">{errors.discountPercentage}</p>}
+                    </div>
+
+                    {/* Sale Start Date */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Sale Start Date
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={formData.saleStartDate}
+                        onChange={(e) => handleInputChange('saleStartDate', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+
+                    {/* Sale End Date */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Sale End Date
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={formData.saleEndDate}
+                        onChange={(e) => handleInputChange('saleEndDate', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Price Preview */}
+                {formData.isOnSale && formData.originalPrice && formData.discountPercentage && (
+                  <div className="bg-white p-3 rounded-md border">
+                    <div className="text-sm text-gray-600 mb-1">Price Preview:</div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg font-bold text-green-600">
+                        ${formData.price}
+                      </span>
+                      <span className="text-sm text-gray-500 line-through">
+                        ${formData.originalPrice}
+                      </span>
+                      <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                        -{formData.discountPercentage}%
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

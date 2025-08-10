@@ -169,6 +169,7 @@ func main() {
 			marketplace.GET("/companies", companyHandler.GetPublicCompanies)
 			marketplace.GET("/companies/:id", companyHandler.GetPublicCompany)
 			marketplace.GET("/services", companyHandler.GetPublicServices)
+			marketplace.GET("/services/discounts", serviceHandler.GetActiveDiscountServices)
 			marketplace.GET("/products", companyHandler.GetPublicProducts)
 			marketplace.GET("/categories", companyHandler.GetServiceCategories)
 			marketplace.GET("/search", companyHandler.Search)
@@ -414,6 +415,9 @@ func main() {
 				admin.PUT("/addon-pricing/:addonId", addonHandler.UpdateAddonPricing)
 				admin.POST("/companies/:companyId/addons/enable", addonHandler.ManuallyEnableAddon)
 				admin.POST("/addon-billing/process", addonHandler.ProcessBilling)
+
+				// Discount management
+				admin.POST("/services/expire-sales", serviceHandler.ExpireOutdatedSales)
 			}
 		}
 	}

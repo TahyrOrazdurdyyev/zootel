@@ -243,18 +243,24 @@ const HomePage = () => {
                     <span className="text-4xl">📸</span>
                   </div>
                   <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                    -{deal.discount}%
+                    -{deal.discount_percentage || deal.discount}%
                   </div>
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{deal.title}</h3>
                   <p className="text-gray-600 mb-4">{deal.company}</p>
                   <div className="flex items-center space-x-2">
-                    <span className="text-2xl font-bold text-primary-500">₽{deal.discountPrice}</span>
-                    <span className="text-lg text-gray-500 line-through">₽{deal.originalPrice}</span>
+                    <span className="text-2xl font-bold text-primary-500">
+                      ${deal.price || deal.discountPrice}
+                    </span>
+                    {(deal.original_price || deal.originalPrice) && (
+                      <span className="text-lg text-gray-500 line-through">
+                        ${deal.original_price || deal.originalPrice}
+                      </span>
+                    )}
                   </div>
                   <button className="w-full mt-4 btn-primary">
-                    Забронировать
+                    Book Now
                   </button>
                 </div>
               </div>
