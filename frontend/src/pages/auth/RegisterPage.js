@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import LocationSelector from '../../components/ui/LocationSelector';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,9 @@ const RegisterPage = () => {
     phone: '',
     password: '',
     confirmPassword: '',
+    country: null,
+    state: null,
+    city: null,
     agreeToTerms: false
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -50,6 +54,24 @@ const RegisterPage = () => {
     }
   };
 
+  const handleLocationChange = (location) => {
+    setFormData(prev => ({
+      ...prev,
+      country: location.country,
+      state: location.state,
+      city: location.city
+    }));
+    
+    // Clear location errors when user makes changes
+    if (errors.country || errors.city) {
+      setErrors(prev => ({
+        ...prev,
+        country: '',
+        city: ''
+      }));
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -71,6 +93,14 @@ const RegisterPage = () => {
       newErrors.phone = 'Phone number is required';
     } else if (formData.phone.length < 10) {
       newErrors.phone = 'Please enter a valid phone number';
+    }
+
+    if (!formData.country) {
+      newErrors.country = 'Country is required';
+    }
+
+    if (!formData.city || !formData.city.name) {
+      newErrors.city = 'City is required';
     }
 
     if (!formData.password) {
@@ -103,10 +133,23 @@ const RegisterPage = () => {
     setErrors({});
 
     try {
-      await register(formData);
+      // Prepare registration data with formatted location
+      const registrationData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        country: formData.country?.name || '',
+        state: formData.state?.name || '',
+        city: formData.city?.name || '',
+        agreeToTerms: formData.agreeToTerms
+      };
+      
+      await register(registrationData);
       navigate('/profile', { replace: true });
     } catch (err) {
-      setErrors({ submit: 'Ошибка регистрации. Попробуйте еще раз.' });
+      setErrors({ submit: 'Registration error. Please try again.' });
     } finally {
       setLoading(false);
     }
@@ -228,6 +271,25 @@ const RegisterPage = () => {
                   <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
                 )}
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Location <span className="text-red-500">*</span>
+              </label>
+              <LocationSelector
+                selectedCountry={formData.country}
+                selectedState={formData.state}
+                selectedCity={formData.city}
+                onLocationChange={handleLocationChange}
+                required={true}
+              />
+              {errors.country && (
+                <p className="mt-1 text-sm text-red-600">{errors.country}</p>
+              )}
+              {errors.city && (
+                <p className="mt-1 text-sm text-red-600">{errors.city}</p>
+              )}
             </div>
 
             <div>
