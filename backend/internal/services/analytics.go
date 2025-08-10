@@ -1617,3 +1617,258 @@ func (s *AnalyticsService) GetGeographicDistribution() (map[string]interface{}, 
 
 	return result, nil
 }
+
+// Regional Analytics for SuperAdmin
+type RegionalRegistration struct {
+	Country     string    `json:"country"`
+	State       string    `json:"state"`
+	City        string    `json:"city"`
+	Count       int       `json:"count"`
+	LatestDate  time.Time `json:"latest_date"`
+	PhonePrefix string    `json:"phone_prefix"`
+}
+
+type UserRegistrationData struct {
+	ID        string    `json:"id"`
+	Email     string    `json:"email"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Phone     string    `json:"phone"`
+	Country   string    `json:"country"`
+	State     string    `json:"state"`
+	City      string    `json:"city"`
+	Role      string    `json:"role"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type RegionalStats struct {
+	TotalUsers          int                    `json:"total_users"`
+	CountryStats        []RegionalRegistration `json:"country_stats"`
+	StateStats          []RegionalRegistration `json:"state_stats"`
+	CityStats           []RegionalRegistration `json:"city_stats"`
+	PhonePrefixStats    []RegionalRegistration `json:"phone_prefix_stats"`
+	RecentRegistrations []UserRegistrationData `json:"recent_registrations"`
+}
+
+// GetRegistrationsByRegion returns registration statistics by region for SuperAdmin
+func (s *AnalyticsService) GetRegistrationsByRegion(dateFrom, dateTo time.Time) (*RegionalStats, error) {
+	stats := &RegionalStats{}
+
+	// Get total users count
+	err := s.db.QueryRow(`
+		SELECT COUNT(*) 
+		FROM users 
+		WHERE created_at BETWEEN $1 AND $2
+	`, dateFrom, dateTo).Scan(&stats.TotalUsers)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get total users: %v", err)
+	}
+
+	// Get country statistics
+	rows, err := s.db.Query(`
+		SELECT 
+			country,
+			COUNT(*) as count,
+			MAX(created_at) as latest_date,
+			SUBSTRING(phone FROM 1 FOR 4) as phone_prefix
+		FROM users 
+		WHERE created_at BETWEEN $1 AND $2 
+		AND country IS NOT NULL AND country != ''
+		GROUP BY country, SUBSTRING(phone FROM 1 FOR 4)
+		ORDER BY count DESC, latest_date DESC
+		LIMIT 50
+	`, dateFrom, dateTo)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get country stats: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var stat RegionalRegistration
+		err := rows.Scan(&stat.Country, &stat.Count, &stat.LatestDate, &stat.PhonePrefix)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan country stat: %v", err)
+		}
+		stats.CountryStats = append(stats.CountryStats, stat)
+	}
+
+	// Get state statistics
+	rows, err = s.db.Query(`
+		SELECT 
+			COALESCE(state, '') as state,
+			country,
+			COUNT(*) as count,
+			MAX(created_at) as latest_date
+		FROM users 
+		WHERE created_at BETWEEN $1 AND $2 
+		AND state IS NOT NULL AND state != ''
+		GROUP BY state, country
+		ORDER BY count DESC
+		LIMIT 30
+	`, dateFrom, dateTo)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get state stats: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var stat RegionalRegistration
+		err := rows.Scan(&stat.State, &stat.Country, &stat.Count, &stat.LatestDate)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan state stat: %v", err)
+		}
+		stats.StateStats = append(stats.StateStats, stat)
+	}
+
+	// Get city statistics
+	rows, err = s.db.Query(`
+		SELECT 
+			COALESCE(city, '') as city,
+			COALESCE(state, '') as state,
+			country,
+			COUNT(*) as count,
+			MAX(created_at) as latest_date
+		FROM users 
+		WHERE created_at BETWEEN $1 AND $2 
+		AND city IS NOT NULL AND city != ''
+		GROUP BY city, state, country
+		ORDER BY count DESC
+		LIMIT 50
+	`, dateFrom, dateTo)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get city stats: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var stat RegionalRegistration
+		err := rows.Scan(&stat.City, &stat.State, &stat.Country, &stat.Count, &stat.LatestDate)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan city stat: %v", err)
+		}
+		stats.CityStats = append(stats.CityStats, stat)
+	}
+
+	// Get phone prefix statistics (by country code)
+	rows, err = s.db.Query(`
+		SELECT 
+			SUBSTRING(phone FROM 1 FOR 4) as phone_prefix,
+			COUNT(*) as count,
+			MAX(created_at) as latest_date
+		FROM users 
+		WHERE created_at BETWEEN $1 AND $2 
+		AND phone IS NOT NULL AND phone != ''
+		GROUP BY SUBSTRING(phone FROM 1 FOR 4)
+		ORDER BY count DESC
+		LIMIT 20
+	`, dateFrom, dateTo)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get phone prefix stats: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var stat RegionalRegistration
+		err := rows.Scan(&stat.PhonePrefix, &stat.Count, &stat.LatestDate)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan phone prefix stat: %v", err)
+		}
+		stats.PhonePrefixStats = append(stats.PhonePrefixStats, stat)
+	}
+
+	return stats, nil
+}
+
+// GetAllUsersWithPhoneData returns all users with phone data for SuperAdmin
+func (s *AnalyticsService) GetAllUsersWithPhoneData(limit, offset int) ([]UserRegistrationData, int, error) {
+	// Get total count
+	var totalCount int
+	err := s.db.QueryRow(`
+		SELECT COUNT(*) 
+		FROM users 
+		WHERE phone IS NOT NULL AND phone != ''
+	`).Scan(&totalCount)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get total count: %v", err)
+	}
+
+	// Get users with phone data
+	rows, err := s.db.Query(`
+		SELECT 
+			id, email, first_name, last_name, phone, 
+			COALESCE(country, '') as country, 
+			COALESCE(state, '') as state, 
+			COALESCE(city, '') as city,
+			role, created_at
+		FROM users 
+		WHERE phone IS NOT NULL AND phone != ''
+		ORDER BY created_at DESC
+		LIMIT $1 OFFSET $2
+	`, limit, offset)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to query users: %v", err)
+	}
+	defer rows.Close()
+
+	var users []UserRegistrationData
+	for rows.Next() {
+		var user UserRegistrationData
+		err := rows.Scan(
+			&user.ID, &user.Email, &user.FirstName, &user.LastName, &user.Phone,
+			&user.Country, &user.State, &user.City, &user.Role, &user.CreatedAt,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to scan user: %v", err)
+		}
+		users = append(users, user)
+	}
+
+	return users, totalCount, nil
+}
+
+// GetUsersByCountry returns users filtered by country for SuperAdmin
+func (s *AnalyticsService) GetUsersByCountry(country string, limit, offset int) ([]UserRegistrationData, int, error) {
+	// Get total count
+	var totalCount int
+	err := s.db.QueryRow(`
+		SELECT COUNT(*) 
+		FROM users 
+		WHERE LOWER(country) = LOWER($1)
+	`, country).Scan(&totalCount)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get total count: %v", err)
+	}
+
+	// Get filtered users
+	rows, err := s.db.Query(`
+		SELECT 
+			id, email, first_name, last_name, phone, 
+			COALESCE(country, '') as country, 
+			COALESCE(state, '') as state, 
+			COALESCE(city, '') as city,
+			role, created_at
+		FROM users 
+		WHERE LOWER(country) = LOWER($1)
+		ORDER BY created_at DESC
+		LIMIT $2 OFFSET $3
+	`, country, limit, offset)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to query users: %v", err)
+	}
+	defer rows.Close()
+
+	var users []UserRegistrationData
+	for rows.Next() {
+		var user UserRegistrationData
+		err := rows.Scan(
+			&user.ID, &user.Email, &user.FirstName, &user.LastName, &user.Phone,
+			&user.Country, &user.State, &user.City, &user.Role, &user.CreatedAt,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to scan user: %v", err)
+		}
+		users = append(users, user)
+	}
+
+	return users, totalCount, nil
+}

@@ -418,87 +418,173 @@ func (s *BookingService) GetBookingsByUser(userID string, status string, limit i
 }
 
 // GetBookingsByCompany returns bookings for a specific company
-func (s *BookingService) GetBookingsByCompany(companyID string, startDate, endDate time.Time, status string) ([]models.Booking, error) {
-	whereClause := "WHERE b.company_id = $1 AND b.date_time >= $2 AND b.date_time <= $3"
-	args := []interface{}{companyID, startDate, endDate}
-	argIndex := 4
-
-	if status != "" {
-		whereClause += fmt.Sprintf(" AND b.status = $%d", argIndex)
-		args = append(args, status)
-	}
-
-	query := fmt.Sprintf(`
+func (s *BookingService) GetBookingsByCompany(companyID string) ([]*BookingWithCustomerData, error) {
+	query := `
 		SELECT 
 			b.id, b.user_id, b.company_id, b.service_id, b.pet_id, b.employee_id,
-			b.date_time, b.duration, b.price, b.status, b.notes, b.payment_id,
-			b.created_at, b.updated_at,
-			-- Customer information
+			b.booking_date, b.booking_time, b.duration, b.status, b.notes,
+			b.cancellation_reason, b.created_at, b.updated_at,
 			u.first_name, u.last_name, u.email, u.phone,
-			-- Pet information
-			p.name as pet_name, p.gender as pet_gender,
-			-- Pet type and breed information
-			pt.name as pet_type, br.name as breed_name,
-			-- Service information
-			s.name as service_name,
-			-- Employee information
-			e.first_name as employee_first_name, e.last_name as employee_last_name
+			COALESCE(u.country, '') as country,
+			COALESCE(u.state, '') as state,
+			COALESCE(u.city, '') as city,
+			p.name as pet_name,
+			pt.name as pet_type_name,
+			COALESCE(b.breed, '') as breed_name
 		FROM bookings b
-		LEFT JOIN users u ON b.user_id = u.id
+		JOIN users u ON b.user_id = u.id
 		LEFT JOIN pets p ON b.pet_id = p.id
 		LEFT JOIN pet_types pt ON p.pet_type_id = pt.id
-		LEFT JOIN breeds br ON p.breed_id = br.id
-		LEFT JOIN services s ON b.service_id = s.id
-		LEFT JOIN employees e ON b.employee_id = e.id
-		%s
-		ORDER BY b.date_time ASC
-	`, whereClause)
+		WHERE b.company_id = $1
+		ORDER BY b.created_at DESC
+	`
 
-	rows, err := s.db.Query(query, args...)
+	rows, err := s.db.Query(query, companyID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to query bookings: %w", err)
 	}
 	defer rows.Close()
 
-	var bookings []models.Booking
+	var bookings []*BookingWithCustomerData
 	for rows.Next() {
-		var booking models.Booking
-		var customerFirstName, customerLastName, customerEmail, customerPhone sql.NullString
-		var petName, petGender, petType, breedName, serviceName sql.NullString
-		var employeeFirstName, employeeLastName sql.NullString
+		booking := &models.Booking{}
+		bookingWithData := &BookingWithCustomerData{Booking: booking}
+
+		var petName, petTypeName, breedName sql.NullString
 
 		err := rows.Scan(
 			&booking.ID, &booking.UserID, &booking.CompanyID, &booking.ServiceID,
-			&booking.PetID, &booking.EmployeeID, &booking.DateTime, &booking.Duration,
-			&booking.Price, &booking.Status, &booking.Notes, &booking.PaymentID,
+			&booking.PetID, &booking.EmployeeID, &booking.BookingDate, &booking.BookingTime,
+			&booking.Duration, &booking.Status, &booking.Notes, &booking.CancellationReason,
 			&booking.CreatedAt, &booking.UpdatedAt,
-			&customerFirstName, &customerLastName, &customerEmail, &customerPhone,
-			&petName, &petGender, &petType, &breedName, &serviceName,
-			&employeeFirstName, &employeeLastName,
+			&bookingWithData.Customer.FirstName, &bookingWithData.Customer.LastName,
+			&bookingWithData.Customer.Email, &bookingWithData.Customer.Phone,
+			&bookingWithData.Customer.Country, &bookingWithData.Customer.State,
+			&bookingWithData.Customer.City,
+			&petName, &petTypeName, &breedName,
 		)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan booking: %w", err)
 		}
 
-		// Add customer and pet information to booking
-		booking.CustomerInfo = &models.CustomerInfo{
-			FirstName: customerFirstName.String,
-			LastName:  customerLastName.String,
-			Email:     customerEmail.String,
-			Phone:     customerPhone.String,
+		// Set customer data
+		bookingWithData.Customer.UserID = booking.UserID
+
+		// Set pet data
+		bookingWithData.Pet.PetID = *booking.PetID
+		if petName.Valid {
+			bookingWithData.Pet.PetName = petName.String
+		}
+		if petTypeName.Valid {
+			bookingWithData.Pet.PetType = petTypeName.String
+		}
+		if breedName.Valid {
+			bookingWithData.Pet.Breed = breedName.String
 		}
 
-		booking.PetInfo = &models.PetInfo{
-			Name:      petName.String,
-			Gender:    petGender.String,
-			PetType:   petType.String,
-			BreedName: breedName.String,
+		bookings = append(bookings, bookingWithData)
+	}
+
+	return bookings, nil
+}
+
+// GetCompanyCustomers returns all customers who made at least one booking/order with the company
+func (s *BookingService) GetCompanyCustomers(companyID string) ([]CustomerData, error) {
+	query := `
+		SELECT DISTINCT
+			u.id as user_id,
+			u.first_name, u.last_name, u.email, u.phone,
+			COALESCE(u.country, '') as country,
+			COALESCE(u.state, '') as state,
+			COALESCE(u.city, '') as city
+		FROM users u
+		WHERE u.id IN (
+			SELECT DISTINCT user_id FROM bookings WHERE company_id = $1
+			UNION
+			SELECT DISTINCT user_id FROM orders WHERE company_id = $1
+		)
+		ORDER BY u.first_name, u.last_name
+	`
+
+	rows, err := s.db.Query(query, companyID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query customers: %w", err)
+	}
+	defer rows.Close()
+
+	var customers []CustomerData
+	for rows.Next() {
+		var customer CustomerData
+		err := rows.Scan(
+			&customer.UserID, &customer.FirstName, &customer.LastName,
+			&customer.Email, &customer.Phone, &customer.Country,
+			&customer.State, &customer.City,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan customer: %w", err)
+		}
+		customers = append(customers, customer)
+	}
+
+	return customers, nil
+}
+
+// GetCustomerBookingHistory returns booking history for a specific customer
+func (s *BookingService) GetCustomerBookingHistory(companyID, userID string) ([]*BookingWithCustomerData, error) {
+	query := `
+		SELECT 
+			b.id, b.user_id, b.company_id, b.service_id, b.pet_id, b.employee_id,
+			b.booking_date, b.booking_time, b.duration, b.status, b.notes,
+			b.cancellation_reason, b.created_at, b.updated_at,
+			u.first_name, u.last_name, u.email, u.phone,
+			COALESCE(u.country, '') as country,
+			COALESCE(u.state, '') as state,
+			COALESCE(u.city, '') as city,
+			COALESCE(p.name, '') as pet_name,
+			COALESCE(pt.name, '') as pet_type_name,
+			COALESCE(b.breed, '') as breed_name
+		FROM bookings b
+		JOIN users u ON b.user_id = u.id
+		LEFT JOIN pets p ON b.pet_id = p.id
+		LEFT JOIN pet_types pt ON p.pet_type_id = pt.id
+		WHERE b.company_id = $1 AND b.user_id = $2
+		ORDER BY b.created_at DESC
+	`
+
+	rows, err := s.db.Query(query, companyID, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query customer bookings: %w", err)
+	}
+	defer rows.Close()
+
+	var bookings []*BookingWithCustomerData
+	for rows.Next() {
+		booking := &models.Booking{}
+		bookingWithData := &BookingWithCustomerData{Booking: booking}
+
+		err := rows.Scan(
+			&booking.ID, &booking.UserID, &booking.CompanyID, &booking.ServiceID,
+			&booking.PetID, &booking.EmployeeID, &booking.BookingDate, &booking.BookingTime,
+			&booking.Duration, &booking.Status, &booking.Notes, &booking.CancellationReason,
+			&booking.CreatedAt, &booking.UpdatedAt,
+			&bookingWithData.Customer.FirstName, &bookingWithData.Customer.LastName,
+			&bookingWithData.Customer.Email, &bookingWithData.Customer.Phone,
+			&bookingWithData.Customer.Country, &bookingWithData.Customer.State,
+			&bookingWithData.Customer.City,
+			&bookingWithData.Pet.PetName, &bookingWithData.Pet.PetType,
+			&bookingWithData.Pet.Breed,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan customer booking: %w", err)
 		}
 
-		booking.ServiceName = serviceName.String
-		booking.EmployeeName = fmt.Sprintf("%s %s", employeeFirstName.String, employeeLastName.String)
+		// Set IDs
+		bookingWithData.Customer.UserID = booking.UserID
+		if booking.PetID != nil {
+			bookingWithData.Pet.PetID = *booking.PetID
+		}
 
-		bookings = append(bookings, booking)
+		bookings = append(bookings, bookingWithData)
 	}
 
 	return bookings, nil

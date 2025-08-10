@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/services"
 	"github.com/gin-gonic/gin"
@@ -517,5 +518,124 @@ func (h *AnalyticsHandler) GetGlobalUserSegmentation(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    segmentation,
+	})
+}
+
+// GetRegionalRegistrations returns registration statistics by region for SuperAdmin
+func (h *AnalyticsHandler) GetRegionalRegistrations(c *gin.Context) {
+	// Parse date parameters
+	fromStr := c.DefaultQuery("from", "")
+	toStr := c.DefaultQuery("to", "")
+
+	var dateFrom, dateTo time.Time
+	var err error
+
+	if fromStr == "" {
+		// Default to last 30 days
+		dateFrom = time.Now().AddDate(0, 0, -30)
+	} else {
+		dateFrom, err = time.Parse("2006-01-02", fromStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid from date format. Use YYYY-MM-DD"})
+			return
+		}
+	}
+
+	if toStr == "" {
+		dateTo = time.Now()
+	} else {
+		dateTo, err = time.Parse("2006-01-02", toStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid to date format. Use YYYY-MM-DD"})
+			return
+		}
+	}
+
+	stats, err := h.analyticsService.GetRegistrationsByRegion(dateFrom, dateTo)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    stats,
+		"period": gin.H{
+			"from": dateFrom.Format("2006-01-02"),
+			"to":   dateTo.Format("2006-01-02"),
+		},
+	})
+}
+
+// GetAllUsersPhoneData returns all users with phone data for SuperAdmin
+func (h *AnalyticsHandler) GetAllUsersPhoneData(c *gin.Context) {
+	// Parse pagination parameters
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "50"))
+
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 50
+	}
+
+	offset := (page - 1) * pageSize
+
+	users, totalCount, err := h.analyticsService.GetAllUsersWithPhoneData(pageSize, offset)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    users,
+		"pagination": gin.H{
+			"page":        page,
+			"page_size":   pageSize,
+			"total":       totalCount,
+			"total_pages": (totalCount + pageSize - 1) / pageSize,
+		},
+	})
+}
+
+// GetUsersByCountry returns users filtered by country for SuperAdmin
+func (h *AnalyticsHandler) GetUsersByCountry(c *gin.Context) {
+	country := c.Param("country")
+	if country == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Country parameter is required"})
+		return
+	}
+
+	// Parse pagination parameters
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "50"))
+
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 50
+	}
+
+	offset := (page - 1) * pageSize
+
+	users, totalCount, err := h.analyticsService.GetUsersByCountry(country, pageSize, offset)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    users,
+		"country": country,
+		"pagination": gin.H{
+			"page":        page,
+			"page_size":   pageSize,
+			"total":       totalCount,
+			"total_pages": (totalCount + pageSize - 1) / pageSize,
+		},
 	})
 }

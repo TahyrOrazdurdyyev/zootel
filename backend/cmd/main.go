@@ -416,10 +416,27 @@ func main() {
 				admin.POST("/companies/:companyId/addons/enable", addonHandler.ManuallyEnableAddon)
 				admin.POST("/addon-billing/process", addonHandler.ProcessBilling)
 
+				// Regional Analytics for SuperAdmin
+				admin.GET("/analytics/regional", analyticsHandler.GetRegionalRegistrations)
+				admin.GET("/analytics/users/phone-data", analyticsHandler.GetAllUsersPhoneData)
+				admin.GET("/analytics/users/country/:country", analyticsHandler.GetUsersByCountry)
+
 				// Discount management
 				admin.POST("/services/expire-sales", serviceHandler.ExpireOutdatedSales)
 			}
 		}
+	}
+
+	// Company-specific endpoints
+	companies := protected.Group("/companies")
+	companies.Use(middleware.AuthMiddleware(authClient, db))
+	{
+		// ... existing company routes ...
+
+		// Customer Data Access for Companies
+		companies.GET("/:companyId/customers", bookingHandler.GetCompanyCustomers)
+		companies.GET("/:companyId/customers/:userId/history", bookingHandler.GetCustomerBookingHistory)
+		companies.GET("/:companyId/bookings/with-customer-data", bookingHandler.GetBookingsWithCustomerData)
 	}
 
 	// WebSocket endpoints for real-time chat

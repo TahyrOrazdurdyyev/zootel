@@ -488,6 +488,71 @@ func (h *BookingHandler) GetUpcomingBookings(c *gin.Context) {
 	})
 }
 
+// GetCompanyCustomers returns all customers who made bookings/orders with the company
+func (h *BookingHandler) GetCompanyCustomers(c *gin.Context) {
+	companyID := c.Param("companyId")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	customers, err := h.bookingService.GetCompanyCustomers(companyID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    customers,
+		"count":   len(customers),
+	})
+}
+
+// GetCustomerBookingHistory returns booking history for a specific customer
+func (h *BookingHandler) GetCustomerBookingHistory(c *gin.Context) {
+	companyID := c.Param("companyId")
+	userID := c.Param("userId")
+
+	if companyID == "" || userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID and User ID are required"})
+		return
+	}
+
+	bookings, err := h.bookingService.GetCustomerBookingHistory(companyID, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    bookings,
+		"count":   len(bookings),
+	})
+}
+
+// GetBookingsWithCustomerData returns bookings with full customer data
+func (h *BookingHandler) GetBookingsWithCustomerData(c *gin.Context) {
+	companyID := c.Param("companyId")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	bookings, err := h.bookingService.GetBookingsByCompany(companyID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    bookings,
+		"count":   len(bookings),
+	})
+}
+
 // Helper methods
 
 func (h *BookingHandler) countBookingsByStatus(bookings []models.Booking, status string) int {
