@@ -32,19 +32,24 @@ func (s *UserService) CreateUser(user *models.User) error {
 	query := `
 		INSERT INTO users (
 			id, firebase_uid, email, first_name, last_name, role, gender,
-			date_of_birth, phone, address, country, state, city, timezone,
-			avatar_url, emergency_contact, vet_contact, notification_methods,
-			marketing_opt_in, created_at, updated_at
+			date_of_birth, phone, address, apartment_number, country, state, city, 
+			postal_code, timezone, avatar_url, emergency_contact, emergency_contact_name,
+			emergency_contact_phone, emergency_contact_relation, vet_contact, vet_name,
+			vet_clinic, vet_phone, notification_methods, notifications_push, 
+			notifications_sms, notifications_email, marketing_opt_in, created_at, updated_at
 		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-			$15, $16, $17, $18, $19, $20, $21
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
+			$17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32
 		)`
 
 	_, err := s.db.Exec(query,
 		user.ID, user.FirebaseUID, user.Email, user.FirstName, user.LastName,
 		user.Role, user.Gender, user.DateOfBirth, user.Phone, user.Address,
-		user.Country, user.State, user.City, user.Timezone, user.AvatarURL,
-		user.EmergencyContact, user.VetContact, user.NotificationMethods,
+		user.ApartmentNumber, user.Country, user.State, user.City, user.PostalCode,
+		user.Timezone, user.AvatarURL, user.EmergencyContact, user.EmergencyContactName,
+		user.EmergencyContactPhone, user.EmergencyContactRelation, user.VetContact,
+		user.VetName, user.VetClinic, user.VetPhone, user.NotificationMethods,
+		user.NotificationsPush, user.NotificationsSMS, user.NotificationsEmail,
 		user.MarketingOptIn, user.CreatedAt, user.UpdatedAt,
 	)
 
@@ -103,16 +108,21 @@ func (s *UserService) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 	query := `
 		SELECT id, firebase_uid, email, first_name, last_name, role, gender,
-			   date_of_birth, phone, address, country, state, city, timezone,
-			   avatar_url, emergency_contact, vet_contact, notification_methods,
-			   marketing_opt_in, created_at, updated_at
+			   date_of_birth, phone, address, apartment_number, country, state, city, 
+			   postal_code, timezone, avatar_url, emergency_contact, emergency_contact_name,
+			   emergency_contact_phone, emergency_contact_relation, vet_contact, vet_name,
+			   vet_clinic, vet_phone, notification_methods, notifications_push, 
+			   notifications_sms, notifications_email, marketing_opt_in, created_at, updated_at
 		FROM users WHERE email = $1`
 
 	err := s.db.QueryRow(query, email).Scan(
 		&user.ID, &user.FirebaseUID, &user.Email, &user.FirstName, &user.LastName,
 		&user.Role, &user.Gender, &user.DateOfBirth, &user.Phone, &user.Address,
-		&user.Country, &user.State, &user.City, &user.Timezone, &user.AvatarURL,
-		&user.EmergencyContact, &user.VetContact, &user.NotificationMethods,
+		&user.ApartmentNumber, &user.Country, &user.State, &user.City, &user.PostalCode,
+		&user.Timezone, &user.AvatarURL, &user.EmergencyContact, &user.EmergencyContactName,
+		&user.EmergencyContactPhone, &user.EmergencyContactRelation, &user.VetContact,
+		&user.VetName, &user.VetClinic, &user.VetPhone, &user.NotificationMethods,
+		&user.NotificationsPush, &user.NotificationsSMS, &user.NotificationsEmail,
 		&user.MarketingOptIn, &user.CreatedAt, &user.UpdatedAt,
 	)
 
@@ -129,17 +139,23 @@ func (s *UserService) UpdateUser(userID string, updates *models.User) error {
 	query := `
 		UPDATE users SET 
 			first_name = $2, last_name = $3, gender = $4, date_of_birth = $5,
-			phone = $6, address = $7, country = $8, state = $9, city = $10,
-			timezone = $11, avatar_url = $12, emergency_contact = $13,
-			vet_contact = $14, notification_methods = $15, marketing_opt_in = $16,
-			updated_at = $17
+			phone = $6, address = $7, apartment_number = $8, country = $9, state = $10, 
+			city = $11, postal_code = $12, timezone = $13, avatar_url = $14, 
+			emergency_contact = $15, emergency_contact_name = $16, emergency_contact_phone = $17,
+			emergency_contact_relation = $18, vet_contact = $19, vet_name = $20, vet_clinic = $21,
+			vet_phone = $22, notification_methods = $23, notifications_push = $24, 
+			notifications_sms = $25, notifications_email = $26, marketing_opt_in = $27,
+			updated_at = $28
 		WHERE id = $1`
 
 	_, err := s.db.Exec(query,
 		userID, updates.FirstName, updates.LastName, updates.Gender,
-		updates.DateOfBirth, updates.Phone, updates.Address, updates.Country,
-		updates.State, updates.City, updates.Timezone, updates.AvatarURL,
-		updates.EmergencyContact, updates.VetContact, updates.NotificationMethods,
+		updates.DateOfBirth, updates.Phone, updates.Address, updates.ApartmentNumber,
+		updates.Country, updates.State, updates.City, updates.PostalCode, updates.Timezone,
+		updates.AvatarURL, updates.EmergencyContact, updates.EmergencyContactName,
+		updates.EmergencyContactPhone, updates.EmergencyContactRelation, updates.VetContact,
+		updates.VetName, updates.VetClinic, updates.VetPhone, updates.NotificationMethods,
+		updates.NotificationsPush, updates.NotificationsSMS, updates.NotificationsEmail,
 		updates.MarketingOptIn, updates.UpdatedAt,
 	)
 
@@ -480,7 +496,7 @@ func (s *UserService) GetUserOrders(userID string, limit int) ([]models.Order, e
 	for rows.Next() {
 		var order models.Order
 		err := rows.Scan(
-			&order.ID, &order.UserID, &order.CompanyID, &order.OrderItems,
+			&order.ID, &order.UserID, &order.CompanyID, &order.Items,
 			&order.TotalAmount, &order.Status, &order.ShippingAddress,
 			&order.PaymentID, &order.TrackingNumber, &order.CreatedAt, &order.UpdatedAt,
 		)

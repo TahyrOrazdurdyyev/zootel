@@ -483,3 +483,144 @@ func (s *NotificationService) SendBookingStatusUpdate(booking *models.Booking, n
 
 	return s.SendImmediateNotification(payload, []string{"push", "email"})
 }
+
+// SendTrialExpiringNotification sends notification when trial is about to expire
+func (s *NotificationService) SendTrialExpiringNotification(companyID string, daysLeft int) error {
+	// Get company details
+	var company models.Company
+	query := `
+		SELECT id, name, email, owner_id 
+		FROM companies 
+		WHERE id = $1`
+
+	err := s.db.QueryRow(query, companyID).Scan(
+		&company.ID, &company.Name, &company.Email, &company.OwnerID,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to get company: %w", err)
+	}
+
+	// Get owner details
+	var owner models.User
+	ownerQuery := `
+		SELECT id, email, first_name, last_name 
+		FROM users 
+		WHERE id = $1`
+
+	err = s.db.QueryRow(ownerQuery, company.OwnerID).Scan(
+		&owner.ID, &owner.Email, &owner.FirstName, &owner.LastName,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to get owner: %w", err)
+	}
+
+	// Send via notification system
+	payload := &NotificationPayload{
+		Type:      "trial_expiring",
+		Title:     fmt.Sprintf("Trial expires in %d days", daysLeft),
+		Message:   fmt.Sprintf("Your free trial for %s expires in %d days. Upgrade now to continue using all features.", company.Name, daysLeft),
+		UserID:    owner.ID,
+		CompanyID: company.ID,
+		Data: map[string]interface{}{
+			"days_left":   daysLeft,
+			"company_id":  company.ID,
+			"action_type": "upgrade_plan",
+		},
+	}
+
+	return s.SendImmediateNotification(payload, []string{"push", "email"})
+}
+
+// SendTrialExpiredNotification sends notification when trial has expired
+func (s *NotificationService) SendTrialExpiredNotification(companyID string) error {
+	// Get company details
+	var company models.Company
+	query := `
+		SELECT id, name, email, owner_id 
+		FROM companies 
+		WHERE id = $1`
+
+	err := s.db.QueryRow(query, companyID).Scan(
+		&company.ID, &company.Name, &company.Email, &company.OwnerID,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to get company: %w", err)
+	}
+
+	// Get owner details
+	var owner models.User
+	ownerQuery := `
+		SELECT id, email, first_name, last_name 
+		FROM users 
+		WHERE id = $1`
+
+	err = s.db.QueryRow(ownerQuery, company.OwnerID).Scan(
+		&owner.ID, &owner.Email, &owner.FirstName, &owner.LastName,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to get owner: %w", err)
+	}
+
+	// Send via notification system
+	payload := &NotificationPayload{
+		Type:      "trial_expired",
+		Title:     "Free trial expired",
+		Message:   fmt.Sprintf("Your free trial for %s has expired. Upgrade now to restore full access to your account.", company.Name),
+		UserID:    owner.ID,
+		CompanyID: company.ID,
+		Data: map[string]interface{}{
+			"company_id":  company.ID,
+			"action_type": "upgrade_plan",
+			"priority":    "high",
+		},
+	}
+
+	return s.SendImmediateNotification(payload, []string{"push", "email"})
+}
+
+// SendSubscriptionActivatedNotification sends notification when subscription is activated
+func (s *NotificationService) SendSubscriptionActivatedNotification(companyID, planName string) error {
+	// Get company details
+	var company models.Company
+	query := `
+		SELECT id, name, email, owner_id 
+		FROM companies 
+		WHERE id = $1`
+
+	err := s.db.QueryRow(query, companyID).Scan(
+		&company.ID, &company.Name, &company.Email, &company.OwnerID,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to get company: %w", err)
+	}
+
+	// Get owner details
+	var owner models.User
+	ownerQuery := `
+		SELECT id, email, first_name, last_name 
+		FROM users 
+		WHERE id = $1`
+
+	err = s.db.QueryRow(ownerQuery, company.OwnerID).Scan(
+		&owner.ID, &owner.Email, &owner.FirstName, &owner.LastName,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to get owner: %w", err)
+	}
+
+	// Send via notification system
+	payload := &NotificationPayload{
+		Type:      "subscription_activated",
+		Title:     "Subscription activated",
+		Message:   fmt.Sprintf("Your %s subscription has been activated. Welcome back to full access!", planName),
+		UserID:    owner.ID,
+		CompanyID: company.ID,
+		Data: map[string]interface{}{
+			"company_id": company.ID,
+			"plan_name":  planName,
+			"priority":   "medium",
+		},
+	}
+
+	return s.SendImmediateNotification(payload, []string{"push", "email"})
+}

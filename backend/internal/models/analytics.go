@@ -36,21 +36,44 @@ type RegionalStats struct {
 
 // Customer Data Models for Companies
 type CustomerData struct {
-	UserID    string `json:"user_id"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
-	Phone     string `json:"phone"`
-	Country   string `json:"country"`
-	State     string `json:"state"`
-	City      string `json:"city"`
+	UserID                   string     `json:"user_id"`
+	FirstName                string     `json:"first_name"`
+	LastName                 string     `json:"last_name"`
+	Email                    string     `json:"email"`
+	Phone                    string     `json:"phone"`
+	Gender                   string     `json:"gender"`
+	DateOfBirth              *time.Time `json:"date_of_birth"`
+	Address                  string     `json:"address"`
+	ApartmentNumber          string     `json:"apartment_number"`
+	Country                  string     `json:"country"`
+	State                    string     `json:"state"`
+	City                     string     `json:"city"`
+	PostalCode               string     `json:"postal_code"`
+	EmergencyContactName     string     `json:"emergency_contact_name"`
+	EmergencyContactPhone    string     `json:"emergency_contact_phone"`
+	EmergencyContactRelation string     `json:"emergency_contact_relation"`
 }
 
 type PetData struct {
-	PetID   string `json:"pet_id"`
-	PetName string `json:"pet_name"`
-	PetType string `json:"pet_type"`
-	Breed   string `json:"breed"`
+	PetID               string     `json:"pet_id"`
+	PetName             string     `json:"pet_name"`
+	PetType             string     `json:"pet_type"`
+	Breed               string     `json:"breed"`
+	Gender              string     `json:"gender"`
+	DateOfBirth         *time.Time `json:"date_of_birth"`
+	Weight              float64    `json:"weight"`
+	MicrochipID         string     `json:"microchip_id"`
+	Sterilized          bool       `json:"sterilized"`
+	ChronicConditions   []string   `json:"chronic_conditions"`
+	Allergies           []string   `json:"allergies"`
+	DietaryRestrictions string     `json:"dietary_restrictions"`
+	SpecialNeeds        string     `json:"special_needs"`
+	VetName             string     `json:"vet_name"`
+	VetPhone            string     `json:"vet_phone"`
+	VetClinic           string     `json:"vet_clinic"`
+	BehaviorNotes       string     `json:"behavior_notes"`
+	StressReactions     string     `json:"stress_reactions"`
+	FavoriteToys        string     `json:"favorite_toys"`
 }
 
 type BookingWithCustomerData struct {

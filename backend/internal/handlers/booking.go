@@ -572,6 +572,195 @@ func (h *BookingHandler) GetBookingsWithCustomerData(c *gin.Context) {
 	})
 }
 
+// ProcessAIBooking handles AI-assisted booking with automatic employee assignment
+func (h *BookingHandler) ProcessAIBooking(c *gin.Context) {
+	var req services.AIBookingRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+	req.UserID = userID.(string)
+
+	// Process AI booking request
+	response, err := h.bookingService.ProcessAIBookingRequest(&req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    response,
+	})
+}
+
+// FindAvailableEmployees returns available employees for a service at a specific time
+func (h *BookingHandler) FindAvailableEmployees(c *gin.Context) {
+	serviceID := c.Query("service_id")
+	dateTimeStr := c.Query("date_time")
+
+	if serviceID == "" || dateTimeStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "service_id and date_time are required"})
+		return
+	}
+
+	dateTime, err := time.Parse(time.RFC3339, dateTimeStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date_time format"})
+		return
+	}
+
+	employee, err := h.bookingService.FindAvailableEmployee(serviceID, dateTime)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success":  false,
+			"message":  "No employees available",
+			"error":    err.Error(),
+			"employee": nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":  true,
+		"employee": employee,
+	})
+}
+
+// GetAlternativeSlots returns alternative time slots when requested time is unavailable
+func (h *BookingHandler) GetAlternativeSlots(c *gin.Context) {
+	serviceID := c.Query("service_id")
+	dateTimeStr := c.Query("date_time")
+	daysStr := c.DefaultQuery("days", "14")
+
+	if serviceID == "" || dateTimeStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "service_id and date_time are required"})
+		return
+	}
+
+	dateTime, err := time.Parse(time.RFC3339, dateTimeStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date_time format"})
+		return
+	}
+
+	days, err := strconv.Atoi(daysStr)
+	if err != nil {
+		days = 14 // Default to 2 weeks
+	}
+
+	alternatives, err := h.bookingService.FindAlternativeSlots(serviceID, dateTime, days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":      true,
+		"alternatives": alternatives,
+		"count":        len(alternatives),
+	})
+}
+
+// AutoAssignBooking creates a booking with automatic employee assignment
+func (h *BookingHandler) AutoAssignBooking(c *gin.Context) {
+	var req services.BookingRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+	req.UserID = userID.(string)
+
+	// Attempt auto-assignment
+	result, err := h.bookingService.AutoAssignBooking(&req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if result.Success {
+		c.JSON(http.StatusCreated, gin.H{
+			"success":  true,
+			"booking":  result.Booking,
+			"employee": result.AssignedEmployee,
+			"message":  result.Message,
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"success":      false,
+			"message":      result.Message,
+			"alternatives": result.Alternatives,
+		})
+	}
+}
+
+// ConfirmAlternativeBooking confirms booking for an alternative time slot
+func (h *BookingHandler) ConfirmAlternativeBooking(c *gin.Context) {
+	var req struct {
+		ServiceID  string    `json:"service_id" binding:"required"`
+		PetID      string    `json:"pet_id" binding:"required"`
+		DateTime   time.Time `json:"date_time" binding:"required"`
+		EmployeeID string    `json:"employee_id" binding:"required"`
+		Notes      string    `json:"notes"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user ID and company ID from context
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	companyID, exists := c.Get("company_id")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID required"})
+		return
+	}
+
+	// Create booking request
+	bookingReq := &services.BookingRequest{
+		UserID:     userID.(string),
+		CompanyID:  companyID.(string),
+		ServiceID:  req.ServiceID,
+		PetID:      req.PetID,
+		EmployeeID: &req.EmployeeID,
+		DateTime:   req.DateTime,
+		Notes:      req.Notes,
+	}
+
+	// Create the booking
+	booking, err := h.bookingService.CreateBooking(bookingReq)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"booking": booking,
+		"message": "Alternative booking confirmed",
+	})
+}
+
 // Helper methods
 
 func (h *BookingHandler) countBookingsByStatus(bookings []models.Booking, status string) int {
@@ -582,4 +771,82 @@ func (h *BookingHandler) countBookingsByStatus(bookings []models.Booking, status
 		}
 	}
 	return count
+}
+
+// GetCustomerPetMedicalData returns medical data for a customer's pet
+func (h *BookingHandler) GetCustomerPetMedicalData(c *gin.Context) {
+	companyID := c.GetString("company_id")
+	petID := c.Param("petId")
+
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID required"})
+		return
+	}
+
+	petData, err := h.bookingService.GetCustomerPetMedicalData(companyID, petID)
+	if err != nil {
+		if err.Error() == "company does not have access to this pet" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Access denied to pet data"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get pet medical data"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":  true,
+		"pet_data": petData,
+	})
+}
+
+// GetCustomerPetVaccinations returns vaccination data for a customer's pet
+func (h *BookingHandler) GetCustomerPetVaccinations(c *gin.Context) {
+	companyID := c.GetString("company_id")
+	petID := c.Param("petId")
+
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID required"})
+		return
+	}
+
+	vaccinations, err := h.bookingService.GetCustomerPetVaccinations(companyID, petID)
+	if err != nil {
+		if err.Error() == "company does not have access to this pet" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Access denied to pet vaccinations"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get pet vaccinations"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":      true,
+		"vaccinations": vaccinations,
+	})
+}
+
+// GetCustomerPetMedications returns medication data for a customer's pet
+func (h *BookingHandler) GetCustomerPetMedications(c *gin.Context) {
+	companyID := c.GetString("company_id")
+	petID := c.Param("petId")
+
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID required"})
+		return
+	}
+
+	medications, err := h.bookingService.GetCustomerPetMedications(companyID, petID)
+	if err != nil {
+		if err.Error() == "company does not have access to this pet" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Access denied to pet medications"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get pet medications"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":     true,
+		"medications": medications,
+	})
 }

@@ -64,50 +64,48 @@ func main() {
 	// Initialize service container
 	serviceContainer := services.NewServiceContainer(db)
 	if err := serviceContainer.InitializeServices(); err != nil {
-		log.Fatalf("Failed to initialize services: %v", err)
+		log.Fatal("Failed to initialize services:", err)
 	}
-	defer serviceContainer.Cleanup()
 
-	// Get services from container
-	userService := serviceContainer.UserService()
-	companyService := serviceContainer.CompanyService()
-	petService := serviceContainer.PetService()
+	// Individual services for dependency injection
 	bookingService := serviceContainer.BookingService()
-	orderService := serviceContainer.OrderService()
 	chatService := serviceContainer.ChatService()
-	paymentService := serviceContainer.PaymentService()
-	aiService := serviceContainer.AIService()
-	analyticsService := serviceContainer.AnalyticsService()
-	notificationService := serviceContainer.NotificationService()
-	addonService := serviceContainer.AddonService()
-	integrationService := serviceContainer.IntegrationService()
-	uploadService := serviceContainer.UploadService()
-	serviceService := serviceContainer.ServiceService()
 
 	// Initialize handlers
-	userHandler := handlers.NewUserHandler(userService)
-	companyHandler := handlers.NewCompanyHandler(companyService)
-	petHandler := handlers.NewPetHandler(petService)
-	bookingHandler := handlers.NewBookingHandler(bookingService)
-	orderHandler := handlers.NewOrderHandler(orderService)
-	chatHandler := handlers.NewChatHandler(chatService)
-	paymentHandler := handlers.NewPaymentHandler(paymentService)
-	aiHandler := handlers.NewAIHandler(aiService)
+	userHandler := handlers.NewUserHandler(serviceContainer.UserService())
+	authHandler := handlers.NewAuthHandler(serviceContainer.UserService())
+	companyHandler := handlers.NewCompanyHandler(serviceContainer.CompanyService(), serviceContainer.UserService())
+	serviceHandler := handlers.NewServiceHandler(serviceContainer.ServiceService())
+	bookingHandler := handlers.NewBookingHandler(serviceContainer.BookingService())
+	petHandler := handlers.NewPetHandler(serviceContainer.PetService())
+	petMedicalHandler := handlers.NewPetMedicalHandler(serviceContainer.PetMedicalService(), serviceContainer.PetService())
+	orderHandler := handlers.NewOrderHandler(serviceContainer.OrderService())
+	chatHandler := handlers.NewChatHandler(serviceContainer.ChatService())
 	adminHandler := handlers.NewAdminHandler(serviceContainer.AdminService())
-	authHandler := handlers.NewAuthHandler(userService)
-	analyticsHandler := handlers.NewAnalyticsHandler(analyticsService)
-	addonHandler := handlers.NewAddonHandler(addonService, db)
-	integrationHandler := handlers.NewIntegrationHandler(integrationService)
-	uploadHandler := handlers.NewUploadHandler(uploadService)
-	serviceHandler := handlers.NewServiceHandler(serviceService)
+	analyticsHandler := handlers.NewAnalyticsHandler(serviceContainer.AnalyticsService())
+	addonHandler := handlers.NewAddonHandler(serviceContainer.AddonService(), db)
+	integrationHandler := handlers.NewIntegrationHandler(serviceContainer.IntegrationService())
+	productHandler := handlers.NewProductHandler(serviceContainer.ProductService(), serviceContainer.DeliveryService())
+	uploadHandler := handlers.NewUploadHandler(serviceContainer.UploadService())
+	paymentHandler := handlers.NewPaymentHandler(serviceContainer.PaymentService())
+	aiHandler := handlers.NewAIHandler(serviceContainer.AIService())
+	reviewHandler := handlers.NewReviewHandler(serviceContainer.ReviewService())
+	employeeHandler := handlers.NewEmployeeHandler(serviceContainer.EmployeeService())
+	promptHandler := handlers.NewPromptHandler(serviceContainer.PromptService())
+
+	// Set up additional dependencies
+	companyHandler.SetServices(serviceContainer.ServiceService(), serviceContainer.ProductService())
+
+	// Set up chat service dependencies
+	chatService.SetBookingService(bookingService)
 
 	// Initialize GraphQL handlers
 	graphqlHandler := graphql.NewGraphQLHandler(
-		userService,
-		companyService,
+		serviceContainer.UserService(),
+		serviceContainer.CompanyService(),
 		serviceContainer.ServiceService(),
-		bookingService,
-		petService,
+		serviceContainer.BookingService(),
+		serviceContainer.PetService(),
 	)
 
 	// Set up Gin router
@@ -175,6 +173,15 @@ func main() {
 			marketplace.GET("/search", companyHandler.Search)
 		}
 
+		// Public company endpoints
+		publicCompanies := api.Group("/public/companies")
+		{
+			publicCompanies.GET("/", companyHandler.GetPublicCompanies)
+			publicCompanies.GET("/:companyId", companyHandler.GetPublicCompany)
+			publicCompanies.GET("/:companyId/services", companyHandler.GetPublicServices)
+			publicCompanies.GET("/:companyId/products", companyHandler.GetPublicProducts)
+		}
+
 		// Public integration endpoints (for website widgets)
 		integration := api.Group("/integration")
 		{
@@ -205,6 +212,26 @@ func main() {
 				pets.PUT("/:id", petHandler.UpdatePet)
 				pets.DELETE("/:id", petHandler.DeletePet)
 				pets.POST("/:petId/upload-photo", uploadHandler.UploadPetPhoto)
+
+				// Pet medical records
+				pets.POST("/:petId/vaccinations", petMedicalHandler.CreateVaccination)
+				pets.GET("/:petId/vaccinations", petMedicalHandler.GetPetVaccinations)
+				pets.PUT("/:petId/vaccinations/:vaccinationId", petMedicalHandler.UpdateVaccination)
+				pets.DELETE("/:petId/vaccinations/:vaccinationId", petMedicalHandler.DeleteVaccination)
+
+				pets.POST("/:petId/medications", petMedicalHandler.CreateMedication)
+				pets.GET("/:petId/medications", petMedicalHandler.GetPetMedications)
+				pets.PUT("/:petId/medications/:medicationId", petMedicalHandler.UpdateMedication)
+				pets.DELETE("/:petId/medications/:medicationId", petMedicalHandler.DeleteMedication)
+
+				pets.GET("/:petId/medical-history", petMedicalHandler.GetPetMedicalHistory)
+				pets.PUT("/:petId/medical-history", petMedicalHandler.UpdateMedicalHistory)
+				pets.PUT("/:petId/extended-profile", petMedicalHandler.UpdatePetExtendedProfile)
+
+				// Pet photo gallery
+				pets.POST("/:petId/photos", petHandler.AddPetPhoto)
+				pets.DELETE("/:petId/photos", petHandler.RemovePetPhoto)
+				pets.PUT("/:petId/main-photo", petHandler.UpdatePetMainPhoto)
 			}
 
 			// Booking endpoints
@@ -216,7 +243,78 @@ func main() {
 				bookings.PUT("/:id", bookingHandler.UpdateBooking)
 				bookings.DELETE("/:id", bookingHandler.CancelBooking)
 				bookings.GET("/availability", bookingHandler.CheckAvailability)
+
+				// AI-powered booking endpoints
+				bookings.POST("/ai-booking", bookingHandler.ProcessAIBooking)
+				bookings.POST("/auto-assign", bookingHandler.AutoAssignBooking)
+				bookings.GET("/find-employee", bookingHandler.FindAvailableEmployees)
+				bookings.GET("/alternatives", bookingHandler.GetAlternativeSlots)
+				bookings.POST("/confirm-alternative", bookingHandler.ConfirmAlternativeBooking)
+
+				// Customer pet medical data endpoints (for companies)
+				bookings.GET("/customer-pets/:petId/medical-data", bookingHandler.GetCustomerPetMedicalData)
+				bookings.GET("/customer-pets/:petId/vaccinations", bookingHandler.GetCustomerPetVaccinations)
+				bookings.GET("/customer-pets/:petId/medications", bookingHandler.GetCustomerPetMedications)
 			}
+
+			// Review endpoints
+			reviews := protected.Group("/reviews")
+			{
+				// User review endpoints
+				reviews.POST("/", reviewHandler.CreateReview)                            // Create a review
+				reviews.GET("/my", reviewHandler.GetUserReviews)                         // Get user's reviews
+				reviews.GET("/reviewable-bookings", reviewHandler.GetReviewableBookings) // Get bookings that can be reviewed
+				reviews.GET("/reviewable-orders", reviewHandler.GetReviewableOrders)     // Get orders that can be reviewed
+				reviews.DELETE("/:reviewId", reviewHandler.DeleteReview)                 // Delete user's own review
+
+				// Public review endpoints (no auth needed)
+				reviews.GET("/:reviewId", reviewHandler.GetReview)                            // Get specific review
+				reviews.GET("/company/:companyId", reviewHandler.GetCompanyReviews)           // Get company reviews
+				reviews.GET("/company/:companyId/stats", reviewHandler.GetCompanyReviewStats) // Get company review stats
+
+				// Company response endpoints
+				reviews.POST("/respond", reviewHandler.RespondToReview) // Company responds to review
+			}
+
+			// Employee Management System
+			employees := protected.Group("/employees")
+			{
+				// Employee authentication (no middleware required)
+				employees.POST("/login", employeeHandler.LoginEmployee)
+				employees.POST("/logout", employeeHandler.LogoutEmployee)
+
+				// Employee profile endpoints (employee auth required)
+				profileGroup := employees.Group("/")
+				profileGroup.Use(middleware.EmployeeAuthMiddleware(serviceContainer.EmployeeService()))
+				{
+					profileGroup.GET("/profile", employeeHandler.GetEmployeeProfile)
+					profileGroup.GET("/dashboard", employeeHandler.GetEmployeeDashboard)
+					profileGroup.GET("/check-permission/:permission", employeeHandler.CheckPermission)
+				}
+
+				// Employee management (requires manage_employees permission)
+				management := employees.Group("/manage")
+				management.Use(middleware.EmployeeAuthMiddleware(serviceContainer.EmployeeService()))
+				management.Use(middleware.RequirePermission("manage_employees"))
+				{
+					management.POST("/", employeeHandler.CreateEmployee)
+					management.GET("/", employeeHandler.GetCompanyEmployees)
+					management.GET("/:employeeId", employeeHandler.GetEmployee)
+					management.PUT("/:employeeId", employeeHandler.UpdateEmployee)
+					management.PUT("/:employeeId/permissions", employeeHandler.UpdateEmployeePermissions)
+					management.DELETE("/:employeeId", employeeHandler.DeactivateEmployee)
+				}
+
+				// Reference data (employee auth required)
+				reference := employees.Group("/reference")
+				reference.Use(middleware.EmployeeAuthMiddleware(serviceContainer.EmployeeService()))
+				{
+					reference.GET("/permissions", employeeHandler.GetAvailablePermissions)
+					reference.GET("/roles", employeeHandler.GetAvailableRoles)
+				}
+			}
+
+			// Admin review moderation endpoints
 
 			// Order endpoints
 			orders := protected.Group("/orders")
@@ -269,30 +367,27 @@ func main() {
 			companies := protected.Group("/companies")
 			companies.Use(middleware.CompanyOwnerMiddleware())
 			{
+				companies.GET("/trial-status", companyHandler.GetCompanyTrialStatus)
 				companies.GET("/profile", companyHandler.GetCompanyProfile)
 				companies.PUT("/profile", companyHandler.UpdateCompanyProfile)
+				companies.PUT("/business-type", companyHandler.UpdateBusinessType)
+				companies.GET("/business-types", companyHandler.GetBusinessTypes)
 				companies.POST("/upload-logo", companyHandler.UploadLogo)
 				companies.POST("/upload-media", companyHandler.UploadMedia)
 
 				// Services management
-				companies.GET("/services", companyHandler.GetCompanyServices)
-				companies.POST("/services", companyHandler.CreateService)
-				companies.PUT("/services/:id", companyHandler.UpdateService)
-				companies.DELETE("/services/:id", companyHandler.DeleteService)
+				companies.GET("/services", serviceHandler.GetCompanyServices)
+				companies.POST("/services", serviceHandler.CreateService)
+				companies.PUT("/services/:id", serviceHandler.UpdateService)
+				companies.DELETE("/services/:id", serviceHandler.DeleteService)
 				companies.POST("/services/:serviceId/upload-image", serviceHandler.UploadServiceImage)
 				companies.DELETE("/services/:serviceId/images/:imageId", serviceHandler.DeleteServiceImage)
 
-				// Products management
-				companies.GET("/products", companyHandler.GetCompanyProducts)
-				companies.POST("/products", companyHandler.CreateProduct)
-				companies.PUT("/products/:id", companyHandler.UpdateProduct)
-				companies.DELETE("/products/:id", companyHandler.DeleteProduct)
-
-				// Employee management
-				companies.GET("/employees", companyHandler.GetEmployees)
-				companies.POST("/employees", companyHandler.CreateEmployee)
-				companies.PUT("/employees/:id", companyHandler.UpdateEmployee)
-				companies.DELETE("/employees/:id", companyHandler.DeleteEmployee)
+				// Products management - Add product handler
+				companies.GET("/products", productHandler.GetCompanyProducts)
+				companies.POST("/products", productHandler.CreateProduct)
+				companies.PUT("/products/:id", productHandler.UpdateProduct)
+				companies.DELETE("/products/:id", productHandler.DeleteProduct)
 
 				// Company bookings and orders
 				companies.GET("/bookings", bookingHandler.GetCompanyBookings)
@@ -352,6 +447,13 @@ func main() {
 				ai.POST("/test/:agentKey", aiHandler.TestAIAgent)
 			}
 
+			// AI Assistant endpoints
+			{
+				ai.POST("/chat", aiHandler.SendMessage)
+				ai.GET("/agents/available", aiHandler.GetAvailableAgents)       // Get available agents for company
+				ai.GET("/agents/:agentType/access", aiHandler.CheckAgentAccess) // Check access to specific agent
+			}
+
 			// SuperAdmin endpoints
 			admin := protected.Group("/admin")
 			admin.Use(middleware.SuperAdminMiddleware())
@@ -391,10 +493,19 @@ func main() {
 				admin.PUT("/companies/:id/block", adminHandler.BlockCompany)
 				admin.PUT("/companies/:id/unblock", adminHandler.UnblockCompany)
 
+				// Company feature status and permissions
+				admin.GET("/companies/:id/feature-status", adminHandler.GetCompanyFeatureStatus)
+				admin.GET("/companies/:id/check-crm-toggle", adminHandler.CheckCRMTogglePermission)
+				admin.GET("/companies/:id/check-ai-toggle", adminHandler.CheckAITogglePermission)
+				admin.GET("/companies/:id/check-agent-deactivate/:agentKey", adminHandler.CheckAgentDeactivatePermission)
+
 				// Free trial management
 				admin.POST("/companies/:company_id/extend-trial", adminHandler.ExtendCompanyFreeTrial)
 				admin.GET("/companies/expired-trials", adminHandler.GetCompaniesWithExpiredTrials)
 				admin.GET("/companies/on-trial", adminHandler.GetCompaniesOnFreeTrial)
+				admin.POST("/companies/activate-subscription", gin.WrapF(adminHandler.ActivateCompanySubscription))
+				admin.POST("/process-expired-trials", gin.WrapF(adminHandler.ProcessExpiredTrials))
+				admin.GET("/companies/trial-expiring", gin.WrapF(adminHandler.GetTrialExpiringCompanies))
 
 				// Global analytics
 				admin.GET("/analytics/dashboard", analyticsHandler.GetGlobalDashboard)
@@ -439,6 +550,21 @@ func main() {
 
 				// Discount management
 				admin.POST("/services/expire-sales", serviceHandler.ExpireOutdatedSales)
+
+				// Admin AI Agents Management
+				admin.GET("/ai-agents", adminHandler.GetAllCompaniesAIAgents)
+				admin.GET("/ai-agents/:company_id", adminHandler.GetCompanyAIAgents)
+				admin.POST("/ai-agents/activate", adminHandler.ActivateAgentForCompany)
+				admin.DELETE("/ai-agents/deactivate", adminHandler.DeactivateAgentForCompany)
+				admin.GET("/ai-agents/available", adminHandler.GetAvailableAIAgents)
+				admin.PUT("/ai-agents/:agentKey/pricing", adminHandler.UpdateAIAgentPricing)
+				admin.POST("/ai-agents", adminHandler.CreateAIAgent)
+				admin.DELETE("/ai-agents/:agentKey", adminHandler.DeleteAIAgent)
+
+				// AI prompts management for admins
+				admin.GET("/prompts", promptHandler.GetGlobalPrompts)
+				admin.POST("/prompts", promptHandler.CreateGlobalPrompt)
+				admin.PUT("/prompts/:id", promptHandler.UpdateGlobalPrompt)
 			}
 		}
 	}
@@ -453,7 +579,7 @@ func main() {
 	}
 
 	// Start notification cron job
-	go notificationService.StartNotificationCron()
+	go serviceContainer.NotificationService().StartNotificationCron()
 
 	// Get port from environment or default to 4000
 	port := os.Getenv("API_PORT")

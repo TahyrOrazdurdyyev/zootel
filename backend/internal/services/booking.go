@@ -7,8 +7,11 @@ import (
 	"strings"
 	"time"
 
+	"sort"
+
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/models"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type BookingService struct {
@@ -57,6 +60,53 @@ type BookingNotification struct {
 	CompanyID   string                 `json:"company_id"`
 	ScheduledAt time.Time              `json:"scheduled_at"`
 	Data        map[string]interface{} `json:"data"`
+}
+
+type EmployeeAvailability struct {
+	EmployeeID      string `json:"employee_id"`
+	EmployeeName    string `json:"employee_name"`
+	Available       bool   `json:"available"`
+	CurrentBookings int    `json:"current_bookings"`
+}
+
+type AlternativeSlot struct {
+	DateTime     time.Time     `json:"date_time"`
+	EmployeeID   string        `json:"employee_id"`
+	EmployeeName string        `json:"employee_name"`
+	TimeDiff     time.Duration `json:"time_diff"`
+	Priority     float64       `json:"priority"`
+}
+
+type BookingResult struct {
+	Success          bool
+	Booking          *models.Booking
+	AssignedEmployee *EmployeeAvailability
+	Message          string
+	Alternatives     []AlternativeSlot
+}
+
+type AIBookingRequest struct {
+	UserID    string    `json:"user_id" binding:"required"`
+	CompanyID string    `json:"company_id" binding:"required"`
+	ServiceID string    `json:"service_id" binding:"required"`
+	PetID     string    `json:"pet_id" binding:"required"`
+	DateTime  time.Time `json:"date_time" binding:"required"`
+	Notes     string    `json:"notes"`
+}
+
+type AIBookingResponse struct {
+	Success         bool
+	BookingID       string
+	Message         string
+	Employee        *EmployeeInfo // Only for internal use, not shown to clients
+	Alternatives    []string
+	SuggestedAction string
+	ClientMessage   string // Clean message for clients without employee details
+}
+
+type EmployeeInfo struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 // CreateBooking creates a new booking with availability checking
@@ -424,17 +474,41 @@ func (s *BookingService) GetBookingsByCompany(companyID string, startDate ...int
 			b.id, b.user_id, b.company_id, b.service_id, b.pet_id, b.employee_id,
 			b.date_time, b.duration, b.price, b.status, b.notes, b.payment_id,
 			b.created_at, b.updated_at,
-			u.first_name, u.last_name, u.email, u.phone,
+			-- Extended user data
+			u.first_name, u.last_name, u.email, u.phone, u.gender, u.date_of_birth,
+			COALESCE(u.address, '') as address,
+			COALESCE(u.apartment_number, '') as apartment_number,
 			COALESCE(u.country, '') as country,
 			COALESCE(u.state, '') as state,
 			COALESCE(u.city, '') as city,
+			COALESCE(u.postal_code, '') as postal_code,
+			COALESCE(u.emergency_contact_name, '') as emergency_contact_name,
+			COALESCE(u.emergency_contact_phone, '') as emergency_contact_phone,
+			COALESCE(u.emergency_contact_relation, '') as emergency_contact_relation,
+			-- Extended pet data
 			COALESCE(p.name, '') as pet_name,
+			COALESCE(p.gender, '') as pet_gender,
+			p.date_of_birth as pet_date_of_birth,
+			COALESCE(p.weight, 0) as pet_weight,
+			COALESCE(p.microchip_id, '') as pet_microchip_id,
+			COALESCE(p.sterilized, false) as pet_sterilized,
+			COALESCE(p.chronic_conditions, '{}') as pet_chronic_conditions,
+			COALESCE(p.allergies, '{}') as pet_allergies,
+			COALESCE(p.dietary_restrictions, '') as pet_dietary_restrictions,
+			COALESCE(p.special_needs, '') as pet_special_needs,
+			COALESCE(p.vet_name, '') as pet_vet_name,
+			COALESCE(p.vet_phone, '') as pet_vet_phone,
+			COALESCE(p.vet_clinic, '') as pet_vet_clinic,
+			COALESCE(p.behavior_notes, '') as pet_behavior_notes,
+			COALESCE(p.stress_reactions, '') as pet_stress_reactions,
+			COALESCE(p.favorite_toys, '') as pet_favorite_toys,
 			COALESCE(pt.name, '') as pet_type_name,
-			COALESCE(b.breed, '') as breed_name
+			COALESCE(br.name, '') as breed_name
 		FROM bookings b
 		JOIN users u ON b.user_id = u.id
 		LEFT JOIN pets p ON b.pet_id = p.id
 		LEFT JOIN pet_types pt ON p.pet_type_id = pt.id
+		LEFT JOIN breeds br ON p.breed_id = br.id
 		WHERE b.company_id = $1`
 
 	args := []interface{}{companyID}
@@ -472,18 +546,34 @@ func (s *BookingService) GetBookingsByCompany(companyID string, startDate ...int
 		booking := &models.Booking{}
 		bookingWithData := &models.BookingWithCustomerData{Booking: booking}
 
-		var petName, petTypeName, breedName sql.NullString
+		var petName, petGender, petDietaryRestrictions, petSpecialNeeds, petVetName, petVetPhone, petVetClinic sql.NullString
+		var petBehaviorNotes, petStressReactions, petFavoriteToys, petTypeName, breedName sql.NullString
+		var petMicrochipID sql.NullString
+		var petDateOfBirth sql.NullTime
+		var petWeight sql.NullFloat64
+		var petSterilized sql.NullBool
+		var petChronicConditions, petAllergies pq.StringArray
 
 		err := rows.Scan(
 			&booking.ID, &booking.UserID, &booking.CompanyID, &booking.ServiceID,
 			&booking.PetID, &booking.EmployeeID, &booking.DateTime, &booking.Duration,
 			&booking.Price, &booking.Status, &booking.Notes, &booking.PaymentID,
 			&booking.CreatedAt, &booking.UpdatedAt,
+			// Extended user data
 			&bookingWithData.Customer.FirstName, &bookingWithData.Customer.LastName,
 			&bookingWithData.Customer.Email, &bookingWithData.Customer.Phone,
+			&bookingWithData.Customer.Gender, &bookingWithData.Customer.DateOfBirth,
+			&bookingWithData.Customer.Address, &bookingWithData.Customer.ApartmentNumber,
 			&bookingWithData.Customer.Country, &bookingWithData.Customer.State,
-			&bookingWithData.Customer.City,
-			&petName, &petTypeName, &breedName,
+			&bookingWithData.Customer.City, &bookingWithData.Customer.PostalCode,
+			&bookingWithData.Customer.EmergencyContactName, &bookingWithData.Customer.EmergencyContactPhone,
+			&bookingWithData.Customer.EmergencyContactRelation,
+			// Extended pet data
+			&petName, &petGender, &petDateOfBirth, &petWeight, &petMicrochipID,
+			&petSterilized, &petChronicConditions, &petAllergies, &petDietaryRestrictions,
+			&petSpecialNeeds, &petVetName, &petVetPhone, &petVetClinic,
+			&petBehaviorNotes, &petStressReactions, &petFavoriteToys,
+			&petTypeName, &breedName,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan booking: %w", err)
@@ -492,12 +582,58 @@ func (s *BookingService) GetBookingsByCompany(companyID string, startDate ...int
 		// Set customer data
 		bookingWithData.Customer.UserID = booking.UserID
 
-		// Set pet data
+		// Set extended pet data
 		if booking.PetID != nil {
 			bookingWithData.Pet.PetID = *booking.PetID
 		}
+
 		if petName.Valid {
 			bookingWithData.Pet.PetName = petName.String
+		}
+		if petGender.Valid {
+			bookingWithData.Pet.Gender = petGender.String
+		}
+		if petDateOfBirth.Valid {
+			bookingWithData.Pet.DateOfBirth = &petDateOfBirth.Time
+		}
+		if petWeight.Valid {
+			bookingWithData.Pet.Weight = petWeight.Float64
+		}
+		if petMicrochipID.Valid {
+			bookingWithData.Pet.MicrochipID = petMicrochipID.String
+		}
+		if petSterilized.Valid {
+			bookingWithData.Pet.Sterilized = petSterilized.Bool
+		}
+		if petChronicConditions != nil {
+			bookingWithData.Pet.ChronicConditions = []string(petChronicConditions)
+		}
+		if petAllergies != nil {
+			bookingWithData.Pet.Allergies = []string(petAllergies)
+		}
+		if petDietaryRestrictions.Valid {
+			bookingWithData.Pet.DietaryRestrictions = petDietaryRestrictions.String
+		}
+		if petSpecialNeeds.Valid {
+			bookingWithData.Pet.SpecialNeeds = petSpecialNeeds.String
+		}
+		if petVetName.Valid {
+			bookingWithData.Pet.VetName = petVetName.String
+		}
+		if petVetPhone.Valid {
+			bookingWithData.Pet.VetPhone = petVetPhone.String
+		}
+		if petVetClinic.Valid {
+			bookingWithData.Pet.VetClinic = petVetClinic.String
+		}
+		if petBehaviorNotes.Valid {
+			bookingWithData.Pet.BehaviorNotes = petBehaviorNotes.String
+		}
+		if petStressReactions.Valid {
+			bookingWithData.Pet.StressReactions = petStressReactions.String
+		}
+		if petFavoriteToys.Valid {
+			bookingWithData.Pet.FavoriteToys = petFavoriteToys.String
 		}
 		if petTypeName.Valid {
 			bookingWithData.Pet.PetType = petTypeName.String
@@ -517,10 +653,16 @@ func (s *BookingService) GetCompanyCustomers(companyID string) ([]models.Custome
 	query := `
 		SELECT DISTINCT
 			u.id as user_id,
-			u.first_name, u.last_name, u.email, u.phone,
+			u.first_name, u.last_name, u.email, u.phone, u.gender, u.date_of_birth,
+			COALESCE(u.address, '') as address,
+			COALESCE(u.apartment_number, '') as apartment_number,
 			COALESCE(u.country, '') as country,
 			COALESCE(u.state, '') as state,
-			COALESCE(u.city, '') as city
+			COALESCE(u.city, '') as city,
+			COALESCE(u.postal_code, '') as postal_code,
+			COALESCE(u.emergency_contact_name, '') as emergency_contact_name,
+			COALESCE(u.emergency_contact_phone, '') as emergency_contact_phone,
+			COALESCE(u.emergency_contact_relation, '') as emergency_contact_relation
 		FROM users u
 		WHERE u.id IN (
 			SELECT DISTINCT user_id FROM bookings WHERE company_id = $1
@@ -541,8 +683,11 @@ func (s *BookingService) GetCompanyCustomers(companyID string) ([]models.Custome
 		var customer models.CustomerData
 		err := rows.Scan(
 			&customer.UserID, &customer.FirstName, &customer.LastName,
-			&customer.Email, &customer.Phone, &customer.Country,
-			&customer.State, &customer.City,
+			&customer.Email, &customer.Phone, &customer.Gender, &customer.DateOfBirth,
+			&customer.Address, &customer.ApartmentNumber, &customer.Country,
+			&customer.State, &customer.City, &customer.PostalCode,
+			&customer.EmergencyContactName, &customer.EmergencyContactPhone,
+			&customer.EmergencyContactRelation,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan customer: %w", err)
@@ -1071,4 +1216,565 @@ func (s *BookingService) GetUpcomingBookings(userID string, limit int) ([]models
 	}
 
 	return bookings, nil
+}
+
+// FindAvailableEmployee finds the best available employee for a service at a specific time
+func (s *BookingService) FindAvailableEmployee(serviceID string, dateTime time.Time) (*EmployeeAvailability, error) {
+	// Get all employees assigned to this service
+	var assignedEmployees []string
+	err := s.db.QueryRow(`
+		SELECT assigned_employees 
+		FROM services 
+		WHERE id = $1 AND is_active = true
+	`, serviceID).Scan(pq.Array(&assignedEmployees))
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get service employees: %w", err)
+	}
+
+	if len(assignedEmployees) == 0 {
+		return nil, fmt.Errorf("no employees assigned to this service")
+	}
+
+	// Check availability for each employee
+	var availableEmployees []EmployeeAvailability
+
+	for _, employeeID := range assignedEmployees {
+		availability, err := s.checkEmployeeAvailability(employeeID, serviceID, dateTime)
+		if err != nil {
+			continue // Skip this employee if there's an error
+		}
+
+		if availability.Available {
+			availableEmployees = append(availableEmployees, *availability)
+		}
+	}
+
+	if len(availableEmployees) == 0 {
+		return nil, fmt.Errorf("no employees available at requested time")
+	}
+
+	// Find the best employee (least busy)
+	bestEmployee := &availableEmployees[0]
+	for i := range availableEmployees {
+		if availableEmployees[i].CurrentBookings < bestEmployee.CurrentBookings {
+			bestEmployee = &availableEmployees[i]
+		}
+	}
+
+	return bestEmployee, nil
+}
+
+// FindAlternativeSlots finds alternative available time slots when requested time is not available
+func (s *BookingService) FindAlternativeSlots(serviceID string, requestedDateTime time.Time, daysToSearch int) ([]AlternativeSlot, error) {
+	var alternatives []AlternativeSlot
+
+	// Get service details for duration and working hours
+	var service models.Service
+	err := s.db.QueryRow(`
+		SELECT id, duration, available_days, start_time, end_time, 
+			   buffer_time_before, buffer_time_after, assigned_employees
+		FROM services 
+		WHERE id = $1 AND is_active = true
+	`, serviceID).Scan(
+		&service.ID, &service.Duration, pq.Array(&service.AvailableDays),
+		&service.StartTime, &service.EndTime, &service.BufferTimeBefore,
+		&service.BufferTimeAfter, pq.Array(&service.AssignedEmployees),
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get service details: %w", err)
+	}
+
+	// Search for alternatives in the next 'daysToSearch' days
+	searchDate := requestedDateTime.Truncate(24 * time.Hour)
+	endDate := searchDate.AddDate(0, 0, daysToSearch)
+
+	for currentDate := searchDate; currentDate.Before(endDate); currentDate = currentDate.AddDate(0, 0, 1) {
+		// Check if service is available on this day
+		dayOfWeek := strings.ToLower(currentDate.Weekday().String())
+		serviceAvailable := false
+		for _, availableDay := range service.AvailableDays {
+			if availableDay == dayOfWeek {
+				serviceAvailable = true
+				break
+			}
+		}
+
+		if !serviceAvailable {
+			continue
+		}
+
+		// Generate time slots for this day
+		slots := s.generateTimeSlots(service, currentDate)
+
+		for _, slot := range slots {
+			// Skip slots in the past
+			if slot.Before(time.Now()) {
+				continue
+			}
+
+			// Find available employee for this slot
+			employee, err := s.FindAvailableEmployee(serviceID, slot)
+			if err != nil {
+				continue // No employee available for this slot
+			}
+
+			// Calculate time difference from requested time
+			timeDiff := slot.Sub(requestedDateTime)
+			if timeDiff < 0 {
+				timeDiff = -timeDiff
+			}
+
+			alternatives = append(alternatives, AlternativeSlot{
+				DateTime:     slot,
+				EmployeeID:   employee.EmployeeID,
+				EmployeeName: employee.EmployeeName,
+				TimeDiff:     timeDiff,
+				Priority:     s.calculateSlotPriority(slot, requestedDateTime, employee.CurrentBookings),
+			})
+		}
+	}
+
+	// Sort alternatives by priority (best matches first)
+	sort.Slice(alternatives, func(i, j int) bool {
+		return alternatives[i].Priority > alternatives[j].Priority
+	})
+
+	// Return top 10 alternatives
+	if len(alternatives) > 10 {
+		alternatives = alternatives[:10]
+	}
+
+	return alternatives, nil
+}
+
+// AutoAssignBooking automatically assigns best available employee or suggests alternatives
+func (s *BookingService) AutoAssignBooking(req *BookingRequest) (*BookingResult, error) {
+	// First, try to find available employee for requested time
+	employee, err := s.FindAvailableEmployee(req.ServiceID, req.DateTime)
+	if err == nil {
+		// Employee found, create booking
+		req.EmployeeID = &employee.EmployeeID
+		booking, err := s.CreateBooking(req)
+		if err != nil {
+			return nil, err
+		}
+
+		return &BookingResult{
+			Success:          true,
+			Booking:          booking,
+			AssignedEmployee: employee,
+			Message:          fmt.Sprintf("Booking confirmed with %s", employee.EmployeeName),
+		}, nil
+	}
+
+	// No employee available, find alternatives
+	alternatives, err := s.FindAlternativeSlots(req.ServiceID, req.DateTime, 14) // Search 2 weeks ahead
+	if err != nil || len(alternatives) == 0 {
+		return &BookingResult{
+			Success:      false,
+			Message:      "No available slots found in the next 2 weeks",
+			Alternatives: []AlternativeSlot{},
+		}, nil
+	}
+
+	return &BookingResult{
+		Success:      false,
+		Message:      "Requested time is not available. Here are alternative options:",
+		Alternatives: alternatives,
+	}, nil
+}
+
+// ProcessAIBookingRequest handles booking request from AI assistant
+func (s *BookingService) ProcessAIBookingRequest(req *AIBookingRequest) (*AIBookingResponse, error) {
+	// Convert AI request to standard booking request
+	bookingReq := &BookingRequest{
+		UserID:    req.UserID,
+		CompanyID: req.CompanyID,
+		ServiceID: req.ServiceID,
+		PetID:     req.PetID,
+		DateTime:  req.DateTime,
+		Notes:     req.Notes,
+	}
+
+	// Try to auto-assign booking
+	result, err := s.AutoAssignBooking(bookingReq)
+	if err != nil {
+		return &AIBookingResponse{
+			Success:       false,
+			Message:       "Failed to process booking request",
+			ClientMessage: "Sorry, we couldn't process your booking request at this time. Please try again later.",
+		}, err
+	}
+
+	if result.Success {
+		// Create client-friendly message without employee details
+		clientMessage := fmt.Sprintf("✅ Your appointment has been successfully booked for %s at %s! We'll see you soon.",
+			result.Booking.DateTime.Format("January 2, 2006"),
+			result.Booking.DateTime.Format("3:04 PM"))
+
+		return &AIBookingResponse{
+			Success:         true,
+			BookingID:       result.Booking.ID,
+			Message:         fmt.Sprintf("Booking confirmed with employee %s", result.AssignedEmployee.EmployeeName),
+			Employee:        &EmployeeInfo{ID: result.AssignedEmployee.EmployeeID, Name: result.AssignedEmployee.EmployeeName},
+			Alternatives:    []string{},
+			SuggestedAction: "Booking completed successfully",
+			ClientMessage:   clientMessage,
+		}, nil
+	}
+
+	// If no immediate slot available, suggest alternatives
+	alternatives := make([]string, 0, len(result.Alternatives))
+	for _, alt := range result.Alternatives {
+		alternatives = append(alternatives, alt.DateTime.Format("January 2, 2006 at 3:04 PM"))
+	}
+
+	clientMessage := "❌ The requested time is not available. Here are some alternative options:\n"
+	for i, alt := range alternatives {
+		clientMessage += fmt.Sprintf("%d. %s\n", i+1, alt)
+	}
+	clientMessage += "Please let us know which time works best for you!"
+
+	return &AIBookingResponse{
+		Success:         false,
+		Message:         "No immediate availability, alternatives provided",
+		Employee:        nil,
+		Alternatives:    alternatives,
+		SuggestedAction: "Client needs to choose alternative time",
+		ClientMessage:   clientMessage,
+	}, nil
+}
+
+// ProcessAIBookingRequestChat handles booking request from chat service (adapter method)
+func (s *BookingService) ProcessAIBookingRequestChat(req *AIBookingRequestChat) (*AIBookingResponseChat, error) {
+	// Convert chat request to standard booking request
+	standardReq := &AIBookingRequest{
+		UserID:    req.UserID,
+		CompanyID: req.CompanyID,
+		ServiceID: req.ServiceID,
+		PetID:     req.PetID,
+		DateTime:  req.DateTime,
+		Notes:     req.Notes,
+	}
+
+	// Call the main processing method
+	response, err := s.ProcessAIBookingRequest(standardReq)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert response back to chat format
+	chatResponse := &AIBookingResponseChat{
+		Success:         response.Success,
+		BookingID:       response.BookingID,
+		Message:         response.Message,
+		Alternatives:    response.Alternatives,
+		SuggestedAction: response.SuggestedAction,
+		ClientMessage:   response.ClientMessage,
+	}
+
+	if response.Employee != nil {
+		chatResponse.Employee = &EmployeeInfoChat{
+			ID:   response.Employee.ID,
+			Name: response.Employee.Name,
+		}
+	}
+
+	return chatResponse, nil
+}
+
+// Types for chat integration
+type AIBookingRequestChat struct {
+	UserID    string    `json:"user_id"`
+	CompanyID string    `json:"company_id"`
+	ServiceID string    `json:"service_id"`
+	PetID     string    `json:"pet_id"`
+	DateTime  time.Time `json:"date_time"`
+	Notes     string    `json:"notes"`
+}
+
+type AIBookingResponseChat struct {
+	Success         bool
+	BookingID       string
+	Message         string
+	Employee        *EmployeeInfoChat
+	Alternatives    []string
+	SuggestedAction string
+	ClientMessage   string // Clean message for clients without employee details
+}
+
+type EmployeeInfoChat struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// Helper function to check individual employee availability
+func (s *BookingService) checkEmployeeAvailability(employeeID, serviceID string, dateTime time.Time) (*EmployeeAvailability, error) {
+	// Get employee details and work schedule
+	var employee EmployeeAvailability
+	var workSchedule string
+
+	err := s.db.QueryRow(`
+		SELECT id, name, work_schedule, is_active
+		FROM employees 
+		WHERE id = $1 AND is_active = true
+	`, employeeID).Scan(&employee.EmployeeID, &employee.EmployeeName, &workSchedule, &employee.Available)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Parse work schedule (simplified - assume JSON format)
+	var schedule map[string]interface{}
+	if err := json.Unmarshal([]byte(workSchedule), &schedule); err != nil {
+		// Default to available if schedule parsing fails
+		employee.Available = true
+	} else {
+		// Check if employee works on this day/time (simplified logic)
+		dayOfWeek := strings.ToLower(dateTime.Weekday().String())
+		if daySchedule, exists := schedule[dayOfWeek]; exists {
+			employee.Available = daySchedule != nil
+		}
+	}
+
+	// Count current bookings for this employee at this time
+	var bookingCount int
+	err = s.db.QueryRow(`
+		SELECT COUNT(*) 
+		FROM bookings 
+		WHERE employee_id = $1 
+		AND date_time = $2 
+		AND status NOT IN ('cancelled', 'rejected')
+	`, employeeID, dateTime).Scan(&bookingCount)
+
+	if err != nil {
+		bookingCount = 0
+	}
+
+	employee.CurrentBookings = bookingCount
+
+	// Check if employee is overbooked
+	var maxBookings int
+	err = s.db.QueryRow(`
+		SELECT max_bookings_per_slot 
+		FROM services 
+		WHERE id = $1
+	`, serviceID).Scan(&maxBookings)
+
+	if err != nil {
+		maxBookings = 1 // Default
+	}
+
+	if bookingCount >= maxBookings {
+		employee.Available = false
+	}
+
+	return &employee, nil
+}
+
+// Helper function to calculate slot priority for sorting alternatives
+func (s *BookingService) calculateSlotPriority(slotTime, requestedTime time.Time, employeeLoad int) float64 {
+	// Lower time difference = higher priority
+	timeDiff := slotTime.Sub(requestedTime)
+	if timeDiff < 0 {
+		timeDiff = -timeDiff
+	}
+
+	// Convert to hours for calculation
+	hoursDiff := timeDiff.Hours()
+
+	// Base priority decreases with time difference
+	timePriority := 100.0 / (1.0 + hoursDiff/24.0) // Decay over days
+
+	// Employee load factor (less busy = higher priority)
+	loadPriority := 10.0 / (1.0 + float64(employeeLoad))
+
+	return timePriority + loadPriority
+}
+
+// GetCustomerPetMedicalData returns medical data for a customer's pet if company has access
+func (s *BookingService) GetCustomerPetMedicalData(companyID, petID string) (*models.PetData, error) {
+	// First verify that company has access to this pet through bookings/orders
+	var accessCount int
+	err := s.db.QueryRow(`
+		SELECT COUNT(*) FROM (
+			SELECT 1 FROM bookings b 
+			WHERE b.company_id = $1 AND b.pet_id = $2
+			UNION
+			SELECT 1 FROM orders o 
+			JOIN pets p ON o.user_id = p.user_id
+			WHERE o.company_id = $1 AND p.id = $2
+		) as access_check
+	`, companyID, petID).Scan(&accessCount)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to check access: %w", err)
+	}
+
+	if accessCount == 0 {
+		return nil, fmt.Errorf("company does not have access to this pet")
+	}
+
+	// Get detailed pet medical data
+	query := `
+		SELECT 
+			p.id, p.name, p.gender, p.date_of_birth, p.weight, p.microchip_id, p.sterilized,
+			COALESCE(p.chronic_conditions, '{}') as chronic_conditions,
+			COALESCE(p.allergies, '{}') as allergies,
+			COALESCE(p.dietary_restrictions, '') as dietary_restrictions,
+			COALESCE(p.special_needs, '') as special_needs,
+			COALESCE(p.vet_name, '') as vet_name,
+			COALESCE(p.vet_phone, '') as vet_phone,
+			COALESCE(p.vet_clinic, '') as vet_clinic,
+			COALESCE(p.behavior_notes, '') as behavior_notes,
+			COALESCE(p.stress_reactions, '') as stress_reactions,
+			COALESCE(p.favorite_toys, '') as favorite_toys,
+			COALESCE(pt.name, '') as pet_type_name,
+			COALESCE(b.name, '') as breed_name
+		FROM pets p
+		LEFT JOIN pet_types pt ON p.pet_type_id = pt.id
+		LEFT JOIN breeds b ON p.breed_id = b.id
+		WHERE p.id = $1
+	`
+
+	var petData models.PetData
+	var chronicConditions, allergies pq.StringArray
+
+	err = s.db.QueryRow(query, petID).Scan(
+		&petData.PetID, &petData.PetName, &petData.Gender, &petData.DateOfBirth,
+		&petData.Weight, &petData.MicrochipID, &petData.Sterilized,
+		&chronicConditions, &allergies, &petData.DietaryRestrictions,
+		&petData.SpecialNeeds, &petData.VetName, &petData.VetPhone,
+		&petData.VetClinic, &petData.BehaviorNotes, &petData.StressReactions,
+		&petData.FavoriteToys, &petData.PetType, &petData.Breed,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get pet data: %w", err)
+	}
+
+	// Convert arrays
+	if chronicConditions != nil {
+		petData.ChronicConditions = []string(chronicConditions)
+	}
+	if allergies != nil {
+		petData.Allergies = []string(allergies)
+	}
+
+	return &petData, nil
+}
+
+// GetCustomerPetVaccinations returns vaccination data for a customer's pet if company has access
+func (s *BookingService) GetCustomerPetVaccinations(companyID, petID string) ([]models.VaccinationRecord, error) {
+	// First verify access
+	var accessCount int
+	err := s.db.QueryRow(`
+		SELECT COUNT(*) FROM (
+			SELECT 1 FROM bookings b 
+			WHERE b.company_id = $1 AND b.pet_id = $2
+			UNION
+			SELECT 1 FROM orders o 
+			JOIN pets p ON o.user_id = p.user_id
+			WHERE o.company_id = $1 AND p.id = $2
+		) as access_check
+	`, companyID, petID).Scan(&accessCount)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to check access: %w", err)
+	}
+
+	if accessCount == 0 {
+		return nil, fmt.Errorf("company does not have access to this pet")
+	}
+
+	// Get vaccination data
+	query := `
+		SELECT 
+			id, vaccine_name, date_administered, expiry_date, vet_name,
+			vet_clinic, batch_number, notes, next_due_date
+		FROM pet_vaccinations 
+		WHERE pet_id = $1 
+		ORDER BY date_administered DESC
+	`
+
+	rows, err := s.db.Query(query, petID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query vaccinations: %w", err)
+	}
+	defer rows.Close()
+
+	var vaccinations []models.VaccinationRecord
+	for rows.Next() {
+		var vaccination models.VaccinationRecord
+		err := rows.Scan(
+			&vaccination.ID, &vaccination.VaccineName, &vaccination.DateAdministered,
+			&vaccination.ExpiryDate, &vaccination.VetName, &vaccination.VetClinic,
+			&vaccination.BatchNumber, &vaccination.Notes, &vaccination.NextDueDate,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan vaccination: %w", err)
+		}
+		vaccinations = append(vaccinations, vaccination)
+	}
+
+	return vaccinations, nil
+}
+
+// GetCustomerPetMedications returns medication data for a customer's pet if company has access
+func (s *BookingService) GetCustomerPetMedications(companyID, petID string) ([]models.MedicationRecord, error) {
+	// First verify access
+	var accessCount int
+	err := s.db.QueryRow(`
+		SELECT COUNT(*) FROM (
+			SELECT 1 FROM bookings b 
+			WHERE b.company_id = $1 AND b.pet_id = $2
+			UNION
+			SELECT 1 FROM orders o 
+			JOIN pets p ON o.user_id = p.user_id
+			WHERE o.company_id = $1 AND p.id = $2
+		) as access_check
+	`, companyID, petID).Scan(&accessCount)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to check access: %w", err)
+	}
+
+	if accessCount == 0 {
+		return nil, fmt.Errorf("company does not have access to this pet")
+	}
+
+	// Get medication data
+	query := `
+		SELECT 
+			id, medication_name, dosage, frequency, start_date, end_date,
+			prescribed_by, instructions, side_effects, is_active
+		FROM pet_medications 
+		WHERE pet_id = $1 
+		ORDER BY start_date DESC
+	`
+
+	rows, err := s.db.Query(query, petID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query medications: %w", err)
+	}
+	defer rows.Close()
+
+	var medications []models.MedicationRecord
+	for rows.Next() {
+		var medication models.MedicationRecord
+		err := rows.Scan(
+			&medication.ID, &medication.MedicationName, &medication.Dosage,
+			&medication.Frequency, &medication.StartDate, &medication.EndDate,
+			&medication.PrescribedBy, &medication.Instructions, &medication.SideEffects,
+			&medication.IsActive,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan medication: %w", err)
+		}
+		medications = append(medications, medication)
+	}
+
+	return medications, nil
 }

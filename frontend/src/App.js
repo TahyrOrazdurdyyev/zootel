@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
-import Layout from './components/common/Layout';
+import LayoutRouter from './components/layouts/LayoutRouter';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
@@ -11,6 +11,7 @@ import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import MarketplacePage from './pages/marketplace/MarketplacePage';
 import BusinessPage from './pages/BusinessPage';
+import CompanyPublicPage from './pages/CompanyPublicPage';
 import BookingPage from './pages/BookingPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
@@ -21,6 +22,10 @@ import ChatPage from './pages/ChatPage';
 import PaymentSettings from './pages/admin/PaymentSettings';
 import PlanSettings from './pages/admin/PlanSettings';
 import AnalyticsPage from './pages/admin/AnalyticsPage';
+import CompaniesManagement from './pages/admin/CompaniesManagement';
+import PromptsManagement from './pages/admin/PromptsManagement';
+import AIPromptsCustomization from './pages/company/AIPromptsCustomization';
+import BusinessLandingPage from './pages/BusinessLandingPage';
 
 // Company pages
 import CompanyDashboard from './pages/company/CompanyDashboard';
@@ -32,12 +37,15 @@ import AddonManagementPage from './pages/company/AddonManagementPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
+// Import theme styles
+import './styles/themes.css';
+
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
-          <Layout>
+    <Router>
+      <AuthProvider>
+        <CartProvider>
+          <LayoutRouter>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
@@ -47,6 +55,7 @@ function App() {
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/marketplace" element={<MarketplacePage />} />
               <Route path="/business" element={<BusinessPage />} />
+              <Route path="/company/:companyId" element={<CompanyPublicPage />} />
               
               {/* Protected Routes */}
               <Route path="/booking/:companyId?" element={
@@ -75,7 +84,7 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Company Dashboard */}
+
               <Route path="/company/*" element={
                 <ProtectedRoute requiredRole="company_owner">
                   <Routes>
@@ -84,6 +93,7 @@ function App() {
                     <Route path="/chat" element={<EmployeeChatPage />} />
                     <Route path="/services" element={<ServicesManagementPage />} />
                     <Route path="/addons" element={<AddonManagementPage />} />
+                    <Route path="/ai-prompts" element={<AIPromptsCustomization />} />
                   </Routes>
                 </ProtectedRoute>
               } />
@@ -96,6 +106,16 @@ function App() {
                     <Route path="/payment-settings" element={<PaymentSettings />} />
                     <Route path="/plan-settings" element={<PlanSettings />} />
                     <Route path="/analytics" element={<AnalyticsPage />} />
+                    <Route path="/companies" element={
+                      <ProtectedRoute requiredRole="super_admin">
+                        <CompaniesManagement />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/prompts" element={
+                      <ProtectedRoute requiredRole="super_admin">
+                        <PromptsManagement />
+                      </ProtectedRoute>
+                    } />
                   </Routes>
                 </ProtectedRoute>
               } />
@@ -103,8 +123,8 @@ function App() {
               {/* 404 Page */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
-          </Layout>
-        </Router>
+          </LayoutRouter>
+        </CartProvider>
         <Toaster
           position="top-right"
           reverseOrder={false}
@@ -126,8 +146,8 @@ function App() {
             },
           }}
         />
-      </CartProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

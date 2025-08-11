@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams, Link } from 'react-router-dom';
 import { 
   FunnelIcon,
   MapPinIcon,
@@ -32,73 +32,73 @@ const MarketplacePage = () => {
     {
       id: 1,
       type: 'service',
-      name: 'Комплексный ветеринарный осмотр',
-      company: 'ВетЦентр "Здоровый питомец"',
+      name: 'Comprehensive Veterinary Examination',
+      company: 'VetCenter "Healthy Pet"',
       price: 2500,
       originalPrice: 3000,
       discount: 17,
       rating: 4.9,
       reviews: 156,
-      location: 'Москва, Центральный район',
+      location: 'Moscow, Central District',
       image: '/images/vet-checkup.jpg',
       category: 'veterinary',
-      description: 'Полный медицинский осмотр с анализами и консультацией ветеринара',
-      features: ['Анализы включены', 'Консультация 1 час', 'Сертификат здоровья']
+      description: 'Complete medical examination with tests and veterinary consultation',
+      features: ['Tests included', '1 hour consultation', 'Health certificate']
     },
     {
       id: 2,
       type: 'service', 
-      name: 'Профессиональный груминг',
-      company: 'Салон "ПетСтиль"',
+      name: 'Professional Grooming',
+      company: 'Salon "PetStyle"',
       price: 3500,
       rating: 4.8,
       reviews: 89,
-      location: 'Москва, Северный район',
+      location: 'Moscow, Northern District',
       image: '/images/grooming.jpg',
       category: 'grooming',
-      description: 'Полный комплекс груминг услуг: стрижка, мытье, сушка, маникюр',
-      features: ['Стрижка по стандарту', 'Гигиеническая обработка', 'Парфюмирование']
+      description: 'Complete grooming services: haircut, washing, drying, manicure',
+      features: ['Standard haircut', 'Hygienic treatment', 'Perfumation']
     },
     {
       id: 3,
       type: 'product',
-      name: 'Премиум корм для собак Royal Canin',
-      company: 'ЗооМагазин "Лапки"',
+      name: 'Premium Dog Food Royal Canin',
+      company: 'ZooShop "Paws"',
       price: 4200,
       originalPrice: 4800,
       discount: 13,
       rating: 4.7,
       reviews: 234,
-      location: 'Москва, Восточный район',
+      location: 'Moscow, Eastern District',
       image: '/images/dog-food.jpg',
       category: 'nutrition',
-      description: 'Сбалансированный корм для взрослых собак средних пород, 15кг',
-      features: ['15кг упаковка', 'Для средних пород', 'Сбалансированный состав']
+      description: 'Balanced food for adult medium-sized dogs, 15kg',
+      features: ['15kg pack', 'For medium-sized breeds', 'Balanced composition']
     },
     {
       id: 4,
       type: 'service',
-      name: 'Дрессировка щенков (курс)',
-      company: 'Школа "Умный пес"',
+      name: 'Puppy Training (Course)',
+      company: 'School "Smart Dog"',
       price: 8000,
       rating: 4.9,
       reviews: 67,
-      location: 'Москва, Западный район',
+      location: 'Moscow, Western District',
       image: '/images/training.jpg',
       category: 'training',
-      description: 'Базовый курс дрессировки для щенков от 3 до 6 месяцев, 8 занятий',
-      features: ['8 занятий', 'Группа до 6 щенков', 'Сертификат по окончании']
+      description: 'Basic training course for puppies from 3 to 6 months, 8 lessons',
+      features: ['8 lessons', 'Group of up to 6 puppies', 'Certificate on completion']
     }
   ];
 
   const categories = [
-    { id: 'all', name: 'Все категории', count: 150 },
-    { id: 'veterinary', name: 'Ветеринария', count: 45 },
-    { id: 'grooming', name: 'Груминг', count: 32 },
-    { id: 'boarding', name: 'Передержка', count: 18 },
-    { id: 'training', name: 'Дрессировка', count: 25 },
-    { id: 'walking', name: 'Выгул', count: 12 },
-    { id: 'nutrition', name: 'Питание', count: 18 }
+    { id: 'all', name: 'All Categories', count: 150 },
+    { id: 'veterinary', name: 'Veterinary', count: 45 },
+    { id: 'grooming', name: 'Grooming', count: 32 },
+    { id: 'boarding', name: 'Boarding', count: 18 },
+    { id: 'training', name: 'Training', count: 25 },
+    { id: 'walking', name: 'Walking', count: 12 },
+    { id: 'nutrition', name: 'Nutrition', count: 18 }
   ];
 
   const handleFilterChange = (key, value) => {
@@ -157,7 +157,7 @@ const MarketplacePage = () => {
             <div className="flex-1">
               <input
                 type="text"
-                placeholder="Поиск услуг, товаров, компаний..."
+                placeholder="Search services, products, companies..."
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
                 className="w-full input-field"
@@ -170,7 +170,7 @@ const MarketplacePage = () => {
                 <MapPinIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Локация"
+                  placeholder="Location"
                   value={filters.location}
                   onChange={(e) => handleFilterChange('location', e.target.value)}
                   className="w-full input-field pl-10"
@@ -184,7 +184,7 @@ const MarketplacePage = () => {
               className="btn-secondary flex items-center space-x-2"
             >
               <FunnelIcon className="h-5 w-5" />
-              <span>Фильтры</span>
+              <span>Filters</span>
             </button>
           </div>
 
@@ -194,67 +194,67 @@ const MarketplacePage = () => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Тип
+                    Type
                   </label>
                   <select
                     value={filters.type}
                     onChange={(e) => handleFilterChange('type', e.target.value)}
                     className="input-field"
                   >
-                    <option value="all">Все</option>
-                    <option value="services">Услуги</option>
-                    <option value="products">Товары</option>
-                    <option value="companies">Компании</option>
+                    <option value="all">All</option>
+                    <option value="services">Services</option>
+                    <option value="products">Products</option>
+                    <option value="companies">Companies</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Цена
+                    Price
                   </label>
                   <select
                     value={filters.priceRange}
                     onChange={(e) => handleFilterChange('priceRange', e.target.value)}
                     className="input-field"
                   >
-                    <option value="all">Любая</option>
-                    <option value="0-1000">До 1,000₽</option>
+                    <option value="all">Any</option>
+                    <option value="0-1000">Up to 1,000₽</option>
                     <option value="1000-3000">1,000₽ - 3,000₽</option>
                     <option value="3000-5000">3,000₽ - 5,000₽</option>
-                    <option value="5000+">От 5,000₽</option>
+                    <option value="5000+">Over 5,000₽</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Рейтинг
+                    Rating
                   </label>
                   <select
                     value={filters.rating}
                     onChange={(e) => handleFilterChange('rating', e.target.value)}
                     className="input-field"
                   >
-                    <option value="all">Любой</option>
-                    <option value="4.5+">4.5+ звезд</option>
-                    <option value="4.0+">4.0+ звезд</option>
-                    <option value="3.5+">3.5+ звезд</option>
+                    <option value="all">Any</option>
+                    <option value="4.5+">4.5+ stars</option>
+                    <option value="4.0+">4.0+ stars</option>
+                    <option value="3.5+">3.5+ stars</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Сортировка
+                    Sort By
                   </label>
                   <select
                     value={filters.sortBy}
                     onChange={(e) => handleFilterChange('sortBy', e.target.value)}
                     className="input-field"
                   >
-                    <option value="popular">Популярные</option>
-                    <option value="price-low">Цена: по возрастанию</option>
-                    <option value="price-high">Цена: по убыванию</option>
-                    <option value="rating">Рейтинг</option>
-                    <option value="newest">Новые</option>
+                    <option value="popular">Popular</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Rating</option>
+                    <option value="newest">Newest</option>
                   </select>
                 </div>
               </div>
@@ -269,7 +269,7 @@ const MarketplacePage = () => {
           <div className="hidden lg:block w-64 flex-shrink-0">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Категории
+                Categories
               </h3>
               <nav className="space-y-2">
                 {categories.map((category) => (
@@ -297,10 +297,10 @@ const MarketplacePage = () => {
             {/* Results Header */}
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold text-gray-900">
-                {filters.search ? `Результаты поиска: "${filters.search}"` : 'Все услуги и товары'}
+                {filters.search ? `Search Results: "${filters.search}"` : 'All Services and Products'}
               </h1>
               <p className="text-gray-600">
-                Найдено: {filteredListings.length} результатов
+                Found: {filteredListings.length} results
               </p>
             </div>
 
@@ -347,7 +347,12 @@ const MarketplacePage = () => {
                       {item.name}
                     </h3>
                     
-                    <p className="text-sm text-gray-600 mb-2">{item.company}</p>
+                    <Link 
+                      to={`/company/${item.companyId || 'demo-company'}`}
+                      className="text-sm text-blue-600 hover:text-blue-800 mb-2 inline-block"
+                    >
+                      {item.company}
+                    </Link>
                     
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                       {item.description}
@@ -419,10 +424,10 @@ const MarketplacePage = () => {
                   <span className="text-4xl">🔍</span>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Ничего не найдено
+                  Nothing found
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Попробуйте изменить параметры поиска или фильтры
+                  Try changing search parameters or filters
                 </p>
                 <button
                   onClick={() => setFilters({
@@ -436,7 +441,7 @@ const MarketplacePage = () => {
                   })}
                   className="btn-primary"
                 >
-                  Сбросить фильтры
+                  Reset Filters
                 </button>
               </div>
             )}
@@ -445,7 +450,7 @@ const MarketplacePage = () => {
             {filteredListings.length > 0 && (
               <div className="text-center mt-12">
                 <button className="btn-secondary">
-                  Загрузить еще
+                  Load More
                 </button>
               </div>
             )}

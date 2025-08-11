@@ -1,271 +1,274 @@
-# 🐾 Zootel - Pet Care Services Platform
+# Zootel - Pet Services Platform
 
-Zootel is a comprehensive SaaS platform for managing Pet Care businesses (veterinary clinics, grooming, pet boarding, hotels, walking, nutrition, and accessories) with CRM for companies, marketplace for customers, and mobile applications for Pet Owners and Business Management.
+A comprehensive platform connecting pet owners with service providers, featuring AI-powered assistance and business management tools.
 
-## 🏗️ Project Architecture
+## Features
 
+### For Pet Owners
+- **Service Discovery**: Find veterinary clinics, grooming salons, pet hotels, and more
+- **Online Booking**: Schedule appointments 24/7 with automatic confirmation
+- **Extended Pet Profiles**: Comprehensive medical records, vaccination tracking, and behavioral notes
+- **AI Chat Assistant**: Get instant answers about services and pet care
+- **Shopping Cart**: Purchase pet products and services online
+- **Order Tracking**: Monitor service appointments and product deliveries
+- **Reviews & Ratings**: Share experiences and read reviews from other pet owners
+
+### Extended Profile Management
+
+#### Comprehensive User Profiles
+- **Personal Information**: Full name, gender, date of birth, and contact details
+- **Address Management**: Complete address with apartment numbers and postal codes
+- **Emergency Contacts**: Designated emergency contacts with relationship information
+- **Veterinarian Information**: Primary vet contacts and clinic details
+- **Notification Preferences**: Customizable push, SMS, and email notification settings
+- **Marketing Preferences**: Granular control over promotional communications
+
+#### Advanced Pet Profiles
+- **Basic Information**: Name, type, breed, gender, birth date, weight, and microchip ID
+- **Medical Records**: 
+  - Vaccination tracking with expiry dates and reminders
+  - Medication management with dosage and frequency
+  - Chronic conditions and allergy management
+  - Medical history summaries and checkup scheduling
+- **Photo Gallery**: Multiple photos with main photo selection
+- **Behavioral Information**: Favorite toys, behavior notes, and stress reaction guidance
+- **Veterinary Contacts**: Pet-specific vet information and clinic details
+- **Special Needs**: Dietary restrictions and care requirements
+
+### For Service Providers
+- **Business Management**: Complete CRM with booking, client, and service management
+- **AI-Powered Assistance**: Specialized AI agents adapted to your business type
+- **Employee Management**: Staff scheduling and task assignment
+- **Analytics & Reports**: Track performance, revenue, and customer insights
+- **Multi-Channel Communication**: Chat with clients, send notifications
+- **Inventory Management**: Stock tracking for retail businesses
+- **Payment Processing**: Accept online payments with automated accounting
+
+## AI Agent Specialization
+
+### Business Type Recognition
+The platform automatically recognizes your business type and adapts AI agents accordingly:
+
+- **Veterinary Clinics**: AI agents understand medical terminology, emergency protocols, and health assessment
+- **Grooming Salons**: Specialized in coat types, grooming styles, and beauty treatments
+- **Pet Hotels/Boarding**: Focus on accommodation needs, feeding schedules, and care requirements
+- **Training Services**: Expertise in behavior modification, obedience, and training programs
+- **Dog Walking**: Specialized in exercise needs, safety protocols, and scheduling
+- **Pet Sitting**: Home care expertise, routine management, and pet comfort
+- **Pet Transportation**: Travel requirements, safety measures, and logistics
+- **Retail/Pet Stores**: Product knowledge, inventory management, and customer recommendations
+
+### Available AI Agents
+
+1. **Booking Assistant**
+   - Automated appointment scheduling
+   - Employee assignment based on availability
+   - Alternative time slot suggestions
+   - Context-aware responses based on business type
+
+2. **Customer Support Agent**
+   - 24/7 customer service
+   - Business-specific FAQ responses
+   - Integration with booking and order systems
+
+3. **Medical/Vet Assistant** (Veterinary Only)
+   - Symptom assessment guidance
+   - Emergency protocol assistance
+   - Medical record management
+
+4. **Retail Shopping Assistant** (Retail Only)
+   - Product recommendations
+   - Inventory guidance
+   - Shopping assistance
+
+5. **Marketing Content Generator**
+   - Automated email campaigns
+   - Social media content
+   - Promotional materials
+
+6. **Analytics Narrator**
+   - Business intelligence insights
+   - Performance reporting
+   - Trend analysis
+
+### AI Agent Configuration
+
+Business types are automatically detected or can be manually set in company settings:
+
+```go
+// Available business types
+type BusinessType string
+
+const (
+    Veterinary  BusinessType = "veterinary"
+    Grooming    BusinessType = "grooming" 
+    Boarding    BusinessType = "boarding"
+    Training    BusinessType = "training"
+    Walking     BusinessType = "walking"
+    Sitting     BusinessType = "sitting"
+    PetTaxi     BusinessType = "pet_taxi"
+    Retail      BusinessType = "retail"
+    General     BusinessType = "general"
+)
 ```
-zootel/
-├── backend/           # Go API server with PostgreSQL
-├── frontend/          # React web application
-├── mobile-business/   # React Native app for businesses
-├── mobile-pet-owner/  # React Native app for pet owners
-├── docs/             # Project documentation
-└── scripts/          # Setup and deployment scripts
-```
 
-## ✨ Key Features
+Each AI agent has specialized prompts and behaviors for different business types, ensuring relevant and accurate responses.
 
-### 🏢 **Business Management (CRM)**
-- Company registration and profile management
-- Employee management with RBAC permissions
-- Service and product catalog management
-- Booking and order management
-- Real-time chat with customers
-- Analytics and reporting
-- AI-powered assistants
+## Technology Stack
 
-### 🛒 **Customer Marketplace**
-- Browse and search pet care services
-- Book appointments and order products
-- Pet profile management with medical records
-- Shopping cart and checkout
-- Payment processing (Stripe + offline)
-- Chat with service providers
-- Review and rating system
+### Backend
+- **Language**: Go 1.21+
+- **Framework**: Gin HTTP framework
+- **Database**: PostgreSQL with migrations
+- **Authentication**: Firebase Auth
+- **AI Integration**: OpenAI GPT-4
+- **Payment Processing**: Stripe
+- **File Storage**: Cloud storage integration
 
-### 📱 **Mobile Applications**
-- **Pet Owner App**: Browse, book, chat, manage pets
-- **Business App**: Manage bookings, inventory, chat, calendar
+### Frontend
+- **Framework**: React 18
+- **Styling**: Tailwind CSS
+- **State Management**: React Context
+- **HTTP Client**: Axios
+- **Build Tool**: Vite
 
-### 🤖 **AI Agents & Automation**
-- BookingAssistant - Automated booking management
-- CustomerSupportAgent - 24/7 customer support
-- ReminderFollowUpBot - Appointment reminders
-- MedicalVetAssistant - Veterinary consultation
-- MarketingContentGenerator - Content creation
-- AnalyticsNarrator - Data insights
+### Mobile (Business App)
+- **Framework**: React Native
+- **Navigation**: React Navigation
+- **State Management**: React Query
+- **Authentication**: Firebase SDK
 
-### 💳 **Flexible Payment System**
-- Offline payments (manual processing)
-- Stripe integration with commission model
-- Free trial periods for businesses
-- Multiple payment flows support
-
-## 🚀 Quick Start
+## Installation & Setup
 
 ### Prerequisites
+- Go 1.21 or higher
+- Node.js 18 or higher
+- PostgreSQL 13 or higher
+- Firebase project
+- OpenAI API key (optional, for AI features)
+- Stripe account (optional, for payments)
 
-- **Go 1.21+** (Backend)
-- **Node.js 18+** (Frontend & Mobile)
-- **PostgreSQL 14+** (Database)
-- **Firebase Account** (Authentication)
-- **Stripe Account** (Payments - optional)
+### Backend Setup
 
-### 1. Clone Repository
-
+1. Clone the repository:
 ```bash
-git clone https://github.com/TahyrOrazdurdyyev/zootel.git
-cd zootel
+git clone https://github.com/your-repo/zootel.git
+cd zootel/backend
 ```
 
-### 2. Database Setup
-
+2. Install dependencies:
 ```bash
-# Create PostgreSQL databases
-createdb zootel_dev
-createdb zootel_prod
-
-# Run migrations
-cd backend
-psql zootel_dev -f migrations/001_initial_schema.sql
-psql zootel_dev -f migrations/002_seed_data.sql
-```
-
-### 3. Environment Configuration
-
-Copy and configure environment files:
-
-```bash
-# Backend
-cp backend/env.example backend/.env.development
-cp backend/env.example backend/.env.production
-
-# Frontend  
-cp frontend/env.example frontend/.env.development
-cp frontend/env.example frontend/.env.production
-```
-
-Update the `.env` files with your database credentials, Firebase config, and API keys.
-
-### 4. Firebase Setup
-
-1. Create Firebase project: `zootel-be723`
-2. Enable Authentication (Email/Password)
-3. Download service account key → `backend/config/serviceAccountKey.json`
-4. Update environment variables with Firebase config
-
-Create SuperAdmin user:
-```bash
-cd backend
-go run scripts/createSuperAdmin.go
-```
-
-### 5. Start Development Servers
-
-**Backend** (Port 4000):
-```bash
-cd backend
 go mod download
+```
+
+3. Create environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+4. Run database migrations:
+```bash
+go run migrations/*.sql
+```
+
+5. Start the server:
+```bash
 go run cmd/main.go
 ```
 
-**Frontend** (Port 3000):
+### Frontend Setup
+
+1. Navigate to frontend directory:
 ```bash
-cd frontend
+cd ../frontend
+```
+
+2. Install dependencies:
+```bash
 npm install
+```
+
+3. Create environment variables:
+```bash
+cp .env.example .env.local
+# Edit with your configuration
+```
+
+4. Start development server:
+```bash
 npm run dev
 ```
 
-**Mobile Apps**:
-```bash
-# Business App
-cd mobile-business
-npm install
-npm start
+### Mobile App Setup
 
-# Pet Owner App  
-cd mobile-pet-owner
+1. Navigate to mobile directory:
+```bash
+cd ../mobile-business
+```
+
+2. Install dependencies:
+```bash
 npm install
+```
+
+3. Configure Firebase:
+```bash
+# Follow FIREBASE_SETUP.md instructions
+```
+
+4. Start Metro bundler:
+```bash
 npm start
 ```
 
-## 📚 Documentation
+## API Documentation
 
-- **[Firebase Setup Guide](backend/docs/firebase-setup.md)** - Authentication configuration
-- **[Stripe Setup Guide](backend/docs/stripe-setup.md)** - Payment processing setup
-- **[Database Migrations](backend/migrations/README.md)** - Database schema and setup
-- **[GraphQL Schema](backend/api/graphql/schema.graphql)** - API schema documentation
-
-## 🔐 User Roles & Permissions
-
-### SuperAdmin
-- Manage plans, payment settings, categories
-- Manage companies and demo accounts
-- Global analytics and reporting
-- System configuration
-
-### CompanyOwner  
-- Create and manage employees
-- Configure company profile and services
-- Access to CRM and analytics
-- Subscription management
-
-### Employee
-- Limited company access based on permissions
-- Manage assigned bookings and orders
-- Customer communication
-- Inventory management
-
-### Pet Owner (B2C User)
-- Browse and book services
-- Manage pet profiles
-- Shopping cart and orders
-- Chat with service providers
-
-## 🤖 AI Agents System
-
-The platform includes 8 specialized AI agents:
-
-1. **BookingAssistant** - Service booking automation
-2. **CustomerSupportAgent** - General customer support  
-3. **ReminderFollowUpBot** - Automated reminders
-4. **MedicalVetAssistant** - Veterinary consultations
-5. **MarketingContentGenerator** - Marketing content
-6. **UpsellCrossSellAgent** - Sales optimization
-7. **FeedbackSentimentAnalyzer** - Review analysis
-8. **AnalyticsNarrator** - Data insights
-
-## 💰 Subscription Plans
-
-| Plan | Price | Features |
-|------|-------|----------|
-| **Starter** | $29.99/month | Basic CRM, 5 employees, Basic analytics |
-| **Professional** | $79.99/month | Advanced CRM, 20 employees, AI agents |
-| **Enterprise** | $199.99/month | Full suite, unlimited employees, all AI agents |
-
-All plans include 14-30 day free trials.
-
-## 🔄 CI/CD Pipeline
-
-Automated deployment with GitHub Actions:
-- **Push to master** → Automatic testing and deployment
-- **Pull requests** → Automated testing
-- **Environment-specific** builds and deployments
-
-## 🌍 Multi-Platform Support
-
-- **Web Application** - React with TailwindCSS
-- **iOS/Android Apps** - React Native with Expo
-- **REST API** - Complete backend API
-- **GraphQL** - Advanced query capabilities
-- **WebSocket** - Real-time chat and notifications
-
-## 📊 Analytics & Reporting
-
-### Company Analytics
-- Booking and revenue trends
-- Customer segmentation
-- Service performance
-- Employee productivity
-
-### Global Analytics (SuperAdmin)
-- Platform usage statistics
-- Revenue analytics
-- Geographic distribution
-- Growth metrics
-
-## 🔒 Security Features
-
-- **Firebase Authentication** with custom claims
-- **Role-based Access Control** (RBAC)
-- **Data encryption** at rest and in transit
-- **API rate limiting** and security headers
-- **PCI DSS compliance** for payments
-- **GDPR compliance** for data privacy
-
-## 🌐 Deployment
-
-### Development
-```bash
-# Start all services locally
-npm run dev:all  # Starts backend, frontend, and mobile apps
+### Authentication
+All protected endpoints require Firebase JWT token in Authorization header:
+```
+Authorization: Bearer <firebase-jwt-token>
 ```
 
-### Production
-The platform deploys automatically via GitHub Actions to:
-- **Backend**: Cloud server with PostgreSQL
-- **Frontend**: Static hosting (Vercel/Netlify)
-- **Mobile Apps**: App stores (iOS/Android)
+### Key Endpoints
 
-## 🤝 Contributing
+#### AI Agents
+- `GET /api/ai/agents` - Get available AI agents for company
+- `POST /api/ai/process` - Process AI request
+- `GET /api/ai/usage-stats` - Get AI usage statistics
+
+#### Company Management
+- `GET /companies/profile` - Get company profile
+- `PUT /companies/profile` - Update company profile
+- `PUT /companies/business-type` - Update business type
+- `GET /companies/business-types` - Get available business types
+
+#### Booking System
+- `POST /bookings/ai-booking` - AI-powered booking
+- `POST /bookings/auto-assign` - Automatic employee assignment
+- `GET /bookings/alternatives` - Get alternative time slots
+
+## Business Type Configuration
+
+Companies can set their business type in the settings panel, which affects:
+
+1. **Available AI Agents**: Only relevant agents are shown
+2. **AI Response Quality**: Specialized prompts provide better answers
+3. **Feature Access**: Type-specific features are enabled/disabled
+4. **UI Customization**: Interface adapts to business needs
+
+## Contributing
 
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-## 📄 License
+## License
 
-This is a private project. All rights reserved.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🆘 Support
+## Support
 
-For technical support:
-- 📧 Email: support@zootel.shop
-- 📱 GitHub Issues: [Create an issue](https://github.com/TahyrOrazdurdyyev/zootel/issues)
-
----
-
-**🐾 Built with ❤️ for pet care professionals and pet owners worldwide** 
+For support, email support@zootel.com or create an issue in this repository. 

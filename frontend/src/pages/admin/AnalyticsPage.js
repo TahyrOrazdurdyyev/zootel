@@ -231,10 +231,10 @@ const PlatformHealthWidget = () => {
 // Top Metrics Widget
 const TopMetricsWidget = () => {
   const topMetrics = [
-    { name: 'Самая популярная услуга', value: 'Груминг' },
-    { name: 'Топ город', value: 'Москва' },
-    { name: 'Средний чек', value: '₽2,450' },
-    { name: 'Конверсия', value: '12.5%' },
+    { name: 'Most Popular Service', value: 'Grooming' },
+    { name: 'Top City', value: 'Moscow' },
+    { name: 'Average Check', value: '₽2,450' },
+    { name: 'Conversion Rate', value: '12.5%' },
   ];
 
   return (

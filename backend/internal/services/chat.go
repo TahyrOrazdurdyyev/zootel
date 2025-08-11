@@ -4,14 +4,16 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type ChatService struct {
-	db        *sql.DB
-	aiService *AIService
+	db             *sql.DB
+	aiService      *AIService
+	bookingService BookingServiceInterface
 }
 
 func NewChatService(db *sql.DB, aiService *AIService) *ChatService {
@@ -19,6 +21,16 @@ func NewChatService(db *sql.DB, aiService *AIService) *ChatService {
 		db:        db,
 		aiService: aiService,
 	}
+}
+
+// SetBookingService injects booking service for AI integration
+func (s *ChatService) SetBookingService(bookingService BookingServiceInterface) {
+	s.bookingService = bookingService
+}
+
+// BookingServiceInterface defines methods needed for chat integration
+type BookingServiceInterface interface {
+	ProcessAIBookingRequestChat(req *AIBookingRequestChat) (*AIBookingResponseChat, error)
 }
 
 type CreateChatRequest struct {
@@ -544,15 +556,58 @@ func (s *ChatService) checkAndProcessAIResponse(chatID, userMessage string) {
 }
 
 func (s *ChatService) processAIResponse(chatID, agentKey, userMessage, companyID, userID string) {
+	// Prepare context based on agent type
+	context := map[string]interface{}{
+		"chat_id": chatID,
+	}
+
+	// Special handling for Booking Assistant
+	if agentKey == "booking_assistant" {
+		// Try to extract booking intent from user message
+		bookingContext := s.analyzeBookingIntent(userMessage, companyID, userID)
+		context["booking_context"] = bookingContext
+
+		// If this looks like a booking request, try to process it
+		if bookingRequest := s.extractBookingRequest(userMessage, companyID, userID); bookingRequest != nil {
+			// Get booking service from container (we'll need to inject this)
+			if s.bookingService != nil {
+				aiBookingReq := &AIBookingRequestChat{
+					UserID:    userID,
+					CompanyID: companyID,
+					ServiceID: bookingRequest.ServiceID,
+					PetID:     bookingRequest.PetID,
+					DateTime:  bookingRequest.DateTime,
+					Notes:     bookingRequest.Notes,
+				}
+
+				aiResponse, err := s.bookingService.ProcessAIBookingRequestChat(aiBookingReq)
+				if err == nil {
+					// Send structured booking response
+					aiMessageReq := &SendMessageRequest{
+						ChatID:      chatID,
+						SenderType:  "ai",
+						MessageText: s.formatBookingResponse(aiResponse),
+						AIAgentKey:  agentKey,
+						MessageData: map[string]interface{}{
+							"booking_response": aiResponse,
+							"is_booking":       true,
+						},
+					}
+
+					s.SendMessage(aiMessageReq)
+					return
+				}
+			}
+		}
+	}
+
 	// Process AI response
 	aiRequest := &AIRequest{
 		AgentKey:    agentKey,
 		UserMessage: userMessage,
 		CompanyID:   companyID,
 		UserID:      userID,
-		Context: map[string]interface{}{
-			"chat_id": chatID,
-		},
+		Context:     context,
 	}
 
 	aiResponse, err := s.aiService.ProcessAIRequest(aiRequest)
@@ -579,3 +634,78 @@ func (s *ChatService) processAIResponse(chatID, agentKey, userMessage, companyID
 		fmt.Printf("Error sending AI message: %v\n", err)
 	}
 }
+
+// Helper functions for booking integration
+func (s *ChatService) analyzeBookingIntent(message, companyID, userID string) map[string]interface{} {
+	context := make(map[string]interface{})
+
+	// Simple keyword analysis (could be enhanced with NLP)
+	lowerMessage := strings.ToLower(message)
+
+	// Check for booking keywords
+	bookingKeywords := []string{"book", "schedule", "appointment", "reserve", "времени", "записать", "забронировать"}
+	hasBookingIntent := false
+	for _, keyword := range bookingKeywords {
+		if strings.Contains(lowerMessage, keyword) {
+			hasBookingIntent = true
+			break
+		}
+	}
+
+	context["has_booking_intent"] = hasBookingIntent
+
+	// Extract potential service types
+	serviceKeywords := map[string]string{
+		"grooming":   "grooming",
+		"veterinary": "veterinary",
+		"hotel":      "hotel",
+		"training":   "training",
+	}
+
+	for service, russian := range serviceKeywords {
+		if strings.Contains(lowerMessage, service) || strings.Contains(lowerMessage, russian) {
+			context["mentioned_service"] = service
+			break
+		}
+	}
+
+	// Extract time mentions (simplified)
+	timeKeywords := []string{"today", "tomorrow", "сегодня", "завтра", "понедельник", "вторник"}
+	for _, timeKeyword := range timeKeywords {
+		if strings.Contains(lowerMessage, timeKeyword) {
+			context["mentioned_time"] = timeKeyword
+			break
+		}
+	}
+
+	return context
+}
+
+func (s *ChatService) extractBookingRequest(message, companyID, userID string) *BookingRequestData {
+	// This is a simplified extraction - in production you'd use more sophisticated NLP
+	// For now, return nil to let AI handle the conversation flow
+	return nil
+}
+
+func (s *ChatService) formatBookingResponse(aiResponse *AIBookingResponseChat) string {
+	if aiResponse.Success {
+		return aiResponse.ClientMessage
+	}
+
+	// For unsuccessful bookings, show alternatives or error
+	if len(aiResponse.Alternatives) > 0 {
+		return aiResponse.ClientMessage
+	}
+
+	return aiResponse.ClientMessage
+}
+
+// Types for booking integration (renamed to avoid conflicts)
+type BookingRequestData struct {
+	ServiceID string
+	PetID     string
+	DateTime  time.Time
+	Notes     string
+}
+
+// Note: AIBookingResponseChat and related types are defined in booking.go

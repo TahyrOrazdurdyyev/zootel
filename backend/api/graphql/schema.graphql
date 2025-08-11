@@ -105,6 +105,7 @@ type Company {
   name: String!
   description: String
   categories: [String!]!
+  businessType: String!
   country: String
   state: String
   city: String

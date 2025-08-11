@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/models"
@@ -632,4 +633,103 @@ func (s *ServiceService) GetActiveDiscountServices() ([]*models.Service, error) 
 	}
 
 	return services, nil
+}
+
+// GetCompanyPublicServices gets public services for a specific company
+func (s *ServiceService) GetCompanyPublicServices(companyID string, limit, offset int, categoryID string) ([]*models.Service, int, error) {
+	var conditions []string
+	var args []interface{}
+	argIndex := 1
+
+	// Base conditions
+	conditions = append(conditions, "company_id = $1", "is_active = true")
+	args = append(args, companyID)
+	argIndex++
+
+	// Add category filter if provided
+	if categoryID != "" {
+		conditions = append(conditions, fmt.Sprintf("category_id = $%d", argIndex))
+		args = append(args, categoryID)
+		argIndex++
+	}
+
+	whereClause := "WHERE " + strings.Join(conditions, " AND ")
+
+	// Count total results
+	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM services %s", whereClause)
+	var total int
+	err := s.db.QueryRow(countQuery, args...).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count services: %w", err)
+	}
+
+	// Get services with pagination
+	query := fmt.Sprintf(`
+		SELECT id, company_id, category_id, name, description, price, original_price,
+			   discount_percentage, is_on_sale, sale_start_date, sale_end_date, duration,
+			   image_url, image_id, pet_types, available_days, start_time, end_time,
+			   assigned_employees, max_bookings_per_slot, buffer_time_before,
+			   buffer_time_after, advance_booking_days, cancellation_policy,
+			   is_active, created_at, updated_at
+		FROM services 
+		%s
+		ORDER BY is_on_sale DESC, discount_percentage DESC NULLS LAST, name ASC
+		LIMIT $%d OFFSET $%d`, whereClause, argIndex, argIndex+1)
+
+	args = append(args, limit, offset)
+
+	rows, err := s.db.Query(query, args...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to query services: %w", err)
+	}
+	defer rows.Close()
+
+	var services []*models.Service
+	for rows.Next() {
+		service := &models.Service{}
+		err := rows.Scan(
+			&service.ID, &service.CompanyID, &service.CategoryID, &service.Name,
+			&service.Description, &service.Price, &service.OriginalPrice,
+			&service.DiscountPercentage, &service.IsOnSale, &service.SaleStartDate, &service.SaleEndDate,
+			&service.Duration, &service.ImageURL, &service.ImageID, pq.Array(&service.PetTypes),
+			pq.Array(&service.AvailableDays), &service.StartTime, &service.EndTime,
+			pq.Array(&service.AssignedEmployees), &service.MaxBookingsPerSlot,
+			&service.BufferTimeBefore, &service.BufferTimeAfter, &service.AdvanceBookingDays,
+			&service.CancellationPolicy, &service.IsActive, &service.CreatedAt, &service.UpdatedAt,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to scan service: %w", err)
+		}
+		services = append(services, service)
+	}
+
+	return services, total, nil
+}
+
+// GetAllCategories gets all service categories
+func (s *ServiceService) GetAllCategories() ([]*models.ServiceCategory, error) {
+	query := `
+		SELECT id, name, icon, created_at
+		FROM service_categories 
+		ORDER BY name ASC`
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query categories: %w", err)
+	}
+	defer rows.Close()
+
+	var categories []*models.ServiceCategory
+	for rows.Next() {
+		category := &models.ServiceCategory{}
+		err := rows.Scan(
+			&category.ID, &category.Name, &category.Icon, &category.CreatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan category: %w", err)
+		}
+		categories = append(categories, category)
+	}
+
+	return categories, nil
 }

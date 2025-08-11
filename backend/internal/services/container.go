@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 	"log"
+	"os"
 	"sync"
 )
 
@@ -15,8 +16,11 @@ type ServiceContainer struct {
 	userService         *UserService
 	companyService      *CompanyService
 	serviceService      *ServiceService
+	productService      *ProductService
+	deliveryService     *DeliveryService
 	bookingService      *BookingService
 	petService          *PetService
+	petMedicalService   *PetMedicalService
 	orderService        *OrderService
 	chatService         *ChatService
 	aiService           *AIService
@@ -32,6 +36,9 @@ type ServiceContainer struct {
 	smsService          *SMSService
 	webhookService      *WebhookService
 	uploadService       *UploadService
+	reviewService       *ReviewService
+	employeeService     *EmployeeService
+	promptService       *PromptService
 
 	// Service initialization status
 	initialized map[string]bool
@@ -39,9 +46,70 @@ type ServiceContainer struct {
 
 // NewServiceContainer creates a new service container
 func NewServiceContainer(db *sql.DB) *ServiceContainer {
+	// Initialize basic services first (no dependencies)
+	userService := NewUserService(db)
+	companyService := NewCompanyService(db)
+	serviceService := NewServiceService(db)
+	petService := NewPetService(db)
+	petMedicalService := NewPetMedicalService(db)
+	uploadService := NewUploadService(db)
+	integrationService := NewIntegrationService(db)
+	cartService := NewCartService(db)
+	demoService := NewDemoService(db)
+	adminService := NewAdminService(db)
+	analyticsService := NewAnalyticsService(db)
+	paymentService := NewPaymentService(db)
+	orderService := NewOrderService(db)
+	reviewService := NewReviewService(db)
+	employeeService := NewEmployeeService(db)
+	promptService := NewPromptService(db)
+
+	// Initialize services with dependencies
+	emailService := NewEmailService(db)
+	smsService := NewSMSService(db)
+	webhookService := NewWebhookService(db)
+
+	// Notification service needs webhook URL
+	notificationService := NewNotificationService(db, os.Getenv("FCM_SERVER_KEY"))
+
+	// Booking service needs notification services
+	bookingService := NewBookingService(db, notificationService, emailService, smsService)
+
+	// Addon service needs payment service
+	addonService := NewAddonService(db, paymentService)
+
+	// AI service needs prompt service
+	aiService := NewAIService(db, promptService)
+
+	// Chat service needs AI service
+	chatService := NewChatService(db, aiService)
+
 	return &ServiceContainer{
-		db:          db,
-		initialized: make(map[string]bool),
+		db:                  db,
+		initialized:         make(map[string]bool),
+		userService:         userService,
+		companyService:      companyService,
+		serviceService:      serviceService,
+		bookingService:      bookingService,
+		petService:          petService,
+		petMedicalService:   petMedicalService,
+		notificationService: notificationService,
+		emailService:        emailService,
+		smsService:          smsService,
+		webhookService:      webhookService,
+		uploadService:       uploadService,
+		addonService:        addonService,
+		integrationService:  integrationService,
+		cartService:         cartService,
+		demoService:         demoService,
+		adminService:        adminService,
+		analyticsService:    analyticsService,
+		paymentService:      paymentService,
+		orderService:        orderService,
+		chatService:         chatService,
+		reviewService:       reviewService,
+		employeeService:     employeeService,
+		promptService:       promptService,
 	}
 }
 
@@ -62,13 +130,22 @@ func (c *ServiceContainer) InitializeServices() error {
 	c.serviceService = NewServiceService(c.db)
 	c.initialized["service"] = true
 
+	c.productService = NewProductService(c.db)
+	c.initialized["product"] = true
+
+	c.deliveryService = NewDeliveryService(c.db)
+	c.initialized["delivery"] = true
+
 	c.petService = NewPetService(c.db)
 	c.initialized["pet"] = true
+
+	c.petMedicalService = NewPetMedicalService(c.db)
+	c.initialized["petMedical"] = true
 
 	c.paymentService = NewPaymentService(c.db)
 	c.initialized["payment"] = true
 
-	c.aiService = NewAIService(c.db)
+	c.aiService = NewAIService(c.db, c.promptService)
 	c.initialized["ai"] = true
 
 	c.analyticsService = NewAnalyticsService(c.db)
@@ -116,6 +193,12 @@ func (c *ServiceContainer) InitializeServices() error {
 	c.uploadService = NewUploadService(c.db)
 	c.initialized["upload"] = true
 
+	c.reviewService = NewReviewService(c.db)
+	c.initialized["review"] = true
+
+	c.employeeService = NewEmployeeService(c.db)
+	c.initialized["employee"] = true
+
 	log.Println("All services initialized successfully")
 	return nil
 }
@@ -133,12 +216,24 @@ func (c *ServiceContainer) ServiceService() *ServiceService {
 	return c.serviceService
 }
 
+func (c *ServiceContainer) ProductService() *ProductService {
+	return c.productService
+}
+
+func (c *ServiceContainer) DeliveryService() *DeliveryService {
+	return c.deliveryService
+}
+
 func (c *ServiceContainer) BookingService() *BookingService {
 	return c.bookingService
 }
 
 func (c *ServiceContainer) PetService() *PetService {
 	return c.petService
+}
+
+func (c *ServiceContainer) PetMedicalService() *PetMedicalService {
+	return c.petMedicalService
 }
 
 func (c *ServiceContainer) OrderService() *OrderService {
@@ -199,6 +294,18 @@ func (c *ServiceContainer) WebhookService() *WebhookService {
 
 func (c *ServiceContainer) UploadService() *UploadService {
 	return c.uploadService
+}
+
+func (c *ServiceContainer) ReviewService() *ReviewService {
+	return c.reviewService
+}
+
+func (c *ServiceContainer) EmployeeService() *EmployeeService {
+	return c.employeeService
+}
+
+func (c *ServiceContainer) PromptService() *PromptService {
+	return c.promptService
 }
 
 // Cleanup method

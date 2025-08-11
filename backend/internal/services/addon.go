@@ -2,11 +2,13 @@ package services
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/models"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type AddonService struct {
@@ -329,6 +331,195 @@ func (s *AddonService) ProcessAddonBilling() error {
 	return nil
 }
 
+// ActivateAgentForCompany активирует AI агента для компании (ручная активация через админ)
+func (s *AddonService) ActivateAgentForCompany(companyID, agentKey, billingCycle string, adminID string) (*models.CompanyAddon, error) {
+	// Проверяем, что такой агент существует в pricing
+	pricing, err := s.getAddonPricing("ai_agent", agentKey)
+	if err != nil {
+		return nil, fmt.Errorf("agent not found in pricing: %w", err)
+	}
+
+	// Проверяем, нет ли уже активного агента
+	exists, err := s.companyHasAddon(companyID, "ai_agent", agentKey)
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		return nil, fmt.Errorf("company already has this agent activated")
+	}
+
+	// Определяем цену и срок действия
+	var price float64
+	var expiresAt *time.Time
+	var nextBillingAt *time.Time
+
+	switch billingCycle {
+	case "monthly":
+		price = pricing.MonthlyPrice
+		expiry := time.Now().AddDate(0, 1, 0)
+		expiresAt = &expiry
+		nextBilling := time.Now().AddDate(0, 1, 0)
+		nextBillingAt = &nextBilling
+	case "yearly":
+		price = pricing.YearlyPrice
+		expiry := time.Now().AddDate(1, 0, 0)
+		expiresAt = &expiry
+		nextBilling := time.Now().AddDate(1, 0, 0)
+		nextBillingAt = &nextBilling
+	case "one_time":
+		if pricing.OneTimePrice != nil {
+			price = *pricing.OneTimePrice
+		} else {
+			price = 0.0 // Бесплатная активация админом
+		}
+		// One-time purchases don't expire
+	case "free":
+		price = 0.0
+		// Бессрочная бесплатная активация
+	default:
+		return nil, fmt.Errorf("invalid billing cycle")
+	}
+
+	// Создаем запись об активации
+	addon := &models.CompanyAddon{
+		ID:            uuid.New().String(),
+		CompanyID:     companyID,
+		AddonType:     "ai_agent",
+		AddonKey:      agentKey,
+		Price:         price,
+		BillingCycle:  billingCycle,
+		Status:        "active",
+		AutoRenew:     billingCycle == "monthly" || billingCycle == "yearly",
+		PurchasedAt:   time.Now(),
+		ExpiresAt:     expiresAt,
+		NextBillingAt: nextBillingAt,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+	}
+
+	// Сохраняем в базу
+	err = s.saveCompanyAddon(addon)
+	if err != nil {
+		return nil, fmt.Errorf("failed to save addon: %w", err)
+	}
+
+	// Логируем активацию админом
+	s.logAdminActivation(companyID, agentKey, adminID, "manual_activation")
+
+	return addon, nil
+}
+
+// DeactivateAgentForCompany деактивирует AI агента для компании
+func (s *AddonService) DeactivateAgentForCompany(companyID, agentKey, adminID string) error {
+	// Находим активный аддон
+	query := `
+		UPDATE company_addons 
+		SET status = 'cancelled', cancelled_at = NOW(), updated_at = NOW()
+		WHERE company_id = $1 AND addon_type = 'ai_agent' AND addon_key = $2 AND status = 'active'
+	`
+
+	result, err := s.db.Exec(query, companyID, agentKey)
+	if err != nil {
+		return fmt.Errorf("failed to deactivate agent: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to check affected rows: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("agent not found or already inactive")
+	}
+
+	// Логируем деактивацию
+	s.logAdminActivation(companyID, agentKey, adminID, "manual_deactivation")
+
+	return nil
+}
+
+// GetCompanyAIAgents возвращает все AI агенты компании (включенные в план + купленные)
+func (s *AddonService) GetCompanyAIAgents(companyID string) (*models.CompanyAIAgentsInfo, error) {
+	// Получаем агентов из тарифа
+	var planName string
+	var includedAgents pq.StringArray
+	planQuery := `
+		SELECT p.name, p.included_ai_agents 
+		FROM companies c 
+		JOIN plans p ON c.plan_id = p.id 
+		WHERE c.id = $1
+	`
+	err := s.db.QueryRow(planQuery, companyID).Scan(&planName, &includedAgents)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get plan details: %w", err)
+	}
+
+	// Получаем купленных агентов
+	addonQuery := `
+		SELECT ca.addon_key, ca.status, ca.billing_cycle, ca.price, ca.expires_at, ca.purchased_at,
+		       ap.name, ap.description
+		FROM company_addons ca
+		LEFT JOIN addon_pricing ap ON ca.addon_key = ap.addon_key AND ap.addon_type = 'ai_agent'
+		WHERE ca.company_id = $1 AND ca.addon_type = 'ai_agent'
+		ORDER BY ca.purchased_at DESC
+	`
+
+	rows, err := s.db.Query(addonQuery, companyID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query addon agents: %w", err)
+	}
+	defer rows.Close()
+
+	var addonAgents []models.CompanyAIAgent
+	for rows.Next() {
+		var agent models.CompanyAIAgent
+		var name, description sql.NullString
+
+		err := rows.Scan(
+			&agent.AgentKey, &agent.Status, &agent.BillingCycle, &agent.Price,
+			&agent.ExpiresAt, &agent.PurchasedAt, &name, &description,
+		)
+		if err != nil {
+			continue
+		}
+
+		agent.Name = name.String
+		agent.Description = description.String
+		agent.Source = "addon"
+
+		addonAgents = append(addonAgents, agent)
+	}
+
+	// Формируем информацию об агентах из плана
+	var planAgents []models.CompanyAIAgent
+	for _, agentKey := range includedAgents {
+		// Получаем информацию об агенте из pricing (если есть)
+		var name, description string
+		agentQuery := `SELECT name, description FROM addon_pricing WHERE addon_key = $1 AND addon_type = 'ai_agent' LIMIT 1`
+		err := s.db.QueryRow(agentQuery, agentKey).Scan(&name, &description)
+		if err != nil {
+			// Если нет в pricing, используем ключ как имя
+			name = agentKey
+			description = "Agent included in plan"
+		}
+
+		planAgents = append(planAgents, models.CompanyAIAgent{
+			AgentKey:    agentKey,
+			Name:        name,
+			Description: description,
+			Source:      "plan",
+			Status:      "active",
+		})
+	}
+
+	return &models.CompanyAIAgentsInfo{
+		CompanyID:   companyID,
+		PlanName:    planName,
+		PlanAgents:  planAgents,
+		AddonAgents: addonAgents,
+	}, nil
+}
+
 // Helper methods
 
 func (s *AddonService) getAddonPricing(addonType, addonKey string) (*models.AddonPricing, error) {
@@ -550,4 +741,24 @@ func (s *AddonService) processAddonRenewal(addonID string) error {
 	}
 
 	return nil
+}
+
+func (s *AddonService) logAdminActivation(companyID, agentKey, adminID, action string) {
+	logQuery := `
+		INSERT INTO admin_activity_log (id, admin_id, action, resource_type, resource_id, details, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+	`
+
+	details := map[string]interface{}{
+		"company_id": companyID,
+		"agent_key":  agentKey,
+		"action":     action,
+	}
+
+	detailsJSON, _ := json.Marshal(details)
+
+	s.db.Exec(logQuery,
+		uuid.New().String(), adminID, action, "ai_agent", agentKey,
+		string(detailsJSON), time.Now(),
+	)
 }

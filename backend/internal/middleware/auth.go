@@ -3,11 +3,14 @@ package middleware
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 
 	"firebase.google.com/go/v4/auth"
+	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/models"
+	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -99,7 +102,7 @@ func PetOwnerMiddleware() gin.HandlerFunc {
 }
 
 // EmployeeAuthMiddleware validates employee credentials
-func EmployeeAuthMiddleware(db *sql.DB) gin.HandlerFunc {
+func EmployeeAuthMiddleware(employeeService *services.EmployeeService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -115,11 +118,10 @@ func EmployeeAuthMiddleware(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		// For employees, we use a different token system
-		// This would be a JWT token containing employee ID and company ID
-		employee, err := validateEmployeeToken(db, tokenString)
+		// Validate employee session token
+		employee, err := employeeService.ValidateSession(tokenString)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid employee token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired session"})
 			c.Abort()
 			return
 		}
@@ -129,7 +131,9 @@ func EmployeeAuthMiddleware(db *sql.DB) gin.HandlerFunc {
 		c.Set("company_id", employee.CompanyID)
 		c.Set("employee_role", employee.Role)
 		c.Set("employee_permissions", employee.Permissions)
+		c.Set("employee_department", employee.Department)
 		c.Set("employee", employee)
+		c.Set("user_type", "employee")
 
 		c.Next()
 	}
@@ -146,16 +150,250 @@ func RequirePermission(permission string) gin.HandlerFunc {
 		}
 
 		permList := permissions.([]string)
+		hasPermission := false
+
+		// Check for specific permission or 'all' permission
 		for _, perm := range permList {
 			if perm == permission || perm == "all" {
-				c.Next()
+				hasPermission = true
+				break
+			}
+		}
+
+		if !hasPermission {
+			c.JSON(http.StatusForbidden, gin.H{
+				"error":               "Insufficient permissions",
+				"required_permission": permission,
+			})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
+// RequireAnyPermission middleware checks if employee has any of the specified permissions
+func RequireAnyPermission(permissions ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		employeePermissions, exists := c.Get("employee_permissions")
+		if !exists {
+			c.JSON(http.StatusForbidden, gin.H{"error": "No permissions found"})
+			c.Abort()
+			return
+		}
+
+		permList := employeePermissions.([]string)
+		hasPermission := false
+
+		// Check for any required permission or 'all' permission
+		for _, empPerm := range permList {
+			if empPerm == "all" {
+				hasPermission = true
+				break
+			}
+			for _, reqPerm := range permissions {
+				if empPerm == reqPerm {
+					hasPermission = true
+					break
+				}
+			}
+			if hasPermission {
+				break
+			}
+		}
+
+		if !hasPermission {
+			c.JSON(http.StatusForbidden, gin.H{
+				"error":                "Insufficient permissions",
+				"required_permissions": permissions,
+			})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
+// RequireRole middleware checks if employee has the required role
+func RequireEmployeeRole(roles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		employeeRole, exists := c.Get("employee_role")
+		if !exists {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Employee role not found"})
+			c.Abort()
+			return
+		}
+
+		role := employeeRole.(string)
+		hasRole := false
+
+		for _, requiredRole := range roles {
+			if role == requiredRole {
+				hasRole = true
+				break
+			}
+		}
+
+		if !hasRole {
+			c.JSON(http.StatusForbidden, gin.H{
+				"error":          "Insufficient role permissions",
+				"required_roles": roles,
+				"current_role":   role,
+			})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
+// RequireDepartment middleware checks if employee belongs to specific department
+func RequireDepartment(departments ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		employeeDepartment, exists := c.Get("employee_department")
+		if !exists {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Employee department not found"})
+			c.Abort()
+			return
+		}
+
+		department := employeeDepartment.(string)
+		hasDepartment := false
+
+		for _, reqDept := range departments {
+			if department == reqDept {
+				hasDepartment = true
+				break
+			}
+		}
+
+		if !hasDepartment {
+			c.JSON(http.StatusForbidden, gin.H{
+				"error":                "Department access denied",
+				"required_departments": departments,
+				"current_department":   department,
+			})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
+// DataAccessMiddleware checks if employee can access specific data
+func DataAccessMiddleware(employeeService *services.EmployeeService, dataType string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		employeeID := c.GetString("employee_id")
+		if employeeID == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Employee not authenticated"})
+			c.Abort()
+			return
+		}
+
+		// Get resource ID from URL parameters
+		resourceID := ""
+		switch dataType {
+		case "booking":
+			resourceID = c.Param("bookingId")
+		case "customer":
+			resourceID = c.Param("customerId")
+		case "employee":
+			resourceID = c.Param("employeeId")
+		}
+
+		if resourceID != "" {
+			hasAccess, err := employeeService.CheckDataAccess(employeeID, dataType, resourceID)
+			if err != nil || !hasAccess {
+				c.JSON(http.StatusForbidden, gin.H{
+					"error":       "Data access denied",
+					"data_type":   dataType,
+					"resource_id": resourceID,
+				})
+				c.Abort()
 				return
 			}
 		}
 
-		c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
-		c.Abort()
+		c.Next()
 	}
+}
+
+// FlexibleAuthMiddleware allows both user and employee authentication
+func FlexibleAuthMiddleware(authClient *auth.Client, db *sql.DB, employeeService *services.EmployeeService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+			c.Abort()
+			return
+		}
+
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		if tokenString == authHeader {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Bearer token required"})
+			c.Abort()
+			return
+		}
+
+		// Try employee authentication first
+		employee, err := employeeService.ValidateSession(tokenString)
+		if err == nil {
+			// Employee authentication successful
+			c.Set("employee_id", employee.ID)
+			c.Set("company_id", employee.CompanyID)
+			c.Set("employee_role", employee.Role)
+			c.Set("employee_permissions", employee.Permissions)
+			c.Set("employee_department", employee.Department)
+			c.Set("employee", employee)
+			c.Set("user_type", "employee")
+			c.Next()
+			return
+		}
+
+		// Try Firebase user authentication
+		token, err := authClient.VerifyIDToken(context.Background(), tokenString)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.Abort()
+			return
+		}
+
+		user, err := getUserByFirebaseUID(db, token.UID)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+			c.Abort()
+			return
+		}
+
+		// Set user context
+		c.Set("user_id", user.ID)
+		c.Set("user_role", user.Role)
+		c.Set("firebase_uid", user.FirebaseUID)
+		c.Set("user", user)
+		c.Set("user_type", "user")
+
+		// Set company_id if user is company owner
+		if user.Role == "company_owner" {
+			companyID, err := getCompanyIDByOwner(db, user.ID)
+			if err == nil {
+				c.Set("company_id", companyID)
+			}
+		}
+
+		c.Next()
+	}
+}
+
+// Helper function to get company ID by owner
+func getCompanyIDByOwner(db *sql.DB, ownerID string) (string, error) {
+	var companyID string
+	query := `SELECT id FROM companies WHERE owner_id = $1 AND is_active = true LIMIT 1`
+	err := db.QueryRow(query, ownerID).Scan(&companyID)
+	return companyID, err
 }
 
 // CompanyAccessMiddleware checks if user has access to the specified company
@@ -193,6 +431,88 @@ func CompanyAccessMiddleware(db *sql.DB) gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+// TrialStatusMiddleware checks if company trial has expired and blocks access if needed
+func TrialStatusMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Skip trial check for certain endpoints
+		skipPaths := []string{
+			"/api/auth/",
+			"/api/public/",
+			"/api/payments/",
+			"/api/admin/",
+			"/api/webhooks/",
+		}
+
+		for _, path := range skipPaths {
+			if strings.HasPrefix(r.URL.Path, path) {
+				next.ServeHTTP(w, r)
+				return
+			}
+		}
+
+		// Get user from context (set by AuthMiddleware)
+		user, ok := r.Context().Value("user").(*models.User)
+		if !ok || user == nil {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Skip if not a company owner or employee
+		if user.Role != "company_owner" && user.Role != "employee" {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Get company by owner or employee
+		var company *models.Company
+		var err error
+
+		if user.Role == "company_owner" {
+			company, err = getCompanyByOwnerID(r.Context(), user.ID)
+		} else if user.Role == "employee" {
+			// For employees, get company from employee record
+			company, err = getCompanyByEmployeeID(r.Context(), user.ID)
+		}
+
+		if err != nil || company == nil {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Check if trial expired and not a special partner
+		if company.TrialExpired && !company.SpecialPartner {
+			// Allow read-only access to certain endpoints
+			readOnlyPaths := []string{
+				"/api/user/profile",
+				"/api/company/details",
+				"/api/plans/",
+			}
+
+			isReadOnly := false
+			for _, path := range readOnlyPaths {
+				if strings.HasPrefix(r.URL.Path, path) && r.Method == "GET" {
+					isReadOnly = true
+					break
+				}
+			}
+
+			if !isReadOnly {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusPaymentRequired)
+				json.NewEncoder(w).Encode(map[string]interface{}{
+					"error":         "trial_expired",
+					"message":       "Your free trial has expired. Please upgrade your plan to continue using the service.",
+					"trial_expired": true,
+					"company_id":    company.ID,
+				})
+				return
+			}
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 // Helper functions
@@ -259,6 +579,19 @@ func isCompanyOwner(db *sql.DB, userID, companyID string) (bool, error) {
 		return false, err
 	}
 	return count > 0, nil
+}
+
+// Helper functions to get company data
+func getCompanyByOwnerID(ctx context.Context, ownerID string) (*models.Company, error) {
+	// Get database from context or use a global reference
+	// This is a simplified implementation
+	return nil, fmt.Errorf("not implemented - database access needed")
+}
+
+func getCompanyByEmployeeID(ctx context.Context, employeeID string) (*models.Company, error) {
+	// Get database from context or use a global reference
+	// This is a simplified implementation
+	return nil, fmt.Errorf("not implemented - database access needed")
 }
 
 // OptionalAuth middleware that doesn't require authentication but sets user context if available

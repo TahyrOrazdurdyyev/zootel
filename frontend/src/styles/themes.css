@@ -1,0 +1,144 @@
+/* Base theme variables */
+:root {
+  /* Pet Owner Theme (default) */
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f2fe;
+  --primary-500: #0ea5e9;
+  --primary-600: #0284c7;
+  --primary-700: #0369a1;
+}
+
+/* Admin Theme */
+.admin-theme {
+  --primary-50: #fef2f2;
+  --primary-100: #fee2e2;
+  --primary-500: #ef4444;
+  --primary-600: #dc2626;
+  --primary-700: #b91c1c;
+  
+  --sidebar-bg: #dc2626;
+  --sidebar-hover: #b91c1c;
+  --sidebar-active: #991b1b;
+}
+
+/* Company Theme */
+.company-theme {
+  --primary-50: #fff7ed;
+  --primary-100: #ffedd5;
+  --primary-500: #f97316;
+  --primary-600: #ea580c;
+  --primary-700: #c2410c;
+  
+  --sidebar-bg: #ea580c;
+  --sidebar-hover: #c2410c;
+  --sidebar-active: #9a3412;
+}
+
+/* Pet Owner Theme */
+.pet-owner-theme {
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f2fe;
+  --primary-500: #0ea5e9;
+  --primary-600: #0284c7;
+  --primary-700: #0369a1;
+}
+
+/* Hero section variants */
+.hero-admin {
+  @apply bg-gradient-to-br from-red-50 to-red-100;
+}
+
+.hero-admin h1 {
+  @apply text-red-900;
+}
+
+.hero-admin .subtitle {
+  @apply text-red-600;
+}
+
+.hero-company {
+  @apply bg-gradient-to-br from-orange-50 to-orange-100;
+}
+
+.hero-company h1 {
+  @apply text-orange-900;
+}
+
+.hero-company .subtitle {
+  @apply text-orange-600;
+}
+
+.hero-pet-owner {
+  @apply bg-gradient-to-br from-blue-50 to-green-50;
+}
+
+.hero-pet-owner h1 {
+  @apply text-gray-900;
+}
+
+.hero-pet-owner .subtitle {
+  @apply text-blue-600;
+}
+
+/* Button themes */
+.btn-admin {
+  @apply bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors;
+}
+
+.btn-company {
+  @apply bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition-colors;
+}
+
+.btn-pet-owner {
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors;
+}
+
+/* Card themes */
+.card-admin {
+  @apply bg-white border border-red-200 shadow-sm hover:shadow-md transition-shadow;
+}
+
+.card-company {
+  @apply bg-white border border-orange-200 shadow-sm hover:shadow-md transition-shadow;
+}
+
+.card-pet-owner {
+  @apply bg-white border border-blue-200 shadow-sm hover:shadow-md transition-shadow;
+}
+
+/* Navigation themes */
+.nav-admin {
+  @apply bg-red-600 text-white;
+}
+
+.nav-admin .nav-item {
+  @apply text-red-100 hover:text-white hover:bg-red-700;
+}
+
+.nav-admin .nav-item.active {
+  @apply bg-red-700 text-white;
+}
+
+.nav-company {
+  @apply bg-orange-600 text-white;
+}
+
+.nav-company .nav-item {
+  @apply text-orange-100 hover:text-white hover:bg-orange-700;
+}
+
+.nav-company .nav-item.active {
+  @apply bg-orange-700 text-white;
+}
+
+.nav-pet-owner {
+  @apply bg-white text-gray-900 shadow-sm;
+}
+
+.nav-pet-owner .nav-item {
+  @apply text-gray-700 hover:text-blue-600;
+}
+
+.nav-pet-owner .nav-item.active {
+  @apply text-blue-600;
+} 

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/models"
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/services"
 	"github.com/gin-gonic/gin"
 )
@@ -55,13 +56,94 @@ func (h *AIHandler) ProcessAIRequest(c *gin.Context) {
 	})
 }
 
-// GetAvailableAgents returns all available AI agents
-func (h *AIHandler) GetAvailableAgents(c *gin.Context) {
-	agents := h.aiService.GetAvailableAgents()
+// SendMessage handles AI chat messages
+func (h *AIHandler) SendMessage(c *gin.Context) {
+	var req models.AIChatRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user and company context
+	userID, exists := c.Get("user_id")
+	if exists {
+		req.UserID = userID.(string)
+	}
+
+	// Get company ID from context if not provided
+	if req.CompanyID == "" {
+		companyID, exists := c.Get("company_id")
+		if exists {
+			req.CompanyID = companyID.(string)
+		}
+	}
+
+	if req.CompanyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	response, err := h.aiService.SendMessage(&req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    agents,
+		"success":  true,
+		"response": response,
+	})
+}
+
+// GetAvailableAgents возвращает список доступных AI агентов для компании
+func (h *AIHandler) GetAvailableAgents(c *gin.Context) {
+	companyID := c.GetString("company_id")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID required"})
+		return
+	}
+
+	// Получаем доступных агентов
+	availableAgents, err := h.aiService.GetAvailableAgentsForCompany(companyID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get available agents"})
+		return
+	}
+
+	// Получаем агентов, которых можно купить
+	availableAddons, err := h.aiService.GetAvailableAddonAgentsForCompany(companyID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get available addon agents"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":          true,
+		"available_agents": availableAgents,
+		"available_addons": availableAddons,
+	})
+}
+
+// CheckAgentAccess проверяет доступ к конкретному агенту
+func (h *AIHandler) CheckAgentAccess(c *gin.Context) {
+	companyID := c.GetString("company_id")
+	agentType := c.Param("agentType")
+
+	if companyID == "" || agentType == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID and Agent Type required"})
+		return
+	}
+
+	hasAccess, err := h.aiService.CheckAgentAccess(companyID, agentType)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check agent access"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":    true,
+		"has_access": hasAccess,
+		"agent_type": agentType,
 	})
 }
 

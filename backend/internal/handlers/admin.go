@@ -1,6 +1,7 @@
 ﻿package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -395,7 +396,7 @@ func (h *AdminHandler) GetAllCompanies(c *gin.Context) {
 		limit = 20
 	}
 
-	companies, err := h.adminService.GetAllCompanies()
+	companies, err := h.adminService.GetCompanies()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -406,7 +407,7 @@ func (h *AdminHandler) GetAllCompanies(c *gin.Context) {
 	end := start + limit
 
 	if start >= len(companies) {
-		companies = []models.Company{}
+		companies = []models.CompanyDetails{}
 	} else if end > len(companies) {
 		companies = companies[start:]
 	} else {
@@ -619,5 +620,417 @@ func (h *AdminHandler) DeleteDemoCompany(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "Demo company deleted - TODO: integrate with DemoService",
+	})
+}
+
+// ActivateCompanySubscription activates company after payment
+func (h *AdminHandler) ActivateCompanySubscription(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		CompanyID    string `json:"company_id"`
+		PlanID       string `json:"plan_id"`
+		BillingCycle string `json:"billing_cycle"` // "monthly" or "yearly"
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if req.CompanyID == "" || req.PlanID == "" || req.BillingCycle == "" {
+		http.Error(w, "Missing required fields", http.StatusBadRequest)
+		return
+	}
+
+	if req.BillingCycle != "monthly" && req.BillingCycle != "yearly" {
+		http.Error(w, "Invalid billing cycle", http.StatusBadRequest)
+		return
+	}
+
+	err := h.adminService.ActivateCompanyAfterPayment(req.CompanyID, req.PlanID, req.BillingCycle)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to activate company: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"message": "Company subscription activated successfully",
+	})
+}
+
+// ProcessExpiredTrials runs the trial expiration check
+func (h *AdminHandler) ProcessExpiredTrials(w http.ResponseWriter, r *http.Request) {
+	err := h.adminService.CheckAndUpdateExpiredTrials()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to process expired trials: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"message": "Expired trials processed successfully",
+	})
+}
+
+// GetTrialExpiringCompanies returns companies with trials expiring soon
+func (h *AdminHandler) GetTrialExpiringCompanies(w http.ResponseWriter, r *http.Request) {
+	daysStr := r.URL.Query().Get("days")
+	days := 7 // default to 7 days
+
+	if daysStr != "" {
+		if parsed, err := strconv.Atoi(daysStr); err == nil && parsed > 0 {
+			days = parsed
+		}
+	}
+
+	companies, err := h.adminService.GetTrialExpiringCompanies(days)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to get expiring companies: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"companies": companies,
+		"days":      days,
+	})
+}
+
+// Company management
+func (h *AdminHandler) GetCompanies(c *gin.Context) {
+	companies, err := h.adminService.GetCompanies()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to fetch companies: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    companies,
+		"count":   len(companies),
+	})
+}
+
+// Company Feature Management
+
+// GetCompanyFeatureStatus получает статус функций компании
+func (h *AdminHandler) GetCompanyFeatureStatus(c *gin.Context) {
+	companyID := c.Param("id")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	status, err := h.adminService.GetCompanyFeatureStatus(companyID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get company feature status"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    status,
+	})
+}
+
+// CheckCRMTogglePermission проверяет можно ли переключить CRM
+func (h *AdminHandler) CheckCRMTogglePermission(c *gin.Context) {
+	companyID := c.Param("id")
+	enableStr := c.Query("enable")
+
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	enable := enableStr == "true"
+	canToggle, reason, err := h.adminService.CanToggleCRM(companyID, enable)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check CRM toggle permission"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":    true,
+		"can_toggle": canToggle,
+		"reason":     reason,
+	})
+}
+
+// CheckAITogglePermission проверяет можно ли переключить AI агентов
+func (h *AdminHandler) CheckAITogglePermission(c *gin.Context) {
+	companyID := c.Param("id")
+	enableStr := c.Query("enable")
+
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	enable := enableStr == "true"
+	canToggle, reason, err := h.adminService.CanToggleAI(companyID, enable)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check AI toggle permission"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":    true,
+		"can_toggle": canToggle,
+		"reason":     reason,
+	})
+}
+
+// CheckAgentDeactivatePermission проверяет можно ли деактивировать конкретного агента
+func (h *AdminHandler) CheckAgentDeactivatePermission(c *gin.Context) {
+	companyID := c.Param("id")
+	agentKey := c.Param("agentKey")
+
+	if companyID == "" || agentKey == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID and Agent Key are required"})
+		return
+	}
+
+	canDeactivate, reason, err := h.adminService.CanDeactivateAgent(companyID, agentKey)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check agent deactivate permission"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":        true,
+		"can_deactivate": canDeactivate,
+		"reason":         reason,
+	})
+}
+
+// AI Agents Management Endpoints
+
+// GetAllCompaniesAIAgents получает агентов всех компаний
+func (h *AdminHandler) GetAllCompaniesAIAgents(c *gin.Context) {
+	agentsInfo, err := h.adminService.GetAllCompaniesAIAgents()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get companies AI agents"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":          true,
+		"companies_agents": agentsInfo,
+	})
+}
+
+// GetCompanyAIAgents получает агентов конкретной компании
+func (h *AdminHandler) GetCompanyAIAgents(c *gin.Context) {
+	companyID := c.Param("companyId")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID required"})
+		return
+	}
+
+	agentsInfo, err := h.adminService.GetCompanyAIAgentsForAdmin(companyID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get company AI agents"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":     true,
+		"agents_info": agentsInfo,
+	})
+}
+
+// ActivateAgentForCompany активирует агента для компании
+func (h *AdminHandler) ActivateAgentForCompany(c *gin.Context) {
+	var req models.AdminActivateAgentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Получаем ID админа из контекста (предполагается, что он установлен в middleware)
+	adminID := c.GetString("user_id") // или другой способ получения админ ID
+	if adminID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Admin ID not found"})
+		return
+	}
+
+	addon, err := h.adminService.ActivateAgentForCompany(
+		req.CompanyID, req.AgentKey, req.BillingCycle, adminID,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "AI agent activated successfully",
+		"addon":   addon,
+	})
+}
+
+// DeactivateAgentForCompany деактивирует агента для компании
+func (h *AdminHandler) DeactivateAgentForCompany(c *gin.Context) {
+	companyID := c.Param("companyId")
+	agentKey := c.Param("agentKey")
+
+	if companyID == "" || agentKey == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID and Agent Key required"})
+		return
+	}
+
+	adminID := c.GetString("user_id")
+	if adminID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Admin ID not found"})
+		return
+	}
+
+	err := h.adminService.DeactivateAgentForCompany(companyID, agentKey, adminID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "AI agent deactivated successfully",
+	})
+}
+
+// GetAvailableAIAgents получает список всех доступных AI агентов
+func (h *AdminHandler) GetAvailableAIAgents(c *gin.Context) {
+	agents, err := h.adminService.GetAvailableAIAgents()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get available AI agents"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"agents":  agents,
+	})
+}
+
+// UpdateAIAgentPricing обновляет цены AI агента
+func (h *AdminHandler) UpdateAIAgentPricing(c *gin.Context) {
+	agentKey := c.Param("agentKey")
+	if agentKey == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Agent key required"})
+		return
+	}
+
+	var req models.UpdateAgentPricingRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Validate prices
+	if req.MonthlyPrice != nil && *req.MonthlyPrice < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Monthly price cannot be negative"})
+		return
+	}
+	if req.YearlyPrice != nil && *req.YearlyPrice < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Yearly price cannot be negative"})
+		return
+	}
+	if req.OneTimePrice != nil && *req.OneTimePrice < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "One-time price cannot be negative"})
+		return
+	}
+
+	adminID := c.GetString("user_id")
+	if adminID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Admin ID not found"})
+		return
+	}
+
+	err := h.adminService.UpdateAIAgentPricing(agentKey, &req, adminID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "AI agent pricing updated successfully",
+	})
+}
+
+// CreateAIAgent создает нового AI агента
+func (h *AdminHandler) CreateAIAgent(c *gin.Context) {
+	var req models.CreateAgentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Validate prices
+	if req.MonthlyPrice < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Monthly price cannot be negative"})
+		return
+	}
+	if req.YearlyPrice < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Yearly price cannot be negative"})
+		return
+	}
+	if req.OneTimePrice != nil && *req.OneTimePrice < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "One-time price cannot be negative"})
+		return
+	}
+
+	// Validate agent key format
+	if len(req.AgentKey) < 3 || len(req.AgentKey) > 50 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Agent key must be 3-50 characters"})
+		return
+	}
+
+	adminID := c.GetString("user_id")
+	if adminID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Admin ID not found"})
+		return
+	}
+
+	agent, err := h.adminService.CreateAIAgent(&req, adminID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": "AI agent created successfully",
+		"agent":   agent,
+	})
+}
+
+// DeleteAIAgent удаляет AI агента
+func (h *AdminHandler) DeleteAIAgent(c *gin.Context) {
+	agentKey := c.Param("agentKey")
+	if agentKey == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Agent key required"})
+		return
+	}
+
+	adminID := c.GetString("user_id")
+	if adminID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Admin ID not found"})
+		return
+	}
+
+	err := h.adminService.DeleteAIAgent(agentKey, adminID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "AI agent deleted successfully",
 	})
 }

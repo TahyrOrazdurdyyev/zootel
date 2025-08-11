@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   ShoppingCartIcon, 
@@ -7,18 +7,61 @@ import {
   MagnifyingGlassIcon,
   Bars3Icon,
   XMarkIcon,
-  UserIcon
+  UserIcon,
+  ExclamationTriangleIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
+import { apiCall } from '../../utils/api';
+
+// Add trial status indicator
+const TrialStatusIndicator = ({ trialExpired, daysLeft }) => {
+  if (trialExpired) {
+    return (
+      <div className="flex items-center px-3 py-1 text-sm font-medium text-red-800 bg-red-100 rounded-full">
+        <ExclamationTriangleIcon className="w-4 h-4 mr-1" />
+        Trial Expired
+      </div>
+    );
+  }
+  
+  if (daysLeft && daysLeft <= 7) {
+    return (
+      <div className="flex items-center px-3 py-1 text-sm font-medium text-yellow-800 bg-yellow-100 rounded-full">
+        <ClockIcon className="w-4 h-4 mr-1" />
+        {daysLeft} days left
+      </div>
+    );
+  }
+  
+  return null;
+};
 
 const Header = () => {
-  const { user, logout } = useAuth();
+  const { user, company, logout } = useAuth();
   const { getTotalItems } = useCart();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCategory, setSearchCategory] = useState('all');
+  const [trialStatus, setTrialStatus] = useState(null);
+
+  useEffect(() => {
+    // Check trial status for company owners
+    if (user?.role === 'company_owner' && company) {
+      checkTrialStatus();
+    }
+  }, [user, company]);
+
+  const checkTrialStatus = async () => {
+    try {
+      const response = await apiCall('/api/company/trial-status', 'GET');
+      setTrialStatus(response.data);
+    } catch (error) {
+      console.error('Failed to check trial status:', error);
+    }
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -170,7 +213,44 @@ const Header = () => {
                 >
                   Analytics
                 </Link>
+                <Link 
+                  to="/company/ai-prompts" 
+                  className="text-gray-700 hover:text-orange-500 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  AI Prompts
+                </Link>
               </>
+            )}
+
+            {user && user.role === 'super_admin' && (
+              <>
+                <Link to="/admin/analytics" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                  Analytics
+                </Link>
+                <Link to="/admin/companies" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                  Companies
+                </Link>
+                <Link to="/admin/plan-settings" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                  Plan Settings
+                </Link>
+                <Link to="/admin/payment-settings" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                  Payment Settings
+                </Link>
+                <Link to="/admin/ai-agents" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                  AI Agents
+                </Link>
+                <Link to="/admin/prompts" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                  AI Prompts
+                </Link>
+              </>
+            )}
+
+            {/* Trial status indicator */}
+            {trialStatus && (
+              <TrialStatusIndicator 
+                trialExpired={trialStatus.trial_expired}
+                daysLeft={trialStatus.days_left}
+              />
             )}
 
             {/* Mobile menu button */}
