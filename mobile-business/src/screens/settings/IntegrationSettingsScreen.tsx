@@ -87,7 +87,7 @@ const IntegrationSettingsScreen = () => {
   }, [settings]);
 
   const handleToggleMarketplace = () => {
-    // Проверяем, может ли компания управлять видимостью
+    // Check if company can manage visibility
     if (!settings?.can_toggle_marketplace) {
       Alert.alert(
         'Cannot Change Setting',

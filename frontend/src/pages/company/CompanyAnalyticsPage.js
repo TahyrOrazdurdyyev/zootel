@@ -13,7 +13,32 @@ import {
   PhoneIcon,
   GlobeAltIcon
 } from '@heroicons/react/24/outline';
-import { Line, Bar } from 'react-chartjs-2'; // Added for charts
+import { 
+  Chart as ChartJS, 
+  CategoryScale, 
+  LinearScale, 
+  BarElement, 
+  Title, 
+  Tooltip, 
+  Legend, 
+  LineElement, 
+  PointElement,
+  ArcElement
+} from 'chart.js';
+import { Bar, Line, Doughnut } from 'react-chartjs-2';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const CompanyAnalyticsPage = () => {
   const { user } = useAuth();
@@ -22,6 +47,8 @@ const CompanyAnalyticsPage = () => {
   const [dateRange, setDateRange] = useState('30d');
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [error, setError] = useState(null);
 
   // Get company ID
   useEffect(() => {
@@ -58,24 +85,41 @@ const CompanyAnalyticsPage = () => {
   };
 
   // Fetch company metrics
-  const fetchMetrics = async () => {
-    if (!companyId) return;
-    
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/companies/${companyId}/analytics/summary?days=${getDaysFromRange(dateRange)}`, {
-        headers: {
-          'Authorization': `Bearer ${user.token}`,
-        },
-      });
-      const data = await response.json();
-      setMetrics(data);
-    } catch (error) {
-      console.error('Error fetching metrics:', error);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const response = await fetch(`/api/companies/${companyId}/analytics/metrics?days=${dateRange}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch metrics');
+        }
+        
+        const data = await response.json();
+        setMetrics(data.metrics);
+      } catch (error) {
+        console.error('Error fetching metrics:', error);
+        // Set empty metrics on error
+        setMetrics({
+          totalBookings: 0,
+          totalRevenue: 0,
+          newCustomers: 0,
+          averageRating: 0,
+          bookingsTrend: 0,
+          revenueTrend: 0
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (companyId) {
+      fetchMetrics();
     }
-  };
+  }, [companyId, dateRange]);
 
   const getDaysFromRange = (range) => {
     switch (range) {
@@ -118,42 +162,144 @@ const CompanyAnalyticsPage = () => {
     switch (activeView) {
       case 'dashboard':
         return (
-          <div className="space-y-6">
-            <AnalyticsDashboard companyId={companyId} />
-            
-            {/* Quick Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <QuickMetricCard
-                title="Today's Revenue"
-                value={formatCurrency(metrics?.todayRevenue)}
-                icon={CurrencyDollarIcon}
-                color="green"
-              />
-              <QuickMetricCard
-                title="New Bookings"
-                value={formatNumber(metrics?.newBookings)}
-                icon={CalendarDaysIcon}
-                color="blue"
-              />
-              <QuickMetricCard
-                title="New Customers"
-                value={formatNumber(metrics?.newCustomers)}
-                icon={UsersIcon}
-                color="purple"
-              />
-              <QuickMetricCard
-                title="Rating"
-                value={`${metrics?.averageRating || 0}/5`}
-                icon={StarIcon}
-                color="yellow"
-              />
+          <div className="p-6 max-w-7xl mx-auto">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+                <p className="text-gray-600 mt-1">Track your business performance and insights</p>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <select 
+                  value={dateRange} 
+                  onChange={(e) => setDateRange(e.target.value)}
+                  className="border border-gray-300 rounded-lg px-3 py-2"
+                >
+                  <option value="7">Last 7 days</option>
+                  <option value="30">Last 30 days</option>
+                  <option value="90">Last 3 months</option>
+                  <option value="365">Last year</option>
+                </select>
+              </div>
             </div>
 
-            {/* Recent Activity & Top Services */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RecentBookingsWidget companyId={companyId} />
-              <TopServicesWidget companyId={companyId} />
+            {/* Key Metrics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total Bookings</p>
+                    <p className="text-2xl font-bold text-gray-900">{metrics?.totalBookings || 0}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <CalendarDaysIcon className="h-8 w-8 text-blue-600" />
+                  </div>
+                </div>
+                {metrics?.bookingsTrend !== undefined && (
+                  <div className="flex items-center mt-2">
+                    {metrics.bookingsTrend >= 0 ? (
+                      <TrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
+                    ) : (
+                      <TrendingUpIcon className="h-4 w-4 text-red-500 mr-1" />
+                    )}
+                    <span className={`text-sm ${metrics.bookingsTrend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {Math.abs(metrics.bookingsTrend)}% vs last period
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(metrics?.totalRevenue)}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <CurrencyDollarIcon className="h-8 w-8 text-green-600" />
+                  </div>
+                </div>
+                {metrics?.revenueTrend !== undefined && (
+                  <div className="flex items-center mt-2">
+                    {metrics.revenueTrend >= 0 ? (
+                      <TrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
+                    ) : (
+                      <TrendingUpIcon className="h-4 w-4 text-red-500 mr-1" />
+                    )}
+                    <span className={`text-sm ${metrics.revenueTrend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {Math.abs(metrics.revenueTrend)}% vs last period
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">New Customers</p>
+                    <p className="text-2xl font-bold text-gray-900">{metrics?.newCustomers || 0}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <UsersIcon className="h-8 w-8 text-purple-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Average Rating</p>
+                    <p className="text-2xl font-bold text-gray-900">{(metrics?.averageRating || 0).toFixed(1)}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <ChartBarIcon className="h-8 w-8 text-yellow-600" />
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {/* Analytics Views Tabs */}
+            <div className="mb-6">
+              <div className="border-b border-gray-200">
+                <nav className="-mb-px flex space-x-8">
+                  <button
+                    onClick={() => setActiveView('overview')}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                      activeView === 'overview'
+                        ? 'border-red-500 text-red-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    Overview
+                  </button>
+                  <button
+                    onClick={() => setActiveView('bookings')}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                      activeView === 'bookings'
+                        ? 'border-red-500 text-red-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    Bookings
+                  </button>
+                  <button
+                    onClick={() => setActiveView('customers')}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                      activeView === 'customers'
+                        ? 'border-red-500 text-red-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    Customers
+                  </button>
+                </nav>
+              </div>
+            </div>
+
+            {/* Conditional Analytics Views */}
+            {activeView === 'overview' && <OverviewAnalytics companyId={companyId} dateRange={dateRange} />}
+            {activeView === 'bookings' && <BookingAnalytics companyId={companyId} dateRange={dateRange} />}
+            {activeView === 'customers' && <CustomerAnalytics companyId={companyId} dateRange={dateRange} />}
           </div>
         );
 
@@ -262,12 +408,20 @@ const RecentBookingsWidget = ({ companyId }) => {
   const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
-    // Mock data - replace with API call
-    setBookings([
-      { id: 1, customerName: 'Anna Ivanova', service: 'Grooming', time: '14:00', status: 'confirmed' },
-      { id: 2, customerName: 'Peter Sidorov', service: 'Haircut', time: '15:30', status: 'pending' },
-      { id: 3, customerName: 'Maria Kozlova', service: 'Bath', time: '16:00', status: 'completed' },
-    ]);
+    const fetchRecentBookings = async () => {
+      try {
+        const response = await fetch(`/api/companies/${companyId}/bookings/recent?days=7`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        const data = await response.json();
+        setBookings(data.data);
+      } catch (error) {
+        console.error('Error fetching recent bookings:', error);
+      }
+    };
+    fetchRecentBookings();
   }, [companyId]);
 
   const getStatusBadge = (status) => {
@@ -318,13 +472,20 @@ const TopServicesWidget = ({ companyId }) => {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
-    // Mock data - replace with API call
-    setServices([
-      { name: 'Grooming', bookings: 45, revenue: 2250 },
-      { name: 'Haircut', bookings: 32, revenue: 1600 },
-      { name: 'Bath', bookings: 28, revenue: 700 },
-      { name: 'Nail Trim', bookings: 15, revenue: 750 },
-    ]);
+    const fetchTopServices = async () => {
+      try {
+        const response = await fetch(`/api/companies/${companyId}/services/top?days=30`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        const data = await response.json();
+        setServices(data.data);
+      } catch (error) {
+        console.error('Error fetching top services:', error);
+      }
+    };
+    fetchTopServices();
   }, [companyId]);
 
   return (
@@ -498,23 +659,23 @@ const BookingAnalyticsView = ({ companyId, dateRange }) => {
     <div className="space-y-6">
       {/* Booking Overview */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Статистика бронирований</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Booking Statistics</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Всего бронирований</h4>
+            <h4 className="text-sm font-medium text-gray-600">Total Bookings</h4>
             <p className="text-2xl font-bold text-blue-600">{analyticsData?.bookings?.total_bookings || 0}</p>
           </div>
           <div className="bg-green-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Завершено</h4>
+            <h4 className="text-sm font-medium text-gray-600">Completed</h4>
             <p className="text-2xl font-bold text-green-600">{analyticsData?.bookings?.completed_bookings || 0}</p>
           </div>
           <div className="bg-red-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Отменено</h4>
+            <h4 className="text-sm font-medium text-gray-600">Cancelled</h4>
             <p className="text-2xl font-bold text-red-600">{analyticsData?.cancellations?.cancelled_bookings || 0}</p>
           </div>
           <div className="bg-yellow-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">% отмен</h4>
+            <h4 className="text-sm font-medium text-gray-600">Cancellation %</h4>
             <p className="text-2xl font-bold text-yellow-600">{(analyticsData?.cancellations?.cancellation_rate || 0).toFixed(1)}%</p>
           </div>
         </div>
@@ -522,40 +683,40 @@ const BookingAnalyticsView = ({ companyId, dateRange }) => {
 
       {/* Repeat Orders Analytics */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Повторные заказы</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Repeat Orders</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-purple-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Всего клиентов</h4>
+            <h4 className="text-sm font-medium text-gray-600">Total Customers</h4>
             <p className="text-2xl font-bold text-purple-600">{analyticsData?.repeatOrders?.total_customers || 0}</p>
           </div>
           <div className="bg-indigo-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Повторных клиентов</h4>
+            <h4 className="text-sm font-medium text-gray-600">Repeat Customers</h4>
             <p className="text-2xl font-bold text-indigo-600">{analyticsData?.repeatOrders?.repeat_customers || 0}</p>
           </div>
           <div className="bg-pink-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">% повторов</h4>
+            <h4 className="text-sm font-medium text-gray-600">Repeat %</h4>
             <p className="text-2xl font-bold text-pink-600">{(analyticsData?.repeatOrders?.repeat_rate || 0).toFixed(1)}%</p>
           </div>
         </div>
 
         <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-          <h4 className="text-sm font-medium text-gray-600">Доход от повторных клиентов</h4>
+          <h4 className="text-sm font-medium text-gray-600">Revenue from Repeat Customers</h4>
           <p className="text-xl font-bold text-gray-900">{formatCurrency(analyticsData?.repeatOrders?.repeat_customer_revenue || 0)}</p>
-          <p className="text-sm text-gray-600">Среднее заказов на клиента: {(analyticsData?.repeatOrders?.avg_orders_per_customer || 0).toFixed(1)}</p>
+          <p className="text-sm text-gray-600">Average orders per customer: {(analyticsData?.repeatOrders?.avg_orders_per_customer || 0).toFixed(1)}</p>
         </div>
       </div>
 
       {/* Cancellation Trends */}
       {analyticsData?.cancellations?.cancellation_trends && (
         <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Тренд отмен</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Cancellation Trend</h3>
           <div className="h-64">
             <Bar
               data={{
                 labels: analyticsData.cancellations.cancellation_trends.map(item => item.date),
                 datasets: [{
-                  label: 'Отмены по дням',
+                  label: 'Cancellations by Day',
                   data: analyticsData.cancellations.cancellation_trends.map(item => item.count),
                   backgroundColor: 'rgba(239, 68, 68, 0.8)',
                   borderColor: 'rgba(239, 68, 68, 1)',

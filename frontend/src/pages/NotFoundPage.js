@@ -17,12 +17,12 @@ const NotFoundPage = () => {
           
           {/* Error Message */}
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Страница не найдена
+            Page Not Found
           </h2>
           
           <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
-            К сожалению, запрашиваемая страница не существует или была перемещена.
-            Проверьте правильность введенного адреса.
+            Unfortunately, the requested page does not exist or has been moved.
+            Please check the correctness of the entered address.
           </p>
           
           {/* Action Buttons */}
@@ -32,7 +32,7 @@ const NotFoundPage = () => {
               className="btn-secondary flex items-center space-x-2"
             >
               <ArrowLeftIcon className="h-5 w-5" />
-              <span>Вернуться назад</span>
+              <span>Go Back</span>
             </button>
             
             <Link
@@ -40,39 +40,39 @@ const NotFoundPage = () => {
               className="btn-primary flex items-center space-x-2"
             >
               <HomeIcon className="h-5 w-5" />
-              <span>На главную</span>
+              <span>Go Home</span>
             </Link>
           </div>
           
           {/* Help Links */}
           <div className="mt-12 pt-8 border-t border-gray-200">
             <p className="text-sm text-gray-500 mb-4">
-              Возможно, вас заинтересует:
+              You might be interested in:
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm">
               <Link
                 to="/marketplace"
                 className="text-primary-500 hover:text-primary-600 font-medium"
               >
-                Каталог услуг
+                Service Catalog
               </Link>
               <Link
                 to="/business"
                 className="text-primary-500 hover:text-primary-600 font-medium"
               >
-                Для бизнеса
+                For Business
               </Link>
               <Link
                 to="/login"
                 className="text-primary-500 hover:text-primary-600 font-medium"
               >
-                Войти в аккаунт
+                Sign In
               </Link>
               <Link
                 to="/help"
                 className="text-primary-500 hover:text-primary-600 font-medium"
               >
-                Центр помощи
+                Help Center
               </Link>
             </div>
           </div>
@@ -80,7 +80,7 @@ const NotFoundPage = () => {
           {/* Contact Support */}
           <div className="mt-8 p-4 bg-gray-100 rounded-lg">
             <p className="text-sm text-gray-600">
-              Если проблема повторяется, свяжитесь с нами:
+              If the problem persists, contact us:
             </p>
             <a
               href="mailto:support@zootel.shop"

@@ -3,7 +3,7 @@ import messaging from '@react-native-firebase/messaging';
 import analytics from '@react-native-firebase/analytics';
 import crashlytics from '@react-native-firebase/crashlytics';
 
-// Firebase конфигурация автоматически загружается из:
+// Firebase configuration is automatically loaded from:
 // - GoogleService-Info.plist (iOS)
 // - google-services.json (Android)
 
@@ -29,20 +29,20 @@ class FirebaseService {
     }
 
     try {
-      // Firebase app уже инициализирован через конфигурационные файлы
+      // Firebase app is already initialized through configuration files
       const apps = getApps();
       if (apps.length === 0) {
         console.warn('No Firebase apps initialized');
         return;
       }
 
-      // Enable analytics (автоматически disabled в development)
+      // Enable analytics (automatically disabled in development)
       await analytics().setAnalyticsCollectionEnabled(true);
 
       // Enable crashlytics
       await crashlytics().setCrashlyticsCollectionEnabled(true);
 
-      // Request messaging permission (будет обработано в PushNotificationService)
+      // Request messaging permission (will be handled in PushNotificationService)
       const authStatus = await messaging().requestPermission();
       const enabled =
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||

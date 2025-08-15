@@ -24,77 +24,49 @@ const SearchPage = () => {
     availability: ''
   });
 
-  // Получаем параметры поиска из URL
+  // Get search parameters from URL
   const searchParams = new URLSearchParams(location.search);
   const query = searchParams.get('q') || '';
   const categoryParam = searchParams.get('category') || '';
   const locationParam = searchParams.get('location') || '';
 
   useEffect(() => {
-    // Устанавливаем фильтры из URL
+    // Set filters from URL
     setFilters(prev => ({
       ...prev,
       category: categoryParam,
       location: locationParam
     }));
     
-    // Загружаем результаты поиска
+    // Load search results
     loadSearchResults();
   }, [location.search]);
 
   const loadSearchResults = async () => {
     setLoading(true);
     try {
-      // Имитация API запроса
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Build search parameters
+      const searchParams = new URLSearchParams();
+      if (query) searchParams.append('q', query);
+      if (filters.category) searchParams.append('category', filters.category);
+      if (filters.location) searchParams.append('location', filters.location);
+      if (filters.priceRange) searchParams.append('price_range', filters.priceRange);
+      if (filters.rating) searchParams.append('rating', filters.rating);
+      if (filters.availability) searchParams.append('availability', filters.availability);
+
+      // Make real API call
+      const response = await fetch(`/api/search?${searchParams.toString()}`);
+      const data = await response.json();
       
-      // Мок данные результатов поиска
-      const mockResults = [
-        {
-          id: 1,
-          type: 'service',
-          title: 'Комплексный груминг собак',
-          company: 'PetStyle Studio',
-          price: 2450,
-          originalPrice: 3500,
-          rating: 4.8,
-          reviewCount: 127,
-          location: 'Москва, ЦАО',
-          image: '/api/placeholder/300/200',
-          availability: 'Сегодня доступен',
-          features: ['Мойка', 'Стрижка', 'Сушка', 'Стрижка когтей']
-        },
-        {
-          id: 2,
-          type: 'service',
-          title: 'Ветеринарный осмотр',
-          company: 'ВетКлиника "Здоровье"',
-          price: 1500,
-          rating: 4.9,
-          reviewCount: 234,
-          location: 'Москва, СВАО',
-          image: '/api/placeholder/300/200',
-          availability: 'Завтра доступен',
-          features: ['Консультация', 'Осмотр', 'Рекомендации']
-        },
-        {
-          id: 3,
-          type: 'product',
-          title: 'Корм Royal Canin для кошек',
-          company: 'Зоомагазин "Лапландия"',
-          price: 1890,
-          rating: 4.7,
-          reviewCount: 89,
-          location: 'Москва, ЮАО',
-          image: '/api/placeholder/300/200',
-          availability: 'В наличии',
-          features: ['2кг', 'Для взрослых кошек', 'Доставка']
-        }
-      ];
-      
-      setSearchResults(mockResults);
+      if (response.ok) {
+        setSearchResults(data.results || []);
+      } else {
+        console.error('Search failed:', data.error);
+        setSearchResults([]);
+      }
     } catch (error) {
       console.error('Error loading search results:', error);
+      setSearchResults([]);
     } finally {
       setLoading(false);
     }
@@ -102,7 +74,7 @@ const SearchPage = () => {
 
   const handleFilterChange = (filterType, value) => {
     setFilters(prev => ({ ...prev, [filterType]: value }));
-    // Обновляем URL с новыми фильтрами
+    // Update URL with new filters
     const newSearchParams = new URLSearchParams(location.search);
     if (value) {
       newSearchParams.set(filterType, value);
@@ -126,7 +98,7 @@ const SearchPage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Поиск результатов...</p>
+          <p className="mt-2 text-gray-600">Searching for results...</p>
         </div>
       </div>
     );
@@ -139,23 +111,23 @@ const SearchPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold text-gray-900">
-              Результаты поиска
+              Search Results
             </h1>
             <p className="text-gray-600">
-              Найдено {searchResults.length} результатов
+              Found {searchResults.length} results
             </p>
           </div>
           
           {/* Search Query Display */}
           {query && (
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="text-gray-600">Поиск по:</span>
+              <span className="text-gray-600">Search by:</span>
               <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full">
                 {query}
               </span>
               {categoryParam && (
                 <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-                  Категория: {categoryParam}
+                  Category: {categoryParam}
                 </span>
               )}
               {locationParam && (
@@ -177,50 +149,50 @@ const SearchPage = () => {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center mb-6">
                 <FunnelIcon className="h-5 w-5 text-gray-600 mr-2" />
-                <h3 className="text-lg font-semibold text-gray-900">Фильтры</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
               </div>
               
               {/* Category Filter */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Категория
+                  Category
                 </label>
                 <select
                   value={filters.category}
                   onChange={(e) => handleFilterChange('category', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 >
-                  <option value="">Все категории</option>
-                  <option value="grooming">Груминг</option>
-                  <option value="veterinary">Ветеринария</option>
-                  <option value="boarding">Передержка</option>
-                  <option value="training">Дрессировка</option>
-                  <option value="products">Товары</option>
+                  <option value="">All Categories</option>
+                  <option value="grooming">Grooming</option>
+                  <option value="veterinary">Veterinary</option>
+                  <option value="boarding">Boarding</option>
+                  <option value="training">Training</option>
+                  <option value="products">Products</option>
                 </select>
               </div>
 
               {/* Price Range Filter */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Цена
+                  Price
                 </label>
                 <select
                   value={filters.priceRange}
                   onChange={(e) => handleFilterChange('priceRange', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 >
-                  <option value="">Любая цена</option>
-                  <option value="0-1000">До 1 000₽</option>
-                  <option value="1000-3000">1 000 - 3 000₽</option>
-                  <option value="3000-5000">3 000 - 5 000₽</option>
-                  <option value="5000+">Свыше 5 000₽</option>
+                  <option value="">Any Price</option>
+                  <option value="0-1000">Up to 1,000₽</option>
+                  <option value="1000-3000">1,000 - 3,000₽</option>
+                  <option value="3000-5000">3,000 - 5,000₽</option>
+                  <option value="5000+">Over 5,000₽</option>
                 </select>
               </div>
 
               {/* Rating Filter */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Рейтинг
+                  Rating
                 </label>
                 <div className="space-y-2">
                   {[5, 4, 3].map((rating) => (
@@ -235,7 +207,7 @@ const SearchPage = () => {
                       />
                       <div className="flex items-center">
                         {renderStars(rating)}
-                        <span className="ml-2 text-sm text-gray-600">и выше</span>
+                        <span className="ml-2 text-sm text-gray-600">and above</span>
                       </div>
                     </label>
                   ))}
@@ -245,7 +217,7 @@ const SearchPage = () => {
               {/* Availability Filter */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Доступность
+                  Availability
                 </label>
                 <div className="space-y-2">
                   <label className="flex items-center">
@@ -257,7 +229,7 @@ const SearchPage = () => {
                       onChange={(e) => handleFilterChange('availability', e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm text-gray-700">Сегодня</span>
+                    <span className="text-sm text-gray-700">Today</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -268,7 +240,7 @@ const SearchPage = () => {
                       onChange={(e) => handleFilterChange('availability', e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm text-gray-700">Завтра</span>
+                    <span className="text-sm text-gray-700">Tomorrow</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -279,7 +251,7 @@ const SearchPage = () => {
                       onChange={(e) => handleFilterChange('availability', e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm text-gray-700">На этой неделе</span>
+                    <span className="text-sm text-gray-700">This Week</span>
                   </label>
                 </div>
               </div>
@@ -292,7 +264,7 @@ const SearchPage = () => {
                 }}
                 className="w-full text-red-600 hover:text-red-700 text-sm font-medium"
               >
-                Очистить фильтры
+                Clear Filters
               </button>
             </div>
           </div>
@@ -302,16 +274,16 @@ const SearchPage = () => {
             {/* Sort Options */}
             <div className="flex items-center justify-between mb-6">
               <p className="text-gray-600">
-                Показано {searchResults.length} из {searchResults.length} результатов
+                Showing {searchResults.length} of {searchResults.length} results
               </p>
               <div className="flex items-center">
                 <AdjustmentsHorizontalIcon className="h-5 w-5 text-gray-600 mr-2" />
                 <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                  <option>По релевантности</option>
-                  <option>По цене (возрастание)</option>
-                  <option>По цене (убывание)</option>
-                  <option>По рейтингу</option>
-                  <option>По отзывам</option>
+                  <option>By Relevance</option>
+                  <option>By Price (Ascending)</option>
+                  <option>By Price (Descending)</option>
+                  <option>By Rating</option>
+                  <option>By Reviews</option>
                 </select>
               </div>
             </div>
@@ -352,7 +324,7 @@ const SearchPage = () => {
                             ? 'bg-blue-100 text-blue-800' 
                             : 'bg-green-100 text-green-800'
                         }`}>
-                          {result.type === 'service' ? 'Услуга' : 'Товар'}
+                          {result.type === 'service' ? 'Service' : 'Product'}
                         </span>
                       </div>
 
@@ -361,7 +333,7 @@ const SearchPage = () => {
                         <div className="flex items-center mr-4">
                           {renderStars(Math.floor(result.rating))}
                           <span className="ml-1 text-sm text-gray-600">
-                            {result.rating} ({result.reviewCount} отзывов)
+                            {result.rating} ({result.reviewCount} reviews)
                           </span>
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
@@ -398,7 +370,7 @@ const SearchPage = () => {
                           )}
                         </div>
                         <button className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200">
-                          {result.type === 'service' ? 'Записаться' : 'В корзину'}
+                          {result.type === 'service' ? 'Book Now' : 'Add to Cart'}
                         </button>
                       </div>
                     </div>
@@ -412,10 +384,10 @@ const SearchPage = () => {
               <div className="text-center py-12">
                 <MagnifyingGlassIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-xl font-medium text-gray-900 mb-2">
-                  Результаты не найдены
+                  No Results Found
                 </h3>
                 <p className="text-gray-600">
-                  Попробуйте изменить параметры поиска или фильтры
+                  Try changing search parameters or filters
                 </p>
               </div>
             )}

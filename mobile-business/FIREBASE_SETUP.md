@@ -1,25 +1,25 @@
 # 🔥 Firebase Setup - Zootel Business App
 
-## 📱 **ОТДЕЛЬНОЕ FIREBASE APP НЕОБХОДИМО**
+## 📱 **SEPARATE FIREBASE APP REQUIRED**
 
-### **1. Создание Firebase Проекта**
+### **1. Creating Firebase Project**
 ```bash
-# Новый проект или добавить app в существующий
-1. Перейти на https://console.firebase.google.com
-2. Создать новый проект: "Zootel Business"
-   ИЛИ
-   Добавить приложение в существующий проект "Zootel"
+# New project or add app to existing one
+1. Go to https://console.firebase.google.com
+2. Create new project: "Zootel Business"
+   OR
+   Add app to existing project "Zootel"
 ```
 
-### **2. Конфигурация Платформ**
+### **2. Platform Configuration**
 
 #### **📱 iOS Configuration**
 ```bash
 Bundle ID: com.zootel.business
 App Name: Zootel Business
 
-# Скачать GoogleService-Info.plist
-# Поместить в: mobile-business/GoogleService-Info.plist
+# Download GoogleService-Info.plist
+# Place in: mobile-business/GoogleService-Info.plist
 ```
 
 #### **🤖 Android Configuration**
@@ -27,25 +27,25 @@ App Name: Zootel Business
 Package Name: com.zootel.business
 App Name: Zootel Business
 
-# Скачать google-services.json
-# Поместить в: mobile-business/google-services.json
+# Download google-services.json
+# Place in: mobile-business/google-services.json
 ```
 
-### **3. Необходимые Firebase Services**
+### **3. Required Firebase Services**
 
 #### **🔔 Firebase Cloud Messaging (FCM)**
 ```typescript
-// Для push notifications бизнес-приложения
+// For business app push notifications
 Notification Types:
-- Новые бронирования
-- Сообщения от клиентов  
-- Напоминания о задачах
-- Системные уведомления
+- New bookings
+- Messages from clients  
+- Task reminders
+- System notifications
 ```
 
 #### **📊 Firebase Analytics**
 ```typescript
-// Отслеживание использования бизнес-приложения
+// Tracking business app usage
 Events:
 - employee_login
 - booking_completed  
@@ -56,19 +56,19 @@ Events:
 
 #### **🐛 Firebase Crashlytics**
 ```typescript
-// Мониторинг ошибок в продакшене
-- Автоматические crash reports
-- Custom logging для business flows
+// Production error monitoring
+- Automatic crash reports
+- Custom logging for business flows
 - Performance monitoring
 ```
 
-### **4. Установка Зависимостей**
+### **4. Installing Dependencies**
 ```bash
 cd mobile-business
 npm install @react-native-firebase/app @react-native-firebase/messaging @react-native-firebase/analytics @react-native-firebase/crashlytics expo-notifications expo-device
 ```
 
-### **5. Конфигурация Push Notifications**
+### **5. Push Notifications Configuration**
 
 #### **iOS APNs Setup**
 ```bash
@@ -76,13 +76,13 @@ npm install @react-native-firebase/app @react-native-firebase/messaging @react-n
 2. Certificates, Identifiers & Profiles
 3. Keys → Create new key with APNs enabled
 4. Download .p8 file
-5. Upload в Firebase Console → Project Settings → Cloud Messaging
+5. Upload to Firebase Console → Project Settings → Cloud Messaging
 ```
 
 #### **Android FCM Setup**
 ```bash
-# Уже настроено через google-services.json
-# Дополнительная настройка не требуется
+# Already configured through google-services.json
+# Additional configuration not required
 ```
 
 ### **6. Environment Configuration**
@@ -93,7 +93,7 @@ import messaging from '@react-native-firebase/messaging';
 import analytics from '@react-native-firebase/analytics';
 import crashlytics from '@react-native-firebase/crashlytics';
 
-// Firebase конфигурация автоматически загружается из:
+// Firebase configuration is automatically loaded from:
 // - GoogleService-Info.plist (iOS)
 // - google-services.json (Android)
 
@@ -104,8 +104,8 @@ export { messaging, analytics, crashlytics };
 
 #### **Push Notification Service**
 ```typescript
-// Уже создан: mobile-business/src/services/pushNotificationService.ts
-// Поддерживает:
+// Already created: mobile-business/src/services/pushNotificationService.ts
+// Supports:
 - Booking reminders
 - New booking alerts  
 - Customer messages
@@ -134,23 +134,23 @@ crashlytics().log('Employee performed action');
 ### **8. Testing Configuration**
 ```bash
 # Development
-- Test notifications на эмуляторе
-- Verify analytics events в Firebase Console
+- Test notifications on emulator
+- Verify analytics events in Firebase Console
 - Check crash reports
 
 # Production  
 - App Store Connect (iOS)
 - Google Play Console (Android)
-- Firebase App Distribution для beta testing
+- Firebase App Distribution for beta testing
 ```
 
 ### **9. Security Rules**
 ```javascript
-// Firestore rules (если используется)
+// Firestore rules (if used)
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Business app может читать только данные своей компании
+    // Business app can only read data of its own company
     match /companies/{companyId}/employees/{employeeId} {
       allow read, write: if request.auth != null 
         && request.auth.uid == employeeId;
@@ -175,29 +175,29 @@ service cloud.firestore {
 
 ---
 
-## 🚨 **ВАЖНО: ОТЛИЧИЯ ОТ PET OWNER APP**
+## 🚨 **IMPORTANT: DIFFERENCES FROM PET OWNER APP**
 
-### **Разные Bundle ID / Package Names:**
+### **Different Bundle ID / Package Names:**
 - **Pet Owner**: `com.zootel.petowner`
 - **Business**: `com.zootel.business`
 
-### **Разные Notification Types:**
+### **Different Notification Types:**
 - **Pet Owner**: Booking confirmations, reminders
 - **Business**: New bookings, staff alerts, task reminders
 
-### **Разные Analytics Events:**
+### **Different Analytics Events:**
 - **Pet Owner**: User behavior, booking flow
 - **Business**: Employee productivity, business metrics
 
-### **Разные User Audiences:**
+### **Different User Audiences:**
 - **Pet Owner**: End customers
 - **Business**: Company employees and managers
 
 ---
 
-## ✅ **ГОТОВО К PRODUCTION**
-После выполнения всех шагов Business App будет готов к:
+## ✅ **READY FOR PRODUCTION**
+After completing all steps, Business App will be ready for:
 - App Store deployment
 - Google Play deployment  
 - Enterprise distribution
-- Beta testing через Firebase App Distribution 
+- Beta testing through Firebase App Distribution 

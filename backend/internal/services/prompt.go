@@ -18,12 +18,12 @@ func NewPromptService(db *sql.DB) *PromptService {
 	return &PromptService{db: db}
 }
 
-// GetPrompt возвращает промпт с учетом иерархии (company -> global -> hardcoded)
+// GetPrompt returns a prompt considering the hierarchy (company -> global -> hardcoded)
 func (s *PromptService) GetPrompt(companyID, agentKey, promptType string) (*models.PromptResponse, error) {
 	var prompt models.PromptResponse
 	var source string
 
-	// Сначала ищем кастомный промпт компании
+	// First, look for custom company prompt
 	companyPrompt, err := s.getCompanyPrompt(companyID, agentKey, promptType)
 	if err == nil && companyPrompt != nil {
 		prompt = models.PromptResponse{
@@ -41,7 +41,7 @@ func (s *PromptService) GetPrompt(companyID, agentKey, promptType string) (*mode
 		}
 		source = "company"
 	} else {
-		// Ищем глобальный промпт
+		// Look for global prompt
 		globalPrompt, err := s.getGlobalPrompt(agentKey, promptType)
 		if err == nil && globalPrompt != nil {
 			prompt = models.PromptResponse{
@@ -51,7 +51,7 @@ func (s *PromptService) GetPrompt(companyID, agentKey, promptType string) (*mode
 			}
 			source = "global"
 		} else {
-			// Fallback к hardcoded промпту
+			// Fallback to hardcoded prompt
 			hardcodedContent := s.getHardcodedPrompt(agentKey, promptType)
 			if hardcodedContent != "" {
 				prompt = models.PromptResponse{
@@ -72,16 +72,16 @@ func (s *PromptService) GetPrompt(companyID, agentKey, promptType string) (*mode
 		}
 	}
 
-	// Извлекаем переменные из промпта
+	// Extract variables from the prompt
 	prompt.Variables = s.extractVariables(prompt.Content)
 
-	// Логируем использование
+	// Log usage
 	s.logPromptUsage(companyID, agentKey, promptType, source)
 
 	return &prompt, nil
 }
 
-// GetGlobalPrompts возвращает все глобальные промпты для админа
+// GetGlobalPrompts returns all global prompts for admin
 func (s *PromptService) GetGlobalPrompts() ([]models.AIPrompt, error) {
 	query := `
 		SELECT id, agent_key, prompt_type, content, version, is_active, 
@@ -114,7 +114,7 @@ func (s *PromptService) GetGlobalPrompts() ([]models.AIPrompt, error) {
 	return prompts, nil
 }
 
-// GetCompanyPrompts возвращает кастомные промпты компании
+// GetCompanyPrompts returns custom company prompts
 func (s *PromptService) GetCompanyPrompts(companyID string) ([]models.CompanyAIPrompt, error) {
 	query := `
 		SELECT id, company_id, agent_key, prompt_type, content, is_active,
@@ -147,12 +147,12 @@ func (s *PromptService) GetCompanyPrompts(companyID string) ([]models.CompanyAIP
 	return prompts, nil
 }
 
-// CreateGlobalPrompt создает новый глобальный промпт
+// CreateGlobalPrompt creates a new global prompt
 func (s *PromptService) CreateGlobalPrompt(req *models.PromptRequest, adminID string) error {
-	// Деактивируем предыдущую версию
+	// Deactivate the previous version
 	s.deactivateGlobalPrompt(req.AgentKey, req.PromptType)
 
-	// Получаем следующий номер версии
+	// Get the next version number
 	version := s.getNextVersion(req.AgentKey, req.PromptType)
 
 	query := `
@@ -176,7 +176,7 @@ func (s *PromptService) CreateGlobalPrompt(req *models.PromptRequest, adminID st
 	return nil
 }
 
-// UpdateGlobalPrompt обновляет глобальный промпт
+// UpdateGlobalPrompt updates the global prompt
 func (s *PromptService) UpdateGlobalPrompt(promptID string, req *models.PromptRequest, adminID string) error {
 	query := `
 		UPDATE ai_prompts 
@@ -201,9 +201,9 @@ func (s *PromptService) UpdateGlobalPrompt(promptID string, req *models.PromptRe
 	return nil
 }
 
-// CreateCompanyPrompt создает кастомный промпт для компании
+// CreateCompanyPrompt creates a custom prompt for the company
 func (s *PromptService) CreateCompanyPrompt(companyID string, req *models.PromptRequest, userID string) error {
-	// Проверяем, что такого промпта еще нет
+	// Check that such a prompt doesn't exist yet
 	existing, _ := s.getCompanyPrompt(companyID, req.AgentKey, req.PromptType)
 	if existing != nil {
 		return s.UpdateCompanyPrompt(companyID, req.AgentKey, req.PromptType, req, userID)
@@ -230,7 +230,7 @@ func (s *PromptService) CreateCompanyPrompt(companyID string, req *models.Prompt
 	return nil
 }
 
-// UpdateCompanyPrompt обновляет кастомный промпт компании
+// UpdateCompanyPrompt updates the company's custom prompt
 func (s *PromptService) UpdateCompanyPrompt(companyID, agentKey, promptType string, req *models.PromptRequest, userID string) error {
 	query := `
 		UPDATE company_ai_prompts 
@@ -255,7 +255,7 @@ func (s *PromptService) UpdateCompanyPrompt(companyID, agentKey, promptType stri
 	return nil
 }
 
-// DeleteCompanyPrompt удаляет кастомный промпт компании (откат к глобальному)
+// DeleteCompanyPrompt deletes the company's custom prompt (fallback to global)
 func (s *PromptService) DeleteCompanyPrompt(companyID, agentKey, promptType string) error {
 	query := `
 		UPDATE company_ai_prompts 
@@ -271,27 +271,27 @@ func (s *PromptService) DeleteCompanyPrompt(companyID, agentKey, promptType stri
 	return nil
 }
 
-// GetAgentPromptsInfo возвращает полную информацию об агенте и его промптах
+// GetAgentPromptsInfo returns complete information about the agent and its prompts
 func (s *PromptService) GetAgentPromptsInfo(companyID, agentKey string) (*models.AgentPromptsInfo, error) {
-	// Получаем информацию об агенте из hardcoded данных
+	// Get agent information from hardcoded data
 	agentInfo := s.getAgentInfo(agentKey)
 	if agentInfo == nil {
 		return nil, fmt.Errorf("agent not found: %s", agentKey)
 	}
 
-	// Получаем system prompt
+	// Get system prompt
 	systemPrompt, err := s.GetPrompt(companyID, agentKey, "system")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get system prompt: %w", err)
 	}
 
-	// Получаем user prompt
+	// Get user prompt
 	userPrompt, err := s.GetPrompt(companyID, agentKey, "user")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user prompt: %w", err)
 	}
 
-	// Проверяем есть ли кастомные промпты
+	// Check if there are custom prompts
 	hasCustom := systemPrompt.Source == "company" || userPrompt.Source == "company"
 
 	return &models.AgentPromptsInfo{
@@ -358,9 +358,9 @@ func (s *PromptService) getGlobalPrompt(agentKey, promptType string) (*models.AI
 }
 
 func (s *PromptService) getHardcodedPrompt(agentKey, promptType string) string {
-	// Здесь можно получить hardcoded промпты из AIService
-	// Для простоты возвращаем пустую строку, но в реальности нужно
-	// интегрироваться с существующими промптами из ai.go
+	// Here you can get hardcoded prompts from AIService
+	// For simplicity, return empty string, but in reality you need to
+	// integrate with existing prompts from ai.go
 	return ""
 }
 

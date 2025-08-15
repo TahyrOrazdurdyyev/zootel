@@ -1,144 +1,144 @@
-# Отчет о передаче данных пользователей в аналитику (ОБНОВЛЕНО)
+# User Data Analytics Report (UPDATED)
 
-## 📊 Обзор
+## 📊 Overview
 
-В системе Zootel реализована многоуровневая аналитика, где разные категории пользователей получают доступ к разным наборам данных Pet Owners (владельцев питомцев). **ВАЖНО: По запросу администратора система была обновлена для предоставления компаниям расширенного доступа к данным клиентов.**
+The Zootel system implements multi-level analytics where different user categories have access to different sets of Pet Owners data. **IMPORTANT: At the administrator's request, the system has been updated to provide companies with extended access to customer data.**
 
-## 🏢 Данные, передаваемые Pet Компаниям (РАСШИРЕННЫЕ)
+## 🏢 Data Transferred to Pet Companies (EXTENDED)
 
-### 1. Расширенные данные о клиентах через бронирования
+### 1. Extended Customer Data Through Bookings
 
-**Источник**: `BookingService.GetBookingsByCompany()`
+**Source**: `BookingService.GetBookingsByCompany()`
 
-**Передаваемые данные**:
+**Transferred Data**:
 ```json
 {
   "customer": {
     "user_id": "uuid",
-    "first_name": "Имя",
-    "last_name": "Фамилия", 
+    "first_name": "Name",
+    "last_name": "Surname", 
     "email": "email@example.com",
     "phone": "+1234567890",
     "gender": "male/female/other",
     "date_of_birth": "1990-01-15T00:00:00Z",
-    "address": "Улица, дом",
-    "apartment_number": "15А",
-    "country": "Страна",
-    "state": "Регион/Штат",
-    "city": "Город",
+    "address": "Street, house",
+    "apartment_number": "15A",
+    "country": "Country",
+    "state": "State/Region",
+    "city": "City",
     "postal_code": "12345",
-    "emergency_contact_name": "Имя экстренного контакта",
+    "emergency_contact_name": "Emergency contact name",
     "emergency_contact_phone": "+1234567891",
     "emergency_contact_relation": "spouse/parent/friend"
   },
   "pet": {
     "pet_id": "uuid",
-    "pet_name": "Кличка питомца",
-    "pet_type": "Тип питомца (собака, кошка, и т.д.)",
-    "breed": "Порода",
+    "pet_name": "Pet name",
+    "pet_type": "Pet type (dog, cat, etc.)",
+    "breed": "Breed",
     "gender": "male/female/unknown",
     "date_of_birth": "2020-05-10T00:00:00Z",
     "weight": 15.5,
     "microchip_id": "123456789012345",
     "sterilized": true,
-    "chronic_conditions": ["аллергия", "артрит"],
-    "allergies": ["курица", "пшеница"],
-    "dietary_restrictions": "Гипоаллергенный корм",
-    "special_needs": "Нуждается в особом уходе",
-    "vet_name": "Д-р Смит",
+    "chronic_conditions": ["allergy", "arthritis"],
+    "allergies": ["chicken", "wheat"],
+    "dietary_restrictions": "Hypoallergenic food",
+    "special_needs": "Needs special care",
+    "vet_name": "Dr. Smith",
     "vet_phone": "+1234567892",
-    "vet_clinic": "Городская ветклиника",
-    "behavior_notes": "Дружелюбный, любит детей",
-    "stress_reactions": "Прячется при громких звуках",
-    "favorite_toys": "Мячики, канатики"
+    "vet_clinic": "City Veterinary Clinic",
+    "behavior_notes": "Friendly, loves children",
+    "stress_reactions": "Hides from loud sounds",
+    "favorite_toys": "Balls, ropes"
   }
 }
 ```
 
-### 2. Полный список клиентов компании
+### 2. Complete Company Customer List
 
-**Источник**: `BookingService.GetCompanyCustomers()`
+**Source**: `BookingService.GetCompanyCustomers()`
 
-**Передаваемые данные**:
+**Transferred Data**:
 ```json
 {
   "user_id": "uuid",
-  "first_name": "Имя",
-  "last_name": "Фамилия",
+  "first_name": "Name",
+  "last_name": "Surname",
   "email": "email@example.com", 
   "phone": "+1234567890",
   "gender": "male/female/other",
   "date_of_birth": "1990-01-15T00:00:00Z",
-  "address": "Улица, дом",
-  "apartment_number": "15А",
-  "country": "Страна",
-  "state": "Регион/Штат",
-  "city": "Город",
+  "address": "Street, house",
+  "apartment_number": "15A",
+  "country": "Country",
+  "state": "State/Region",
+  "city": "City",
   "postal_code": "12345",
-  "emergency_contact_name": "Имя экстренного контакта",
+  "emergency_contact_name": "Emergency contact name",
   "emergency_contact_phone": "+1234567891",
   "emergency_contact_relation": "spouse/parent/friend"
 }
 ```
 
-### 3. Медицинские данные питомцев клиентов
+### 3. Customer Pet Medical Data
 
-**Новые API endpoints**:
+**New API endpoints**:
 
-#### A. Детальные медицинские данные питомца
+#### A. Detailed Pet Medical Data
 **Endpoint**: `GET /api/v1/bookings/customer-pets/{petId}/medical-data`
-**Источник**: `BookingService.GetCustomerPetMedicalData()`
+**Source**: `BookingService.GetCustomerPetMedicalData()`
 
-#### B. Вакцинации питомца
+#### B. Pet Vaccinations
 **Endpoint**: `GET /api/v1/bookings/customer-pets/{petId}/vaccinations`
-**Источник**: `BookingService.GetCustomerPetVaccinations()`
+**Source**: `BookingService.GetCustomerPetVaccinations()`
 
-**Передаваемые данные**:
+**Transferred Data**:
 ```json
 [
   {
     "id": "uuid",
-    "vaccine_name": "Бешенство",
+    "vaccine_name": "Rabies",
     "date_administered": "2024-01-15",
     "expiry_date": "2025-01-15",
-    "vet_name": "Д-р Смит",
-    "vet_clinic": "Городская ветклиника",
+    "vet_name": "Dr. Smith",
+    "vet_clinic": "City Veterinary Clinic",
     "batch_number": "VAC123456",
-    "notes": "Реакции не было",
+    "notes": "No reactions",
     "next_due_date": "2025-01-15"
   }
 ]
 ```
 
-#### C. Лекарства питомца
+#### C. Pet Medications
 **Endpoint**: `GET /api/v1/bookings/customer-pets/{petId}/medications`
-**Источник**: `BookingService.GetCustomerPetMedications()`
+**Source**: `BookingService.GetCustomerPetMedications()`
 
-**Передаваемые данные**:
+**Transferred Data**:
 ```json
 [
   {
     "id": "uuid",
-    "medication_name": "Анальгин",
-    "dosage": "10мг",
-    "frequency": "2 раза в день",
+    "medication_name": "Analgin",
+    "dosage": "10mg",
+    "frequency": "2 times per day",
     "start_date": "2024-01-01",
     "end_date": "2024-01-14",
-    "prescribed_by": "Д-р Смит",
-    "instructions": "Давать с едой",
-    "side_effects": "Возможна сонливость",
+    "prescribed_by": "Dr. Smith",
+    "instructions": "Give with food",
+    "side_effects": "Possible drowsiness",
     "is_active": false
   }
 ]
 ```
 
-### 4. Система контроля доступа
+### 4. Access Control System
 
-**Важно**: Компании получают медицинские данные питомцев **ТОЛЬКО** если:
-- У компании есть активные бронирования с этим питомцем, ИЛИ
-- У компании есть заказы от владельца этого питомца
+**Important**: Companies receive pet medical data **ONLY** if:
+- The company has active bookings with this pet, OR
+- The company has orders from this pet's owner
 
-**Проверка доступа**:
+**Access Check**:
 ```sql
 SELECT COUNT(*) FROM (
     SELECT 1 FROM bookings b WHERE b.company_id = $1 AND b.pet_id = $2
@@ -149,54 +149,54 @@ SELECT COUNT(*) FROM (
 ) as access_check
 ```
 
-### 5. Что ТЕПЕРЬ передается компаниям
+### 5. What is NOW Transferred to Companies
 
-**✅ НОВЫЕ данные пользователей:**
-- ✅ Дата рождения пользователя
-- ✅ Пол пользователя  
-- ✅ Полный адрес (включая квартиру и почтовый код)
-- ✅ Экстренные контакты (имя, телефон, отношение)
+**✅ NEW user data:**
+- ✅ User date of birth
+- ✅ User gender  
+- ✅ Full address (including apartment and postal code)
+- ✅ Emergency contacts (name, phone, relationship)
 
-**✅ НОВЫЕ данные питомцев:**
-- ✅ Дата рождения питомца
-- ✅ Пол питомца
-- ✅ Вес и микрочип
-- ✅ Статус стерилизации
-- ✅ Хронические заболевания
-- ✅ Аллергии
-- ✅ Диетические ограничения
-- ✅ Особые потребности
-- ✅ Контакты ветеринара питомца
-- ✅ Поведенческие заметки
-- ✅ Реакции на стресс
-- ✅ Любимые игрушки
+**✅ NEW pet data:**
+- ✅ Pet date of birth
+- ✅ Pet gender
+- ✅ Weight and microchip
+- ✅ Sterilization status
+- ✅ Chronic conditions
+- ✅ Allergies
+- ✅ Dietary restrictions
+- ✅ Special needs
+- ✅ Pet veterinarian contacts
+- ✅ Behavioral notes
+- ✅ Stress reactions
+- ✅ Favorite toys
 
-**✅ НОВЫЕ медицинские записи:**
-- ✅ Полная история вакцинации
-- ✅ Текущие и прошлые лекарства
-- ✅ Дозировки и инструкции по применению
-- ✅ Информация о ветеринарах
-- ✅ Побочные эффекты и предостережения
+**✅ NEW medical records:**
+- ✅ Complete vaccination history
+- ✅ Current and past medications
+- ✅ Dosages and administration instructions
+- ✅ Veterinarian information
+- ✅ Side effects and warnings
 
-## 👑 Данные, передаваемые SuperAdmin (БЕЗ ИЗМЕНЕНИЙ)
+## 👑 Data Transferred to SuperAdmin (NO CHANGES)
 
-**Полные данные всех пользователей остаются без изменений** - SuperAdmin имеет доступ ко всей информации в системе.
+**Complete data of all users remains unchanged** - SuperAdmin has access to all information in the system.
 
-## 🔐 Обновленные принципы защиты данных
+## 🔐 Updated Data Protection Principles
 
-### 1. Расширенный доступ с контролем
+### 1. Extended Access with Control
 
-Компании теперь получают **расширенный доступ** к данным, но **только** для своих клиентов:
-- Доступ предоставляется только при наличии деловых отношений
-- Медицинские данные доступны только для питомцев, с которыми работала компания
-- Все запросы логируются для аудита
+Companies now receive **extended access** to data, but **only** for their clients:
+- Access is provided only when there are business relationships
+- Medical data is available only for pets that the company has worked with
+- All requests are logged for audit
 
-### 2. Автоматическая проверка прав доступа
+### 2. Automatic Access Rights Verification
 
-Каждый запрос к медицинским данным включает проверку:
+Every request for medical data includes verification:
 ```go
 func (s *BookingService) GetCustomerPetMedicalData(companyID, petID string) (*models.PetData, error) {
-    // Проверка доступа
+    // Access verification
     var accessCount int
     err := s.db.QueryRow(`
         SELECT COUNT(*) FROM (
@@ -210,13 +210,13 @@ func (s *BookingService) GetCustomerPetMedicalData(companyID, petID string) (*mo
     if accessCount == 0 {
         return nil, fmt.Errorf("company does not have access to this pet")
     }
-    // ... получение данных только после подтверждения доступа
+    // ... get data only after access confirmation
 }
 ```
 
-### 3. Обновленное логирование
+### 3. Updated Logging
 
-Все обращения к расширенным данным логируются:
+All access to extended data is logged:
 ```json
 {
   "event_type": "extended_data_access",
@@ -230,115 +230,115 @@ func (s *BookingService) GetCustomerPetMedicalData(companyID, petID string) (*mo
 }
 ```
 
-## 📋 Обновленная разбивка по типам данных
+## 📋 Updated Data Breakdown by Type
 
-### Персональные данные
+### Personal Data
 
-| Поле | Pet Компании | SuperAdmin | Цель использования |
-|------|-------------|------------|-------------------|
-| Имя | ✅ | ✅ | Идентификация клиента |
-| Фамилия | ✅ | ✅ | Идентификация клиента |
-| Email | ✅ | ✅ | Связь с клиентом |
-| Телефон | ✅ | ✅ | Связь с клиентом |
-| **Дата рождения** | ✅ **НОВОЕ** | ✅ | Возрастные особенности услуг |
-| **Пол** | ✅ **НОВОЕ** | ✅ | Персонализация услуг |
+| Field | Pet Companies | SuperAdmin | Purpose of Use |
+|-------|---------------|------------|----------------|
+| Name | ✅ | ✅ | Customer identification |
+| Surname | ✅ | ✅ | Customer identification |
+| Email | ✅ | ✅ | Customer communication |
+| Phone | ✅ | ✅ | Customer communication |
+| **Date of Birth** | ✅ **NEW** | ✅ | Age-specific service features |
+| **Gender** | ✅ **NEW** | ✅ | Service personalization |
 
-### Географические данные
+### Geographic Data
 
-| Поле | Pet Компании | SuperAdmin | Цель использования |
-|------|-------------|------------|-------------------|
-| Страна | ✅ | ✅ | Региональная аналитика |
-| Регион/Штат | ✅ | ✅ | Региональная аналитика |
-| Город | ✅ | ✅ | Локальная аналитика |
-| **Адрес** | ✅ **НОВОЕ** | ✅ | Доставка и выездные услуги |
-| **Квартира** | ✅ **НОВОЕ** | ✅ | Точная адресация |
-| **Почтовый код** | ✅ **НОВОЕ** | ✅ | Точная локация |
+| Field | Pet Companies | SuperAdmin | Purpose of Use |
+|-------|---------------|------------|----------------|
+| Country | ✅ | ✅ | Regional analytics |
+| State/Region | ✅ | ✅ | Regional analytics |
+| City | ✅ | ✅ | Local analytics |
+| **Address** | ✅ **NEW** | ✅ | Delivery and mobile services |
+| **Apartment** | ✅ **NEW** | ✅ | Precise addressing |
+| **Postal Code** | ✅ **NEW** | ✅ | Precise location |
 
-### Контактные данные
+### Contact Data
 
-| Поле | Pet Компании | SuperAdmin | Цель использования |
-|------|-------------|------------|-------------------|
-| Основной телефон | ✅ | ✅ | Связь с клиентом |
-| **Экстренный контакт** | ✅ **НОВОЕ** | ✅ | Безопасность и экстренные случаи |
-| **Отношение к контакту** | ✅ **НОВОЕ** | ✅ | Понимание связей |
+| Field | Pet Companies | SuperAdmin | Purpose of Use |
+|-------|---------------|------------|----------------|
+| Main Phone | ✅ | ✅ | Customer communication |
+| **Emergency Contact** | ✅ **NEW** | ✅ | Safety and emergency cases |
+| **Contact Relationship** | ✅ **NEW** | ✅ | Understanding connections |
 
-### Данные питомцев
+### Pet Data
 
-| Поле | Pet Компании | SuperAdmin | Цель использования |
-|------|-------------|------------|-------------------|
-| Кличка | ✅ | ✅ | Идентификация питомца |
-| Тип/Порода | ✅ | ✅ | Подбор услуг |
-| **Пол питомца** | ✅ **НОВОЕ** | ✅ | Специфические услуги |
-| **Дата рождения** | ✅ **НОВОЕ** | ✅ | Возрастные особенности |
-| **Вес** | ✅ **НОВОЕ** | ✅ | Дозировки, размер услуг |
-| **Микрочип** | ✅ **НОВОЕ** | ✅ | Идентификация, безопасность |
-| **Стерилизация** | ✅ **НОВОЕ** | ✅ | Медицинские особенности |
+| Field | Pet Companies | SuperAdmin | Purpose of Use |
+|-------|---------------|------------|----------------|
+| Pet Name | ✅ | ✅ | Pet identification |
+| Type/Breed | ✅ | ✅ | Service selection |
+| **Pet Gender** | ✅ **NEW** | ✅ | Specific services |
+| **Date of Birth** | ✅ **NEW** | ✅ | Age-specific features |
+| **Weight** | ✅ **NEW** | ✅ | Dosages, service sizing |
+| **Microchip** | ✅ **NEW** | ✅ | Identification, safety |
+| **Sterilization** | ✅ **NEW** | ✅ | Medical features |
 
-### Медицинские данные питомцев
+### Pet Medical Data
 
-| Поле | Pet Компании | SuperAdmin | Цель использования |
-|------|-------------|------------|-------------------|
-| **Хронические болезни** | ✅ **НОВОЕ** | ✅ | Безопасность услуг |
-| **Аллергии** | ✅ **НОВОЕ** | ✅ | Предотвращение реакций |
-| **Диета** | ✅ **НОВОЕ** | ✅ | Правильное питание |
-| **Особые потребности** | ✅ **НОВОЕ** | ✅ | Адаптация услуг |
-| **Вакцинации** | ✅ **НОВОЕ** | ✅ | Медицинская безопасность |
-| **Лекарства** | ✅ **НОВОЕ** | ✅ | Совместимость процедур |
-| **Ветеринар питомца** | ✅ **НОВОЕ** | ✅ | Координация лечения |
+| Field | Pet Companies | SuperAdmin | Purpose of Use |
+|-------|---------------|------------|----------------|
+| **Chronic Conditions** | ✅ **NEW** | ✅ | Service safety |
+| **Allergies** | ✅ **NEW** | ✅ | Reaction prevention |
+| **Diet** | ✅ **NEW** | ✅ | Proper nutrition |
+| **Special Needs** | ✅ **NEW** | ✅ | Service adaptation |
+| **Vaccinations** | ✅ **NEW** | ✅ | Medical safety |
+| **Medications** | ✅ **NEW** | ✅ | Procedure compatibility |
+| **Pet Veterinarian** | ✅ **NEW** | ✅ | Treatment coordination |
 
-### Поведенческие данные
+### Behavioral Data
 
-| Поле | Pet Компании | SuperAdmin | Цель использования |
-|------|-------------|------------|-------------------|
-| **Поведенческие заметки** | ✅ **НОВОЕ** | ✅ | Правильный подход |
-| **Реакции на стресс** | ✅ **НОВОЕ** | ✅ | Безопасность и комфорт |
-| **Любимые игрушки** | ✅ **НОВОЕ** | ✅ | Мотивация и комфорт |
+| Field | Pet Companies | SuperAdmin | Purpose of Use |
+|-------|---------------|------------|----------------|
+| **Behavioral Notes** | ✅ **NEW** | ✅ | Proper approach |
+| **Stress Reactions** | ✅ **NEW** | ✅ | Safety and comfort |
+| **Favorite Toys** | ✅ **NEW** | ✅ | Motivation and comfort |
 
-## 🎯 Преимущества расширенного доступа
+## 🎯 Benefits of Extended Access
 
-### Для Pet Компаний
+### For Pet Companies
 
-1. **Улучшенное качество услуг**
-   - Знание аллергий предотвращает опасные реакции
-   - Понимание поведения улучшает обслуживание
-   - Информация о лекарствах помогает избежать конфликтов
+1. **Improved Service Quality**
+   - Knowledge of allergies prevents dangerous reactions
+   - Understanding behavior improves service
+   - Medication information helps avoid conflicts
 
-2. **Персонализация услуг**
-   - Адаптация под возраст и размер питомца
-   - Учет хронических заболеваний
-   - Использование любимых игрушек для мотивации
+2. **Service Personalization**
+   - Adaptation to pet age and size
+   - Consideration of chronic conditions
+   - Use of favorite toys for motivation
 
-3. **Безопасность**
-   - Экстренные контакты для чрезвычайных ситуаций
-   - Координация с основным ветеринаром
-   - Информация о текущем лечении
+3. **Safety**
+   - Emergency contacts for emergency situations
+   - Coordination with primary veterinarian
+   - Information about current treatment
 
-4. **Эффективность**
-   - Быстрый доступ к полной информации
-   - Меньше времени на сбор данных
-   - Лучшее планирование услуг
+4. **Efficiency**
+   - Quick access to complete information
+   - Less time spent collecting data
+   - Better service planning
 
-### Для Pet Owners
+### For Pet Owners
 
-1. **Лучший сервис**
-   - Компании знают особенности питомца
-   - Меньше повторных объяснений
-   - Более безопасные услуги
+1. **Better Service**
+   - Companies know pet characteristics
+   - Fewer repeated explanations
+   - Safer services
 
-2. **Удобство**
-   - Не нужно каждый раз рассказывать о питомце
-   - Автоматический учет медицинских особенностей
-   - Координация между разными поставщиками услуг
+2. **Convenience**
+   - No need to tell about the pet every time
+   - Automatic consideration of medical features
+   - Coordination between different service providers
 
-## 🚨 Обновленные меры безопасности
+## 🚨 Updated Security Measures
 
-### 1. Строгий контроль доступа
+### 1. Strict Access Control
 
-- **Доступ только к своим клиентам**: Компания видит данные только тех Pet Owners, которые фактически пользовались их услугами
-- **Медицинские данные только для обслуживаемых питомцев**: Доступ к вакцинациям/лекарствам только для питомцев, с которыми работала компания
-- **Автоматическая проверка прав**: Каждый запрос проверяется на уровне базы данных
+- **Access only to own clients**: Company sees data only of Pet Owners who actually used their services
+- **Medical data only for serviced pets**: Access to vaccinations/medications only for pets that the company worked with
+- **Automatic rights verification**: Every request is verified at the database level
 
-### 2. Расширенное логирование
+### 2. Extended Logging
 
 ```go
 func (s *AnalyticsService) TrackExtendedDataAccess(companyID, userID, petID, dataType string) {
@@ -355,78 +355,78 @@ func (s *AnalyticsService) TrackExtendedDataAccess(companyID, userID, petID, dat
 }
 ```
 
-### 3. Ограничения по времени
+### 3. Time Limitations
 
-- Доступ к данным только пока есть активные деловые отношения
-- Исторические данные доступны в течение определенного периода
-- Автоматическое ограничение доступа при прекращении сотрудничества
+- Access to data only while there are active business relationships
+- Historical data available for a certain period
+- Automatic access restriction when cooperation ends
 
-## 📈 Новые аналитические возможности
+## 📈 New Analytics Capabilities
 
-### Для Pet Компаний
+### For Pet Companies
 
-1. **Медицинская аналитика**
-   - Статистика по заболеваниям клиентов
-   - Анализ эффективности лечения
-   - Тренды в здоровье питомцев
+1. **Medical Analytics**
+   - Statistics on customer diseases
+   - Treatment effectiveness analysis
+   - Trends in pet health
 
-2. **Демографический анализ**
-   - Возрастное распределение клиентов
-   - Гендерные предпочтения в услугах
-   - Региональные особенности
+2. **Demographic Analysis**
+   - Age distribution of customers
+   - Gender preferences in services
+   - Regional features
 
-3. **Поведенческая аналитика**
-   - Паттерны поведения питомцев
-   - Эффективность различных подходов
-   - Предпочтения по породам
+3. **Behavioral Analytics**
+   - Pet behavior patterns
+   - Effectiveness of various approaches
+   - Breed preferences
 
-## 📜 Соответствие регулированию (ОБНОВЛЕНО)
+## 📜 Regulatory Compliance (UPDATED)
 
 ### GDPR Compliance
 
-- ✅ **Законная основа**: Обработка необходима для исполнения договора
-- ✅ **Согласие**: Пользователи информируются о передаче данных при бронировании
-- ✅ **Минимизация**: Данные передаются только компаниям, с которыми есть деловые отношения
-- ✅ **Цель обработки**: Улучшение качества и безопасности услуг
-- ✅ **Права субъектов**: Возможность отозвать согласие, удалить данные
+- ✅ **Legal Basis**: Processing is necessary for contract execution
+- ✅ **Consent**: Users are informed about data transfer when booking
+- ✅ **Minimization**: Data is transferred only to companies with business relationships
+- ✅ **Processing Purpose**: Improving service quality and safety
+- ✅ **Subject Rights**: Ability to withdraw consent, delete data
 
-### Обновленное уведомление пользователей
+### Updated User Notification
 
 ```
-При бронировании услуг компания получит доступ к следующей информации:
-- Ваши контактные данные и адрес
-- Информацию о экстренных контактах  
-- Медицинскую информацию о питомце (аллергии, лекарства, вакцинации)
-- Поведенческие особенности питомца
+When booking services, the company will have access to the following information:
+- Your contact details and address
+- Emergency contact information  
+- Pet medical information (allergies, medications, vaccinations)
+- Pet behavioral characteristics
 
-Эти данные используются исключительно для безопасного и качественного 
-предоставления услуг. Компания не может передавать эти данные третьим лицам.
+This data is used exclusively for safe and quality service provision. 
+The company cannot transfer this data to third parties.
 ```
 
-## 🔄 Процедуры внедрения
+## 🔄 Implementation Procedures
 
-### 1. Миграция данных
+### 1. Data Migration
 
-- Обновление API endpoints
-- Расширение базы данных (уже выполнено)
-- Обновление системы контроля доступа
+- API endpoints update
+- Database expansion (already completed)
+- Access control system update
 
-### 2. Уведомление пользователей
+### 2. User Notification
 
-- Email-рассылка о изменениях в политике данных
-- Обновление пользовательского соглашения
-- Информационные уведомления в приложении
+- Email distribution about data policy changes
+- User agreement update
+- Information notifications in the application
 
-### 3. Обучение компаний
+### 3. Company Training
 
-- Руководство по использованию новых данных
-- Обучение принципам конфиденциальности
-- Демонстрация новых возможностей
+- Guide on using new data
+- Privacy principles training
+- New capabilities demonstration
 
 ---
 
-**Важное изменение**: Система была обновлена для предоставления компаниям расширенного доступа к данным клиентов, включая дату рождения, пол, полный адрес, экстренные контакты и полную медицинскую информацию питомцев. Все изменения внедрены с сохранением принципов безопасности и контроля доступа.
+**Important Change**: The system has been updated to provide companies with extended access to customer data, including date of birth, gender, full address, emergency contacts, and complete pet medical information. All changes are implemented while maintaining security and access control principles.
 
-**Этот отчет актуален на**: Январь 2024  
-**Версия**: 2.0.0 (РАСШИРЕННЫЙ ДОСТУП)  
-**Следующее обновление**: При изменении функциональности аналитики 
+**This report is current as of**: January 2024  
+**Version**: 2.0.0 (EXTENDED ACCESS)  
+**Next Update**: When analytics functionality changes 

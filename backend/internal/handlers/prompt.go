@@ -18,7 +18,7 @@ func NewPromptHandler(promptService *services.PromptService) *PromptHandler {
 
 // Admin Endpoints
 
-// GetGlobalPrompts возвращает все глобальные промпты (admin only)
+// GetGlobalPrompts returns all global prompts (admin only)
 func (h *PromptHandler) GetGlobalPrompts(c *gin.Context) {
 	prompts, err := h.promptService.GetGlobalPrompts()
 	if err != nil {
@@ -34,7 +34,7 @@ func (h *PromptHandler) GetGlobalPrompts(c *gin.Context) {
 	})
 }
 
-// CreateGlobalPrompt создает новый глобальный промпт (admin only)
+// CreateGlobalPrompt creates a new global prompt (admin only)
 func (h *PromptHandler) CreateGlobalPrompt(c *gin.Context) {
 	var req models.PromptRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -42,7 +42,7 @@ func (h *PromptHandler) CreateGlobalPrompt(c *gin.Context) {
 		return
 	}
 
-	// Получаем ID админа из контекста
+	// Get admin ID from context
 	adminID, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Admin ID not found"})
@@ -63,7 +63,7 @@ func (h *PromptHandler) CreateGlobalPrompt(c *gin.Context) {
 	})
 }
 
-// UpdateGlobalPrompt обновляет глобальный промпт (admin only)
+// UpdateGlobalPrompt updates the global prompt (admin only)
 func (h *PromptHandler) UpdateGlobalPrompt(c *gin.Context) {
 	promptID := c.Param("id")
 	if promptID == "" {
@@ -77,7 +77,7 @@ func (h *PromptHandler) UpdateGlobalPrompt(c *gin.Context) {
 		return
 	}
 
-	// Получаем ID админа из контекста
+	// Get admin ID from context
 	adminID, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Admin ID not found"})
@@ -100,7 +100,7 @@ func (h *PromptHandler) UpdateGlobalPrompt(c *gin.Context) {
 
 // Company Endpoints
 
-// GetCompanyPrompts возвращает кастомные промпты компании
+// GetCompanyPrompts returns custom company prompts
 func (h *PromptHandler) GetCompanyPrompts(c *gin.Context) {
 	companyID, exists := c.Get("company_id")
 	if !exists {
@@ -122,7 +122,7 @@ func (h *PromptHandler) GetCompanyPrompts(c *gin.Context) {
 	})
 }
 
-// GetAgentPromptsInfo возвращает полную информацию об агенте и его промптах
+// GetAgentPromptsInfo returns complete information about the agent and its prompts
 func (h *PromptHandler) GetAgentPromptsInfo(c *gin.Context) {
 	agentKey := c.Param("agentKey")
 	if agentKey == "" {
@@ -150,7 +150,7 @@ func (h *PromptHandler) GetAgentPromptsInfo(c *gin.Context) {
 	})
 }
 
-// CreateCompanyPrompt создает кастомный промпт для компании
+// CreateCompanyPrompt creates a custom prompt for the company
 func (h *PromptHandler) CreateCompanyPrompt(c *gin.Context) {
 	var req models.PromptRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -184,7 +184,7 @@ func (h *PromptHandler) CreateCompanyPrompt(c *gin.Context) {
 	})
 }
 
-// UpdateCompanyPrompt обновляет кастомный промпт компании
+// UpdateCompanyPrompt updates the company's custom prompt
 func (h *PromptHandler) UpdateCompanyPrompt(c *gin.Context) {
 	agentKey := c.Param("agentKey")
 	promptType := c.Param("promptType")
@@ -226,7 +226,7 @@ func (h *PromptHandler) UpdateCompanyPrompt(c *gin.Context) {
 	})
 }
 
-// DeleteCompanyPrompt удаляет кастомный промпт компании (откат к глобальному)
+// DeleteCompanyPrompt deletes the company's custom prompt (fallback to global)
 func (h *PromptHandler) DeleteCompanyPrompt(c *gin.Context) {
 	agentKey := c.Param("agentKey")
 	promptType := c.Param("promptType")
@@ -256,7 +256,7 @@ func (h *PromptHandler) DeleteCompanyPrompt(c *gin.Context) {
 	})
 }
 
-// GetPromptPreview возвращает предпросмотр промпта с интерполированными переменными
+// GetPromptPreview returns a preview of the prompt with interpolated variables
 func (h *PromptHandler) GetPromptPreview(c *gin.Context) {
 	agentKey := c.Query("agent_key")
 	promptType := c.Query("prompt_type")
@@ -269,8 +269,8 @@ func (h *PromptHandler) GetPromptPreview(c *gin.Context) {
 		return
 	}
 
-	// Здесь можно добавить логику предпросмотра с интерполяцией переменных
-	// Для простоты возвращаем исходный контент с извлеченными переменными
+	// Here you can add preview logic with variable interpolation
+	// For simplicity, return the original content with extracted variables
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
