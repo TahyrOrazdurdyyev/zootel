@@ -86,22 +86,22 @@ const CompanyAnalyticsPage = () => {
 
   // Fetch company metrics
   useEffect(() => {
-    const fetchMetrics = async () => {
-      try {
+  const fetchMetrics = async () => {
+    try {
         const response = await fetch(`/api/companies/${companyId}/analytics/metrics?days=${dateRange}`, {
-          headers: {
+        headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
-        });
+      });
         
         if (!response.ok) {
           throw new Error('Failed to fetch metrics');
         }
         
-        const data = await response.json();
+      const data = await response.json();
         setMetrics(data.metrics);
-      } catch (error) {
-        console.error('Error fetching metrics:', error);
+    } catch (error) {
+      console.error('Error fetching metrics:', error);
         // Set empty metrics on error
         setMetrics({
           totalBookings: 0,
@@ -111,10 +111,10 @@ const CompanyAnalyticsPage = () => {
           bookingsTrend: 0,
           revenueTrend: 0
         });
-      } finally {
-        setLoading(false);
-      }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
 
     if (companyId) {
       fetchMetrics();
@@ -190,7 +190,7 @@ const CompanyAnalyticsPage = () => {
                   <div>
                     <p className="text-sm font-medium text-gray-600">Total Bookings</p>
                     <p className="text-2xl font-bold text-gray-900">{metrics?.totalBookings || 0}</p>
-                  </div>
+            </div>
                   <div className="flex items-center">
                     <CalendarDaysIcon className="h-8 w-8 text-blue-600" />
                   </div>
