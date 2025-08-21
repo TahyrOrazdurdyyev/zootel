@@ -8,7 +8,7 @@ import {
   CalendarDaysIcon,
   UsersIcon,
   StarIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   ClockIcon,
   PhoneIcon,
   GlobeAltIcon
@@ -143,7 +143,7 @@ const CompanyAnalyticsPage = () => {
     { id: 'bookings', name: 'Bookings', icon: CalendarDaysIcon },
     { id: 'customers', name: 'Customers', icon: UsersIcon },
     { id: 'location', name: 'Location', icon: GlobeAltIcon },
-    { id: 'performance', name: 'Performance', icon: TrendingUpIcon },
+    { id: 'performance', name: 'Performance', icon: ArrowTrendingUpIcon },
   ];
 
   const formatNumber = (num) => {
@@ -198,9 +198,9 @@ const CompanyAnalyticsPage = () => {
                 {metrics?.bookingsTrend !== undefined && (
                   <div className="flex items-center mt-2">
                     {metrics.bookingsTrend >= 0 ? (
-                      <TrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
+                      <ArrowTrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
                     ) : (
-                      <TrendingUpIcon className="h-4 w-4 text-red-500 mr-1" />
+                      <ArrowTrendingUpIcon className="h-4 w-4 text-red-500 mr-1" />
                     )}
                     <span className={`text-sm ${metrics.bookingsTrend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {Math.abs(metrics.bookingsTrend)}% vs last period
@@ -222,9 +222,9 @@ const CompanyAnalyticsPage = () => {
                 {metrics?.revenueTrend !== undefined && (
                   <div className="flex items-center mt-2">
                     {metrics.revenueTrend >= 0 ? (
-                      <TrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
+                      <ArrowTrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
                     ) : (
-                      <TrendingUpIcon className="h-4 w-4 text-red-500 mr-1" />
+                      <ArrowTrendingUpIcon className="h-4 w-4 text-red-500 mr-1" />
                     )}
                     <span className={`text-sm ${metrics.revenueTrend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {Math.abs(metrics.revenueTrend)}% vs last period

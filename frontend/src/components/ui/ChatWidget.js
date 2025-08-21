@@ -9,7 +9,7 @@ import {
   PaperClipIcon,
   EllipsisHorizontalIcon,
   CheckIcon,
-  CheckCheckIcon
+  CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -299,7 +299,7 @@ const ChatWidget = ({
   const getMessageStatus = (message) => {
     if (message.sender_type === 'user') {
       return message.is_read ? (
-        <CheckCheckIcon className="w-3 h-3 text-blue-500" />
+        <CheckCircleIcon className="w-3 h-3 text-blue-500" />
       ) : (
         <CheckIcon className="w-3 h-3 text-gray-400" />
       );

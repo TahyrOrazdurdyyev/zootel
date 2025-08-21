@@ -4,8 +4,8 @@ import {
   CurrencyDollarIcon,
   UserIcon,
   CalendarIcon,
-  TrendingUpIcon,
-  TrendingDownIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import {
@@ -176,9 +176,9 @@ const AnalyticsDashboard = ({
                 isPositive ? 'text-green-600' : 'text-red-600'
               }`}>
                 {isPositive ? (
-                  <TrendingUpIcon className="w-4 h-4 mr-1" />
+                  <ArrowTrendingUpIcon className="w-4 h-4 mr-1" />
                 ) : (
-                  <TrendingDownIcon className="w-4 h-4 mr-1" />
+                  <ArrowTrendingDownIcon className="w-4 h-4 mr-1" />
                 )}
                 {Math.abs(change)}%
               </div>

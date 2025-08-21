@@ -7,7 +7,7 @@ import {
   CogIcon,
   CreditCardIcon,
   SparklesIcon,
-  CircuitBoardIcon
+  CpuChipIcon
 } from '@heroicons/react/24/outline';
 
 const AdminLayout = ({ children }) => {
@@ -16,7 +16,7 @@ const AdminLayout = ({ children }) => {
     { name: 'Companies', href: '/admin/companies', icon: BuildingOfficeIcon },
     { name: 'Plan Settings', href: '/admin/plan-settings', icon: CogIcon },
     { name: 'Payment Settings', href: '/admin/payment-settings', icon: CreditCardIcon },
-    { name: 'AI Agents', href: '/admin/ai-agents', icon: CircuitBoardIcon },
+    { name: 'AI Agents', href: '/admin/ai-agents', icon: CpuChipIcon },
     { name: 'AI Prompts', href: '/admin/prompts', icon: SparklesIcon }
   ];
 
