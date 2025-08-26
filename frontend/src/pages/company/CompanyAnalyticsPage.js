@@ -785,25 +785,25 @@ const CustomerAnalyticsView = ({ companyId, dateRange }) => {
     <div className="space-y-6">
       {/* Customer Segmentation */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Сегментация клиентов</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Customer Segmentation</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-green-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Новые клиенты</h4>
+                            <h4 className="text-sm font-medium text-gray-600">New customers</h4>
             <p className="text-2xl font-bold text-green-600">{customerData?.segmentation?.new_customers || 0}</p>
             <p className="text-sm text-green-600">{(customerData?.segmentation?.new_customer_rate || 0).toFixed(1)}%</p>
           </div>
           <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Возвращающиеся</h4>
+                            <h4 className="text-sm font-medium text-gray-600">Returning</h4>
             <p className="text-2xl font-bold text-blue-600">{customerData?.segmentation?.returning_customers || 0}</p>
             <p className="text-sm text-blue-600">{(customerData?.segmentation?.returning_customer_rate || 0).toFixed(1)}%</p>
           </div>
           <div className="bg-purple-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">VIP клиенты</h4>
+                            <h4 className="text-sm font-medium text-gray-600">VIP customers</h4>
             <p className="text-2xl font-bold text-purple-600">{customerData?.segmentation?.high_value_customers || 0}</p>
           </div>
           <div className="bg-orange-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Средний LTV</h4>
+                            <h4 className="text-sm font-medium text-gray-600">Average LTV</h4>
             <p className="text-xl font-bold text-orange-600">{formatCurrency(customerData?.segmentation?.avg_customer_lifetime_value || 0)}</p>
           </div>
         </div>
@@ -812,38 +812,38 @@ const CustomerAnalyticsView = ({ companyId, dateRange }) => {
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-red-600">{customerData?.segmentation?.high_value_customers || 0}</div>
-            <div className="text-sm text-gray-600">Высокая ценность (10k+)</div>
+                                <div className="text-sm text-gray-600">High value (10k+)</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-yellow-600">{customerData?.segmentation?.medium_value_customers || 0}</div>
-            <div className="text-sm text-gray-600">Средняя ценность (5k-10k)</div>
+                                <div className="text-sm text-gray-600">Medium value (5k-10k)</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-gray-600">{customerData?.segmentation?.low_value_customers || 0}</div>
-            <div className="text-sm text-gray-600">Низкая ценность ({'<'}5k)</div>
+                                <div className="text-sm text-gray-600">Low value ({'<'}5k)</div>
           </div>
         </div>
       </div>
 
       {/* Refunds Analytics */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Анализ возвратов</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Refund Analysis</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Всего платежей</h4>
+                            <h4 className="text-sm font-medium text-gray-600">Total payments</h4>
             <p className="text-2xl font-bold text-gray-600">{customerData?.refunds?.total_payments || 0}</p>
           </div>
           <div className="bg-red-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Возвратов</h4>
+                            <h4 className="text-sm font-medium text-gray-600">Refunds</h4>
             <p className="text-2xl font-bold text-red-600">{customerData?.refunds?.refunded_payments || 0}</p>
           </div>
           <div className="bg-yellow-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">% возвратов</h4>
+                            <h4 className="text-sm font-medium text-gray-600">Refund %</h4>
             <p className="text-2xl font-bold text-yellow-600">{(customerData?.refunds?.refund_rate || 0).toFixed(1)}%</p>
           </div>
           <div className="bg-orange-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Сумма возвратов</h4>
+                            <h4 className="text-sm font-medium text-gray-600">Refund amount</h4>
             <p className="text-xl font-bold text-orange-600">{formatCurrency(customerData?.refunds?.total_refund_amount || 0)}</p>
           </div>
         </div>
@@ -851,13 +851,13 @@ const CustomerAnalyticsView = ({ companyId, dateRange }) => {
         {/* Refund Trends */}
         {customerData?.refunds?.refund_trends && (
           <div className="mt-6">
-            <h4 className="text-md font-semibold text-gray-900 mb-4">Тренд возвратов</h4>
+                            <h4 className="text-md font-semibold text-gray-900 mb-4">Refund Trend</h4>
             <div className="h-64">
               <Line
                 data={{
                   labels: customerData.refunds.refund_trends.map(item => item.date),
                   datasets: [{
-                    label: 'Сумма возвратов',
+                    label: 'Refund amount',
                     data: customerData.refunds.refund_trends.map(item => item.amount),
                     borderColor: 'rgb(239, 68, 68)',
                     backgroundColor: 'rgba(239, 68, 68, 0.1)',
@@ -918,23 +918,23 @@ const PerformanceAnalyticsView = ({ companyId, dateRange }) => {
     <div className="space-y-6">
       {/* Team Overview */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Обзор команды</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Team Overview</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Всего бронирований</h4>
+                            <h4 className="text-sm font-medium text-gray-600">Total bookings</h4>
             <p className="text-2xl font-bold text-blue-600">{performanceData?.total_team_bookings || 0}</p>
           </div>
           <div className="bg-green-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Часов работы</h4>
+                            <h4 className="text-sm font-medium text-gray-600">Work hours</h4>
             <p className="text-2xl font-bold text-green-600">{(performanceData?.total_team_hours || 0).toFixed(1)}</p>
           </div>
           <div className="bg-purple-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Доход команды</h4>
+                            <h4 className="text-sm font-medium text-gray-600">Team revenue</h4>
             <p className="text-xl font-bold text-purple-600">{formatCurrency(performanceData?.total_team_revenue || 0)}</p>
           </div>
           <div className="bg-orange-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600">Загруженность</h4>
+                            <h4 className="text-sm font-medium text-gray-600">Workload</h4>
             <p className="text-2xl font-bold text-orange-600">{(performanceData?.avg_utilization || 0).toFixed(1)}%</p>
           </div>
         </div>
@@ -942,14 +942,14 @@ const PerformanceAnalyticsView = ({ companyId, dateRange }) => {
 
       {/* Employee Performance Table */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Производительность сотрудников</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Employee Performance</h3>
         
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Сотрудник</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Бронирования</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bookings</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Часы работы</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Загруженность</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Доход</th>

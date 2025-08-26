@@ -84,9 +84,7 @@ const Header = () => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
-              <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">Z</span>
-              </div>
+              <img src="/assets/logos/Zootel.svg" alt="Zootel" className="h-8 w-auto" />
               <span className="ml-2 text-xl font-bold text-gray-900">Zootel</span>
             </Link>
           </div>

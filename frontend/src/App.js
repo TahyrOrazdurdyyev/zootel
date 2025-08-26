@@ -7,6 +7,7 @@ import LayoutRouter from './components/layouts/LayoutRouter';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
+import BusinessRegisterPage from './pages/auth/BusinessRegisterPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import MarketplacePage from './pages/marketplace/MarketplacePage';
@@ -33,6 +34,7 @@ import CompanyAnalyticsPage from './pages/company/CompanyAnalyticsPage';
 import EmployeeChatPage from './pages/company/EmployeeChatPage';
 import ServicesManagementPage from './pages/company/ServicesManagementPage';
 import AddonManagementPage from './pages/company/AddonManagementPage';
+import InventoryPage from './pages/company/InventoryPage';
 
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -51,6 +53,7 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/business-register" element={<BusinessRegisterPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/marketplace" element={<MarketplacePage />} />
@@ -94,6 +97,7 @@ function App() {
                     <Route path="/services" element={<ServicesManagementPage />} />
                     <Route path="/addons" element={<AddonManagementPage />} />
                     <Route path="/ai-prompts" element={<AIPromptsCustomization />} />
+                    <Route path="/inventory" element={<InventoryPage />} />
                   </Routes>
                 </ProtectedRoute>
               } />

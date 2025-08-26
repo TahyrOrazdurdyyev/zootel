@@ -39,6 +39,7 @@ type ServiceContainer struct {
 	reviewService       *ReviewService
 	employeeService     *EmployeeService
 	promptService       *PromptService
+	inventoryService    *InventoryService
 
 	// Service initialization status
 	initialized map[string]bool
@@ -84,6 +85,9 @@ func NewServiceContainer(db *sql.DB) *ServiceContainer {
 	// Chat service needs AI service
 	chatService := NewChatService(db, aiService)
 
+	// Inventory service (no dependencies)
+	inventoryService := NewInventoryService(db)
+
 	return &ServiceContainer{
 		db:                  db,
 		initialized:         make(map[string]bool),
@@ -110,6 +114,7 @@ func NewServiceContainer(db *sql.DB) *ServiceContainer {
 		reviewService:       reviewService,
 		employeeService:     employeeService,
 		promptService:       promptService,
+		inventoryService:    inventoryService,
 	}
 }
 
@@ -306,6 +311,10 @@ func (c *ServiceContainer) EmployeeService() *EmployeeService {
 
 func (c *ServiceContainer) PromptService() *PromptService {
 	return c.promptService
+}
+
+func (c *ServiceContainer) InventoryService() *InventoryService {
+	return c.inventoryService
 }
 
 // Cleanup method

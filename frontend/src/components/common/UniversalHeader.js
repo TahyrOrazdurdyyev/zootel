@@ -113,24 +113,24 @@ const UniversalHeader = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           
-          {/* Логотип */}
+          {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <img src="/logo.svg" alt="Zootel" className="h-8 w-auto" />
+              <img src="/assets/logos/Zootel.svg" alt="Zootel" className="h-8 w-auto" />
               <span className="ml-2 text-xl font-bold text-gray-900">Zootel</span>
             </Link>
           </div>
 
-          {/* Основное меню (только для публичных страниц) */}
+          {/* Main Menu (only for public pages) */}
           {shouldShowFullMenu() && (
             <nav className="hidden lg:flex items-center space-x-8 ml-8">
-              {/* Услуги */}
+              {/* Services */}
               <div className="relative" ref={servicesMenuRef}>
                 <button
                   onClick={() => setShowServicesMenu(!showServicesMenu)}
                   className="flex items-center text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium"
                 >
-                  Услуги
+                  Services
                   <ChevronDownIcon className="ml-1 h-4 w-4" />
                 </button>
                 
@@ -155,30 +155,30 @@ const UniversalHeader = () => {
                         className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium"
                         onClick={() => setShowServicesMenu(false)}
                       >
-                        Все услуги →
+                        All Services →
                       </Link>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Магазин */}
+              {/* Shop */}
               <Link
                 to="/shop"
                 className="text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium"
               >
-                Магазин
+                Shop
               </Link>
 
-              {/* Компании */}
+              {/* Companies */}
               <Link
                 to="/companies"
                 className="text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium"
               >
-                Компании
+                Companies
               </Link>
 
-              {/* Для бизнеса */}
+              {/* For Business */}
               <Link
                 to="/business"
                 className="text-red-600 hover:text-red-700 px-3 py-2 text-sm font-medium border border-red-600 rounded-lg hover:bg-red-50"

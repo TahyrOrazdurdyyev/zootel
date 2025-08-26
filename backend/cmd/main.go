@@ -92,6 +92,7 @@ func main() {
 	reviewHandler := handlers.NewReviewHandler(serviceContainer.ReviewService())
 	employeeHandler := handlers.NewEmployeeHandler(serviceContainer.EmployeeService())
 	promptHandler := handlers.NewPromptHandler(serviceContainer.PromptService())
+	inventoryHandler := handlers.NewInventoryHandler(serviceContainer.InventoryService())
 
 	// Set up additional dependencies
 	companyHandler.SetServices(serviceContainer.ServiceService(), serviceContainer.ProductService())
@@ -428,6 +429,18 @@ func main() {
 				companies.GET("/addons", addonHandler.GetCompanyAddons)
 				companies.POST("/addons/purchase", addonHandler.PurchaseAddon)
 				companies.DELETE("/addons/:id/cancel", addonHandler.CancelAddon)
+
+				// Inventory Management
+				companies.GET("/inventory", inventoryHandler.GetCompanyInventory)
+				companies.POST("/inventory", inventoryHandler.CreateProduct)
+				companies.GET("/inventory/:id", inventoryHandler.GetProduct)
+				companies.PUT("/inventory/:id", inventoryHandler.UpdateProduct)
+				companies.DELETE("/inventory/:id", inventoryHandler.DeleteProduct)
+				companies.POST("/inventory/:id/stock", inventoryHandler.UpdateStock)
+				companies.GET("/inventory/:id/transactions", inventoryHandler.GetInventoryTransactions)
+				companies.GET("/inventory/alerts", inventoryHandler.GetInventoryAlerts)
+				companies.PUT("/inventory/alerts/:alertId/read", inventoryHandler.MarkAlertAsRead)
+				companies.GET("/inventory/stats", inventoryHandler.GetInventoryStats)
 			}
 
 			// AI endpoints

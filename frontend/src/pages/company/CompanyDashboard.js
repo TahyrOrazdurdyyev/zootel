@@ -19,7 +19,8 @@ import {
   SparklesIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-  BellIcon
+  BellIcon,
+  CubeIcon
 } from '@heroicons/react/24/outline';
 
 const CompanyDashboard = () => {
@@ -124,6 +125,13 @@ const CompanyDashboard = () => {
       icon: SparklesIcon,
       href: '/company/ai-prompts',
       color: 'bg-yellow-500'
+    },
+    {
+      title: 'Inventory',
+      description: 'Manage product stock and warehouse',
+      icon: CubeIcon,
+      href: '/company/inventory',
+      color: 'bg-orange-500'
     }
   ];
 

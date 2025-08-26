@@ -597,10 +597,12 @@ type Product struct {
 	NutritionalInfo      string         `json:"nutritional_info" db:"nutritional_info"` // JSON string
 	Specifications       string         `json:"specifications" db:"specifications"`     // JSON string
 	Price                float64        `json:"price" db:"price"`
+	Cost                 *float64       `json:"cost" db:"cost"` // Product cost for inventory
 	WholesalePrice       *float64       `json:"wholesale_price" db:"wholesale_price"`
 	MinWholesaleQuantity int            `json:"min_wholesale_quantity" db:"min_wholesale_quantity"`
 	Stock                int            `json:"stock" db:"stock"`
 	LowStockAlert        int            `json:"low_stock_alert" db:"low_stock_alert"`
+	Unit                 string         `json:"unit" db:"unit"` // Unit of measurement (piece, kg, etc.)
 	ImageURL             string         `json:"image_url" db:"image_url"`
 	ImageGallery         pq.StringArray `json:"image_gallery" db:"image_gallery"`
 	IsActive             bool           `json:"is_active" db:"is_active"`

@@ -1,0 +1,20 @@
+{
+  "short_name": "Zootel",
+  "name": "Zootel - Pet Care Services Platform",
+  "description": "Find and book the best pet care services near you",
+  "icons": [
+    {
+      "src": "/assets/favicons/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#F65814",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "categories": ["lifestyle", "pets", "health"],
+  "lang": "ru"
+} 

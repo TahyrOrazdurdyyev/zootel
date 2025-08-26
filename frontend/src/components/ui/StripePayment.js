@@ -100,12 +100,12 @@ const PaymentForm = ({
         setCardError(stripeError.message);
         if (onError) onError(stripeError);
       } else if (paymentIntent.status === 'succeeded') {
-        toast.success('Платеж успешно обработан!');
+        toast.success('Payment processed successfully!');
         if (onSuccess) onSuccess(paymentIntent);
       }
     } catch (error) {
       console.error('Payment error:', error);
-      setCardError(error.message || 'Произошла ошибка при обработке платежа');
+              setCardError(error.message || 'An error occurred while processing the payment');
       if (onError) onError(error);
     } finally {
       setProcessing(false);
@@ -116,7 +116,7 @@ const PaymentForm = ({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="bg-gray-50 p-4 rounded-lg">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">К оплате:</span>
+          <span className="text-sm font-medium text-gray-700">To pay:</span>
           <span className="text-lg font-bold text-gray-900">
             {new Intl.NumberFormat('ru-RU', {
               style: 'currency',
@@ -131,7 +131,7 @@ const PaymentForm = ({
 
       <div className="space-y-3">
         <label className="block text-sm font-medium text-gray-700">
-          Данные карты
+          Card details
         </label>
         <div className="p-3 border border-gray-300 rounded-md focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500">
           <CardElement
@@ -149,7 +149,7 @@ const PaymentForm = ({
 
       <div className="flex items-center space-x-2 text-xs text-gray-500">
         <LockClosedIcon className="w-4 h-4" />
-        <span>Ваши данные защищены SSL-шифрованием</span>
+        <span>Your data is protected by SSL encryption</span>
       </div>
 
       <button
@@ -160,12 +160,12 @@ const PaymentForm = ({
         {processing ? (
           <>
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            <span>Обработка...</span>
+            <span>Processing...</span>
           </>
         ) : (
           <>
             <CreditCardIcon className="w-5 h-5" />
-            <span>Оплатить {new Intl.NumberFormat('ru-RU', {
+            <span>Pay {new Intl.NumberFormat('ru-RU', {
               style: 'currency',
               currency: currency
             }).format(amount)}</span>
@@ -186,27 +186,27 @@ const OfflinePayment = ({
   const [confirmed, setConfirmed] = useState(false);
 
   const defaultInstructions = `
-Для оплаты офлайн, пожалуйста:
+For offline payment, please:
 
-1. Переведите ${new Intl.NumberFormat('ru-RU', {
+1. Transfer ${new Intl.NumberFormat('ru-RU', {
   style: 'currency',
   currency: currency
-}).format(amount)} на указанные реквизиты
+}).format(amount)} to the specified details
 
-2. В комментарии к переводу укажите номер заказа
+2. In the transfer comment, specify the order number
 
-3. После перевода свяжитесь с нами для подтверждения
+3. After the transfer, contact us for confirmation
 
-Реквизиты для перевода:
-• Карта: 1234 5678 9012 3456
-• Получатель: ${companyInfo.name || 'Компания'}
-• Телефон: ${companyInfo.phone || '+7 (XXX) XXX-XX-XX'}
+Transfer details:
+• Card: 1234 5678 9012 3456
+• Recipient: ${companyInfo.name || 'Company'}
+• Phone: ${companyInfo.phone || '+7 (XXX) XXX-XX-XX'}
 • Email: ${companyInfo.email || 'info@company.com'}
   `;
 
   const handleConfirm = () => {
     setConfirmed(true);
-    toast.success('Инструкции отправлены!');
+    toast.success('Instructions sent!');
     if (onConfirm) {
       onConfirm({
         amount,
@@ -222,11 +222,11 @@ const OfflinePayment = ({
       <div className="text-center space-y-4">
         <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto" />
         <h3 className="text-lg font-medium text-gray-900">
-          Инструкции отправлены
+          Instructions sent
         </h3>
         <p className="text-gray-600">
-          Мы отправили вам инструкции по оплате на email. 
-          После перевода средств мы свяжемся с вами для подтверждения.
+          We have sent you payment instructions by email. 
+          After transferring funds, we will contact you for confirmation.
         </p>
       </div>
     );
@@ -239,10 +239,10 @@ const OfflinePayment = ({
           <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600 mt-0.5" />
           <div>
             <h3 className="text-sm font-medium text-yellow-800">
-              Офлайн оплата
+              Offline payment
             </h3>
             <p className="text-sm text-yellow-700 mt-1">
-              Онлайн-платежи временно недоступны. Используйте инструкции для офлайн оплаты.
+              Online payments are temporarily unavailable. Use the instructions for offline payment.
             </p>
           </div>
         </div>
@@ -250,7 +250,7 @@ const OfflinePayment = ({
 
       <div className="bg-gray-50 p-4 rounded-lg">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium text-gray-700">К оплате:</span>
+          <span className="text-sm font-medium text-gray-700">To pay:</span>
           <span className="text-lg font-bold text-gray-900">
             {new Intl.NumberFormat('ru-RU', {
               style: 'currency',
@@ -261,7 +261,7 @@ const OfflinePayment = ({
       </div>
 
       <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <h4 className="font-medium text-gray-900 mb-3">Инструкции по оплате:</h4>
+        <h4 className="font-medium text-gray-900 mb-3">Payment instructions:</h4>
         <div className="text-sm text-gray-600 whitespace-pre-line">
           {instructions || defaultInstructions}
         </div>
@@ -272,7 +272,7 @@ const OfflinePayment = ({
         className="w-full bg-gray-800 text-white py-3 px-4 rounded-md font-medium hover:bg-gray-900 flex items-center justify-center space-x-2"
       >
         <CheckCircleIcon className="w-5 h-5" />
-        <span>Получить инструкции</span>
+        <span>Get instructions</span>
       </button>
     </div>
   );

@@ -35,7 +35,7 @@ const LoginPage = () => {
       await login(formData.email, formData.password);
       navigate(from, { replace: true });
     } catch (err) {
-      setError('Неверный email или пароль');
+      setError('Invalid email or password');
     } finally {
       setLoading(false);
     }
@@ -50,15 +50,15 @@ const LoginPage = () => {
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-          Войти в аккаунт
+          Sign in to your account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Или{' '}
+          Or{' '}
           <Link
             to="/register"
             className="font-medium text-primary-500 hover:text-primary-600"
           >
-            создайте новый аккаунт
+            create a new account
           </Link>
         </p>
       </div>
@@ -105,7 +105,7 @@ const LoginPage = () => {
                   value={formData.password}
                   onChange={handleChange}
                   className="input-field pr-10"
-                  placeholder="Введите пароль"
+                  placeholder="Enter password"
                 />
                 <button
                   type="button"
@@ -130,7 +130,7 @@ const LoginPage = () => {
                   className="h-4 w-4 text-primary-500 focus:ring-primary-500 border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                  Запомнить меня
+                  Remember me
                 </label>
               </div>
 
@@ -139,7 +139,7 @@ const LoginPage = () => {
                   to="/forgot-password"
                   className="font-medium text-primary-500 hover:text-primary-600"
                 >
-                  Забыли пароль?
+                  Forgot password?
                 </Link>
               </div>
             </div>
@@ -153,22 +153,37 @@ const LoginPage = () => {
                 {loading ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Вход...
+                    Signing in...
                   </div>
                 ) : (
-                  'Войти'
+                  'Sign in'
                 )}
               </button>
             </div>
           </form>
 
           <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Или продолжите с</span>
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{' '}
+                <Link to="/register" className="font-medium text-primary-500 hover:text-primary-600">
+                  Sign up
+                </Link>
+                {' '}or{' '}
+                <Link to="/business-register" className="font-medium text-primary-500 hover:text-primary-600">
+                  Register business
+                </Link>
+              </p>
+            </div>
+            
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                </div>
               </div>
             </div>
 
@@ -196,7 +211,7 @@ const LoginPage = () => {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                <span className="ml-2">Google (скоро)</span>
+                <span className="ml-2">Google (soon)</span>
               </button>
             </div>
           </div>
