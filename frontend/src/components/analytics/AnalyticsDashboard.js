@@ -47,10 +47,10 @@ const AnalyticsDashboard = ({
 
   // Date range options
   const dateRanges = [
-    { value: '7d', label: '7 дней' },
-    { value: '30d', label: '30 дней' },
-    { value: '90d', label: '90 дней' },
-    { value: '1y', label: '1 год' }
+    { value: '7d', label: '7 days' },
+    { value: '30d', label: '30 days' },
+    { value: '90d', label: '90 days' },
+    { value: '1y', label: '1 year' }
   ];
 
   // Fetch analytics data
@@ -208,7 +208,7 @@ const AnalyticsDashboard = ({
           onClick={fetchAnalytics}
           className="btn-primary mt-4"
         >
-          Попробовать снова
+          Try Again
         </button>
       </div>
     );
@@ -219,7 +219,7 @@ const AnalyticsDashboard = ({
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">
-          {isAdmin ? 'Глобальная аналитика' : 'Аналитика компании'}
+          {isAdmin ? 'Global Analytics' : 'Company Analytics'}
         </h2>
         <div className="flex items-center space-x-4">
           <select
@@ -238,7 +238,7 @@ const AnalyticsDashboard = ({
             className="btn-secondary flex items-center space-x-2"
           >
             <ArrowPathIcon className="w-4 h-4" />
-            <span>Обновить</span>
+            <span>Refresh</span>
           </button>
         </div>
       </div>
@@ -247,7 +247,7 @@ const AnalyticsDashboard = ({
       {dashboardData?.global && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
-            title="Общий доход"
+            title="Total Revenue"
             value={formatCurrency(dashboardData.global.totalRevenue || 0)}
             change={calculateChange(
               dashboardData.global.totalRevenue, 
@@ -257,7 +257,7 @@ const AnalyticsDashboard = ({
             color="green"
           />
           <MetricCard
-            title="Всего пользователей"
+            title="Total Users"
             value={formatNumber(dashboardData.global.totalUsers || 0)}
             change={calculateChange(
               dashboardData.global.totalUsers,
@@ -267,7 +267,7 @@ const AnalyticsDashboard = ({
             color="blue"
           />
           <MetricCard
-            title="Бронирования"
+            title="Bookings"
             value={formatNumber(dashboardData.global.totalBookings || 0)}
             change={calculateChange(
               dashboardData.global.totalBookings,
@@ -277,7 +277,7 @@ const AnalyticsDashboard = ({
             color="purple"
           />
           <MetricCard
-            title="Активных компаний"
+            title="Active Companies"
             value={formatNumber(dashboardData.global.activeCompanies || 0)}
             change={calculateChange(
               dashboardData.global.activeCompanies,
@@ -294,13 +294,13 @@ const AnalyticsDashboard = ({
         {/* Revenue Trend Chart */}
         {dashboardData?.revenue && (
           <div className="card">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Тренд доходов</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Trend</h3>
             <div className="h-64">
               <Line
                 data={{
                   labels: dashboardData.revenue.labels || [],
                   datasets: [{
-                    label: 'Доход',
+                    label: 'Revenue',
                     data: dashboardData.revenue.data || [],
                     borderColor: 'rgb(255, 69, 0)',
                     backgroundColor: 'rgba(255, 69, 0, 0.1)',
@@ -316,13 +316,13 @@ const AnalyticsDashboard = ({
         {/* Bookings Chart */}
         {dashboardData?.bookings && (
           <div className="card">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Бронирования</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Bookings</h3>
             <div className="h-64">
               <Bar
                 data={{
                   labels: dashboardData.bookings.labels || [],
                   datasets: [{
-                    label: 'Бронирования',
+                    label: 'Bookings',
                     data: dashboardData.bookings.data || [],
                     backgroundColor: 'rgba(54, 162, 235, 0.8)',
                     borderColor: 'rgba(54, 162, 235, 1)',
@@ -338,13 +338,13 @@ const AnalyticsDashboard = ({
         {/* User Registration Chart */}
         {dashboardData?.registrations && (
           <div className="card">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Регистрации пользователей</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">User Registrations</h3>
             <div className="h-64">
               <Line
                 data={{
                   labels: dashboardData.registrations.labels || [],
                   datasets: [{
-                    label: 'Новые пользователи',
+                    label: 'New Users',
                     data: dashboardData.registrations.data || [],
                     borderColor: 'rgb(75, 192, 192)',
                     backgroundColor: 'rgba(75, 192, 192, 0.1)',
@@ -360,7 +360,7 @@ const AnalyticsDashboard = ({
         {/* Service Categories Performance */}
         {dashboardData?.categories && (
           <div className="card">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Производительность категорий</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Category Performance</h3>
             <div className="h-64">
               <Doughnut
                 data={{
@@ -387,22 +387,22 @@ const AnalyticsDashboard = ({
       {/* Top Companies Table (Admin only) */}
       {isAdmin && dashboardData?.topCompanies && (
         <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Топ компании</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Companies</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Компания
+                    Company
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Доход
+                    Revenue
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Бронирования
+                    Bookings
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Рейтинг
+                    Rating
                   </th>
                 </tr>
               </thead>

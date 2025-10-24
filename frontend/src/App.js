@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
+import { CurrencyProvider } from './contexts/CurrencyContext';
 import LayoutRouter from './components/layouts/LayoutRouter';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/auth/LoginPage';
@@ -13,6 +14,7 @@ import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import MarketplacePage from './pages/marketplace/MarketplacePage';
 import BusinessPage from './pages/BusinessPage';
 import CompanyPublicPage from './pages/CompanyPublicPage';
+import CompaniesPage from './pages/CompaniesPage';
 import BookingPage from './pages/BookingPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
@@ -24,9 +26,15 @@ import PaymentSettings from './pages/admin/PaymentSettings';
 import PlanSettings from './pages/admin/PlanSettings';
 import AnalyticsPage from './pages/admin/AnalyticsPage';
 import CompaniesManagement from './pages/admin/CompaniesManagement';
+import CurrencyManagement from './pages/admin/CurrencyManagement';
 import PromptsManagement from './pages/admin/PromptsManagement';
 import AIPromptsCustomization from './pages/company/AIPromptsCustomization';
 import BusinessLandingPage from './pages/BusinessLandingPage';
+
+// Payment pages
+import CryptoPaymentPage from './pages/payment/CryptoPaymentPage';
+import PaymentSuccessPage from './pages/payment/PaymentSuccessPage';
+import PaymentFailedPage from './pages/payment/PaymentFailedPage';
 
 // Company pages
 import CompanyDashboard from './pages/company/CompanyDashboard';
@@ -46,8 +54,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <CartProvider>
-          <LayoutRouter>
+        <CurrencyProvider>
+          <CartProvider>
+            <LayoutRouter>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
@@ -57,8 +66,15 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/marketplace" element={<MarketplacePage />} />
+              <Route path="/shop" element={<MarketplacePage />} />
+              <Route path="/companies" element={<CompaniesPage />} />
               <Route path="/business" element={<BusinessPage />} />
               <Route path="/company/:companyId" element={<CompanyPublicPage />} />
+              
+              {/* Payment Routes */}
+              <Route path="/payment/crypto/:paymentId" element={<CryptoPaymentPage />} />
+              <Route path="/payment/success" element={<PaymentSuccessPage />} />
+              <Route path="/payment/failed" element={<PaymentFailedPage />} />
               
               {/* Protected Routes */}
               <Route path="/booking/:companyId?" element={
@@ -115,6 +131,11 @@ function App() {
                         <CompaniesManagement />
                       </ProtectedRoute>
                     } />
+                    <Route path="/currencies" element={
+                      <ProtectedRoute requiredRole="super_admin">
+                        <CurrencyManagement />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/prompts" element={
                       <ProtectedRoute requiredRole="super_admin">
                         <PromptsManagement />
@@ -129,6 +150,7 @@ function App() {
             </Routes>
           </LayoutRouter>
         </CartProvider>
+        </CurrencyProvider>
         <Toaster
           position="top-right"
           reverseOrder={false}

@@ -120,9 +120,9 @@ const AnalyticsPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Аналитика платформы</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Platform Analytics</h1>
           <p className="mt-2 text-gray-600">
-            Комплексная аналитика и метрики для SuperAdmin
+            Comprehensive analytics and metrics for SuperAdmin
           </p>
         </div>
 
@@ -174,16 +174,16 @@ const RecentActivityWidget = () => {
   useEffect(() => {
     // Mock data - replace with API call
     setActivities([
-      { id: 1, type: 'user_registration', message: 'Новый пользователь зарегистрировался', time: '5 мин назад' },
-      { id: 2, type: 'company_created', message: 'Создана новая компания "Pet Care Pro"', time: '15 мин назад' },
-      { id: 3, type: 'booking_completed', message: 'Завершено бронирование на сумму ₽2,500', time: '30 мин назад' },
-      { id: 4, type: 'payment_processed', message: 'Обработан платеж ₽1,200', time: '1 час назад' },
+      { id: 1, type: 'user_registration', message: 'New user registered', time: '5 min ago' },
+      { id: 2, type: 'company_created', message: 'New company "Pet Care Pro" created', time: '15 min ago' },
+      { id: 3, type: 'booking_completed', message: 'Booking completed for $2,500', time: '30 min ago' },
+      { id: 4, type: 'payment_processed', message: 'Payment processed $1,200', time: '1 hour ago' },
     ]);
   }, []);
 
   return (
     <div className="card">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Последняя активность</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
       <div className="space-y-3">
         {activities.map((activity) => (
           <div key={activity.id} className="flex items-start space-x-3">
@@ -202,15 +202,15 @@ const RecentActivityWidget = () => {
 // Platform Health Widget
 const PlatformHealthWidget = () => {
   const healthMetrics = [
-    { name: 'Время отклика API', value: '120ms', status: 'good' },
-    { name: 'Доступность', value: '99.9%', status: 'good' },
-    { name: 'Активные сессии', value: '1,234', status: 'good' },
-    { name: 'Ошибки', value: '0.1%', status: 'good' },
+    { name: 'API Response Time', value: '120ms', status: 'good' },
+    { name: 'Availability', value: '99.9%', status: 'good' },
+    { name: 'Active Sessions', value: '1,234', status: 'good' },
+    { name: 'Errors', value: '0.1%', status: 'good' },
   ];
 
   return (
     <div className="card">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Состояние платформы</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Platform Status</h3>
       <div className="space-y-3">
         {healthMetrics.map((metric, index) => (
           <div key={index} className="flex justify-between items-center">
@@ -239,7 +239,7 @@ const TopMetricsWidget = () => {
 
   return (
     <div className="card">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Ключевые показатели</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Metrics</h3>
       <div className="space-y-3">
         {topMetrics.map((metric, index) => (
           <div key={index} className="flex justify-between items-center">
@@ -255,40 +255,40 @@ const TopMetricsWidget = () => {
 // Placeholder tabs - to be implemented
 const UserAnalyticsTab = ({ timeframe }) => (
   <div className="card">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">Аналитика пользователей</h3>
-    <p className="text-gray-600">Подробная аналитика пользователей за {timeframe}</p>
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">User Analytics</h3>
+    <p className="text-gray-600">Detailed user analytics for {timeframe}</p>
     {/* Add user-specific charts and metrics here */}
   </div>
 );
 
 const CompanyAnalyticsTab = ({ timeframe }) => (
   <div className="card">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">Аналитика компаний</h3>
-    <p className="text-gray-600">Производительность компаний за {timeframe}</p>
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">Company Analytics</h3>
+    <p className="text-gray-600">Company performance for {timeframe}</p>
     {/* Add company-specific charts and metrics here */}
   </div>
 );
 
 const RevenueAnalyticsTab = ({ timeframe }) => (
   <div className="card">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">Финансовая аналитика</h3>
-    <p className="text-gray-600">Доходы и финансовые метрики за {timeframe}</p>
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">Financial Analytics</h3>
+    <p className="text-gray-600">Revenue and financial metrics for {timeframe}</p>
     {/* Add revenue-specific charts and metrics here */}
   </div>
 );
 
 const BookingAnalyticsTab = ({ timeframe }) => (
   <div className="card">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">Аналитика бронирований</h3>
-    <p className="text-gray-600">Статистика бронирований за {timeframe}</p>
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">Booking Analytics</h3>
+    <p className="text-gray-600">Booking statistics for {timeframe}</p>
     {/* Add booking-specific charts and metrics here */}
   </div>
 );
 
 const GeographyAnalyticsTab = ({ timeframe }) => (
   <div className="card">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">Географическая аналитика</h3>
-    <p className="text-gray-600">Распределение по регионам за {timeframe}</p>
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">Geographic Analytics</h3>
+    <p className="text-gray-600">Regional distribution for {timeframe}</p>
     {/* Add geography-specific charts and maps here */}
   </div>
 );

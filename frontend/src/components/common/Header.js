@@ -14,6 +14,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { apiCall } from '../../utils/api';
+import CurrencySelector from './CurrencySelector';
 
 // Add trial status indicator
 const TrialStatusIndicator = ({ trialExpired, daysLeft }) => {
@@ -84,24 +85,23 @@ const Header = () => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
-              <img src="/assets/logos/Zootel.svg" alt="Zootel" className="h-8 w-auto" />
-              <span className="ml-2 text-xl font-bold text-gray-900">Zootel</span>
+              <img src="/logo.svg" alt="Zootel" className="h-8 w-auto" />
             </Link>
           </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
             <Link to="/marketplace" className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium">
-              Услуги
+              Services
             </Link>
             <Link to="/marketplace?type=products" className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium">
-              Магазин
+              Shop
             </Link>
             <Link to="/marketplace?type=companies" className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium">
-              Компании
+              Companies
             </Link>
             <Link to="/business" className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium">
-              Для бизнеса
+              For Business
             </Link>
           </nav>
 
@@ -113,14 +113,14 @@ const Header = () => {
                 onChange={(e) => setSearchCategory(e.target.value)}
                 className="rounded-l-lg border border-r-0 border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
-                <option value="all">Все</option>
-                <option value="services">Услуги</option>
-                <option value="products">Товары</option>
-                <option value="companies">Компании</option>
+                <option value="all">All</option>
+                <option value="services">Services</option>
+                <option value="products">Products</option>
+                <option value="companies">Companies</option>
               </select>
               <input
                 type="text"
-                placeholder="Поиск по локации или услуге..."
+                placeholder="Search by location or service..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -136,6 +136,9 @@ const Header = () => {
 
           {/* Right side - Icons and Auth */}
           <div className="flex items-center space-x-4">
+            {/* Currency Selector */}
+            <CurrencySelector />
+            
             {/* Cart */}
             <Link to="/cart" className="relative p-2 text-gray-700 hover:text-primary-500">
               <ShoppingCartIcon className="h-6 w-6" />
@@ -171,16 +174,16 @@ const Header = () => {
                   onClick={handleLogout}
                   className="text-sm text-gray-700 hover:text-primary-500 px-3 py-2"
                 >
-                  Выйти
+                  Logout
                 </button>
               </>
             ) : (
               <>
                 <Link to="/login" className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium">
-                  Войти
+                  Login
                 </Link>
                 <Link to="/register" className="btn-primary text-sm">
-                  Регистрация
+                  Register
                 </Link>
               </>
             )}
@@ -269,14 +272,14 @@ const Header = () => {
               onChange={(e) => setSearchCategory(e.target.value)}
               className="rounded-l-lg border border-r-0 border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
-              <option value="all">Все</option>
-              <option value="services">Услуги</option>
-              <option value="products">Товары</option>
-              <option value="companies">Компании</option>
+              <option value="all">All</option>
+              <option value="services">Services</option>
+              <option value="products">Products</option>
+              <option value="companies">Companies</option>
             </select>
             <input
               type="text"
-              placeholder="Поиск..."
+              placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -299,28 +302,28 @@ const Header = () => {
                 className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Услуги
+                Services
               </Link>
               <Link 
                 to="/marketplace?type=products" 
                 className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Магазин
+                Shop
               </Link>
               <Link 
                 to="/marketplace?type=companies" 
                 className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Компании
+                Companies
               </Link>
               <Link 
                 to="/business" 
                 className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Для бизнеса
+                For Business
               </Link>
             </nav>
           </div>

@@ -108,6 +108,27 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
+func (h *AuthHandler) GetMe(c *gin.Context) {
+	// Get user data from Firebase UID in context (set by AuthMiddleware)
+	firebaseUID, exists := c.Get("firebase_uid")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	// Get user from database
+	user, err := h.userService.GetUserByFirebaseUID(firebaseUID.(string))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    user,
+	})
+}
+
 func (h *AuthHandler) EmployeeLogin(c *gin.Context) {
 	var req EmployeeLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

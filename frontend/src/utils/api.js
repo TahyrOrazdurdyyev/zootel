@@ -1,4 +1,4 @@
-export const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://zootel.shop';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export const api = {
   get: async (url) => {
@@ -12,5 +12,22 @@ export const api = {
       body: JSON.stringify(data),
     });
     return response.json();
+  },
+  put: async (url, data) => {
+    const response = await fetch(`${API_BASE_URL}${url}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  },
+  delete: async (url) => {
+    const response = await fetch(`${API_BASE_URL}${url}`, {
+      method: 'DELETE',
+    });
+    return response.json();
   }
 };
+
+// Alias for backward compatibility
+export const apiCall = api;

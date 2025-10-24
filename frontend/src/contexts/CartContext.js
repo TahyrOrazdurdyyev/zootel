@@ -13,7 +13,7 @@ export const useCart = () => {
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
-  // Загружаем корзину из localStorage при инициализации
+  // Load cart from localStorage on initialization
   useEffect(() => {
     const savedCart = localStorage.getItem('zootel_cart');
     if (savedCart) {
@@ -25,7 +25,7 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
-  // Сохраняем корзину в localStorage при изменении
+  // Save cart to localStorage on change
   useEffect(() => {
     localStorage.setItem('zootel_cart', JSON.stringify(cartItems));
   }, [cartItems]);
@@ -34,14 +34,14 @@ export const CartProvider = ({ children }) => {
     setCartItems(prev => {
       const existingItem = prev.find(cartItem => cartItem.id === item.id);
       if (existingItem) {
-        // Увеличиваем количество если товар уже в корзине
+        // Increase quantity if item already in cart
         return prev.map(cartItem => 
           cartItem.id === item.id 
             ? { ...cartItem, quantity: cartItem.quantity + 1 }
             : cartItem
         );
       } else {
-        // Добавляем новый товар
+        // Add new item
         return [...prev, { ...item, quantity: 1 }];
       }
     });

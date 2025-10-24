@@ -5,6 +5,7 @@ import {
   CalendarIcon,
   ChartBarIcon,
   ChatBubbleLeftRightIcon,
+  CheckIcon,
   CogIcon,
   DevicePhoneMobileIcon,
   GlobeAltIcon,

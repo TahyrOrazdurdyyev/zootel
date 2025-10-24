@@ -99,7 +99,7 @@ const ChatWidget = ({
       setIsConnected(true);
     } catch (error) {
       console.error('Failed to initialize chat:', error);
-      toast.error('Не удалось подключиться к чату');
+      toast.error('Failed to connect to chat');
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +116,7 @@ const ChatWidget = ({
         body: JSON.stringify({
           company_id: companyId,
           ai_agent_key: selectedAgent?.key,
-          initial_message: 'Здравствуйте! Как дела?'
+          initial_message: 'Hello! How are you?'
         }),
       });
 
@@ -127,8 +127,8 @@ const ChatWidget = ({
         setMessages([{
           id: 'welcome',
           sender_type: 'ai',
-          sender_name: selectedAgent?.name || 'Ассистент',
-          message_text: 'Здравствуйте! Я ваш виртуальный помощник. Чем могу помочь?',
+          sender_name: selectedAgent?.name || 'Assistant',
+          message_text: 'Hello! I am your virtual assistant. How can I help you?',
           created_at: new Date().toISOString(),
           is_read: false
         }]);
@@ -168,7 +168,7 @@ const ChatWidget = ({
     const userMessage = {
       id: Date.now(),
       sender_type: 'user',
-      sender_name: user.name || 'Вы',
+      sender_name: user.name || 'You',
       message_text: messageText,
       created_at: new Date().toISOString(),
       is_read: false
@@ -209,7 +209,7 @@ const ChatWidget = ({
       }
     } catch (error) {
       console.error('Failed to send message:', error);
-      toast.error('Не удалось отправить сообщение');
+      toast.error('Failed to send message');
       
       // Remove failed message
       setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
@@ -250,7 +250,7 @@ const ChatWidget = ({
     const fileMessage = {
       id: Date.now(),
       sender_type: 'user',
-      sender_name: user.name || 'Вы',
+      sender_name: user.name || 'You',
       message_text: `📎 ${file.name}`,
       created_at: new Date().toISOString(),
       is_read: false,
@@ -262,7 +262,7 @@ const ChatWidget = ({
     };
 
     setMessages(prev => [...prev, fileMessage]);
-    toast.success('Файл отправлен (демо)');
+    toast.success('File sent (demo)');
   };
 
   // Handle key press
@@ -324,11 +324,11 @@ const ChatWidget = ({
         {/* Header */}
         <div className="bg-primary-500 text-white p-4 rounded-t-lg flex justify-between items-center">
           <div>
-            <h3 className="font-medium">Чат поддержки</h3>
+            <h3 className="font-medium">Support Chat</h3>
             <p className="text-xs opacity-90">
               {isConnected ? (
-                selectedAgent ? `${selectedAgent.name} • Онлайн` : 'Онлайн'
-              ) : 'Подключение...'}
+                selectedAgent ? `${selectedAgent.name} • Online` : 'Online'
+              ) : 'Connecting...'}
             </p>
           </div>
           <button
@@ -388,7 +388,7 @@ const ChatWidget = ({
                     <div className="flex items-center space-x-1">
                       {getMessageIcon('ai')}
                       <span className="text-xs font-medium">
-                        {selectedAgent?.name || 'Ассистент'}
+                        {selectedAgent?.name || 'Assistant'}
                       </span>
                     </div>
                     <div className="flex space-x-1 mt-1">
@@ -419,7 +419,7 @@ const ChatWidget = ({
             <button
               onClick={() => fileInputRef.current?.click()}
               className="p-2 text-gray-400 hover:text-gray-600"
-              title="Прикрепить файл"
+              title="Attach file"
             >
               <PaperClipIcon className="w-4 h-4" />
             </button>
@@ -430,7 +430,7 @@ const ChatWidget = ({
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Введите сообщение..."
+              placeholder="Type a message..."
               disabled={isLoading || !isConnected}
               className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
             />
@@ -447,7 +447,7 @@ const ChatWidget = ({
           {/* Agent selector */}
           {availableAgents.length > 1 && (
             <div className="mt-2 flex items-center space-x-2">
-              <span className="text-xs text-gray-500">Помощник:</span>
+              <span className="text-xs text-gray-500">Assistant:</span>
               <select
                 value={selectedAgent?.key || ''}
                 onChange={(e) => {

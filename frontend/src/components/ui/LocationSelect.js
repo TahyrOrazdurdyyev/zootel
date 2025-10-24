@@ -28,16 +28,16 @@ const LocationSelect = ({
 
   // Mock data - in production, you'd fetch from a location API
   const mockCountries = [
-    { code: 'RU', name: 'Россия', emoji: '🇷🇺' },
-    { code: 'US', name: 'США', emoji: '🇺🇸' },
-    { code: 'UK', name: 'Великобритания', emoji: '🇬🇧' },
-    { code: 'DE', name: 'Германия', emoji: '🇩🇪' },
-    { code: 'FR', name: 'Франция', emoji: '🇫🇷' },
-    { code: 'IT', name: 'Италия', emoji: '🇮🇹' },
-    { code: 'ES', name: 'Испания', emoji: '🇪🇸' },
-    { code: 'CA', name: 'Канада', emoji: '🇨🇦' },
-    { code: 'AU', name: 'Австралия', emoji: '🇦🇺' },
-    { code: 'JP', name: 'Япония', emoji: '🇯🇵' }
+    { code: 'RU', name: 'Russia', emoji: '🇷🇺' },
+    { code: 'US', name: 'USA', emoji: '🇺🇸' },
+    { code: 'UK', name: 'United Kingdom', emoji: '🇬🇧' },
+    { code: 'DE', name: 'Germany', emoji: '🇩🇪' },
+    { code: 'FR', name: 'France', emoji: '🇫🇷' },
+    { code: 'IT', name: 'Italy', emoji: '🇮🇹' },
+    { code: 'ES', name: 'Spain', emoji: '🇪🇸' },
+    { code: 'CA', name: 'Canada', emoji: '🇨🇦' },
+    { code: 'AU', name: 'Australia', emoji: '🇦🇺' },
+    { code: 'JP', name: 'Japan', emoji: '🇯🇵' }
   ];
 
   const mockStates = {
@@ -185,7 +185,7 @@ const LocationSelect = ({
       <div>
         {showLabels && (
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Страна {required && <span className="text-red-500">*</span>}
+            Country {required && <span className="text-red-500">*</span>}
           </label>
         )}
         <Combobox value={selectedCountry} onChange={setSelectedCountry}>
@@ -200,7 +200,7 @@ const LocationSelect = ({
                     return country ? `${country.emoji} ${country.name}` : '';
                   }}
                   onChange={(event) => setCountryQuery(event.target.value)}
-                  placeholder="Выберите страну"
+                  placeholder="Select country"
                 />
               </div>
               <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
@@ -215,7 +215,7 @@ const LocationSelect = ({
               <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                 {filteredCountries.length === 0 && countryQuery !== '' ? (
                   <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
-                    Страна не найдена.
+                    Country not found.
                   </div>
                 ) : (
                   filteredCountries.map((country) => (
@@ -258,7 +258,7 @@ const LocationSelect = ({
         <div>
           {showLabels && (
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Регион/Штат {required && <span className="text-red-500">*</span>}
+              Region/State {required && <span className="text-red-500">*</span>}
             </label>
           )}
           <Combobox value={selectedState} onChange={setSelectedState} disabled={loadingStates}>
@@ -277,7 +277,7 @@ const LocationSelect = ({
                       return state ? state.name : '';
                     }}
                     onChange={(event) => setStateQuery(event.target.value)}
-                    placeholder={loadingStates ? "Загрузка..." : "Выберите регион"}
+                    placeholder={loadingStates ? "Loading..." : "Select region"}
                     disabled={loadingStates}
                   />
                 </div>
@@ -293,7 +293,7 @@ const LocationSelect = ({
                 <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                   {filteredStates.length === 0 && stateQuery !== '' ? (
                     <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
-                      Регион не найден.
+                      Region not found.
                     </div>
                   ) : (
                     filteredStates.map((state) => (
@@ -337,7 +337,7 @@ const LocationSelect = ({
         <div>
           {showLabels && (
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Город {required && <span className="text-red-500">*</span>}
+              City {required && <span className="text-red-500">*</span>}
             </label>
           )}
           <Combobox value={selectedCity} onChange={setSelectedCity} disabled={loadingCities}>
@@ -353,7 +353,7 @@ const LocationSelect = ({
                     className="w-full border-none py-2 text-sm leading-5 text-gray-900 focus:ring-0 focus:outline-none disabled:opacity-50"
                     displayValue={(cityName) => cityName}
                     onChange={(event) => setCityQuery(event.target.value)}
-                    placeholder={loadingCities ? "Загрузка..." : "Выберите город"}
+                    placeholder={loadingCities ? "Loading..." : "Select city"}
                     disabled={loadingCities}
                   />
                 </div>
@@ -369,7 +369,7 @@ const LocationSelect = ({
                 <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                   {filteredCities.length === 0 && cityQuery !== '' ? (
                     <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
-                      Город не найден.
+                      City not found.
                     </div>
                   ) : (
                     filteredCities.map((city) => (

@@ -16,13 +16,13 @@ const HomeHero = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
 
   const serviceCategories = [
-    { id: '', name: 'Все категории' },
-    { id: 'grooming', name: 'Груминг' },
-    { id: 'veterinary', name: 'Ветеринария' },
-    { id: 'boarding', name: 'Передержка' },
-    { id: 'training', name: 'Дрессировка' },
-    { id: 'walking', name: 'Выгул' },
-    { id: 'sitting', name: 'Пет-ситтинг' }
+    { id: '', name: 'All categories' },
+    { id: 'grooming', name: 'Grooming' },
+    { id: 'veterinary', name: 'Veterinary' },
+    { id: 'boarding', name: 'Boarding' },
+    { id: 'training', name: 'Training' },
+    { id: 'walking', name: 'Walking' },
+    { id: 'sitting', name: 'Pet Sitting' }
   ];
 
   const handleSearch = (e) => {
@@ -50,14 +50,14 @@ const HomeHero = () => {
           {/* Left side - B2C Hero */}
           <div className="text-center lg:text-left">
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-              Найдите и забронируйте 
-              <span className="text-red-600"> лучшие Pet Care услуги</span> 
-              рядом с вами
+              Find and book
+              <span className="text-red-600"> the best Pet Care services</span> 
+              near you
             </h1>
             
             <p className="text-xl text-gray-600 mb-8">
-              Груминг, ветеринария, передержка, товары для питомцев — всё в одном месте. 
-              Простое бронирование, надёжные специалисты, довольные питомцы.
+              Grooming, veterinary, boarding, pet products — all in one place. 
+              Simple booking, reliable specialists, happy pets.
             </p>
 
             {/* Search Form */}
@@ -81,7 +81,7 @@ const HomeHero = () => {
                   <MapPinIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Введите город"
+                    placeholder="Enter city"
                     value={searchLocation}
                     onChange={(e) => setSearchLocation(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
@@ -94,7 +94,7 @@ const HomeHero = () => {
                   className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium flex items-center justify-center"
                 >
                   <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
-                  Найти
+                  Search
                 </button>
               </div>
             </form>
@@ -103,15 +103,15 @@ const HomeHero = () => {
             <div className="grid grid-cols-3 gap-6 mt-8">
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">500+</div>
-                <div className="text-sm text-gray-600">Проверенных компаний</div>
+                <div className="text-sm text-gray-600">Verified companies</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">10K+</div>
-                <div className="text-sm text-gray-600">Довольных клиентов</div>
+                <div className="text-sm text-gray-600">Happy customers</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">24/7</div>
-                <div className="text-sm text-gray-600">Поддержка</div>
+                <div className="text-sm text-gray-600">Support</div>
               </div>
             </div>
           </div>
@@ -121,10 +121,10 @@ const HomeHero = () => {
             <div className="text-center mb-6">
               <BuildingOfficeIcon className="h-16 w-16 text-red-600 mx-auto mb-4" />
               <h2 className="text-3xl font-bold text-gray-900 mb-3">
-                Управляйте Pet Care бизнесом
+                Manage Pet Care business
               </h2>
               <p className="text-gray-600">
-                CRM-система для ветклиник, грумеров, зоомагазинов и других Pet Care услуг
+                CRM system for vet clinics, groomers, pet stores and other Pet Care services
               </p>
             </div>
 
@@ -132,19 +132,19 @@ const HomeHero = () => {
             <div className="space-y-4 mb-6">
               <div className="flex items-center text-sm text-gray-700">
                 <ChartBarIcon className="h-5 w-5 text-red-500 mr-3 flex-shrink-0" />
-                <span>Управление бронированиями и расписанием</span>
+                <span>Booking and schedule management</span>
               </div>
               <div className="flex items-center text-sm text-gray-700">
                 <ChatBubbleLeftIcon className="h-5 w-5 text-red-500 mr-3 flex-shrink-0" />
-                <span>Автоматические напоминания и чат с клиентами</span>
+                <span>Automatic reminders and customer chat</span>
               </div>
               <div className="flex items-center text-sm text-gray-700">
                 <SparklesIcon className="h-5 w-5 text-red-500 mr-3 flex-shrink-0" />
-                <span>AI-ассистенты для работы с клиентами</span>
+                <span>AI assistants for customer work</span>
               </div>
               <div className="flex items-center text-sm text-gray-700">
                 <ChartBarIcon className="h-5 w-5 text-red-500 mr-3 flex-shrink-0" />
-                <span>Детальная аналитика и отчёты</span>
+                <span>Detailed analytics and reports</span>
               </div>
             </div>
 
@@ -154,22 +154,22 @@ const HomeHero = () => {
                 to="/business"
                 className="block w-full bg-red-600 text-white text-center py-3 px-6 rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium"
               >
-                Узнать о CRM →
+                Learn about CRM →
               </Link>
               <Link
                 to="/demo"
                 className="block w-full border border-red-600 text-red-600 text-center py-3 px-6 rounded-lg hover:bg-red-50 transition-colors duration-200 font-medium"
               >
-                Запросить демо
+                Request demo
               </Link>
             </div>
 
             {/* Trust indicators */}
             <div className="mt-6 pt-6 border-t border-gray-100">
-              <p className="text-xs text-gray-500 text-center mb-2">Уже доверяют:</p>
+              <p className="text-xs text-gray-500 text-center mb-2">Already trusted:</p>
               <div className="text-center">
                 <span className="text-lg font-semibold text-red-600">200+</span>
-                <span className="text-sm text-gray-600 ml-1">Pet Care компаний</span>
+                <span className="text-sm text-gray-600 ml-1">Pet Care companies</span>
               </div>
             </div>
           </div>
@@ -178,20 +178,20 @@ const HomeHero = () => {
         {/* Bottom CTA Row */}
         <div className="mt-16 text-center">
           <p className="text-gray-600 mb-4">
-            Попробуйте новый способ взаимодействия с Pet Care индустрией
+            Try a new way to interact with the Pet Care industry
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/services"
               className="bg-white text-red-600 border border-red-600 px-8 py-3 rounded-lg hover:bg-red-50 transition-colors duration-200 font-medium"
             >
-              Перейти в маркетплейс
+              Go to marketplace
             </Link>
             <Link
               to="/business"
               className="bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium"
             >
-              Начать с CRM
+              Start with CRM
             </Link>
           </div>
         </div>

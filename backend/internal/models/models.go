@@ -1185,3 +1185,189 @@ type AgentPromptsInfo struct {
 	UserPrompt       PromptResponse `json:"user_prompt"`
 	HasCustomPrompts bool           `json:"has_custom_prompts"`
 }
+
+// Currency represents supported currencies
+type Currency struct {
+	ID           string    `json:"id" db:"id"`
+	Code         string    `json:"code" db:"code"`             // USD, EUR, RUB
+	Name         string    `json:"name" db:"name"`             // US Dollar, Euro, Russian Ruble
+	Symbol       string    `json:"symbol" db:"symbol"`         // $, €, ₽
+	FlagEmoji    string    `json:"flag_emoji" db:"flag_emoji"` // 🇺🇸, 🇪🇺, 🇷🇺
+	IsActive     bool      `json:"is_active" db:"is_active"`
+	IsBase       bool      `json:"is_base" db:"is_base"`             // Base currency for conversions
+	ExchangeRate float64   `json:"exchange_rate" db:"exchange_rate"` // Rate to base currency
+	LastUpdated  time.Time `json:"last_updated" db:"last_updated"`
+	CreatedAt    time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+}
+
+// CurrencyConversionRequest represents request for currency conversion
+type CurrencyConversionRequest struct {
+	FromCurrency string  `json:"from_currency" binding:"required"`
+	ToCurrency   string  `json:"to_currency" binding:"required"`
+	Amount       float64 `json:"amount" binding:"required,min=0"`
+}
+
+// CurrencyConversionResponse represents currency conversion result
+type CurrencyConversionResponse struct {
+	FromCurrency    string    `json:"from_currency"`
+	ToCurrency      string    `json:"to_currency"`
+	OriginalAmount  float64   `json:"original_amount"`
+	ConvertedAmount float64   `json:"converted_amount"`
+	ExchangeRate    float64   `json:"exchange_rate"`
+	LastUpdated     time.Time `json:"last_updated"`
+}
+
+// ExchangeRateAPIResponse represents response from ExchangeRate API
+type ExchangeRateAPIResponse struct {
+	Result             string             `json:"result"`
+	Documentation      string             `json:"documentation"`
+	TermsOfUse         string             `json:"terms_of_use"`
+	TimeLastUpdateUnix int64              `json:"time_last_update_unix"`
+	TimeLastUpdateUTC  string             `json:"time_last_update_utc"`
+	TimeNextUpdateUnix int64              `json:"time_next_update_unix"`
+	TimeNextUpdateUTC  string             `json:"time_next_update_utc"`
+	BaseCode           string             `json:"base_code"`
+	ConversionRates    map[string]float64 `json:"conversion_rates"`
+}
+
+// Crypto Payment Models
+type CryptoPayment struct {
+	ID                string    `json:"id" db:"id"`
+	OrderID           string    `json:"order_id" db:"order_id"`
+	PaymentID         string    `json:"payment_id" db:"payment_id"` // NowPayments payment ID
+	Currency          string    `json:"currency" db:"currency"`     // BTC, ETH, etc.
+	Network           string    `json:"network" db:"network"`       // bitcoin, ethereum, etc.
+	Amount            float64   `json:"amount" db:"amount"`         // Amount in crypto
+	Address           string    `json:"address" db:"address"`       // Wallet address
+	Status            string    `json:"status" db:"status"`         // new, confirming, confirmed, expired, failed
+	TransactionHash   string    `json:"transaction_hash" db:"transaction_hash"`
+	QRCode            string    `json:"qr_code" db:"qr_code"`
+	ExpiresAt         time.Time `json:"expires_at" db:"expires_at"`
+	CreatedAt         time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt         time.Time `json:"updated_at" db:"updated_at"`
+}
+
+type CryptoCurrency struct {
+	ID          string  `json:"id" db:"id"`
+	Code        string  `json:"code" db:"code"`         // BTC, ETH, USDT
+	Name        string  `json:"name" db:"name"`         // Bitcoin, Ethereum, Tether
+	Symbol      string  `json:"symbol" db:"symbol"`     // ₿, Ξ, ₮
+	Icon        string  `json:"icon" db:"icon"`         // Icon URL
+	IsActive    bool    `json:"is_active" db:"is_active"`
+	MinAmount   float64 `json:"min_amount" db:"min_amount"`
+	MaxAmount   float64 `json:"max_amount" db:"max_amount"`
+	CreatedAt   time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
+}
+
+type CryptoNetwork struct {
+	ID           string  `json:"id" db:"id"`
+	CurrencyCode string  `json:"currency_code" db:"currency_code"`
+	Name         string  `json:"name" db:"name"`         // Bitcoin, Ethereum, Polygon
+	Code         string  `json:"code" db:"code"`         // bitcoin, ethereum, polygon
+	IsActive     bool    `json:"is_active" db:"is_active"`
+	MinAmount    float64 `json:"min_amount" db:"min_amount"`
+	MaxAmount    float64 `json:"max_amount" db:"max_amount"`
+	CreatedAt    time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+}
+
+// NowPayments API Models
+type NowPaymentsCreatePaymentRequest struct {
+	PriceAmount      float64 `json:"price_amount"`
+	PriceCurrency    string  `json:"price_currency"`
+	PayCurrency      string  `json:"pay_currency"`
+	OrderID          string  `json:"order_id"`
+	OrderDescription string  `json:"order_description"`
+	IPNCallbackURL   string  `json:"ipn_callback_url"`
+	Case             string  `json:"case,omitempty"`
+}
+
+type NowPaymentsCreatePaymentResponse struct {
+	PaymentID        string  `json:"payment_id"`
+	PaymentStatus    string  `json:"payment_status"`
+	PayAddress       string  `json:"pay_address"`
+	PriceAmount      float64 `json:"price_amount"`
+	PriceCurrency    string  `json:"price_currency"`
+	PayAmount        float64 `json:"pay_amount"`
+	PayCurrency      string  `json:"pay_currency"`
+	OrderID          string  `json:"order_id"`
+	OrderDescription string  `json:"order_description"`
+	PurchaseID       string  `json:"purchase_id"`
+	CreatedAt        string  `json:"created_at"`
+	UpdatedAt        string  `json:"updated_at"`
+	OutcomeAmount    float64 `json:"outcome_amount"`
+	OutcomeCurrency  string  `json:"outcome_currency"`
+}
+
+type NowPaymentsCurrenciesResponse struct {
+	Currencies []NowPaymentsCurrency `json:"currencies"`
+}
+
+type NowPaymentsCurrency struct {
+	Code        string  `json:"code"`
+	Name        string  `json:"name"`
+	IsAvailable bool    `json:"is_available"`
+	IsFixedRate bool    `json:"is_fixed_rate"`
+	Image       string  `json:"image"`
+	MinAmount   float64 `json:"min_amount"`
+	MaxAmount   float64 `json:"max_amount"`
+}
+
+type NowPaymentsEstimateResponse struct {
+	EstimatedAmount float64 `json:"estimated_amount"`
+	Currency        string  `json:"currency"`
+}
+
+type NowPaymentsPaymentStatusResponse struct {
+	PaymentID        string  `json:"payment_id"`
+	PaymentStatus    string  `json:"payment_status"`
+	PayAddress       string  `json:"pay_address"`
+	PriceAmount      float64 `json:"price_amount"`
+	PriceCurrency    string  `json:"price_currency"`
+	PayAmount        float64 `json:"pay_amount"`
+	PayCurrency      string  `json:"pay_currency"`
+	OrderID          string  `json:"order_id"`
+	OrderDescription string  `json:"order_description"`
+	PurchaseID       string  `json:"purchase_id"`
+	CreatedAt        string  `json:"created_at"`
+	UpdatedAt        string  `json:"updated_at"`
+	OutcomeAmount    float64 `json:"outcome_amount"`
+	OutcomeCurrency  string  `json:"outcome_currency"`
+	PayinExtraID     string  `json:"payin_extra_id"`
+	SmartContract    string  `json:"smart_contract"`
+	Network          string  `json:"network"`
+	NetworkPrecision int     `json:"network_precision"`
+	TimeLimit        int     `json:"time_limit"`
+	ExpirationAt     string  `json:"expiration_at"`
+	IsFixedRate      bool    `json:"is_fixed_rate"`
+	IsFeePaidByUser  bool    `json:"is_fee_paid_by_user"`
+}
+
+// Frontend Request/Response Models
+type CreateCryptoPaymentRequest struct {
+	OrderID       string `json:"order_id" binding:"required"`
+	Currency      string `json:"currency" binding:"required"`
+	Network       string `json:"network" binding:"required"`
+	Amount        float64 `json:"amount" binding:"required,min=0"`
+}
+
+type CryptoPaymentResponse struct {
+	PaymentID      string  `json:"payment_id"`
+	Currency       string  `json:"currency"`
+	Network        string  `json:"network"`
+	Amount         float64 `json:"amount"`
+	Address        string  `json:"address"`
+	QRCode         string  `json:"qr_code"`
+	Status         string  `json:"status"`
+	ExpiresAt      string  `json:"expires_at"`
+	TransactionURL string  `json:"transaction_url"`
+}
+
+type PaymentMethod struct {
+	Type     string `json:"type"`     // card, crypto
+	Name     string `json:"name"`     // Credit Card, Bitcoin, Ethereum
+	Icon     string `json:"icon"`     // Icon URL
+	IsActive bool   `json:"is_active"`
+}

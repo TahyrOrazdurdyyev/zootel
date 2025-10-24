@@ -37,11 +37,11 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { name: 'Facebook', href: '#', icon: '📘' },
-    { name: 'Instagram', href: '#', icon: '📷' },
-    { name: 'Twitter', href: '#', icon: '🐦' },
-    { name: 'YouTube', href: '#', icon: '📺' },
-    { name: 'LinkedIn', href: '#', icon: '💼' }
+    { name: 'Facebook', href: '#', icon: '/images/icons/social/facebook.svg' },
+    { name: 'Instagram', href: '#', icon: '/images/icons/social/instagram.svg' },
+    { name: 'Twitter', href: '#', icon: '/images/icons/social/twitter.svg' },
+    { name: 'YouTube', href: '#', icon: '/images/icons/social/youtube.svg' },
+    { name: 'LinkedIn', href: '#', icon: '/images/icons/social/linkedin.svg' }
   ];
 
   return (
@@ -53,8 +53,7 @@ const Footer = () => {
           {/* Company info */}
           <div className="lg:col-span-2">
             <div className="flex items-center mb-4">
-                              <img src="/assets/logos/logo-white.svg" alt="Zootel" className="h-8 w-auto" />
-              <span className="ml-2 text-xl font-bold">Zootel</span>
+              <img src="/logo.svg" alt="Zootel" className="h-8 w-auto" />
             </div>
             <p className="text-gray-300 mb-6">
               Pet Care services marketplace and CRM for business. 
@@ -65,11 +64,11 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center text-gray-300">
                 <MapPinIcon className="h-5 w-5 mr-3 text-red-500" />
-                <span>Moscow, Primernaya St., bld. 1</span>
+                <span>1111B S Governors Ave STE 37817, Dover, DE 19904, United States</span>
               </div>
               <div className="flex items-center text-gray-300">
                 <PhoneIcon className="h-5 w-5 mr-3 text-red-500" />
-                <span>+7 (800) 123-45-67</span>
+                <span>+99365532570</span>
               </div>
               <div className="flex items-center text-gray-300">
                 <EnvelopeIcon className="h-5 w-5 mr-3 text-red-500" />
@@ -212,16 +211,20 @@ const Footer = () => {
 
             {/* Social links */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Мы в соцсетях</h3>
+              <h3 className="text-lg font-semibold mb-4">We're on social</h3>
               <div className="flex space-x-4">
                 {socialLinks.map((social) => (
                   <a
                     key={social.name}
                     href={social.href}
-                    className="text-2xl hover:scale-110 transition-transform duration-150"
+                    className="w-8 h-8 hover:scale-110 transition-transform duration-150"
                     title={social.name}
                   >
-                    {social.icon}
+                    <img 
+                      src={social.icon} 
+                      alt={social.name}
+                      className="w-full h-full"
+                    />
                   </a>
                 ))}
               </div>
@@ -235,10 +238,10 @@ const Footer = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="text-gray-400 text-sm">
-              © 2024 Zootel. Все права защищены.
+              © 2024 Zootel. All rights reserved.
             </div>
             <div className="mt-2 md:mt-0 text-gray-400 text-sm">
-              Сделано с ❤️ для любителей животных
+              Made with ❤️ for animal lovers
             </div>
           </div>
         </div>

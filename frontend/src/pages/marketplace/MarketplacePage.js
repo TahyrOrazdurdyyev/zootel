@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useSearchParams, Link } from 'react-router-dom';
 import { 
   FunnelIcon,
   MapPinIcon,
   StarIcon,
   HeartIcon,
-  ShoppingCartIcon
+  ShoppingCartIcon,
+  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import { useCart } from '../../contexts/CartContext';
@@ -26,80 +27,51 @@ const MarketplacePage = () => {
 
   const [favorites, setFavorites] = useState(new Set());
   const [showFilters, setShowFilters] = useState(false);
+  const [listings, setListings] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock data
-  const listings = [
-    {
-      id: 1,
-      type: 'service',
-      name: 'Comprehensive Veterinary Examination',
-      company: 'VetCenter "Healthy Pet"',
-      price: 2500,
-      originalPrice: 3000,
-      discount: 17,
-      rating: 4.9,
-      reviews: 156,
-      location: 'Moscow, Central District',
-      image: '/images/vet-checkup.jpg',
-      category: 'veterinary',
-      description: 'Complete medical examination with tests and veterinary consultation',
-      features: ['Tests included', '1 hour consultation', 'Health certificate']
-    },
-    {
-      id: 2,
-      type: 'service', 
-      name: 'Professional Grooming',
-      company: 'Salon "PetStyle"',
-      price: 3500,
-      rating: 4.8,
-      reviews: 89,
-      location: 'Moscow, Northern District',
-      image: '/images/grooming.jpg',
-      category: 'grooming',
-      description: 'Complete grooming services: haircut, washing, drying, manicure',
-      features: ['Standard haircut', 'Hygienic treatment', 'Perfumation']
-    },
-    {
-      id: 3,
-      type: 'product',
-      name: 'Premium Dog Food Royal Canin',
-      company: 'ZooShop "Paws"',
-      price: 4200,
-      originalPrice: 4800,
-      discount: 13,
-      rating: 4.7,
-      reviews: 234,
-      location: 'Moscow, Eastern District',
-      image: '/images/dog-food.jpg',
-      category: 'nutrition',
-      description: 'Balanced food for adult medium-sized dogs, 15kg',
-      features: ['15kg pack', 'For medium-sized breeds', 'Balanced composition']
-    },
-    {
-      id: 4,
-      type: 'service',
-      name: 'Puppy Training (Course)',
-      company: 'School "Smart Dog"',
-      price: 8000,
-      rating: 4.9,
-      reviews: 67,
-      location: 'Moscow, Western District',
-      image: '/images/training.jpg',
-      category: 'training',
-      description: 'Basic training course for puppies from 3 to 6 months, 8 lessons',
-      features: ['8 lessons', 'Group of up to 6 puppies', 'Certificate on completion']
+  // Fetch listings and categories from API
+  useEffect(() => {
+    fetchMarketplaceData();
+  }, []);
+
+  const fetchMarketplaceData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch listings
+      const listingsResponse = await fetch('/api/v1/public/marketplace');
+      const listingsData = await listingsResponse.json();
+
+      if (listingsData.success) {
+        setListings(listingsData.listings || []);
+      } else {
+        console.error('Failed to fetch listings:', listingsData.error);
+        setListings([]);
+      }
+
+      // Fetch categories
+      const categoriesResponse = await fetch('/api/v1/public/categories');
+      const categoriesData = await categoriesResponse.json();
+
+      if (categoriesData.success) {
+        setCategories(categoriesData.categories || []);
+      } else {
+        console.error('Failed to fetch categories:', categoriesData.error);
+        setCategories([]);
+      }
+    } catch (error) {
+      console.error('Error fetching marketplace data:', error);
+      setError('Marketplace Coming Soon');
+      setListings([]);
+      setCategories([]);
+    } finally {
+      setLoading(false);
     }
-  ];
-
-  const categories = [
-    { id: 'all', name: 'All Categories', count: 150 },
-    { id: 'veterinary', name: 'Veterinary', count: 45 },
-    { id: 'grooming', name: 'Grooming', count: 32 },
-    { id: 'boarding', name: 'Boarding', count: 18 },
-    { id: 'training', name: 'Training', count: 25 },
-    { id: 'walking', name: 'Walking', count: 12 },
-    { id: 'nutrition', name: 'Nutrition', count: 18 }
-  ];
+  };
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
@@ -146,6 +118,35 @@ const MarketplacePage = () => {
         !item.description.toLowerCase().includes(filters.search.toLowerCase())) return false;
     return true;
   });
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <ArrowPathIcon className="h-12 w-12 text-primary-500 animate-spin mx-auto mb-4" />
+          <p className="text-lg text-gray-600">Loading marketplace...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-lg mb-4">{error}</div>
+          <button
+            onClick={fetchMarketplaceData}
+            className="btn-primary"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -305,8 +306,22 @@ const MarketplacePage = () => {
             </div>
 
             {/* Listings Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredListings.map((item) => (
+            {filteredListings.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-gray-400 text-6xl mb-4">🔍</div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {listings.length === 0 ? 'No listings available' : 'No listings found'}
+                </h3>
+                <p className="text-gray-500">
+                  {listings.length === 0 
+                    ? 'Check back later for new services and products'
+                    : 'Try adjusting your search criteria'
+                  }
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredListings.map((item) => (
                 <div key={item.id} className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
                   {/* Image */}
                   <div className="relative h-48 bg-gradient-to-br from-gray-200 to-gray-300">
@@ -415,36 +430,9 @@ const MarketplacePage = () => {
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* No Results */}
-            {filteredListings.length === 0 && (
-              <div className="text-center py-12">
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-4xl">🔍</span>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Nothing found
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Try changing search parameters or filters
-                </p>
-                <button
-                  onClick={() => setFilters({
-                    search: '',
-                    category: 'all',
-                    type: 'all',
-                    location: '',
-                    priceRange: 'all',
-                    rating: 'all',
-                    sortBy: 'popular'
-                  })}
-                  className="btn-primary"
-                >
-                  Reset Filters
-                </button>
               </div>
             )}
+
 
             {/* Load More */}
             {filteredListings.length > 0 && (

@@ -93,6 +93,8 @@ func main() {
 	employeeHandler := handlers.NewEmployeeHandler(serviceContainer.EmployeeService())
 	promptHandler := handlers.NewPromptHandler(serviceContainer.PromptService())
 	inventoryHandler := handlers.NewInventoryHandler(serviceContainer.InventoryService())
+	currencyHandler := handlers.NewCurrencyHandler(serviceContainer.CurrencyService())
+	cryptoHandler := handlers.NewCryptoHandler(serviceContainer.CryptoService())
 
 	// Set up additional dependencies
 	companyHandler.SetServices(serviceContainer.ServiceService(), serviceContainer.ProductService())
@@ -191,10 +193,30 @@ func main() {
 			integration.POST("/record-interaction", integrationHandler.RecordWidgetInteraction)
 		}
 
+		// Public currency endpoints
+		currencies := api.Group("/currencies")
+		{
+			currencies.GET("/", currencyHandler.GetCurrencies)
+			currencies.GET("/:code", currencyHandler.GetCurrency)
+			currencies.POST("/convert", currencyHandler.ConvertCurrency)
+		}
+
+		// Public crypto payment endpoints
+		crypto := api.Group("/crypto")
+		{
+			crypto.GET("/currencies", cryptoHandler.GetCryptoCurrencies)
+			crypto.GET("/currencies/:currency/networks", cryptoHandler.GetCryptoNetworks)
+			crypto.GET("/estimate", cryptoHandler.EstimateCryptoAmount)
+			crypto.GET("/payment-methods", cryptoHandler.GetPaymentMethods)
+		}
+
 		// Protected routes requiring authentication
 		protected := api.Group("/")
 		protected.Use(middleware.AuthMiddleware(authClient, db))
 		{
+			// Auth endpoints
+			auth.GET("/me", authHandler.GetMe)
+
 			// User profile endpoints
 			users := protected.Group("/users")
 			{
@@ -209,9 +231,9 @@ func main() {
 			{
 				pets.GET("/", petHandler.GetUserPets)
 				pets.POST("/", petHandler.CreatePet)
-				pets.GET("/:id", petHandler.GetPet)
-				pets.PUT("/:id", petHandler.UpdatePet)
-				pets.DELETE("/:id", petHandler.DeletePet)
+				pets.GET("/:petId", petHandler.GetPet)
+				pets.PUT("/:petId", petHandler.UpdatePet)
+				pets.DELETE("/:petId", petHandler.DeletePet)
 				pets.POST("/:petId/upload-photo", uploadHandler.UploadPetPhoto)
 
 				// Pet medical records
@@ -327,6 +349,13 @@ func main() {
 				orders.DELETE("/:id", orderHandler.CancelOrder)
 			}
 
+			// Crypto payment endpoints
+			cryptoPayments := protected.Group("/crypto-payments")
+			{
+				cryptoPayments.POST("/", cryptoHandler.CreateCryptoPayment)
+				cryptoPayments.GET("/:payment_id/status", cryptoHandler.GetCryptoPaymentStatus)
+			}
+
 			// Chat endpoints
 			chats := protected.Group("/chats")
 			{
@@ -379,16 +408,16 @@ func main() {
 				// Services management
 				companies.GET("/services", serviceHandler.GetCompanyServices)
 				companies.POST("/services", serviceHandler.CreateService)
-				companies.PUT("/services/:id", serviceHandler.UpdateService)
-				companies.DELETE("/services/:id", serviceHandler.DeleteService)
+				companies.PUT("/services/:serviceId", serviceHandler.UpdateService)
+				companies.DELETE("/services/:serviceId", serviceHandler.DeleteService)
 				companies.POST("/services/:serviceId/upload-image", serviceHandler.UploadServiceImage)
 				companies.DELETE("/services/:serviceId/images/:imageId", serviceHandler.DeleteServiceImage)
 
 				// Products management - Add product handler
 				companies.GET("/products", productHandler.GetCompanyProducts)
 				companies.POST("/products", productHandler.CreateProduct)
-				companies.PUT("/products/:id", productHandler.UpdateProduct)
-				companies.DELETE("/products/:id", productHandler.DeleteProduct)
+				companies.PUT("/products/:productId", productHandler.UpdateProduct)
+				companies.DELETE("/products/:productId", productHandler.DeleteProduct)
 
 				// Company bookings and orders
 				companies.GET("/bookings", bookingHandler.GetCompanyBookings)
@@ -460,13 +489,6 @@ func main() {
 				ai.POST("/test/:agentKey", aiHandler.TestAIAgent)
 			}
 
-			// AI Assistant endpoints
-			{
-				ai.POST("/chat", aiHandler.SendMessage)
-				ai.GET("/agents/available", aiHandler.GetAvailableAgents)       // Get available agents for company
-				ai.GET("/agents/:agentType/access", aiHandler.CheckAgentAccess) // Check access to specific agent
-			}
-
 			// SuperAdmin endpoints
 			admin := protected.Group("/admin")
 			admin.Use(middleware.SuperAdminMiddleware())
@@ -500,20 +522,20 @@ func main() {
 
 				// Company management
 				admin.GET("/companies", adminHandler.GetAllCompanies)
-				admin.PUT("/companies/:id/toggle-special-partner", adminHandler.ToggleSpecialPartner)
-				admin.PUT("/companies/:id/toggle-manual-crm", adminHandler.ToggleManualCRM)
-				admin.PUT("/companies/:id/toggle-manual-ai", adminHandler.ToggleManualAI)
-				admin.PUT("/companies/:id/block", adminHandler.BlockCompany)
-				admin.PUT("/companies/:id/unblock", adminHandler.UnblockCompany)
+				admin.PUT("/companies/:companyId/toggle-special-partner", adminHandler.ToggleSpecialPartner)
+				admin.PUT("/companies/:companyId/toggle-manual-crm", adminHandler.ToggleManualCRM)
+				admin.PUT("/companies/:companyId/toggle-manual-ai", adminHandler.ToggleManualAI)
+				admin.PUT("/companies/:companyId/block", adminHandler.BlockCompany)
+				admin.PUT("/companies/:companyId/unblock", adminHandler.UnblockCompany)
 
 				// Company feature status and permissions
-				admin.GET("/companies/:id/feature-status", adminHandler.GetCompanyFeatureStatus)
-				admin.GET("/companies/:id/check-crm-toggle", adminHandler.CheckCRMTogglePermission)
-				admin.GET("/companies/:id/check-ai-toggle", adminHandler.CheckAITogglePermission)
-				admin.GET("/companies/:id/check-agent-deactivate/:agentKey", adminHandler.CheckAgentDeactivatePermission)
+				admin.GET("/companies/:companyId/feature-status", adminHandler.GetCompanyFeatureStatus)
+				admin.GET("/companies/:companyId/check-crm-toggle", adminHandler.CheckCRMTogglePermission)
+				admin.GET("/companies/:companyId/check-ai-toggle", adminHandler.CheckAITogglePermission)
+				admin.GET("/companies/:companyId/check-agent-deactivate/:agentKey", adminHandler.CheckAgentDeactivatePermission)
 
 				// Free trial management
-				admin.POST("/companies/:company_id/extend-trial", adminHandler.ExtendCompanyFreeTrial)
+				admin.POST("/companies/:companyId/extend-trial", adminHandler.ExtendCompanyFreeTrial)
 				admin.GET("/companies/expired-trials", adminHandler.GetCompaniesWithExpiredTrials)
 				admin.GET("/companies/on-trial", adminHandler.GetCompaniesOnFreeTrial)
 				admin.POST("/companies/activate-subscription", gin.WrapF(adminHandler.ActivateCompanySubscription))
@@ -578,6 +600,15 @@ func main() {
 				admin.GET("/prompts", promptHandler.GetGlobalPrompts)
 				admin.POST("/prompts", promptHandler.CreateGlobalPrompt)
 				admin.PUT("/prompts/:id", promptHandler.UpdateGlobalPrompt)
+
+				// Currency management for admins
+				admin.GET("/currencies", currencyHandler.GetAllCurrencies)
+				admin.POST("/currencies", currencyHandler.CreateCurrency)
+				admin.PUT("/currencies/:code", currencyHandler.UpdateCurrency)
+				admin.DELETE("/currencies/:code", currencyHandler.DeleteCurrency)
+				admin.PUT("/currencies/:code/toggle", currencyHandler.ToggleCurrencyStatus)
+				admin.PUT("/currencies/:code/set-base", currencyHandler.SetBaseCurrency)
+				admin.POST("/currencies/update-rates", currencyHandler.UpdateExchangeRates)
 			}
 		}
 	}
@@ -589,6 +620,7 @@ func main() {
 	webhooks := r.Group("/webhooks")
 	{
 		webhooks.POST("/stripe", paymentHandler.HandleWebhook)
+		webhooks.POST("/nowpayments", cryptoHandler.WebhookHandler)
 	}
 
 	// Start notification cron job

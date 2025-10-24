@@ -31,7 +31,7 @@ const UniversalHeader = () => {
   const servicesMenuRef = useRef(null);
   const searchRef = useRef(null);
 
-  // Закрытие выпадающих меню при клике вне их
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
@@ -49,31 +49,31 @@ const UniversalHeader = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Определяем текущую тему на основе роли и маршрута
+  // Determine current theme based on role and route
   const getCurrentTheme = () => {
     if (location.pathname.startsWith('/admin')) return 'admin';
     if (location.pathname.startsWith('/company')) return 'company';
     return 'pet-owner';
   };
 
-  // Определяем, показывать ли полное меню (только для pet-owner на публичных страницах)
+  // Determine whether to show full menu (only for pet-owner on public pages)
   const shouldShowFullMenu = () => {
     const theme = getCurrentTheme();
     return theme === 'pet-owner' && (!user || user.role === 'pet_owner');
   };
 
-  // Определяем, показывать ли поиск
+  // Determine whether to show search
   const shouldShowSearch = () => {
     return shouldShowFullMenu();
   };
 
   const serviceCategories = [
-    { id: 'grooming', name: 'Груминг', icon: '✂️' },
-    { id: 'veterinary', name: 'Ветеринария', icon: '🏥' },
-    { id: 'boarding', name: 'Передержка', icon: '🏠' },
-    { id: 'training', name: 'Дрессировка', icon: '🎾' },
-    { id: 'walking', name: 'Выгул', icon: '🚶' },
-    { id: 'sitting', name: 'Пет-ситтинг', icon: '👥' }
+    { id: 'grooming', name: 'Grooming', icon: '✂️' },
+    { id: 'veterinary', name: 'Veterinary', icon: '🏥' },
+    { id: 'boarding', name: 'Boarding', icon: '🏠' },
+    { id: 'training', name: 'Training', icon: '🎾' },
+    { id: 'walking', name: 'Walking', icon: '🚶' },
+    { id: 'sitting', name: 'Pet Sitting', icon: '👥' }
   ];
 
   const handleSearch = (e) => {
@@ -86,11 +86,11 @@ const UniversalHeader = () => {
   const handleSearchInputChange = (value) => {
     setSearchQuery(value);
     if (value.length > 2) {
-      // Имитация автодополнения (в реальности это будет API-запрос)
+      // Mock autocomplete (in real app this would be an API call)
       const mockSuggestions = [
-        { type: 'service', name: `${value} - груминг`, icon: '✂️' },
-        { type: 'company', name: `Клиника "${value}"`, icon: '🏥' },
-        { type: 'product', name: `Товары: ${value}`, icon: '🛍️' }
+        { type: 'service', name: `${value} - grooming`, icon: '✂️' },
+        { type: 'company', name: `Clinic "${value}"`, icon: '🏥' },
+        { type: 'product', name: `Products: ${value}`, icon: '🛍️' }
       ];
       setSearchSuggestions(mockSuggestions);
       setShowSearchSuggestions(true);
@@ -116,8 +116,7 @@ const UniversalHeader = () => {
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <img src="/assets/logos/Zootel.svg" alt="Zootel" className="h-8 w-auto" />
-              <span className="ml-2 text-xl font-bold text-gray-900">Zootel</span>
+              <img src="/logo.svg" alt="Zootel" className="h-8 w-auto" />
             </Link>
           </div>
 
@@ -183,19 +182,19 @@ const UniversalHeader = () => {
                 to="/business"
                 className="text-red-600 hover:text-red-700 px-3 py-2 text-sm font-medium border border-red-600 rounded-lg hover:bg-red-50"
               >
-                Для бизнеса
+                For Business
               </Link>
             </nav>
           )}
 
-          {/* Поисковая строка (только для публичных страниц) */}
+          {/* Search bar (only for public pages) */}
           {shouldShowSearch() && (
             <div className="hidden lg:flex flex-1 max-w-lg mx-8" ref={searchRef}>
               <form onSubmit={handleSearch} className="relative w-full">
                 <div className="flex">
                   <input
                     type="text"
-                    placeholder="Поиск услуг, товаров, компаний..."
+                    placeholder="Search services, products, companies..."
                     value={searchQuery}
                     onChange={(e) => handleSearchInputChange(e.target.value)}
                     onFocus={() => searchQuery.length > 2 && setShowSearchSuggestions(true)}
@@ -203,7 +202,7 @@ const UniversalHeader = () => {
                   />
                   <input
                     type="text"
-                    placeholder="Город"
+                    placeholder="City"
                     value={searchLocation}
                     onChange={(e) => setSearchLocation(e.target.value)}
                     className="w-24 px-3 py-2 border-t border-b border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -216,7 +215,7 @@ const UniversalHeader = () => {
                   </button>
                 </div>
 
-                {/* Автодополнение */}
+                {/* Autocomplete */}
                 {showSearchSuggestions && searchSuggestions.length > 0 && (
                   <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                     {searchSuggestions.map((suggestion, index) => (
@@ -231,8 +230,8 @@ const UniversalHeader = () => {
                         <span className="mr-3">{suggestion.icon}</span>
                         {suggestion.name}
                         <span className="ml-auto text-xs text-gray-500">
-                          {suggestion.type === 'service' ? 'Услуга' : 
-                           suggestion.type === 'company' ? 'Компания' : 'Товар'}
+                          {suggestion.type === 'service' ? 'Service' : 
+                           suggestion.type === 'company' ? 'Company' : 'Product'}
                         </span>
                       </button>
                     ))}
@@ -242,13 +241,13 @@ const UniversalHeader = () => {
             </div>
           )}
 
-          {/* Правая часть */}
+          {/* Right side */}
           <div className="flex items-center space-x-4">
             
-            {/* Иконки (только для авторизованных на публичных страницах) */}
+            {/* Icons (only for authenticated users on public pages) */}
             {shouldShowFullMenu() && user && (
               <>
-                {/* Корзина */}
+                {/* Cart */}
                 <Link to="/cart" className="relative p-2 text-gray-700 hover:text-red-600">
                   <ShoppingCartIcon className="h-6 w-6" />
                   {cartItemsCount > 0 && (
@@ -258,7 +257,7 @@ const UniversalHeader = () => {
                   )}
                 </Link>
 
-                {/* Уведомления */}
+                {/* Notifications */}
                 <button className="relative p-2 text-gray-700 hover:text-red-600">
                   <BellIcon className="h-6 w-6" />
                   <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -266,14 +265,14 @@ const UniversalHeader = () => {
                   </span>
                 </button>
 
-                {/* Чат */}
+                {/* Chat */}
                 <Link to="/chat" className="p-2 text-gray-700 hover:text-red-600">
                   <ChatBubbleLeftIcon className="h-6 w-6" />
                 </Link>
               </>
             )}
 
-            {/* Меню пользователя или кнопки входа */}
+            {/* User menu or login buttons */}
             {user ? (
               <div className="relative" ref={userMenuRef}>
                 <button
@@ -290,7 +289,7 @@ const UniversalHeader = () => {
                 {showUserMenu && (
                   <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                     
-                    {/* Меню для pet_owner или неавторизованных */}
+                    {/* Menu for pet_owner or unauthorized users */}
                     {(!user.role || user.role === 'pet_owner') && shouldShowFullMenu() && (
                       <>
                         <Link
@@ -298,41 +297,41 @@ const UniversalHeader = () => {
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          Профиль
+                          Profile
                         </Link>
                         <Link
                           to="/bookings"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          Мои бронирования
+                          My Bookings
                         </Link>
                         <Link
                           to="/orders"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          Мои заказы
+                          My Orders
                         </Link>
                         <Link
                           to="/favorites"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          Избранное
+                          Favorites
                         </Link>
                         <Link
                           to="/settings"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          Настройки
+                          Settings
                         </Link>
                         <div className="border-t border-gray-100 my-1"></div>
                       </>
                     )}
 
-                    {/* Меню для company_owner */}
+                    {/* Menu for company_owner */}
                     {user.role === 'company_owner' && (
                       <>
                         <Link
@@ -347,27 +346,27 @@ const UniversalHeader = () => {
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          Услуги
+                          Services
                         </Link>
                         <Link
                           to="/company/analytics"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          Аналитика
+                          Analytics
                         </Link>
                         <Link
                           to="/company/ai-prompts"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          AI Промпты
+                          AI Prompts
                         </Link>
                         <div className="border-t border-gray-100 my-1"></div>
                       </>
                     )}
 
-                    {/* Меню для super_admin */}
+                    {/* Menu for super_admin */}
                     {user.role === 'super_admin' && (
                       <>
                         <Link
@@ -375,21 +374,21 @@ const UniversalHeader = () => {
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          Аналитика
+                          Analytics
                         </Link>
                         <Link
                           to="/admin/companies"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          Компании
+                          Companies
                         </Link>
                         <Link
                           to="/admin/prompts"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          AI Промпты
+                          AI Prompts
                         </Link>
                         <div className="border-t border-gray-100 my-1"></div>
                       </>
@@ -399,32 +398,32 @@ const UniversalHeader = () => {
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                     >
-                      Выход
+                      Logout
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              /* Кнопки входа/регистрации для неавторизованных */
+              /* Login/registration buttons for unauthorized users */
               shouldShowFullMenu() && (
                 <div className="flex items-center space-x-3">
                   <Link
                     to="/login"
                     className="text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium"
                   >
-                    Вход
+                    Login
                   </Link>
                   <Link
                     to="/register"
                     className="bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium"
                   >
-                    Регистрация
+                    Register
                   </Link>
                 </div>
               )
             )}
 
-            {/* Мобильное меню (только для публичных страниц) */}
+            {/* Mobile menu (only for public pages) */}
             {shouldShowFullMenu() && (
               <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
@@ -440,7 +439,7 @@ const UniversalHeader = () => {
           </div>
         </div>
 
-        {/* Мобильное меню */}
+        {/* Mobile menu */}
         {showMobileMenu && shouldShowFullMenu() && (
           <div className="lg:hidden border-t border-gray-200 py-4">
             <div className="space-y-2">
@@ -449,38 +448,38 @@ const UniversalHeader = () => {
                 className="block px-3 py-2 text-gray-700 hover:text-red-600"
                 onClick={() => setShowMobileMenu(false)}
               >
-                Услуги
+                Services
               </Link>
               <Link
                 to="/shop"
                 className="block px-3 py-2 text-gray-700 hover:text-red-600"
                 onClick={() => setShowMobileMenu(false)}
               >
-                Магазин
+                Shop
               </Link>
               <Link
                 to="/companies"
                 className="block px-3 py-2 text-gray-700 hover:text-red-600"
                 onClick={() => setShowMobileMenu(false)}
               >
-                Компании
+                Companies
               </Link>
               <Link
                 to="/business"
                 className="block px-3 py-2 text-red-600 font-medium"
                 onClick={() => setShowMobileMenu(false)}
               >
-                Для бизнеса
+                For Business
               </Link>
             </div>
             
-            {/* Мобильный поиск */}
+            {/* Mobile search */}
             <div className="mt-4 px-3">
               <form onSubmit={handleSearch}>
                 <div className="flex flex-col space-y-2">
                   <input
                     type="text"
-                    placeholder="Поиск услуг, товаров, компаний..."
+                    placeholder="Search services, products, companies..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
@@ -488,7 +487,7 @@ const UniversalHeader = () => {
                   <div className="flex space-x-2">
                     <input
                       type="text"
-                      placeholder="Город"
+                      placeholder="City"
                       value={searchLocation}
                       onChange={(e) => setSearchLocation(e.target.value)}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
@@ -497,7 +496,7 @@ const UniversalHeader = () => {
                       type="submit"
                       className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                     >
-                      Найти
+                      Search
                     </button>
                   </div>
                 </div>

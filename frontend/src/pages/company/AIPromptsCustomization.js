@@ -30,7 +30,7 @@ const AIPromptsCustomization = () => {
       setLoading(true);
       const response = await apiCall('/api/v1/ai/agents', 'GET');
       if (response.success) {
-        // Загружаем информацию о промптах для каждого агента
+        // Load prompt information for each agent
         const agentsWithPrompts = await Promise.all(
           response.data.map(async (agent) => {
             try {
@@ -83,16 +83,16 @@ const AIPromptsCustomization = () => {
         await loadAvailableAgents();
         setShowEditModal(false);
         setEditingPrompt(null);
-        alert('Промпт сохранен успешно!');
+        alert('Prompt saved successfully!');
       }
     } catch (error) {
       console.error('Error saving prompt:', error);
-      alert('Ошибка при сохранении промпта');
+      alert('Error saving prompt');
     }
   };
 
   const handleDeleteCustomPrompt = async (agentKey, promptType) => {
-    if (!confirm('Вы уверены, что хотите удалить кастомный промпт? Будет восстановлен глобальный промпт.')) {
+    if (!confirm('Are you sure you want to delete the custom prompt? Global prompt will be restored.')) {
       return;
     }
 
@@ -100,11 +100,11 @@ const AIPromptsCustomization = () => {
       const response = await apiCall(`/api/v1/company/ai-prompts/${agentKey}/${promptType}`, 'DELETE');
       if (response.success) {
         await loadAvailableAgents();
-        alert('Кастомный промпт удален. Восстановлен глобальный промпт.');
+        alert('Custom prompt deleted. Global prompt restored.');
       }
     } catch (error) {
       console.error('Error deleting prompt:', error);
-      alert('Ошибка при удалении промпта');
+      alert('Error deleting prompt');
     }
   };
 
@@ -123,11 +123,11 @@ const AIPromptsCustomization = () => {
   const getSourceBadge = (source) => {
     switch (source) {
       case 'company':
-        return <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Кастомный</span>;
+        return <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Custom</span>;
       case 'global':
-        return <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Глобальный</span>;
+        return <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Global</span>;
       case 'hardcoded':
-        return <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">По умолчанию</span>;
+        return <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Default</span>;
       default:
         return null;
     }
@@ -138,7 +138,7 @@ const AIPromptsCustomization = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Загрузка AI агентов...</p>
+          <p className="mt-2 text-gray-600">Loading AI agents...</p>
         </div>
       </div>
     );
@@ -151,22 +151,22 @@ const AIPromptsCustomization = () => {
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center">
             <SparklesIcon className="h-8 w-8 mr-3 text-red-600" />
-            Кастомизация AI промптов
+            AI Prompts Customization
           </h1>
           <p className="mt-2 text-sm text-gray-700">
-            Настройте AI агентов под нужды вашей компании
+            Configure AI agents for your company needs
           </p>
           
           <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex">
               <InformationCircleIcon className="h-5 w-5 text-blue-400 mt-0.5 mr-3" />
               <div className="text-sm text-blue-700">
-                <p><strong>Как работает кастомизация:</strong></p>
+                <p><strong>How customization works:</strong></p>
                 <ul className="mt-1 list-disc list-inside space-y-1">
-                  <li>Создайте кастомные промпты для своей компании</li>
-                  <li>Кастомные промпты заменяют глобальные для вашей компании</li>
-                  <li>Удаление кастомного промпта восстанавливает глобальный</li>
-                  <li>Используйте переменные в формате: {`{{variable_name}}`}</li>
+                  <li>Create custom prompts for your company</li>
+                  <li>Custom prompts replace global ones for your company</li>
+                  <li>Deleting a custom prompt restores the global one</li>
+                  <li>Use variables in the format: {`{{variable_name}}`}</li>
                 </ul>
               </div>
             </div>
@@ -186,7 +186,7 @@ const AIPromptsCustomization = () => {
                   <div className="flex items-center space-x-2">
                     {agent.HasCustomPrompts && (
                       <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                        Кастомизирован
+                        Customized
                       </span>
                     )}
                     <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">
@@ -210,7 +210,7 @@ const AIPromptsCustomization = () => {
                         <button
                           onClick={() => handleEditPrompt(agent, 'system')}
                           className="text-red-600 hover:text-red-800"
-                          title="Редактировать"
+                          title="Edit"
                         >
                           <PencilIcon className="h-4 w-4" />
                         </button>
@@ -218,7 +218,7 @@ const AIPromptsCustomization = () => {
                           <button
                             onClick={() => handleDeleteCustomPrompt(agent.AgentKey, 'system')}
                             className="text-gray-400 hover:text-red-600"
-                            title="Удалить кастомный промпт"
+                            title="Delete custom prompt"
                           >
                             <TrashIcon className="h-4 w-4" />
                           </button>
@@ -227,7 +227,7 @@ const AIPromptsCustomization = () => {
                     </div>
 
                     <div className="mb-3">
-                      <p className="text-sm text-gray-600 mb-2">Переменные:</p>
+                      <p className="text-sm text-gray-600 mb-2">Variables:</p>
                       <div className="flex flex-wrap gap-1">
                         {agent.SystemPrompt.Variables?.map(variable => (
                           <span key={variable} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
@@ -256,7 +256,7 @@ const AIPromptsCustomization = () => {
                         <button
                           onClick={() => handleEditPrompt(agent, 'user')}
                           className="text-red-600 hover:text-red-800"
-                          title="Редактировать"
+                          title="Edit"
                         >
                           <PencilIcon className="h-4 w-4" />
                         </button>
@@ -264,7 +264,7 @@ const AIPromptsCustomization = () => {
                           <button
                             onClick={() => handleDeleteCustomPrompt(agent.AgentKey, 'user')}
                             className="text-gray-400 hover:text-red-600"
-                            title="Удалить кастомный промпт"
+                            title="Delete custom prompt"
                           >
                             <TrashIcon className="h-4 w-4" />
                           </button>
@@ -273,7 +273,7 @@ const AIPromptsCustomization = () => {
                     </div>
 
                     <div className="mb-3">
-                      <p className="text-sm text-gray-600 mb-2">Переменные:</p>
+                      <p className="text-sm text-gray-600 mb-2">Variables:</p>
                       <div className="flex flex-wrap gap-1">
                         {agent.UserPrompt.Variables?.map(variable => (
                           <span key={variable} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
@@ -303,7 +303,7 @@ const AIPromptsCustomization = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Редактировать {editingPrompt.promptType === 'system' ? 'System' : 'User'} Prompt
+                  Edit {editingPrompt.promptType === 'system' ? 'System' : 'User'} Prompt
                   <span className="ml-2 text-sm font-normal text-gray-500">
                     ({editingPrompt.agentKey})
                   </span>
@@ -321,8 +321,8 @@ const AIPromptsCustomization = () => {
                   <div className="flex">
                     <InformationCircleIcon className="h-5 w-5 text-yellow-400 mt-0.5 mr-3" />
                     <div className="text-sm text-yellow-700">
-                      <p><strong>Создание кастомного промпта</strong></p>
-                      <p>Вы создаете кастомную версию промпта. Она заменит {editingPrompt.source === 'global' ? 'глобальный' : 'стандартный'} промпт для вашей компании.</p>
+                      <p><strong>Creating custom prompt</strong></p>
+                      <p>You are creating a custom version of the prompt. It will replace the {editingPrompt.source === 'global' ? 'global' : 'default'} prompt for your company.</p>
                     </div>
                   </div>
                 </div>
@@ -331,22 +331,22 @@ const AIPromptsCustomization = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Содержимое промпта
+                    Prompt Content
                   </label>
                   <textarea
                     value={editingPrompt.content}
                     onChange={(e) => setEditingPrompt({ ...editingPrompt, content: e.target.value })}
                     rows={12}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent font-mono text-sm"
-                    placeholder="Введите содержимое промпта..."
+                    placeholder="Enter prompt content..."
                   />
                   <p className="mt-1 text-xs text-gray-500">
-                    Используйте переменные в формате: {`{{variable_name}}`}
+                    Use variables in format: {`{{variable_name}}`}
                   </p>
                 </div>
 
                 <div className="bg-blue-50 p-3 rounded-lg">
-                  <h4 className="text-sm font-medium text-blue-800 mb-2">Найденные переменные:</h4>
+                  <h4 className="text-sm font-medium text-blue-800 mb-2">Found variables:</h4>
                   <div className="flex flex-wrap gap-1">
                     {extractVariables(editingPrompt.content).map(variable => (
                       <span key={variable} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
@@ -358,7 +358,7 @@ const AIPromptsCustomization = () => {
 
                 {originalContent !== editingPrompt.content && (
                   <div className="bg-green-50 p-3 rounded-lg">
-                    <p className="text-sm text-green-800">✓ Промпт был изменен</p>
+                    <p className="text-sm text-green-800">✓ Prompt has been modified</p>
                   </div>
                 )}
               </div>
@@ -370,7 +370,7 @@ const AIPromptsCustomization = () => {
                   disabled={originalContent === editingPrompt.content}
                 >
                   <ArrowPathIcon className="h-4 w-4 mr-2" />
-                  Сброс
+                  Reset
                 </button>
                 
                 <div className="flex space-x-3">
@@ -378,14 +378,14 @@ const AIPromptsCustomization = () => {
                     onClick={() => setShowEditModal(false)}
                     className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
                   >
-                    Отмена
+                    Cancel
                   </button>
                   <button
                     onClick={handleSavePrompt}
                     className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                     disabled={!editingPrompt.content.trim()}
                   >
-                    Сохранить
+                    Save
                   </button>
                 </div>
               </div>

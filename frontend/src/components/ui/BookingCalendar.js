@@ -47,7 +47,7 @@ const BookingCalendar = ({
   const calendarEvents = useMemo(() => {
     return bookings.map(booking => ({
       id: booking.id,
-      title: `${booking.service_name || 'Услуга'} - ${booking.client_name || 'Клиент'}`,
+      title: `${booking.service_name || 'Service'} - ${booking.client_name || 'Client'}`,
       start: new Date(booking.date_time),
       end: new Date(new Date(booking.date_time).getTime() + (booking.duration || 60) * 60000),
       resource: booking,
@@ -153,10 +153,10 @@ const BookingCalendar = ({
   // Format status for display
   const getStatusLabel = (status) => {
     const statusLabels = {
-      pending: 'Ожидает подтверждения',
-      confirmed: 'Подтверждено',
-      cancelled: 'Отменено',
-      completed: 'Завершено'
+      pending: 'Awaiting Confirmation',
+      confirmed: 'Confirmed',
+      cancelled: 'Cancelled',
+      completed: 'Completed'
     };
     return statusLabels[status] || status;
   };
@@ -177,11 +177,11 @@ const BookingCalendar = ({
     try {
       if (onBookingUpdate) {
         await onBookingUpdate(bookingId, updates);
-        toast.success('Бронирование обновлено');
+        toast.success('Booking updated');
         setShowBookingModal(false);
       }
     } catch (error) {
-      toast.error('Ошибка при обновлении бронирования');
+      toast.error('Error updating booking');
     }
   };
 
@@ -190,11 +190,11 @@ const BookingCalendar = ({
     try {
       if (onBookingCreate) {
         await onBookingCreate(bookingData);
-        toast.success('Бронирование создано');
+        toast.success('Booking created');
         setShowCreateModal(false);
       }
     } catch (error) {
-      toast.error('Ошибка при создании бронирования');
+      toast.error('Error creating booking');
     }
   };
 
@@ -203,11 +203,11 @@ const BookingCalendar = ({
     try {
       if (onBookingDelete) {
         await onBookingDelete(bookingId);
-        toast.success('Бронирование удалено');
+        toast.success('Booking deleted');
         setShowBookingModal(false);
       }
     } catch (error) {
-      toast.error('Ошибка при удалении бронирования');
+      toast.error('Error deleting booking');
     }
   };
 
@@ -225,7 +225,7 @@ const BookingCalendar = ({
           onClick={() => onNavigate('TODAY')}
           className="px-3 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
         >
-          Сегодня
+          Today
         </button>
         <button
           onClick={() => onNavigate('NEXT')}
@@ -248,7 +248,7 @@ const BookingCalendar = ({
                 : 'text-gray-700 border border-gray-300 hover:bg-gray-50'
             }`}
           >
-            {viewName === 'month' ? 'Месяц' : viewName === 'week' ? 'Неделя' : 'День'}
+            {viewName === 'month' ? 'Month' : viewName === 'week' ? 'Week' : 'Day'}
           </button>
         ))}
       </div>
@@ -288,18 +288,18 @@ const BookingCalendar = ({
             toolbar: CustomToolbar
           }}
           messages={{
-            next: "Вперед",
-            previous: "Назад",
-            today: "Сегодня",
-            month: "Месяц",
-            week: "Неделя",
-            day: "День",
-            agenda: "Повестка дня",
-            date: "Дата",
-            time: "Время",
-            event: "Событие",
-            noEventsInRange: "Нет событий в этом диапазоне",
-            showMore: total => `+ ещё ${total}`
+            next: "Next",
+            previous: "Previous",
+            today: "Today",
+            month: "Month",
+            week: "Week",
+            day: "Day",
+            agenda: "Agenda",
+            date: "Date",
+            time: "Time",
+            event: "Event",
+            noEventsInRange: "No events in this range",
+            showMore: total => `+ ${total} more`
           }}
           formats={{
             timeGutterFormat: 'HH:mm',
@@ -341,7 +341,7 @@ const BookingCalendar = ({
                   <>
                     <div className="flex justify-between items-start mb-4">
                       <DialogTitle className="text-lg font-semibold">
-                        Детали бронирования
+                        Booking Details
                       </DialogTitle>
                       <button
                         onClick={() => setShowBookingModal(false)}
@@ -369,14 +369,14 @@ const BookingCalendar = ({
                         <div className="flex items-center space-x-3">
                           <ClockIcon className="w-5 h-5 text-gray-400" />
                           <span className="text-sm">
-                            Длительность: {selectedBooking.duration || 60} мин
+                            Duration: {selectedBooking.duration || 60} min
                           </span>
                         </div>
 
                         <div className="flex items-center space-x-3">
                           <UserIcon className="w-5 h-5 text-gray-400" />
                           <span className="text-sm">
-                            {selectedBooking.client_name || 'Не указано'}
+                            {selectedBooking.client_name || 'Not specified'}
                           </span>
                         </div>
 
@@ -392,7 +392,7 @@ const BookingCalendar = ({
                         {selectedBooking.notes && (
                           <div className="border-t pt-3">
                             <p className="text-sm text-gray-600">
-                              <strong>Примечания:</strong> {selectedBooking.notes}
+                              <strong>Notes:</strong> {selectedBooking.notes}
                             </p>
                           </div>
                         )}
@@ -406,7 +406,7 @@ const BookingCalendar = ({
                               className="flex-1 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center justify-center space-x-2"
                             >
                               <CheckIcon className="w-4 h-4" />
-                              <span>Подтвердить</span>
+                              <span>Confirm</span>
                             </button>
                           )}
                           
@@ -416,7 +416,7 @@ const BookingCalendar = ({
                               className="flex-1 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 flex items-center justify-center space-x-2"
                             >
                               <XMarkIcon className="w-4 h-4" />
-                              <span>Отменить</span>
+                              <span>Cancel</span>
                             </button>
                           )}
                         </div>
@@ -456,7 +456,7 @@ const BookingCalendar = ({
               <DialogPanel className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-xl">
                 <div className="flex justify-between items-start mb-4">
                   <DialogTitle className="text-lg font-semibold">
-                    Создать бронирование
+                    Create Booking
                   </DialogTitle>
                   <button
                     onClick={() => setShowCreateModal(false)}
@@ -470,7 +470,7 @@ const BookingCalendar = ({
                   <div className="space-y-4">
                     <div className="bg-gray-50 p-3 rounded-lg">
                       <p className="text-sm text-gray-600">
-                        <strong>Выбранное время:</strong>
+                        <strong>Selected Time:</strong>
                       </p>
                       <p className="text-sm">
                         {moment(selectedSlot.start).format('DD MMMM YYYY, HH:mm')} - 
@@ -482,7 +482,7 @@ const BookingCalendar = ({
                       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center space-x-3">
                         <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600" />
                         <p className="text-sm text-yellow-800">
-                          Это время недоступно для бронирования
+                          This time is not available for booking
                         </p>
                       </div>
                     )}
@@ -492,7 +492,7 @@ const BookingCalendar = ({
                         onClick={() => setShowCreateModal(false)}
                         className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
                       >
-                        Отмена
+                        Cancel
                       </button>
                       
                       <button
@@ -504,7 +504,7 @@ const BookingCalendar = ({
                         disabled={!isSlotAvailable(selectedSlot.start, selectedSlot.end)}
                         className="flex-1 bg-primary-500 text-white px-4 py-2 rounded-md hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Создать
+                        Create
                       </button>
                     </div>
                   </div>

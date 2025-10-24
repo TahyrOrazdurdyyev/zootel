@@ -2,13 +2,14 @@
 -- Add enhanced chat features, AI agents, and real-time capabilities
 
 -- Add enhanced fields to chats table
+ALTER TABLE chats ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'active';
 ALTER TABLE chats ADD COLUMN IF NOT EXISTS chat_type VARCHAR(50) DEFAULT 'customer_support';
 ALTER TABLE chats ADD COLUMN IF NOT EXISTS priority VARCHAR(20) DEFAULT 'medium';
 ALTER TABLE chats ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}';
 ALTER TABLE chats ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP;
 ALTER TABLE chats ADD COLUMN IF NOT EXISTS resolution_notes TEXT;
 ALTER TABLE chats ADD COLUMN IF NOT EXISTS satisfaction_rating INTEGER CHECK (satisfaction_rating >= 1 AND satisfaction_rating <= 5);
-ALTER TABLE chats ADD COLUMN IF NOT EXISTS ai_agent_id UUID REFERENCES ai_agents(id);
+ALTER TABLE chats ADD COLUMN IF NOT EXISTS ai_agent_id UUID;
 ALTER TABLE chats ADD COLUMN IF NOT EXISTS assigned_employee_id UUID REFERENCES employees(id);
 ALTER TABLE chats ADD COLUMN IF NOT EXISTS escalation_level INTEGER DEFAULT 0;
 ALTER TABLE chats ADD COLUMN IF NOT EXISTS last_activity_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;

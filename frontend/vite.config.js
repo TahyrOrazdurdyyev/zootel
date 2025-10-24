@@ -23,5 +23,17 @@ export default defineConfig({
   },
   define: {
     global: 'globalThis',
-  }
+  },
+  esbuild: {
+    loader: 'jsx',
+    include: /src\/.*\.jsx?$/,
+    exclude: [],
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx',
+      },
+    },
+  },
 }) 

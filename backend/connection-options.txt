@@ -1,0 +1,11 @@
+﻿# РџРѕРїСЂРѕР±СѓРµРј РЅРµСЃРєРѕР»СЊРєРѕ РІР°СЂРёР°РЅС‚РѕРІ:
+
+# Р’Р°СЂРёР°РЅС‚ 1: РњРѕР¶РµС‚ РїР°СЂРѕР»СЊ РїСѓСЃС‚РѕР№?
+DB_CONNECTION=postgres://postgres@localhost:5432/postgres?sslmode=disable
+
+# Р’Р°СЂРёР°РЅС‚ 2: РњРѕР¶РµС‚ РґСЂСѓРіРѕР№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ?
+# DB_CONNECTION=postgres://db_user:db_pass@localhost:5432/postgres?sslmode=disable
+
+# Р’Р°СЂРёР°РЅС‚ 3: РСЃРїРѕР»СЊР·СѓРµРј production Р‘Р” РІСЂРµРјРµРЅРЅРѕ
+# DB_CONNECTION=postgres://db_user:db_pass@141.136.35.240:5432/zootel_prod
+

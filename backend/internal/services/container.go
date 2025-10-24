@@ -40,6 +40,8 @@ type ServiceContainer struct {
 	employeeService     *EmployeeService
 	promptService       *PromptService
 	inventoryService    *InventoryService
+	currencyService     *CurrencyService
+	cryptoService       *CryptoService
 
 	// Service initialization status
 	initialized map[string]bool
@@ -88,6 +90,12 @@ func NewServiceContainer(db *sql.DB) *ServiceContainer {
 	// Inventory service (no dependencies)
 	inventoryService := NewInventoryService(db)
 
+	// Currency service (no dependencies)
+	currencyService := NewCurrencyService(db)
+
+	// Crypto service (no dependencies)
+	cryptoService := NewCryptoService(db)
+
 	return &ServiceContainer{
 		db:                  db,
 		initialized:         make(map[string]bool),
@@ -115,6 +123,8 @@ func NewServiceContainer(db *sql.DB) *ServiceContainer {
 		employeeService:     employeeService,
 		promptService:       promptService,
 		inventoryService:    inventoryService,
+		currencyService:     currencyService,
+		cryptoService:       cryptoService,
 	}
 }
 
@@ -203,6 +213,13 @@ func (c *ServiceContainer) InitializeServices() error {
 
 	c.employeeService = NewEmployeeService(c.db)
 	c.initialized["employee"] = true
+
+	c.currencyService = NewCurrencyService(c.db)
+	c.initialized["currency"] = true
+
+	c.cryptoService = NewCryptoService(c.db)
+	c.cryptoService.SetNotificationService(c.notificationService)
+	c.initialized["crypto"] = true
 
 	log.Println("All services initialized successfully")
 	return nil
@@ -315,6 +332,14 @@ func (c *ServiceContainer) PromptService() *PromptService {
 
 func (c *ServiceContainer) InventoryService() *InventoryService {
 	return c.inventoryService
+}
+
+func (c *ServiceContainer) CurrencyService() *CurrencyService {
+	return c.currencyService
+}
+
+func (c *ServiceContainer) CryptoService() *CryptoService {
+	return c.cryptoService
 }
 
 // Cleanup method

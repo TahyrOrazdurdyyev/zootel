@@ -44,10 +44,10 @@ const AIAgentsManagement = () => {
   });
 
   const billingCycles = [
-    { value: 'free', label: 'Бесплатно (админ)' },
-    { value: 'monthly', label: 'Месячный' },
-    { value: 'yearly', label: 'Годовой' },
-    { value: 'one_time', label: 'Разовый платеж' }
+    { value: 'free', label: 'Free (Admin)' },
+    { value: 'monthly', label: 'Monthly' },
+    { value: 'yearly', label: 'Yearly' },
+    { value: 'one_time', label: 'One-time Payment' }
   ];
 
   useEffect(() => {
@@ -88,18 +88,18 @@ const AIAgentsManagement = () => {
         setShowActivateModal(false);
         setActivationData({ companyId: '', agentKey: '', billingCycle: 'monthly' });
         loadData(); // Refresh data
-        alert('AI агент успешно активирован!');
+        alert('AI agent activated successfully!');
       } else {
-        alert(`Ошибка: ${response.error || 'Не удалось активировать агента'}`);
+        alert(`Error: ${response.error || 'Failed to activate agent'}`);
       }
     } catch (error) {
       console.error('Error activating agent:', error);
-      alert('Ошибка при активации агента');
+      alert('Error activating agent');
     }
   };
 
   const handleDeactivateAgent = async (companyId, agentKey) => {
-    if (!confirm(`Вы уверены, что хотите деактивировать агента "${agentKey}"?`)) {
+    if (!confirm(`Are you sure you want to deactivate agent "${agentKey}"?`)) {
       return;
     }
 
@@ -108,13 +108,13 @@ const AIAgentsManagement = () => {
 
       if (response.success) {
         loadData(); // Refresh data
-        alert('AI агент успешно деактивирован!');
+        alert('AI agent deactivated successfully!');
       } else {
-        alert(`Ошибка: ${response.error || 'Не удалось деактивировать агента'}`);
+        alert(`Error: ${response.error || 'Failed to deactivate agent'}`);
       }
     } catch (error) {
       console.error('Error deactivating agent:', error);
-      alert('Ошибка при деактивации агента');
+      alert('Error deactivating agent');
     }
   };
 
@@ -127,13 +127,13 @@ const AIAgentsManagement = () => {
         setEditingAgent(null);
         setPricingData({ monthly_price: 0, yearly_price: 0, one_time_price: null, is_available: true });
         loadData(); // Refresh data
-        alert('Цены успешно обновлены!');
+        alert('Prices updated successfully!');
       } else {
-        alert(`Ошибка: ${response.error || 'Не удалось обновить цены'}`);
+        alert(`Error: ${response.error || 'Failed to update prices'}`);
       }
     } catch (error) {
       console.error('Error updating pricing:', error);
-      alert('Ошибка при обновлении цен');
+      alert('Error updating prices');
     }
   };
 
@@ -148,18 +148,18 @@ const AIAgentsManagement = () => {
           monthly_price: 0, yearly_price: 0, one_time_price: null, is_available: true
         });
         loadData(); // Refresh data
-        alert('AI агент успешно создан!');
+        alert('AI agent created successfully!');
       } else {
-        alert(`Ошибка: ${response.error || 'Не удалось создать агента'}`);
+        alert(`Error: ${response.error || 'Failed to create agent'}`);
       }
     } catch (error) {
       console.error('Error creating agent:', error);
-      alert('Ошибка при создании агента');
+      alert('Error creating agent');
     }
   };
 
   const handleDeleteAgent = async (agentKey) => {
-    if (!confirm(`Вы уверены, что хотите удалить агента "${agentKey}"? Это действие нельзя отменить.`)) {
+    if (!confirm(`Are you sure you want to delete agent "${agentKey}"? This action cannot be undone.`)) {
       return;
     }
 
@@ -168,13 +168,13 @@ const AIAgentsManagement = () => {
 
       if (response.success) {
         loadData(); // Refresh data
-        alert('AI агент успешно удален!');
+        alert('AI agent deleted successfully!');
       } else {
-        alert(`Ошибка: ${response.error || 'Не удалось удалить агента'}`);
+        alert(`Error: ${response.error || 'Failed to delete agent'}`);
       }
     } catch (error) {
       console.error('Error deleting agent:', error);
-      alert('Ошибка при удалении агента');
+      alert('Error deleting agent');
     }
   };
 
@@ -219,7 +219,7 @@ const AIAgentsManagement = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Загрузка данных...</p>
+          <p className="mt-4 text-gray-600">Loading data...</p>
         </div>
       </div>
     );
@@ -234,10 +234,10 @@ const AIAgentsManagement = () => {
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center">
                 <SparklesIcon className="h-8 w-8 text-orange-500 mr-3" />
-                Управление AI Агентами
+                AI Agents Management
               </h1>
               <p className="mt-2 text-gray-600">
-                Управление доступом компаний к AI агентам
+                Manage company access to AI agents
               </p>
             </div>
             <button
@@ -245,14 +245,14 @@ const AIAgentsManagement = () => {
               className="bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-orange-700 mr-3"
             >
               <PlusIcon className="h-5 w-5 mr-2" />
-              Активировать агента
+              Activate Agent
             </button>
             <button
               onClick={() => setShowCreateModal(true)}
               className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-700"
             >
               <SparklesIcon className="h-5 w-5 mr-2" />
-              Создать агента
+              Create Agent
             </button>
           </div>
         </div>
@@ -264,7 +264,7 @@ const AIAgentsManagement = () => {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    {companyInfo.company_name || `Компания ${companyInfo.company_id.slice(0, 8)}`}
+                    {companyInfo.company_name || `Company ${companyInfo.company_id.slice(0, 8)}`}
                   </h3>
                   <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
                     {companyInfo.plan_name}
@@ -273,7 +273,7 @@ const AIAgentsManagement = () => {
 
                 {/* Plan Agents */}
                 <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Агенты из тарифа:</h4>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Agents from plan:</h4>
                   {companyInfo.plan_agents && companyInfo.plan_agents.length > 0 ? (
                     <div className="space-y-2">
                       {companyInfo.plan_agents.map((agent) => (
@@ -281,7 +281,7 @@ const AIAgentsManagement = () => {
                           <div>
                             <span className="text-sm font-medium text-gray-900">{agent.name}</span>
                             <span className={`ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getSourceColor(agent.source)}`}>
-                              Тариф
+                              Plan
                             </span>
                           </div>
                           <CheckIcon className="h-4 w-4 text-green-500" />
@@ -289,13 +289,13 @@ const AIAgentsManagement = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500">Нет агентов в тарифе</p>
+                    <p className="text-sm text-gray-500">No agents in plan</p>
                   )}
                 </div>
 
                 {/* Addon Agents */}
                 <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Дополнительные агенты:</h4>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Additional agents:</h4>
                   {companyInfo.addon_agents && companyInfo.addon_agents.length > 0 ? (
                     <div className="space-y-2">
                       {companyInfo.addon_agents.map((agent) => (
@@ -311,7 +311,7 @@ const AIAgentsManagement = () => {
                               {formatPrice(agent.price)} / {agent.billing_cycle}
                               {agent.expires_at && (
                                 <span className="ml-2">
-                                  до {new Date(agent.expires_at).toLocaleDateString('ru-RU')}
+                                  until {new Date(agent.expires_at).toLocaleDateString('en-US')}
                                 </span>
                               )}
                             </div>
@@ -320,7 +320,7 @@ const AIAgentsManagement = () => {
                             <button
                               onClick={() => handleDeactivateAgent(companyInfo.company_id, agent.agent_key)}
                               className="ml-2 text-red-600 hover:text-red-800"
-                              title="Деактивировать"
+                              title="Deactivate"
                             >
                               <XMarkIcon className="h-4 w-4" />
                             </button>
@@ -329,7 +329,7 @@ const AIAgentsManagement = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500">Нет дополнительных агентов</p>
+                    <p className="text-sm text-gray-500">No additional agents</p>
                   )}
                 </div>
 
@@ -338,7 +338,7 @@ const AIAgentsManagement = () => {
                   onClick={() => openActivateModal(companyInfo.company_id)}
                   className="w-full text-sm text-orange-600 hover:text-orange-800 border border-orange-600 hover:border-orange-800 rounded px-3 py-2 transition-colors"
                 >
-                  Добавить агента
+                  Add Agent
                 </button>
               </div>
             </div>
@@ -348,36 +348,36 @@ const AIAgentsManagement = () => {
         {/* Available Agents Info */}
         <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Доступные AI Агенты</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Available AI Agents</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {availableAgents.map((agent) => (
                 <div key={agent.addon_key} className="border border-gray-200 rounded-lg p-4">
                   <h4 className="font-medium text-gray-900">{agent.name}</h4>
                   <p className="text-sm text-gray-600 mt-1">{agent.description}</p>
                   <div className="mt-3 text-sm">
-                    <div className="text-gray-700">Месячно: {formatPrice(agent.monthly_price)}</div>
-                    <div className="text-gray-700">Годом: {formatPrice(agent.yearly_price)}</div>
+                    <div className="text-gray-700">Monthly: {formatPrice(agent.monthly_price)}</div>
+                    <div className="text-gray-700">Yearly: {formatPrice(agent.yearly_price)}</div>
                     {agent.one_time_price && (
-                      <div className="text-gray-700">Разово: {formatPrice(agent.one_time_price)}</div>
+                      <div className="text-gray-700">One-time: {formatPrice(agent.one_time_price)}</div>
                     )}
                   </div>
                   <div className="mt-2 flex space-x-2">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       agent.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}>
-                      {agent.is_available ? 'Доступен' : 'Недоступен'}
+                      {agent.is_available ? 'Available' : 'Unavailable'}
                     </span>
                     <button
                       onClick={() => openPricingModal(agent)}
                       className="text-orange-600 hover:text-orange-800 text-sm"
-                      title="Редактировать цены"
+                      title="Edit Prices"
                     >
                       <PencilIcon className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteAgent(agent.addon_key)}
                       className="text-red-600 hover:text-red-800 text-sm"
-                      title="Удалить агента"
+                      title="Delete Agent"
                     >
                       <TrashIcon className="h-4 w-4" />
                     </button>
@@ -393,32 +393,32 @@ const AIAgentsManagement = () => {
       {showActivateModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Активировать AI Агента</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Activate AI Agent</h3>
             
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ID Компании
+                  Company ID
                 </label>
                 <input
                   type="text"
                   value={activationData.companyId}
                   onChange={(e) => setActivationData({...activationData, companyId: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Введите ID компании"
+                  placeholder="Enter company ID"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  AI Агент
+                  AI Agent
                 </label>
                 <select
                   value={activationData.agentKey}
                   onChange={(e) => setActivationData({...activationData, agentKey: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 >
-                  <option value="">Выберите агента</option>
+                  <option value="">Select agent</option>
                   {availableAgents.map((agent) => (
                     <option key={agent.addon_key} value={agent.addon_key}>
                       {agent.name}
@@ -429,7 +429,7 @@ const AIAgentsManagement = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Тип подписки
+                  Subscription Type
                 </label>
                 <select
                   value={activationData.billingCycle}
@@ -450,14 +450,14 @@ const AIAgentsManagement = () => {
                 onClick={() => setShowActivateModal(false)}
                 className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
-                Отмена
+                Cancel
               </button>
               <button
                 onClick={handleActivateAgent}
                 disabled={!activationData.companyId || !activationData.agentKey}
                 className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Активировать
+                Activate
               </button>
             </div>
           </div>
@@ -469,13 +469,13 @@ const AIAgentsManagement = () => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Редактировать цены: {editingAgent?.name}
+              Edit Prices: {editingAgent?.name}
             </h3>
             
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Месячная цена ($)
+                  Monthly Price ($)
                 </label>
                 <input
                   type="number"
@@ -489,7 +489,7 @@ const AIAgentsManagement = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Годовая цена ($)
+                  Yearly Price ($)
                 </label>
                 <input
                   type="number"
@@ -503,7 +503,7 @@ const AIAgentsManagement = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Разовая цена ($) - необязательно
+                  One-time Price ($) - optional
                 </label>
                 <input
                   type="number"
@@ -512,7 +512,7 @@ const AIAgentsManagement = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   min="0"
                   step="0.01"
-                  placeholder="Оставьте пустым, если не нужно"
+                  placeholder="Leave empty if not needed"
                 />
               </div>
 
@@ -524,7 +524,7 @@ const AIAgentsManagement = () => {
                     onChange={(e) => setPricingData({...pricingData, is_available: e.target.checked})}
                     className="rounded border-gray-300"
                   />
-                  <span className="text-sm font-medium text-gray-700">Доступен для покупки</span>
+                  <span className="text-sm font-medium text-gray-700">Available for purchase</span>
                 </label>
               </div>
             </div>
@@ -534,13 +534,13 @@ const AIAgentsManagement = () => {
                 onClick={() => setShowPricingModal(false)}
                 className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
-                Отмена
+                Cancel
               </button>
               <button
                 onClick={handleUpdatePricing}
                 className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
               >
-                Сохранить
+                Save
               </button>
             </div>
           </div>
@@ -551,52 +551,52 @@ const AIAgentsManagement = () => {
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Создать нового AI агента</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New AI Agent</h3>
             
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ключ агента
+                  Agent Key
                 </label>
                 <input
                   type="text"
                   value={createData.agent_key}
                   onChange={(e) => setCreateData({...createData, agent_key: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="например: CustomAgent"
+                  placeholder="e.g.: CustomAgent"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Название
+                  Name
                 </label>
                 <input
                   type="text"
                   value={createData.name}
                   onChange={(e) => setCreateData({...createData, name: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Название агента"
+                  placeholder="Agent name"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Описание
+                  Description
                 </label>
                 <textarea
                   value={createData.description}
                   onChange={(e) => setCreateData({...createData, description: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                   rows="3"
-                  placeholder="Описание функций агента"
+                  placeholder="Agent functionality description"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Месячная цена ($)
+                    Monthly Price ($)
                   </label>
                   <input
                     type="number"
@@ -610,7 +610,7 @@ const AIAgentsManagement = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Годовая цена ($)
+                    Yearly Price ($)
                   </label>
                   <input
                     type="number"
@@ -625,7 +625,7 @@ const AIAgentsManagement = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Разовая цена ($) - необязательно
+                  One-time Price ($) - optional
                 </label>
                 <input
                   type="number"
@@ -634,7 +634,7 @@ const AIAgentsManagement = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                   min="0"
                   step="0.01"
-                  placeholder="Оставьте пустым, если не нужно"
+                  placeholder="Leave empty if not needed"
                 />
               </div>
 
@@ -646,7 +646,7 @@ const AIAgentsManagement = () => {
                     onChange={(e) => setCreateData({...createData, is_available: e.target.checked})}
                     className="rounded border-gray-300"
                   />
-                  <span className="text-sm font-medium text-gray-700">Доступен для покупки</span>
+                  <span className="text-sm font-medium text-gray-700">Available for purchase</span>
                 </label>
               </div>
             </div>
@@ -656,14 +656,14 @@ const AIAgentsManagement = () => {
                 onClick={() => setShowCreateModal(false)}
                 className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
-                Отмена
+                Cancel
               </button>
               <button
                 onClick={handleCreateAgent}
                 disabled={!createData.agent_key || !createData.name}
                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Создать
+                Create
               </button>
             </div>
           </div>

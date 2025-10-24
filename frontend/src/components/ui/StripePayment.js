@@ -16,7 +16,7 @@ import {
 import toast from 'react-hot-toast';
 
 // Initialize Stripe
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'pk_test_demo');
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_demo');
 
 const CARD_ELEMENT_OPTIONS = {
   style: {
@@ -320,7 +320,7 @@ const StripePayment = ({
             }`}
           >
             <CreditCardIcon className="w-5 h-5" />
-            <span className="font-medium">Онлайн</span>
+            <span className="font-medium">Online</span>
           </button>
           
           <button
@@ -332,7 +332,7 @@ const StripePayment = ({
             }`}
           >
             <ExclamationTriangleIcon className="w-5 h-5" />
-            <span className="font-medium">Офлайн</span>
+            <span className="font-medium">Offline</span>
           </button>
         </div>
       </div>
@@ -363,7 +363,7 @@ const StripePayment = ({
       <div className="mt-4 text-center">
         <div className="flex items-center justify-center space-x-2 text-xs text-gray-500">
           <LockClosedIcon className="w-4 h-4" />
-          <span>Платежи обрабатываются через Stripe</span>
+          <span>Payments processed through Stripe</span>
         </div>
       </div>
     </div>

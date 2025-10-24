@@ -8,7 +8,7 @@ VALUES (uuid_generate_v4(), false, false, 10.0);
 INSERT INTO plans (id, name, price, features, free_trial_enabled, free_trial_days, max_employees, templates_access, demo_mode_access, included_ai_agents, ai_agent_addons) VALUES
 (uuid_generate_v4(), 'Starter', 29.99, ARRAY['Basic CRM', 'Up to 5 Employees', 'Basic Analytics'], true, 14, 5, false, false, ARRAY['BookingAssistant'], ARRAY['CustomerSupportAgent', 'ReminderFollowUpBot']),
 (uuid_generate_v4(), 'Professional', 79.99, ARRAY['Advanced CRM', 'Up to 20 Employees', 'Advanced Analytics', 'AI Agents'], true, 14, 20, true, true, ARRAY['BookingAssistant', 'CustomerSupportAgent', 'ReminderFollowUpBot'], ARRAY['MedicalVetAssistant', 'MarketingContentGenerator']),
-(uuid_generate_v4(), 'Enterprise', 199.99, ARRAY['Full CRM Suite', 'Unlimited Employees', 'Advanced Analytics', 'All AI Agents', 'API Access'], true, 30, 999, true, true, ARRAY['BookingAssistant', 'CustomerSupportAgent', 'ReminderFollowUpBot', 'MedicalVetAssistant', 'MarketingContentGenerator', 'UpsellCrossSellAgent', 'FeedbackSentimentAnalyzer', 'AnalyticsNarrator'], ARRAY[]);
+(uuid_generate_v4(), 'Enterprise', 199.99, ARRAY['Full CRM Suite', 'Unlimited Employees', 'Advanced Analytics', 'All AI Agents', 'API Access'], true, 30, 999, true, true, ARRAY['BookingAssistant', 'CustomerSupportAgent', 'ReminderFollowUpBot', 'MedicalVetAssistant', 'MarketingContentGenerator', 'UpsellCrossSellAgent', 'FeedbackSentimentAnalyzer', 'AnalyticsNarrator'], ARRAY[]::text[]);
 
 -- Insert pet types
 INSERT INTO pet_types (id, name) VALUES

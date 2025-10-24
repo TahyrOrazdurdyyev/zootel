@@ -39,9 +39,9 @@ const FileUpload = ({
     rejectedFiles.forEach(({ file, errors }) => {
       errors.forEach(error => {
         if (error.code === 'file-too-large') {
-          toast.error(`Файл ${file.name} слишком большой (максимум ${maxFileSize / 1024 / 1024}MB)`);
+          toast.error(`File ${file.name} is too large (max ${maxFileSize / 1024 / 1024}MB)`);
         } else if (error.code === 'file-invalid-type') {
-          toast.error(`Неподдерживаемый тип файла: ${file.name}`);
+          toast.error(`Unsupported file type: ${file.name}`);
         }
       });
     });
@@ -122,7 +122,7 @@ const FileUpload = ({
       return new Promise((resolve) => {
         canvas.toBlob((blob) => {
           if (!blob) {
-            toast.error('Ошибка при обрезке изображения');
+            toast.error('Error cropping image');
             return;
           }
 
@@ -151,7 +151,7 @@ const FileUpload = ({
 
           setIsCropping(false);
           setCropFile(null);
-          toast.success('Изображение обрезано');
+          toast.success('Image cropped');
           resolve();
         }, cropFile.file.type);
       });
@@ -182,7 +182,7 @@ const FileUpload = ({
       
       // This is a simplified camera implementation
       // In a real app, you'd want a proper camera modal
-      toast.success('Камера открыта (упрощенная реализация)');
+      toast.success('Camera opened (simplified implementation)');
       
       // Stop the stream
       setTimeout(() => {
@@ -190,7 +190,7 @@ const FileUpload = ({
       }, 3000);
       
     } catch (error) {
-      toast.error('Не удалось получить доступ к камере');
+      toast.error('Failed to access camera');
     }
   };
 
@@ -209,7 +209,7 @@ const FileUpload = ({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-4xl max-h-screen overflow-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Обрезать изображение</h3>
+              <h3 className="text-lg font-semibold">Crop Image</h3>
               <button
                 onClick={cancelCrop}
                 className="text-gray-400 hover:text-gray-600"
@@ -245,14 +245,14 @@ const FileUpload = ({
                 onClick={cancelCrop}
                 className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
               >
-                Отмена
+                Cancel
               </button>
               <button
                 onClick={applyCrop}
                 className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 flex items-center space-x-2"
               >
                 <CheckIcon className="w-4 h-4" />
-                <span>Применить</span>
+                <span>Apply</span>
               </button>
             </div>
           </div>
@@ -279,16 +279,16 @@ const FileUpload = ({
           
           {isDragActive ? (
             <p className="text-primary-600 font-medium">
-              Отпустите файлы здесь...
+              Drop files here...
             </p>
           ) : (
             <div>
               <p className="text-gray-600">
-                Перетащите файлы сюда или{' '}
-                <span className="text-primary-500 font-medium">выберите файлы</span>
+                Drag and drop files here or{' '}
+                <span className="text-primary-500 font-medium">select files</span>
               </p>
               <p className="text-sm text-gray-500 mt-1">
-                Максимум {maxFiles} файлов, до {formatFileSize(maxFileSize)} каждый
+                Max {maxFiles} files, up to {formatFileSize(maxFileSize)} each
               </p>
             </div>
           )}
@@ -302,7 +302,7 @@ const FileUpload = ({
                 className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
               >
                 <PhotoIcon className="w-5 h-5" />
-                <span>Галерея</span>
+                <span>Gallery</span>
               </button>
             )}
             
@@ -312,7 +312,7 @@ const FileUpload = ({
               className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
             >
               <CameraIcon className="w-5 h-5" />
-              <span>Камера</span>
+              <span>Camera</span>
             </button>
           </div>
         </div>
@@ -321,7 +321,7 @@ const FileUpload = ({
       {/* File List */}
       {files.length > 0 && (
         <div className="space-y-3">
-          <h4 className="font-medium text-gray-900">Загруженные файлы ({files.length})</h4>
+          <h4 className="font-medium text-gray-900">Uploaded Files ({files.length})</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {files.map((file) => (
               <div key={file.id} className="relative group border border-gray-200 rounded-lg overflow-hidden">
@@ -335,7 +335,7 @@ const FileUpload = ({
                     {file.cropped && (
                       <div className="absolute top-2 left-2">
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Обрезано
+                          Cropped
                         </span>
                       </div>
                     )}
@@ -361,7 +361,7 @@ const FileUpload = ({
                     <button
                       onClick={() => startCrop(file)}
                       className="p-2 bg-white text-gray-700 rounded-full hover:bg-gray-100"
-                      title="Обрезать"
+                      title="Crop"
                     >
                       <PencilIcon className="w-4 h-4" />
                     </button>
@@ -370,7 +370,7 @@ const FileUpload = ({
                   <button
                     onClick={() => removeFile(file.id)}
                     className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600"
-                    title="Удалить"
+                    title="Delete"
                   >
                     <TrashIcon className="w-4 h-4" />
                   </button>

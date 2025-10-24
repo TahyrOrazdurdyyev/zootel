@@ -64,11 +64,11 @@ const PromptsManagement = () => {
         await loadPrompts();
         setShowCreateModal(false);
         setFormData({ agent_key: '', prompt_type: 'system', content: '' });
-        alert('Промпт создан успешно!');
+        alert('Prompt created successfully!');
       }
     } catch (error) {
       console.error('Error creating prompt:', error);
-      alert('Ошибка при создании промпта');
+      alert('Error creating prompt');
     }
   };
 
@@ -83,11 +83,11 @@ const PromptsManagement = () => {
         await loadPrompts();
         setShowEditModal(false);
         setEditingPrompt(null);
-        alert('Промпт обновлен успешно!');
+        alert('Prompt updated successfully!');
       }
     } catch (error) {
       console.error('Error updating prompt:', error);
-      alert('Ошибка при обновлении промпта');
+      alert('Error updating prompt');
     }
   };
 
@@ -121,7 +121,7 @@ const PromptsManagement = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Загрузка промптов...</p>
+          <p className="mt-2 text-gray-600">Loading prompts...</p>
         </div>
       </div>
     );
@@ -135,10 +135,10 @@ const PromptsManagement = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center">
               <SparklesIcon className="h-8 w-8 mr-3 text-red-600" />
-              Управление AI промптами
+              AI Prompts Management
             </h1>
             <p className="mt-2 text-sm text-gray-700">
-              Настройка глобальных промптов для AI агентов
+              Configure global prompts for AI agents
             </p>
           </div>
           <button
@@ -146,20 +146,20 @@ const PromptsManagement = () => {
             className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-red-700"
           >
             <PlusIcon className="h-5 w-5 mr-2" />
-            Создать промпт
+            Create Prompt
           </button>
         </div>
 
         {/* Filter */}
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
           <div className="flex items-center space-x-4">
-            <label className="text-sm font-medium text-gray-700">Фильтр по агенту:</label>
+            <label className="text-sm font-medium text-gray-700">Filter by agent:</label>
             <select
               value={selectedAgent}
               onChange={(e) => setSelectedAgent(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             >
-              <option value="all">Все агенты</option>
+              <option value="all">All agents</option>
               {agentTypes.map(agent => (
                 <option key={agent.key} value={agent.key}>{agent.name}</option>
               ))}
@@ -178,7 +178,7 @@ const PromptsManagement = () => {
                     <p className="text-sm text-gray-600">{agent.description}</p>
                   </div>
                   <span className="px-3 py-1 bg-red-100 text-red-800 text-sm rounded-full">
-                    {groupedPrompts[agent.key]?.length || 0} промптов
+                    {groupedPrompts[agent.key]?.length || 0} prompts
                   </span>
                 </div>
               </div>
@@ -212,7 +212,7 @@ const PromptsManagement = () => {
                         </div>
 
                         <div className="mb-3">
-                          <p className="text-sm text-gray-600 mb-2">Переменные:</p>
+                          <p className="text-sm text-gray-600 mb-2">Variables:</p>
                           <div className="flex flex-wrap gap-1">
                             {extractVariables(prompt.content).map(variable => (
                               <span key={variable} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
@@ -229,9 +229,9 @@ const PromptsManagement = () => {
                         </div>
 
                         <div className="mt-3 text-xs text-gray-500">
-                          Создан: {new Date(prompt.created_at).toLocaleDateString('ru-RU')}
+                          Created: {new Date(prompt.created_at).toLocaleDateString('en-US')}
                           {prompt.updated_at !== prompt.created_at && (
-                            <>, обновлен: {new Date(prompt.updated_at).toLocaleDateString('ru-RU')}</>
+                            <>, updated: {new Date(prompt.updated_at).toLocaleDateString('en-US')}</>
                           )}
                         </div>
                       </div>
@@ -240,7 +240,7 @@ const PromptsManagement = () => {
                 ) : (
                   <div className="text-center py-8">
                     <SparklesIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">Нет промптов для этого агента</p>
+                    <p className="text-gray-500">No prompts for this agent</p>
                     <button
                       onClick={() => {
                         setFormData({ ...formData, agent_key: agent.key });
@@ -248,7 +248,7 @@ const PromptsManagement = () => {
                       }}
                       className="mt-2 text-red-600 hover:text-red-800 text-sm"
                     >
-                      Создать первый промпт
+                      Create first prompt
                     </button>
                   </div>
                 )}
@@ -264,7 +264,7 @@ const PromptsManagement = () => {
           <div className="bg-white rounded-lg max-w-3xl w-full mx-4 max-h-96 overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Создать новый промпт</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Create New Prompt</h3>
                 <button
                   onClick={() => setShowCreateModal(false)}
                   className="text-gray-400 hover:text-gray-600"
@@ -275,13 +275,13 @@ const PromptsManagement = () => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">AI Агент</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">AI Agent</label>
                   <select
                     value={formData.agent_key}
                     onChange={(e) => setFormData({ ...formData, agent_key: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                   >
-                    <option value="">Выберите агента</option>
+                    <option value="">Select agent</option>
                     {agentTypes.map(agent => (
                       <option key={agent.key} value={agent.key}>{agent.name}</option>
                     ))}
@@ -289,7 +289,7 @@ const PromptsManagement = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Тип промпта</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Prompt Type</label>
                   <select
                     value={formData.prompt_type}
                     onChange={(e) => setFormData({ ...formData, prompt_type: e.target.value })}
@@ -302,16 +302,16 @@ const PromptsManagement = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Содержимое промпта</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Prompt Content</label>
                   <textarea
                     value={formData.content}
                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                     rows={10}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                    placeholder="Введите содержимое промпта..."
+                    placeholder="Enter prompt content..."
                   />
                   <p className="mt-1 text-xs text-gray-500">
-                    Используйте переменные в формате: {`{{variable_name}}`}
+                    Use variables in format: {`{{variable_name}}`}
                   </p>
                 </div>
               </div>
@@ -321,14 +321,14 @@ const PromptsManagement = () => {
                   onClick={() => setShowCreateModal(false)}
                   className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
-                  Отмена
+                  Cancel
                 </button>
                 <button
                   onClick={handleCreate}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                   disabled={!formData.agent_key || !formData.content}
                 >
-                  Создать
+                  Create
                 </button>
               </div>
             </div>
@@ -343,7 +343,7 @@ const PromptsManagement = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Редактировать промпт: {getAgentInfo(editingPrompt.agent_key)?.name} ({editingPrompt.prompt_type})
+                  Edit Prompt: {getAgentInfo(editingPrompt.agent_key)?.name} ({editingPrompt.prompt_type})
                 </h3>
                 <button
                   onClick={() => setShowEditModal(false)}
@@ -355,7 +355,7 @@ const PromptsManagement = () => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Содержимое промпта</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Prompt Content</label>
                   <textarea
                     value={editingPrompt.content}
                     onChange={(e) => setEditingPrompt({ ...editingPrompt, content: e.target.value })}
@@ -365,7 +365,7 @@ const PromptsManagement = () => {
                 </div>
 
                 <div className="bg-blue-50 p-3 rounded-lg">
-                  <h4 className="text-sm font-medium text-blue-800 mb-2">Найденные переменные:</h4>
+                  <h4 className="text-sm font-medium text-blue-800 mb-2">Found variables:</h4>
                   <div className="flex flex-wrap gap-1">
                     {extractVariables(editingPrompt.content).map(variable => (
                       <span key={variable} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
@@ -381,13 +381,13 @@ const PromptsManagement = () => {
                   onClick={() => setShowEditModal(false)}
                   className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
-                  Отмена
+                  Cancel
                 </button>
                 <button
                   onClick={handleUpdate}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >
-                  Сохранить
+                  Save
                 </button>
               </div>
             </div>

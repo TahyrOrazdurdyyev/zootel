@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon, UserIcon, BuildingStorefrontIcon } from '@heroicons/react/24/outline';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import LocationSelector from '../../components/ui/LocationSelector';
 
 const RegisterPage = () => {
+  const [userType, setUserType] = useState('pet_owner'); // 'pet_owner' or 'business'
   const [formData, setFormData] = useState({
+    // Common fields
     firstName: '',
     lastName: '',
     email: '',
@@ -17,15 +19,43 @@ const RegisterPage = () => {
     country: null,
     state: null,
     city: null,
-    agreeToTerms: false
+    agreeToTerms: false,
+    // Business-only fields
+    companyName: '',
+    businessType: '',
+    address: '',
+    taxId: '',
+    website: '',
+    description: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [businessTypes, setBusinessTypes] = useState([]);
 
-  const { register } = useAuth();
+  const { register, registerBusiness } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (userType === 'business') {
+      fetchBusinessTypes();
+    }
+    // Clear errors when switching user types
+    setErrors({});
+  }, [userType]);
+
+  const fetchBusinessTypes = async () => {
+    try {
+      const response = await fetch('/api/v1/companies/business-types');
+      if (response.ok) {
+        const data = await response.json();
+        setBusinessTypes(data.business_types || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch business types:', error);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -75,6 +105,22 @@ const RegisterPage = () => {
   const validateForm = () => {
     const newErrors = {};
 
+    // Business-specific validation
+    if (userType === 'business') {
+      if (!formData.companyName.trim()) {
+        newErrors.companyName = 'Company name is required';
+      }
+
+      if (!formData.businessType) {
+        newErrors.businessType = 'Business type is required';
+      }
+
+      if (!formData.address.trim()) {
+        newErrors.address = 'Address is required';
+      }
+    }
+
+    // Common validation
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'First name is required';
     }
@@ -133,23 +179,48 @@ const RegisterPage = () => {
     setErrors({});
 
     try {
-      // Prepare registration data with formatted location
-      const registrationData = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password,
-        country: formData.country?.name || '',
-        state: formData.state?.name || '',
-        city: formData.city?.name || '',
-        agreeToTerms: formData.agreeToTerms
-      };
-      
-      await register(registrationData);
-      navigate('/profile', { replace: true });
+      if (userType === 'business') {
+        // Business registration
+        const businessData = {
+          companyName: formData.companyName,
+          businessType: formData.businessType,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+          country: formData.country?.name || '',
+          state: formData.state?.name || '',
+          city: formData.city?.name || '',
+          address: formData.address,
+          taxId: formData.taxId,
+          website: formData.website,
+          description: formData.description,
+          agreeToTerms: formData.agreeToTerms,
+          userType: 'business'
+        };
+        
+        await registerBusiness(businessData);
+        navigate('/company/dashboard', { replace: true });
+      } else {
+        // Pet owner registration
+        const registrationData = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+          country: formData.country?.name || '',
+          state: formData.state?.name || '',
+          city: formData.city?.name || '',
+          agreeToTerms: formData.agreeToTerms
+        };
+        
+        await register(registrationData);
+        navigate('/profile', { replace: true });
+      }
     } catch (err) {
-      setErrors({ submit: 'Registration error. Please try again.' });
+      setErrors({ submit: err.message || 'Registration error. Please try again.' });
     } finally {
       setLoading(false);
     }
@@ -159,9 +230,7 @@ const RegisterPage = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center">
-            <span className="text-white font-bold text-2xl">Z</span>
-          </div>
+          <img src="/logo.svg" alt="Zootel" className="h-12 w-12" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Create your account
@@ -175,12 +244,115 @@ const RegisterPage = () => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        {/* User Type Tabs */}
+        <div className="mb-6">
+          <div className="flex bg-white rounded-lg shadow overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setUserType('pet_owner')}
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                userType === 'pet_owner'
+                  ? 'bg-primary-500 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <UserIcon className="h-5 w-5 mx-auto mb-1" />
+              Pet Owner
+            </button>
+            <button
+              type="button"
+              onClick={() => setUserType('business')}
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                userType === 'business'
+                  ? 'bg-primary-500 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <BuildingStorefrontIcon className="h-5 w-5 mx-auto mb-1" />
+              Business Owner
+            </button>
+          </div>
+        </div>
+
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {errors.submit && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
                 {errors.submit}
               </div>
+            )}
+
+            {/* Business Fields */}
+            {userType === 'business' && (
+              <>
+                <div className="space-y-4 pb-4 border-b border-gray-200">
+                  <h3 className="text-sm font-semibold text-gray-900">Company Information</h3>
+                  
+                  <div>
+                    <label htmlFor="companyName" className="block text-sm font-medium text-gray-700">
+                      Company Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        id="companyName"
+                        name="companyName"
+                        type="text"
+                        required
+                        value={formData.companyName}
+                        onChange={handleChange}
+                        className={`input-field ${errors.companyName ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}`}
+                        placeholder="Your company name"
+                      />
+                      {errors.companyName && (
+                        <p className="mt-1 text-sm text-red-600">{errors.companyName}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="businessType" className="block text-sm font-medium text-gray-700">
+                      Business Type <span className="text-red-500">*</span>
+                    </label>
+                    <div className="mt-1">
+                      <select
+                        id="businessType"
+                        name="businessType"
+                        required
+                        value={formData.businessType}
+                        onChange={handleChange}
+                        className={`input-field ${errors.businessType ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}`}
+                      >
+                        <option value="">Select business type</option>
+                        {businessTypes.map((type) => (
+                          <option key={type.value} value={type.value}>
+                            {type.label}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.businessType && (
+                        <p className="mt-1 text-sm text-red-600">{errors.businessType}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                      Business Description
+                    </label>
+                    <div className="mt-1">
+                      <textarea
+                        id="description"
+                        name="description"
+                        rows={3}
+                        value={formData.description}
+                        onChange={handleChange}
+                        className="input-field"
+                        placeholder="Brief description of your business"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
             )}
 
             <div className="grid grid-cols-2 gap-4">
@@ -292,6 +464,68 @@ const RegisterPage = () => {
               )}
             </div>
 
+            {/* Business Address Fields */}
+            {userType === 'business' && (
+              <>
+                <div>
+                  <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                    Street Address <span className="text-red-500">*</span>
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="address"
+                      name="address"
+                      type="text"
+                      required
+                      value={formData.address}
+                      onChange={handleChange}
+                      className={`input-field ${errors.address ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}`}
+                      placeholder="Street address, apartment, suite, etc."
+                    />
+                    {errors.address && (
+                      <p className="mt-1 text-sm text-red-600">{errors.address}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="taxId" className="block text-sm font-medium text-gray-700">
+                      Tax ID / VAT Number
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        id="taxId"
+                        name="taxId"
+                        type="text"
+                        value={formData.taxId}
+                        onChange={handleChange}
+                        className="input-field"
+                        placeholder="Tax identification number"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="website" className="block text-sm font-medium text-gray-700">
+                      Website
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        id="website"
+                        name="website"
+                        type="url"
+                        value={formData.website}
+                        onChange={handleChange}
+                        className="input-field"
+                        placeholder="https://yourwebsite.com"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
@@ -398,7 +632,7 @@ const RegisterPage = () => {
                     Creating Account...
                   </div>
                 ) : (
-                  'Create Account'
+                  userType === 'business' ? 'Create Business Account' : 'Create Account'
                 )}
               </button>
             </div>

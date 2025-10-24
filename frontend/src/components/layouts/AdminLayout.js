@@ -7,13 +7,15 @@ import {
   CogIcon,
   CreditCardIcon,
   SparklesIcon,
-  CpuChipIcon
+  CpuChipIcon,
+  CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 
 const AdminLayout = ({ children }) => {
   const sidebarItems = [
     { name: 'Analytics', href: '/admin/analytics', icon: ChartBarIcon },
     { name: 'Companies', href: '/admin/companies', icon: BuildingOfficeIcon },
+    { name: 'Currencies', href: '/admin/currencies', icon: CurrencyDollarIcon },
     { name: 'Plan Settings', href: '/admin/plan-settings', icon: CogIcon },
     { name: 'Payment Settings', href: '/admin/payment-settings', icon: CreditCardIcon },
     { name: 'AI Agents', href: '/admin/ai-agents', icon: CpuChipIcon },

@@ -57,22 +57,22 @@ const CompaniesManagement = () => {
     try {
       const enable = !currentStatus;
       
-      // Проверяем разрешение
+      // Check permission
       const checkResponse = await apiCall(`/api/v1/admin/companies/${companyId}/check-crm-toggle?enable=${enable}`, 'GET');
       
       if (!checkResponse.can_toggle) {
-        alert(`Невозможно ${enable ? 'включить' : 'отключить'} CRM: ${checkResponse.reason}`);
+        alert(`Cannot ${enable ? 'enable' : 'disable'} CRM: ${checkResponse.reason}`);
         return;
       }
 
       const response = await apiCall(`/api/v1/admin/companies/${companyId}/toggle-manual-crm`, 'PUT');
       if (response.success) {
-        await loadCompanies(); // Перезагружаем список
-        alert(`CRM ${enable ? 'включен' : 'отключен'} для компании`);
+        await loadCompanies(); // Reload list
+        alert(`CRM ${enable ? 'enabled' : 'disabled'} for company`);
       }
     } catch (error) {
       console.error('Error toggling CRM:', error);
-      alert('Ошибка при изменении статуса CRM');
+      alert('Error changing CRM status');
     }
   };
 
@@ -80,22 +80,22 @@ const CompaniesManagement = () => {
     try {
       const enable = !currentStatus;
       
-      // Проверяем разрешение
+      // Check permission
       const checkResponse = await apiCall(`/api/v1/admin/companies/${companyId}/check-ai-toggle?enable=${enable}`, 'GET');
       
       if (!checkResponse.can_toggle) {
-        alert(`Невозможно ${enable ? 'включить' : 'отключить'} AI агентов: ${checkResponse.reason}`);
+        alert(`Cannot ${enable ? 'enable' : 'disable'} AI agents: ${checkResponse.reason}`);
         return;
       }
 
       const response = await apiCall(`/api/v1/admin/companies/${companyId}/toggle-manual-ai`, 'PUT');
       if (response.success) {
-        await loadCompanies(); // Перезагружаем список
-        alert(`AI агенты ${enable ? 'включены' : 'отключены'} для компании`);
+        await loadCompanies(); // Reload list
+        alert(`AI agents ${enable ? 'enabled' : 'disabled'} for company`);
       }
     } catch (error) {
       console.error('Error toggling AI:', error);
-      alert('Ошибка при изменении статуса AI агентов');
+      alert('Error changing AI agents status');
     }
   };
 
@@ -117,27 +117,27 @@ const CompaniesManagement = () => {
       active: { 
         color: 'bg-green-100 text-green-800', 
         icon: CheckCircleIcon, 
-        label: 'Активна' 
+        label: 'Active' 
       },
       trial: { 
         color: 'bg-blue-100 text-blue-800', 
         icon: ClockIcon, 
-        label: 'Пробный период' 
+        label: 'Trial Period' 
       },
       trial_expired: { 
         color: 'bg-red-100 text-red-800', 
         icon: ExclamationTriangleIcon, 
-        label: 'Пробный истек' 
+        label: 'Trial Expired' 
       },
       paid: { 
         color: 'bg-emerald-100 text-emerald-800', 
         icon: CreditCardIcon, 
-        label: 'Платная' 
+        label: 'Paid' 
       },
       inactive: { 
         color: 'bg-gray-100 text-gray-800', 
         icon: XCircleIcon, 
-        label: 'Неактивна' 
+        label: 'Inactive' 
       }
     };
 
@@ -203,7 +203,7 @@ const CompaniesManagement = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Загрузка компаний...</p>
+          <p className="mt-2 text-gray-600">Loading companies...</p>
         </div>
       </div>
     );
@@ -217,10 +217,10 @@ const CompaniesManagement = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center">
               <BuildingOfficeIcon className="h-8 w-8 mr-3 text-blue-600" />
-              Управление компаниями
+              Company Management
             </h1>
             <p className="mt-2 text-sm text-gray-700">
-              Всего компаний: {companies.length} | Отфильтровано: {filteredAndSortedCompanies.length}
+              Total companies: {companies.length} | Filtered: {filteredAndSortedCompanies.length}
             </p>
           </div>
         </div>
@@ -233,7 +233,7 @@ const CompaniesManagement = () => {
               <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Поиск по названию, email, типу..."
+                placeholder="Search by name, email, type..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -248,12 +248,12 @@ const CompaniesManagement = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
               >
-                <option value="all">Все статусы</option>
-                <option value="active">Активные</option>
-                <option value="trial">Пробный период</option>
-                <option value="trial_expired">Пробный истек</option>
-                <option value="paid">Платные</option>
-                <option value="inactive">Неактивные</option>
+                <option value="all">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="trial">Trial</option>
+                <option value="trial_expired">Trial Expired</option>
+                <option value="paid">Paid</option>
+                <option value="inactive">Inactive</option>
               </select>
             </div>
 
@@ -264,7 +264,7 @@ const CompaniesManagement = () => {
                 onChange={(e) => setPlanFilter(e.target.value)}
                 className="px-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="all">Все планы</option>
+                <option value="all">All Plans</option>
                 {uniquePlans.map(plan => (
                   <option key={plan} value={plan}>{plan}</option>
                 ))}
@@ -278,10 +278,10 @@ const CompaniesManagement = () => {
                 onChange={(e) => setSortBy(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="created_at">По дате создания</option>
-                <option value="name">По названию</option>
-                <option value="total_revenue">По доходу</option>
-                <option value="total_bookings">По бронированиям</option>
+                <option value="created_at">By Creation Date</option>
+                <option value="name">By Name</option>
+                <option value="total_revenue">By Revenue</option>
+                <option value="total_bookings">By Bookings</option>
               </select>
               <button
                 onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
@@ -324,7 +324,7 @@ const CompaniesManagement = () => {
                 <div className="mb-4 p-3 bg-gray-50 rounded-lg">
                   <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <UserIcon className="h-4 w-4 mr-1" />
-                    Владелец
+                    Owner
                   </h4>
                   <p className="text-sm text-gray-900">
                     {company.owner_first_name} {company.owner_last_name}
@@ -339,10 +339,10 @@ const CompaniesManagement = () => {
                 <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                   <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <CreditCardIcon className="h-4 w-4 mr-1" />
-                    План подписки
+                    Subscription Plan
                   </h4>
-                  <p className="text-sm font-semibold text-blue-900">{company.plan_name || 'Без плана'}</p>
-                  <p className="text-sm text-blue-700">{formatCurrency(company.plan_price)}/мес</p>
+                  <p className="text-sm font-semibold text-blue-900">{company.plan_name || 'No plan'}</p>
+                  <p className="text-sm text-blue-700">{formatCurrency(company.plan_price)}/mo</p>
                 </div>
 
                 {/* Contact Info */}
@@ -380,12 +380,12 @@ const CompaniesManagement = () => {
                   <div className="text-center p-3 bg-green-50 rounded-lg">
                     <ChartBarIcon className="h-5 w-5 text-green-600 mx-auto mb-1" />
                     <p className="text-sm font-semibold text-green-900">{company.total_bookings}</p>
-                    <p className="text-xs text-green-700">Бронирований</p>
+                    <p className="text-xs text-green-700">Bookings</p>
                   </div>
                   <div className="text-center p-3 bg-purple-50 rounded-lg">
                     <UsersIcon className="h-5 w-5 text-purple-600 mx-auto mb-1" />
                     <p className="text-sm font-semibold text-purple-900">{company.total_customers}</p>
-                    <p className="text-xs text-purple-700">Клиентов</p>
+                    <p className="text-xs text-purple-700">Clients</p>
                   </div>
                 </div>
 
@@ -393,12 +393,12 @@ const CompaniesManagement = () => {
                   <div className="text-center p-3 bg-yellow-50 rounded-lg">
                     <CreditCardIcon className="h-5 w-5 text-yellow-600 mx-auto mb-1" />
                     <p className="text-sm font-semibold text-yellow-900">{formatCurrency(company.total_revenue)}</p>
-                    <p className="text-xs text-yellow-700">Доход</p>
+                    <p className="text-xs text-yellow-700">Revenue</p>
                   </div>
                   <div className="text-center p-3 bg-indigo-50 rounded-lg">
                     <UsersIcon className="h-5 w-5 text-indigo-600 mx-auto mb-1" />
                     <p className="text-sm font-semibold text-indigo-900">{company.employee_count}</p>
-                    <p className="text-xs text-indigo-700">Сотрудников</p>
+                    <p className="text-xs text-indigo-700">Employees</p>
                   </div>
                 </div>
 
@@ -407,16 +407,16 @@ const CompaniesManagement = () => {
                   <div className="p-3 bg-orange-50 rounded-lg mb-4">
                     <h4 className="text-sm font-medium text-orange-700 mb-1 flex items-center">
                       <CalendarDaysIcon className="h-4 w-4 mr-1" />
-                      Пробный период
+                      Trial Period
                     </h4>
                     {company.trial_start_date && (
                       <p className="text-xs text-orange-600">
-                        Начало: {formatDate(company.trial_start_date)}
+                        Start: {formatDate(company.trial_start_date)}
                       </p>
                     )}
                     {company.trial_end_date && (
                       <p className="text-xs text-orange-600">
-                        Окончание: {formatDate(company.trial_end_date)}
+                        End: {formatDate(company.trial_end_date)}
                       </p>
                     )}
                   </div>
@@ -433,7 +433,7 @@ const CompaniesManagement = () => {
                           : 'bg-gray-100 text-gray-600 border-gray-200'
                       } hover:bg-opacity-80 transition-colors`}
                     >
-                      CRM: {company.manual_enabled_crm ? 'ВКЛ' : 'ВЫКЛ'}
+                      CRM: {company.manual_enabled_crm ? 'ON' : 'OFF'}
                     </button>
                     
                     <button
@@ -444,22 +444,22 @@ const CompaniesManagement = () => {
                           : 'bg-gray-100 text-gray-600 border-gray-200'
                       } hover:bg-opacity-80 transition-colors`}
                     >
-                      AI: {company.manual_enabled_ai_agents ? 'ВКЛ' : 'ВЫКЛ'}
+                      AI: {company.manual_enabled_ai_agents ? 'ON' : 'OFF'}
                     </button>
 
                     <button
                       onClick={() => showFeatureDetails(company.id)}
                       className="px-3 py-1 text-xs font-medium text-indigo-700 bg-indigo-100 border border-indigo-200 rounded-full hover:bg-indigo-200 transition-colors"
                     >
-                      Подробно
+                      Details
                     </button>
                   </div>
                   
                   <p className="text-xs text-gray-500">
-                    Создана: {formatDate(company.created_at)}
+                    Created: {formatDate(company.created_at)}
                   </p>
                   <p className="text-xs text-gray-500">
-                    Обновлена: {formatDate(company.updated_at)}
+                    Updated: {formatDate(company.updated_at)}
                   </p>
                 </div>
               </div>
@@ -471,11 +471,11 @@ const CompaniesManagement = () => {
         {filteredAndSortedCompanies.length === 0 && (
           <div className="text-center py-12">
             <BuildingOfficeIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Компании не найдены</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No companies found</h3>
             <p className="text-gray-500">
-              {companies.length === 0 
-                ? 'Пока нет зарегистрированных компаний.'
-                : 'Попробуйте изменить параметры фильтрации.'
+              {companies.length === 0
+                ? 'No registered companies yet.'
+                : 'Try changing the filter parameters.'
               }
             </p>
           </div>
@@ -489,7 +489,7 @@ const CompaniesManagement = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Статус функций: {selectedCompany?.name}
+                  Feature Status: {selectedCompany?.name}
                 </h3>
                 <button
                   onClick={() => setShowFeatureModal(false)}
@@ -504,27 +504,27 @@ const CompaniesManagement = () => {
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                     <CogIcon className="h-5 w-5 mr-2" />
-                    CRM Система
+                    CRM System
                   </h4>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-600">Ручно включен:</span>
+                      <span className="text-gray-600">Manually enabled:</span>
                       <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
                         featureStatus.manual_crm 
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-red-100 text-red-800'
                       }`}>
-                        {featureStatus.manual_crm ? 'Да' : 'Нет'}
+                        {featureStatus.manual_crm ? 'Yes' : 'No'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Оплачен:</span>
+                      <span className="text-gray-600">Paid:</span>
                       <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
                         featureStatus.has_paid_crm 
                           ? 'bg-blue-100 text-blue-800' 
                           : 'bg-gray-100 text-gray-600'
                       }`}>
-                        {featureStatus.has_paid_crm ? 'Да' : 'Нет'}
+                        {featureStatus.has_paid_crm ? 'Yes' : 'No'}
                       </span>
                     </div>
                   </div>
@@ -534,27 +534,27 @@ const CompaniesManagement = () => {
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                     <SparklesIcon className="h-5 w-5 mr-2" />
-                    AI Агенты
+                    AI Agents
                   </h4>
                   <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                     <div>
-                      <span className="text-gray-600">Ручно включены:</span>
+                      <span className="text-gray-600">Manually enabled:</span>
                       <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
                         featureStatus.manual_ai 
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-red-100 text-red-800'
                       }`}>
-                        {featureStatus.manual_ai ? 'Да' : 'Нет'}
+                        {featureStatus.manual_ai ? 'Yes' : 'No'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Есть оплаченные:</span>
+                      <span className="text-gray-600">Has paid ones:</span>
                       <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
                         featureStatus.has_paid_ai 
                           ? 'bg-blue-100 text-blue-800' 
                           : 'bg-gray-100 text-gray-600'
                       }`}>
-                        {featureStatus.has_paid_ai ? 'Да' : 'Нет'}
+                        {featureStatus.has_paid_ai ? 'Yes' : 'No'}
                       </span>
                     </div>
                   </div>
@@ -562,7 +562,7 @@ const CompaniesManagement = () => {
                   {/* AI Agents from Plan */}
                   {featureStatus.included_ai_agents && featureStatus.included_ai_agents.length > 0 && (
                     <div className="mb-4">
-                      <h5 className="font-medium text-sm text-gray-700 mb-2">Агенты из подписки (защищены):</h5>
+                      <h5 className="font-medium text-sm text-gray-700 mb-2">Subscription agents (protected):</h5>
                       <div className="flex flex-wrap gap-2">
                         {featureStatus.included_ai_agents.map((agent) => (
                           <span key={agent} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
@@ -576,7 +576,7 @@ const CompaniesManagement = () => {
                   {/* AI Agents as Addons */}
                   {featureStatus.addon_ai_agents && featureStatus.addon_ai_agents.length > 0 && (
                     <div>
-                      <h5 className="font-medium text-sm text-gray-700 mb-2">Дополнительные агенты (можно отключить):</h5>
+                      <h5 className="font-medium text-sm text-gray-700 mb-2">Additional agents (can disable):</h5>
                       <div className="flex flex-wrap gap-2">
                         {featureStatus.addon_ai_agents.map((agent) => (
                           <span key={agent} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
@@ -592,22 +592,22 @@ const CompaniesManagement = () => {
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                     <CreditCardIcon className="h-5 w-5 mr-2" />
-                    Подписка
+                    Subscription
                   </h4>
                   <div className="text-sm space-y-2">
                     <div>
-                      <span className="text-gray-600">Статус:</span>
+                      <span className="text-gray-600">Status:</span>
                       <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
                         featureStatus.subscription_status === 'active' 
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-yellow-100 text-yellow-800'
                       }`}>
-                        {featureStatus.subscription_status || 'Нет подписки'}
+                        {featureStatus.subscription_status || 'No subscription'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-600">План:</span>
-                      <span className="ml-2 font-medium">{featureStatus.plan_id || 'Не выбран'}</span>
+                      <span className="text-gray-600">Plan:</span>
+                      <span className="ml-2 font-medium">{featureStatus.plan_id || 'Not selected'}</span>
                     </div>
                   </div>
                 </div>
@@ -618,7 +618,7 @@ const CompaniesManagement = () => {
                   onClick={() => setShowFeatureModal(false)}
                   className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
                 >
-                  Закрыть
+                  Close
                 </button>
               </div>
             </div>

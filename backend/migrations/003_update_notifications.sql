@@ -7,13 +7,24 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS push_token TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN DEFAULT false;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS sms_verified BOOLEAN DEFAULT false;
 
--- Update notification_schedules table with more fields
-ALTER TABLE notification_schedules ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
-ALTER TABLE notification_schedules ADD COLUMN IF NOT EXISTS retry_count INTEGER DEFAULT 0;
-ALTER TABLE notification_schedules ADD COLUMN IF NOT EXISTS max_retries INTEGER DEFAULT 3;
-ALTER TABLE notification_schedules ADD COLUMN IF NOT EXISTS next_retry_at TIMESTAMP;
-ALTER TABLE notification_schedules ADD COLUMN IF NOT EXISTS notification_method VARCHAR(50) DEFAULT 'email';
-ALTER TABLE notification_schedules ADD COLUMN IF NOT EXISTS template_id VARCHAR(255);
+-- Create notification_schedules table (moved from later migration)
+CREATE TABLE IF NOT EXISTS notification_schedules (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    booking_id UUID REFERENCES bookings(id) ON DELETE CASCADE,
+    notify_at TIMESTAMP NOT NULL,
+    type VARCHAR(100) NOT NULL,
+    payload TEXT,
+    sent BOOLEAN DEFAULT false,
+    metadata JSONB DEFAULT '{}',
+    retry_count INTEGER DEFAULT 0,
+    max_retries INTEGER DEFAULT 3,
+    next_retry_at TIMESTAMP,
+    notification_method VARCHAR(50) DEFAULT 'email',
+    template_id VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Create notification templates table
 CREATE TABLE IF NOT EXISTS notification_templates (
@@ -53,7 +64,7 @@ CREATE TABLE IF NOT EXISTS notification_logs (
 CREATE INDEX IF NOT EXISTS idx_notification_logs_user_id ON notification_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_notification_logs_status ON notification_logs(status);
 CREATE INDEX IF NOT EXISTS idx_notification_logs_sent_at ON notification_logs(sent_at);
-CREATE INDEX IF NOT EXISTS idx_notification_schedules_scheduled_for ON notification_schedules(scheduled_for);
+CREATE INDEX IF NOT EXISTS idx_notification_schedules_notify_at ON notification_schedules(notify_at);
 CREATE INDEX IF NOT EXISTS idx_notification_schedules_sent ON notification_schedules(sent);
 
 -- Insert default notification templates

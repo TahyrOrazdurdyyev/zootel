@@ -1,35 +1,22 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  initializeApp 
-} from 'firebase/app';
 import {
-  getAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
-  updateProfile
+  updateProfile,
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
+  PhoneAuthProvider,
+  signInWithCredential
 } from 'firebase/auth';
-
-// Firebase configuration - replace with your actual config
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "your-api-key",
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "your-project.firebaseapp.com",
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "your-project-id",
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "your-project.appspot.com",
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "123456789",
-  appId: process.env.REACT_APP_FIREBASE_APP_ID || "your-app-id"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+import { auth } from '../config/firebase';
 
 const AuthContext = createContext();
 
 // API base URL
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -167,6 +154,55 @@ export const AuthProvider = ({ children }) => {
       return firebaseUser;
     } catch (error) {
       console.error('Login error:', error);
+      setError(getAuthErrorMessage(error));
+      throw new Error(getAuthErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Phone Authentication methods
+  const sendPhoneVerification = async (phoneNumber) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Create reCAPTCHA verifier
+      const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'invisible',
+        callback: () => {
+          console.log('reCAPTCHA solved');
+        },
+        'expired-callback': () => {
+          console.log('reCAPTCHA expired');
+        }
+      });
+
+      // Send verification code
+      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+      
+      return confirmationResult;
+    } catch (error) {
+      console.error('Phone verification error:', error);
+      setError(getAuthErrorMessage(error));
+      throw new Error(getAuthErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyPhoneCode = async (confirmationResult, verificationCode) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Verify the code
+      const result = await confirmationResult.confirm(verificationCode);
+      const firebaseUser = result.user;
+
+      return firebaseUser;
+    } catch (error) {
+      console.error('Phone code verification error:', error);
       setError(getAuthErrorMessage(error));
       throw new Error(getAuthErrorMessage(error));
     } finally {
@@ -313,6 +349,23 @@ export const AuthProvider = ({ children }) => {
         return 'Too many failed attempts. Please try again later.';
       case 'auth/network-request-failed':
         return 'Network error. Please check your connection.';
+      // Phone Auth errors
+      case 'auth/invalid-phone-number':
+        return 'Invalid phone number format.';
+      case 'auth/missing-phone-number':
+        return 'Phone number is required.';
+      case 'auth/quota-exceeded':
+        return 'SMS quota exceeded. Please try again later.';
+      case 'auth/captcha-check-failed':
+        return 'reCAPTCHA verification failed. Please try again.';
+      case 'auth/invalid-verification-code':
+        return 'Invalid verification code. Please check and try again.';
+      case 'auth/invalid-verification-id':
+        return 'Invalid verification session. Please request a new code.';
+      case 'auth/code-expired':
+        return 'Verification code has expired. Please request a new one.';
+      case 'auth/session-expired':
+        return 'Verification session expired. Please start over.';
       default:
         return error.message || 'An authentication error occurred.';
     }
@@ -329,6 +382,8 @@ export const AuthProvider = ({ children }) => {
     updateUserProfile,
     uploadAvatar,
     updateNotificationPreferences,
+    sendPhoneVerification,
+    verifyPhoneCode,
     apiCall, // Expose for other components to make authenticated API calls
   };
 

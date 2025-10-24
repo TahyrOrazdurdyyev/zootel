@@ -69,20 +69,20 @@ const CheckoutPage = () => {
     const newErrors = {};
 
     if (step === 1) {
-      if (!formData.firstName.trim()) newErrors.firstName = 'Имя обязательно';
-      if (!formData.lastName.trim()) newErrors.lastName = 'Фамилия обязательна';
-      if (!formData.email.trim()) newErrors.email = 'Email обязателен';
-      if (!formData.phone.trim()) newErrors.phone = 'Телефон обязателен';
-      if (!formData.address.trim()) newErrors.address = 'Адрес обязателен';
-      if (!formData.country) newErrors.country = 'Страна обязательна';
-      if (!formData.city) newErrors.city = 'Город обязателен';
+      if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+      if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+      if (!formData.email.trim()) newErrors.email = 'Email is required';
+      if (!formData.phone.trim()) newErrors.phone = 'Phone is required';
+      if (!formData.address.trim()) newErrors.address = 'Address is required';
+      if (!formData.country) newErrors.country = 'Country is required';
+      if (!formData.city) newErrors.city = 'City is required';
     }
 
     if (step === 2 && formData.paymentMethod === 'stripe') {
-      if (!formData.cardNumber.trim()) newErrors.cardNumber = 'Номер карты обязателен';
-      if (!formData.expiryDate.trim()) newErrors.expiryDate = 'Срок действия обязателен';
-      if (!formData.cvv.trim()) newErrors.cvv = 'CVV обязателен';
-      if (!formData.cardName.trim()) newErrors.cardName = 'Имя на карте обязательно';
+      if (!formData.cardNumber.trim()) newErrors.cardNumber = 'Card number is required';
+      if (!formData.expiryDate.trim()) newErrors.expiryDate = 'Expiry date is required';
+      if (!formData.cvv.trim()) newErrors.cvv = 'CVV is required';
+      if (!formData.cardName.trim()) newErrors.cardName = 'Cardholder name is required';
     }
 
     return newErrors;
@@ -108,7 +108,7 @@ const CheckoutPage = () => {
 
   const handleSubmitOrder = () => {
     // Process order
-    alert('Заказ успешно оформлен!');
+    alert('Order successfully placed!');
     clearCart();
     // Redirect to success page
   };
@@ -151,33 +151,33 @@ const CheckoutPage = () => {
 
   const renderShippingStep = () => (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-900">Информация о доставке</h2>
+      <h2 className="text-xl font-semibold text-gray-900">Shipping Information</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Имя *
+            First Name *
           </label>
           <input
             type="text"
             value={formData.firstName}
             onChange={(e) => handleInputChange('firstName', e.target.value)}
             className={`input-field ${errors.firstName ? 'border-red-300' : ''}`}
-            placeholder="Ваше имя"
+            placeholder="Your first name"
           />
           {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Фамилия *
+            Last Name *
           </label>
           <input
             type="text"
             value={formData.lastName}
             onChange={(e) => handleInputChange('lastName', e.target.value)}
             className={`input-field ${errors.lastName ? 'border-red-300' : ''}`}
-            placeholder="Ваша фамилия"
+            placeholder="Your last name"
           />
           {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
         </div>
@@ -200,7 +200,7 @@ const CheckoutPage = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Телефон *
+            Phone *
           </label>
           <PhoneInput
             country={'ru'}
@@ -215,14 +215,14 @@ const CheckoutPage = () => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Адрес доставки *
+          Shipping Address *
         </label>
         <input
           type="text"
           value={formData.address}
           onChange={(e) => handleInputChange('address', e.target.value)}
           className={`input-field ${errors.address ? 'border-red-300' : ''}`}
-          placeholder="Улица, дом"
+          placeholder="Street, Building"
         />
         {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
       </div>
@@ -230,20 +230,20 @@ const CheckoutPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Квартира/офис
+            Apartment/Office
           </label>
           <input
             type="text"
             value={formData.apartment}
             onChange={(e) => handleInputChange('apartment', e.target.value)}
             className="input-field"
-            placeholder="Квартира, офис, подъезд"
+            placeholder="Apartment, Office, Entrance"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Почтовый индекс
+            Postal Code
           </label>
           <input
             type="text"
@@ -266,14 +266,14 @@ const CheckoutPage = () => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Примечания к доставке
+          Delivery Notes
         </label>
         <textarea
           value={formData.deliveryNotes}
           onChange={(e) => handleInputChange('deliveryNotes', e.target.value)}
           className="input-field"
           rows={3}
-          placeholder="Особые инструкции для курьера"
+          placeholder="Special instructions for courier"
         />
       </div>
     </div>
@@ -281,7 +281,7 @@ const CheckoutPage = () => {
 
   const renderPaymentStep = () => (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-900">Способ оплаты</h2>
+      <h2 className="text-xl font-semibold text-gray-900">Payment Method</h2>
 
       <div className="space-y-4">
         {/* Stripe Payment */}
@@ -297,10 +297,10 @@ const CheckoutPage = () => {
             />
             <div className="ml-3">
               <div className="text-sm font-medium text-gray-900">
-                Банковская карта
+                Credit/Debit Card
               </div>
               <div className="text-sm text-gray-500">
-                Безопасная оплата через Stripe
+                Secure payment via Stripe
               </div>
             </div>
             <CreditCardIcon className="ml-auto h-8 w-8 text-gray-400" />
@@ -317,13 +317,13 @@ const CheckoutPage = () => {
             onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
             className="h-4 w-4 text-primary-500 focus:ring-primary-500 border-gray-300"
           />
-          <div className="ml-3">
-            <div className="text-sm font-medium text-gray-900">
-              Оплата при получении
-            </div>
-            <div className="text-sm text-gray-500">
-              Наличными или картой курьеру
-            </div>
+            <div className="ml-3">
+              <div className="text-sm font-medium text-gray-900">
+                Cash on Delivery
+              </div>
+              <div className="text-sm text-gray-500">
+                Cash or card to courier
+              </div>
           </div>
         </label>
       </div>
@@ -331,12 +331,12 @@ const CheckoutPage = () => {
       {/* Card Details - Only show if Stripe is selected */}
       {formData.paymentMethod === 'stripe' && stripeEnabled && (
         <div className="mt-6 p-6 border border-gray-200 rounded-lg">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Данные карты</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Card Details</h3>
           
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Номер карты *
+                Card Number *
               </label>
               <input
                 type="text"
@@ -352,7 +352,7 @@ const CheckoutPage = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Срок действия *
+                  Expiry Date *
                 </label>
                 <input
                   type="text"
@@ -383,7 +383,7 @@ const CheckoutPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Имя на карте *
+                Cardholder Name *
               </label>
               <input
                 type="text"
@@ -402,13 +402,13 @@ const CheckoutPage = () => {
       {formData.paymentMethod === 'offline' && (
         <div className="mt-6 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
           <h3 className="text-lg font-medium text-yellow-800 mb-2">
-            Оплата при получении
+            Cash on Delivery
           </h3>
           <div className="text-sm text-yellow-700 space-y-2">
-            <p>• Оплата принимается наличными или банковской картой</p>
-            <p>• Подготовьте точную сумму: {formatPrice(getTotalPrice())}</p>
-            <p>• Курьер предоставит чек об оплате</p>
-            <p>• Проверьте товар перед оплатой</p>
+            <p>• Payment accepted in cash or by card</p>
+            <p>• Prepare exact amount: {formatPrice(getTotalPrice())}</p>
+            <p>• Courier will provide payment receipt</p>
+            <p>• Check items before payment</p>
           </div>
         </div>
       )}
@@ -417,11 +417,11 @@ const CheckoutPage = () => {
 
   const renderConfirmationStep = () => (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-900">Подтверждение заказа</h2>
+      <h2 className="text-xl font-semibold text-gray-900">Order Confirmation</h2>
 
       {/* Order Summary */}
       <div className="bg-gray-50 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Ваш заказ</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Your Order</h3>
         <div className="space-y-3">
           {items.map((item) => (
             <div key={`${item.id}-${item.type}`} className="flex justify-between">
@@ -434,7 +434,7 @@ const CheckoutPage = () => {
           ))}
           <div className="border-t border-gray-300 pt-3">
             <div className="flex justify-between text-lg font-semibold">
-              <span>Итого:</span>
+              <span>Total:</span>
               <span>{formatPrice(getTotalPrice())}</span>
             </div>
           </div>
@@ -443,7 +443,7 @@ const CheckoutPage = () => {
 
       {/* Shipping Details */}
       <div className="bg-gray-50 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Доставка</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Delivery</h3>
         <div className="text-sm space-y-1">
           <p><strong>{formData.firstName} {formData.lastName}</strong></p>
           <p>{formData.email}</p>
@@ -456,9 +456,9 @@ const CheckoutPage = () => {
 
       {/* Payment Method */}
       <div className="bg-gray-50 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Способ оплаты</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Method</h3>
         <p className="text-sm">
-          {formData.paymentMethod === 'stripe' ? 'Банковская карта' : 'Оплата при получении'}
+          {formData.paymentMethod === 'stripe' ? 'Credit/Debit Card' : 'Cash on Delivery'}
         </p>
         {formData.paymentMethod === 'stripe' && formData.cardNumber && (
           <p className="text-sm text-gray-500 mt-1">
@@ -469,7 +469,7 @@ const CheckoutPage = () => {
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <p className="text-sm text-blue-700">
-          Нажимая "Оформить заказ", вы соглашаетесь с условиями использования и политикой конфиденциальности.
+          By clicking "Place Order", you agree to our terms of service and privacy policy.
         </p>
       </div>
     </div>
@@ -479,9 +479,9 @@ const CheckoutPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Корзина пуста</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Cart is Empty</h1>
           <p className="mt-4 text-lg text-gray-600">
-            Добавьте товары в корзину для оформления заказа
+            Add items to cart to proceed with checkout
           </p>
         </div>
       </div>
@@ -492,7 +492,7 @@ const CheckoutPage = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">
-          Оформление заказа
+          Checkout
         </h1>
 
         {renderStepIndicator()}
@@ -509,7 +509,7 @@ const CheckoutPage = () => {
                 onClick={handlePrevStep}
                 className="btn-secondary"
               >
-                Назад
+                Back
               </button>
             )}
             
@@ -519,14 +519,14 @@ const CheckoutPage = () => {
                   onClick={handleNextStep}
                   className="btn-primary"
                 >
-                  Продолжить
+                  Continue
                 </button>
               ) : (
                 <button
                   onClick={handleSubmitOrder}
                   className="btn-primary text-lg px-8 py-3"
                 >
-                  Оформить заказ
+                  Place Order
                 </button>
               )}
             </div>

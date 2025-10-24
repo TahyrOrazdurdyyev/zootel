@@ -30,38 +30,38 @@ const BusinessLandingPage = () => {
   const features = [
     {
       icon: CalendarDaysIcon,
-      title: 'Управление бронированиями',
-      description: 'Полный контроль над расписанием, автоматическое подтверждение броней, синхронизация с календарём',
-      benefits: ['Drag & drop календарь', 'Автоматические напоминания', 'Управление recurring appointments']
+      title: 'Booking Management',
+      description: 'Full control over schedule, automatic booking confirmation, calendar synchronization',
+      benefits: ['Drag & drop calendar', 'Automatic reminders', 'Recurring appointments management']
     },
     {
       icon: UsersIcon,
-      title: 'Управление сотрудниками',
-      description: 'Гибкая система ролей и прав доступа, отслеживание активности, управление расписанием персонала',
-      benefits: ['Роли и разрешения', 'Логи активности', 'Персональные расписания']
+      title: 'Employee Management',
+      description: 'Flexible role and permission system, activity tracking, staff schedule management',
+      benefits: ['Roles and permissions', 'Activity logs', 'Personal schedules']
     },
     {
       icon: ChatBubbleLeftIcon,
-      title: 'Чат с клиентами',
-      description: 'Встроенный мессенджер для общения с клиентами, отправка файлов, история переписки',
-      benefits: ['Мгновенные уведомления', 'Файлы и фото', 'Центральная история']
+      title: 'Customer Chat',
+      description: 'Built-in messenger for customer communication, file sharing, conversation history',
+      benefits: ['Instant notifications', 'Files and photos', 'Centralized history']
     },
     {
       icon: SparklesIcon,
-      title: 'AI-ассистенты',
-      description: 'Умные боты для автоматизации: booking assistant, customer support, vet assistant',
-      benefits: ['Автоматические ответы', 'Обработка заявок', 'Медицинские консультации']
+      title: 'AI Assistants',
+      description: 'Smart bots for automation: booking assistant, customer support, vet assistant',
+      benefits: ['Automatic responses', 'Request processing', 'Medical consultations']
     },
     {
       icon: ChartBarIcon,
-      title: 'Аналитика и отчёты',
-      description: 'Детальная статистика продаж, клиентской базы, эффективности сотрудников',
+      title: 'Analytics and Reports',
+      description: 'Detailed sales statistics, customer base, employee effectiveness',
       benefits: ['Revenue tracking', 'Customer insights', 'Performance metrics']
     },
     {
       icon: CreditCardIcon,
-      title: 'Платежи и биллинг',
-      description: 'Интеграция с Stripe, автоматические счета, управление подписками и комиссиями',
+      title: 'Payments and Billing',
+      description: 'Stripe integration, automatic invoices, subscription and commission management',
       benefits: ['Online payments', 'Recurring billing', 'Commission tracking']
     }
   ];
@@ -71,15 +71,15 @@ const BusinessLandingPage = () => {
       id: 'starter',
       name: 'Starter',
       price: 2990,
-      period: 'мес',
-      description: 'Для небольших бизнесов и стартапов',
+      period: 'month',
+      description: 'For small businesses and startups',
       features: [
-        'До 3 сотрудников',
-        'Базовое управление бронированиями',
-        'Чат с клиентами',
-        '1 AI-ассистент (Booking)',
-        'Базовая аналитика',
-        'Email поддержка'
+        'Up to 3 employees',
+        'Basic booking management',
+        'Customer chat',
+        '1 AI assistant (Booking)',
+        'Basic analytics',
+        'Email support'
       ],
       popular: false
     },
@@ -87,16 +87,16 @@ const BusinessLandingPage = () => {
       id: 'professional',
       name: 'Professional',
       price: 5990,
-      period: 'мес',
-      description: 'Для растущих Pet Care компаний',
+      period: 'month',
+      description: 'For growing Pet Care companies',
       features: [
-        'До 10 сотрудников',
-        'Продвинутое управление бронированиями',
-        'Чат + уведомления',
-        '3 AI-ассистента',
-        'Полная аналитика',
-        'Интеграция с Stripe',
-        'Приоритетная поддержка'
+        'Up to 10 employees',
+        'Advanced booking management',
+        'Chat + notifications',
+        '3 AI assistants',
+        'Full analytics',
+        'Stripe integration',
+        'Priority support'
       ],
       popular: true
     },
@@ -104,14 +104,14 @@ const BusinessLandingPage = () => {
       id: 'enterprise',
       name: 'Enterprise',
       price: 12990,
-      period: 'мес',
-      description: 'Для крупных сетей и франшиз',
+      period: 'month',
+      description: 'For large chains and franchises',
       features: [
-        'Неограниченно сотрудников',
-        'Мультилокационное управление',
-        'Все AI-ассистенты',
-        'Кастомные интеграции',
-        'Белый лейбл',
+        'Unlimited employees',
+        'Multi-location management',
+        'All AI assistants',
+        'Custom integrations',
+        'White label',
         'Dedicated account manager',
         'SLA 99.9%'
       ],
@@ -122,57 +122,57 @@ const BusinessLandingPage = () => {
   const testimonials = [
     {
       id: 1,
-      name: 'Анна Коржова',
-      position: 'Владелец сети "ВетДоктор"',
+      name: 'Anna Korzhova',
+      position: 'Owner of "VetDoctor" chain',
       avatar: '/api/placeholder/80/80',
       rating: 5,
-      text: 'Zootel изменил наш бизнес. Мы увеличили эффективность на 40% и клиенты стали гораздо счастливее благодаря автоматическим напоминаниям.',
-      company: 'ВетДоктор (4 клиники)',
-      results: '+40% эффективность'
+      text: 'Zootel transformed our business. We increased efficiency by 40% and customers became much happier thanks to automatic reminders.',
+      company: 'VetDoctor (4 clinics)',
+      results: '+40% efficiency'
     },
     {
       id: 2,
-      name: 'Михаил Петров',
-      position: 'Основатель "PetStyle"',
+      name: 'Mikhail Petrov',
+      position: 'Founder of "PetStyle"',
       avatar: '/api/placeholder/80/80',
       rating: 5,
-      text: 'AI-ассистенты просто волшебные! Они отвечают клиентам 24/7, а я могу сосредоточиться на развитии бизнеса.',
+      text: 'AI assistants are simply magical! They respond to customers 24/7, and I can focus on business development.',
       company: 'PetStyle Grooming',
-      results: '24/7 поддержка'
+      results: '24/7 support'
     },
     {
       id: 3,
-      name: 'Елена Смирнова',
-      position: 'Директор "Лапландия"',
+      name: 'Elena Smirnova',
+      position: 'Director of "Lapland"',
       avatar: '/api/placeholder/80/80',
       rating: 5,
-      text: 'Аналитика показала нам узкие места в работе. Теперь мы знаем, как оптимизировать процессы и увеличивать прибыль.',
-      company: 'Зоомагазин Лапландия',
-      results: '+25% конверсия'
+      text: 'Analytics showed us bottlenecks in our work. Now we know how to optimize processes and increase profits.',
+      company: 'Lapland Pet Store',
+      results: '+25% conversion'
     }
   ];
 
   const stats = [
-    { number: '500+', label: 'Активных компаний' },
-    { number: '50K+', label: 'Обслуженных клиентов' },
-    { number: '98%', label: 'Удовлетворённость' },
-    { number: '35%', label: 'Рост выручки в среднем' }
+    { number: '500+', label: 'Active companies' },
+    { number: '50K+', label: 'Customers served' },
+    { number: '98%', label: 'Satisfaction rate' },
+    { number: '35%', label: 'Average revenue growth' }
   ];
 
   const businessTypes = [
-    'Ветеринарная клиника',
-    'Груминг-салон', 
-    'Зоомагазин',
-    'Пет-отель/Передержка',
-    'Дрессировочный центр',
-    'Другое'
+    'Veterinary clinic',
+    'Grooming salon', 
+    'Pet store',
+    'Pet hotel/Boarding',
+    'Training center',
+    'Other'
   ];
 
   const handleDemoSubmit = (e) => {
     e.preventDefault();
-    // Отправка заявки на демо
+    // Send demo request
     console.log('Demo request:', demoForm);
-    alert('Спасибо! Мы свяжемся с вами в течение 24 часов для демонстрации.');
+    alert('Thank you! We will contact you within 24 hours for a demonstration.');
     setShowDemoModal(false);
     setDemoForm({ name: '', email: '', company: '', phone: '', businessType: '' });
   };
@@ -198,11 +198,11 @@ const BusinessLandingPage = () => {
             {/* Left Content */}
             <div className="text-white">
               <h1 className="text-5xl lg:text-6xl font-bold mb-6">
-                CRM для Pet Care бизнеса
+                CRM for Pet Care business
               </h1>
               <p className="text-xl mb-8 text-red-100">
-                Управляйте бронированиями, сотрудниками и клиентами в одной платформе. 
-                Увеличивайте продажи с AI-ассистентами и автоматизацией.
+                Manage bookings, employees and customers in one platform. 
+                Increase sales with AI assistants and automation.
               </p>
               
               {/* Stats */}
@@ -222,18 +222,18 @@ const BusinessLandingPage = () => {
                   className="bg-white text-red-600 px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors duration-200 font-semibold flex items-center justify-center"
                 >
                   <PlayCircleIcon className="h-5 w-5 mr-2" />
-                  Запросить демо
+                  Request demo
                 </button>
                 <Link
                   to="/register?type=business"
                   className="border-2 border-white text-white px-8 py-4 rounded-lg hover:bg-white hover:text-red-600 transition-colors duration-200 font-semibold text-center"
                 >
-                  Начать бесплатно
+                  Start for free
                 </Link>
               </div>
               
               <p className="text-sm text-red-200 mt-4">
-                ✓ Бесплатный 14-дневный пробный период ✓ Не требуется кредитная карта
+                ✓ Free 14-day trial period ✓ No credit card required
               </p>
             </div>
             
@@ -262,10 +262,10 @@ const BusinessLandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Всё, что нужно для успешного Pet Care бизнеса
+              Everything you need for a successful Pet Care business
             </h2>
             <p className="text-xl text-gray-600">
-              Комплексное решение для автоматизации и роста вашего бизнеса
+              Comprehensive solution for automation and growth of your business
             </p>
           </div>
           
@@ -303,10 +303,10 @@ const BusinessLandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Прозрачное ценообразование
+              Transparent pricing
             </h2>
             <p className="text-xl text-gray-600">
-              Выберите тариф, который подходит вашему бизнесу
+              Choose the plan that fits your business
             </p>
           </div>
           
@@ -323,7 +323,7 @@ const BusinessLandingPage = () => {
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-medium">
-                      Популярный
+                      Popular
                     </span>
                   </div>
                 )}
@@ -353,7 +353,7 @@ const BusinessLandingPage = () => {
                       : 'bg-gray-900 text-white hover:bg-gray-800'
                   }`}
                 >
-                  Начать с {plan.name}
+                  Start with {plan.name}
                 </Link>
               </div>
             ))}
@@ -361,13 +361,13 @@ const BusinessLandingPage = () => {
           
           <div className="text-center mt-12">
             <p className="text-gray-600 mb-4">
-              Нужно больше возможностей? Свяжитесь с нами для индивидуального предложения.
+              Need more features? Contact us for a custom offer.
             </p>
-            <Link 
+            <Link
               to="/contact"
               className="text-red-600 hover:text-red-700 font-medium"
             >
-              Связаться с отделом продаж →
+              Contact sales team →
             </Link>
           </div>
         </div>
@@ -378,10 +378,10 @@ const BusinessLandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Что говорят наши клиенты
+              What our customers say
             </h2>
             <p className="text-xl text-gray-600">
-              Истории успеха Pet Care компаний
+              Success stories from Pet Care companies
             </p>
           </div>
           
@@ -435,10 +435,10 @@ const BusinessLandingPage = () => {
       <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
-            Готовы начать?
+            Ready to start?
           </h2>
           <p className="text-xl text-gray-600 mb-8">
-            Присоединяйтесь к сотням Pet Care компаний, которые уже используют Zootel
+            Join hundreds of Pet Care companies already using Zootel
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -446,13 +446,13 @@ const BusinessLandingPage = () => {
               onClick={() => setShowDemoModal(true)}
               className="bg-red-600 text-white px-8 py-4 rounded-lg hover:bg-red-700 transition-colors duration-200 font-semibold"
             >
-              Получить демо
+              Get demo
             </button>
             <Link
               to="/register?type=business"
               className="border border-red-600 text-red-600 px-8 py-4 rounded-lg hover:bg-red-50 transition-colors duration-200 font-semibold"
             >
-              Начать бесплатный пробный период
+              Start free trial
             </Link>
           </div>
         </div>
@@ -462,11 +462,11 @@ const BusinessLandingPage = () => {
       {showDemoModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl max-w-md w-full mx-4 p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">Запросить демонстрацию</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">Request demonstration</h3>
             
             <form onSubmit={handleDemoSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Имя *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
                 <input
                   type="text"
                   required
@@ -488,7 +488,7 @@ const BusinessLandingPage = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Компания</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
                 <input
                   type="text"
                   value={demoForm.company}
@@ -498,7 +498,7 @@ const BusinessLandingPage = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                 <input
                   type="tel"
                   value={demoForm.phone}
@@ -508,13 +508,13 @@ const BusinessLandingPage = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Тип бизнеса</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Business type</label>
                 <select
                   value={demoForm.businessType}
                   onChange={(e) => setDemoForm({ ...demoForm, businessType: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 >
-                  <option value="">Выберите тип</option>
+                  <option value="">Select type</option>
                   {businessTypes.map((type) => (
                     <option key={type} value={type}>{type}</option>
                   ))}
@@ -527,13 +527,13 @@ const BusinessLandingPage = () => {
                   onClick={() => setShowDemoModal(false)}
                   className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
-                  Отмена
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >
-                  Отправить
+                  Submit
                 </button>
               </div>
             </form>
