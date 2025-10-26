@@ -9,7 +9,9 @@ import {
   signInWithPhoneNumber,
   RecaptchaVerifier,
   PhoneAuthProvider,
-  signInWithCredential
+  signInWithCredential,
+  signInWithPopup,
+  GoogleAuthProvider
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
@@ -154,6 +156,37 @@ export const AuthProvider = ({ children }) => {
       return firebaseUser;
     } catch (error) {
       console.error('Login error:', error);
+      setError(getAuthErrorMessage(error));
+      throw new Error(getAuthErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Google Sign-In
+  const signInWithGoogle = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const firebaseUser = userCredential.user;
+      
+      // Check if user exists in backend, if not register them
+      let userData = await fetchUserData(firebaseUser);
+      if (!userData) {
+        // User doesn't exist in backend, register them
+        await registerUserInBackend(firebaseUser, {
+          firstName: firebaseUser.displayName?.split(' ')[0] || '',
+          lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+          role: 'pet_owner'
+        });
+      }
+      
+      return firebaseUser;
+    } catch (error) {
+      console.error('Google Sign-In error:', error);
       setError(getAuthErrorMessage(error));
       throw new Error(getAuthErrorMessage(error));
     } finally {
@@ -384,6 +417,7 @@ export const AuthProvider = ({ children }) => {
     updateNotificationPreferences,
     sendPhoneVerification,
     verifyPhoneCode,
+    signInWithGoogle,
     apiCall, // Expose for other components to make authenticated API calls
   };
 
