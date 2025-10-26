@@ -20,8 +20,8 @@ func NewAuthHandler(userService *services.UserService) *AuthHandler {
 type RegisterRequest struct {
 	FirebaseUID         string   `json:"firebase_uid" binding:"required"`
 	Email               string   `json:"email" binding:"required,email"`
-	FirstName           string   `json:"first_name" binding:"required"`
-	LastName            string   `json:"last_name" binding:"required"`
+	FirstName           string   `json:"first_name"`
+	LastName            string   `json:"last_name"`
 	Role                string   `json:"role"`
 	Gender              string   `json:"gender"`
 	Phone               string   `json:"phone"`
