@@ -18,7 +18,7 @@ import { auth } from '../config/firebase';
 const AuthContext = createContext();
 
 // API base URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_BASE_URL = "https://zootel.shop/api/v1";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
