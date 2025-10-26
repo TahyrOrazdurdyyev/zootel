@@ -82,7 +82,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 
 	if err := h.userService.CreateUser(user); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user", "details": err.Error()})
 		return
 	}
 
