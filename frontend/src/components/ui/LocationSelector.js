@@ -190,8 +190,8 @@ const LocationSelector = ({
         </div>
       )}
 
-      {/* Debug Info - Remove in production */}
-      {import.meta.env.DEV && (
+      {/* Debug Info - Only show in development */}
+      {process.env.NODE_ENV === 'development' && (
         <div className="text-xs text-gray-500 mt-2">
           <div>Selected: {selectedCountry?.name || 'None'} → {selectedState?.name || 'None'} → {selectedCity?.name || 'None'}</div>
           <div>States available: {states.length}, Cities available: {cities.length}</div>

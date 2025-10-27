@@ -16,7 +16,7 @@ import {
 import toast from 'react-hot-toast';
 
 // Initialize Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_demo');
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'pk_test_demo');
 
 const CARD_ELEMENT_OPTIONS = {
   style: {
