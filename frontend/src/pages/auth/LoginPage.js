@@ -33,8 +33,14 @@ const LoginPage = () => {
     setError('');
 
     try {
-      await signInWithGoogle();
-      navigate(from, { replace: true });
+      const result = await signInWithGoogle();
+      
+      // Check if user needs to complete onboarding
+      if (result && result.needsOnboarding) {
+        navigate('/onboarding', { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     } catch (err) {
       setError(err.message);
     } finally {

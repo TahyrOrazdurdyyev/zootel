@@ -197,33 +197,27 @@ export const AuthProvider = ({ children }) => {
       const userCredential = await signInWithPopup(auth, provider);
       const firebaseUser = userCredential.user;
       
-      // Check if user exists in backend, if not register them
+      // Check if user exists in backend
       let userData = await fetchUserData(firebaseUser);
+      
       if (!userData) {
-        try {
-          // User doesn't exist in backend, register them
-          await registerUserInBackend(firebaseUser, {
-            firstName: firebaseUser.displayName?.split(' ')[0] || '',
-            lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
-            role: 'pet_owner'
-          });
-          // After registration, fetch user data again
-          userData = await fetchUserData(firebaseUser);
-        } catch (registerError) {
-          // Check if error is due to email already existing (409 Conflict)
-          if (registerError.message && registerError.message.includes('Email already registered')) {
-            console.log('User already exists in backend, fetching user data...');
-            // User already exists, just fetch their data
-            userData = await fetchUserData(firebaseUser);
-          } else {
-            // Other registration errors - sign out
-            console.error('Failed to register user in backend:', registerError);
-            await signOut(auth);
-            throw new Error('Registration failed. Please try again or contact support.');
-          }
-        }
+        // User doesn't exist in backend - they need to complete onboarding
+        // Set minimal user data so they can proceed to onboarding
+        setUser({
+          id: firebaseUser.uid,
+          firebaseUID: firebaseUser.uid,
+          email: firebaseUser.email,
+          firstName: firebaseUser.displayName?.split(' ')[0] || '',
+          lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+          name: firebaseUser.displayName || '',
+          role: null, // No role yet, needs onboarding
+        });
+        
+        // Return a flag indicating onboarding is needed
+        return { needsOnboarding: true, firebaseUser };
       }
       
+      // User exists, return normal firebaseUser
       return firebaseUser;
     } catch (error) {
       console.error('Google Sign-In error:', error);
@@ -405,6 +399,51 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const completeOnboarding = async (onboardingData) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Update user in backend with onboarding data
+      const response = await apiCall('/auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify(onboardingData),
+      });
+
+      // Refresh user data after onboarding
+      const firebaseUser = auth.currentUser;
+      if (firebaseUser) {
+        const userData = await fetchUserData(firebaseUser);
+        if (userData) {
+          setUser({
+            id: userData.id,
+            firebaseUID: userData.firebase_uid,
+            email: userData.email,
+            firstName: userData.first_name,
+            lastName: userData.last_name,
+            name: `${userData.first_name} ${userData.last_name}`.trim(),
+            role: userData.role,
+            phone: userData.phone,
+            address: userData.address,
+            country: userData.country,
+            state: userData.state,
+            city: userData.city,
+            avatarURL: userData.avatar_url,
+            createdAt: userData.created_at,
+            ...userData
+          });
+        }
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Onboarding error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Helper function to get user-friendly error messages
   const getAuthErrorMessage = (error) => {
     switch (error.code) {
@@ -458,6 +497,7 @@ export const AuthProvider = ({ children }) => {
     sendPhoneVerification,
     verifyPhoneCode,
     signInWithGoogle,
+    completeOnboarding,
     apiCall, // Expose for other components to make authenticated API calls
   };
 

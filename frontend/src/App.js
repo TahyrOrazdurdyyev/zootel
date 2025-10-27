@@ -9,6 +9,7 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import BusinessRegisterPage from './pages/auth/BusinessRegisterPage';
+import OnboardingPage from './pages/auth/OnboardingPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import MarketplacePage from './pages/marketplace/MarketplacePage';
@@ -63,6 +64,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/business-register" element={<BusinessRegisterPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/marketplace" element={<MarketplacePage />} />
