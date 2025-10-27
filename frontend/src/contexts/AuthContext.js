@@ -176,12 +176,20 @@ export const AuthProvider = ({ children }) => {
       // Check if user exists in backend, if not register them
       let userData = await fetchUserData(firebaseUser);
       if (!userData) {
-        // User doesn't exist in backend, register them
-        await registerUserInBackend(firebaseUser, {
-          firstName: firebaseUser.displayName?.split(' ')[0] || '',
-          lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
-          role: 'pet_owner'
-        });
+        try {
+          // User doesn't exist in backend, register them
+          await registerUserInBackend(firebaseUser, {
+            firstName: firebaseUser.displayName?.split(' ')[0] || '',
+            lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+            role: 'pet_owner'
+          });
+        } catch (registerError) {
+          // If registration fails (e.g., email already exists in backend), 
+          // just sign out and let user retry
+          console.error('Failed to register user in backend:', registerError);
+          await signOut(auth);
+          throw new Error('Registration failed. Please try again or contact support.');
+        }
       }
       
       return firebaseUser;
