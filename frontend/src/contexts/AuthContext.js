@@ -122,12 +122,7 @@ export const AuthProvider = ({ children }) => {
           // Get user data from backend
           let userData = await fetchUserData(firebaseUser);
           
-          if (!userData) {
-            // User exists in Firebase but not in backend - this shouldn't happen in normal flow
-            console.warn('User exists in Firebase but not in backend');
-            await signOut(auth);
-            setUser(null);
-          } else {
+          if (userData) {
             setUser({
               id: userData.id,
               firebaseUID: userData.firebase_uid,
@@ -145,10 +140,22 @@ export const AuthProvider = ({ children }) => {
               createdAt: userData.created_at,
               ...userData
             });
+          } else {
+            // User exists in Firebase but data fetch failed - try to set minimal user data
+            console.warn('Could not fetch user data from backend, using Firebase data');
+            setUser({
+              id: firebaseUser.uid,
+              firebaseUID: firebaseUser.uid,
+              email: firebaseUser.email,
+              firstName: firebaseUser.displayName?.split(' ')[0] || '',
+              lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+              name: firebaseUser.displayName || '',
+              role: 'pet_owner',
+            });
           }
         } catch (error) {
           console.error('Error processing authenticated user:', error);
-          setError('Failed to load user data');
+          // Don't sign out on error - user is still authenticated in Firebase
           setUser(null);
         }
       } else {
