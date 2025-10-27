@@ -56,8 +56,25 @@ export const AuthProvider = ({ children }) => {
   // Get user data from backend
   const fetchUserData = async (firebaseUser) => {
     try {
-      const response = await apiCall('/auth/me');
-      return response.data;
+      // Get fresh token from Firebase
+      const token = await firebaseUser.getIdToken();
+      
+      // Make request with token
+      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      return result.data;
     } catch (error) {
       console.error('Error fetching user data:', error);
       return null;
