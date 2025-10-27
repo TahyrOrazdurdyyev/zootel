@@ -340,7 +340,7 @@ export const AuthProvider = ({ children }) => {
       setError(null);
 
       // Update in backend
-      await apiCall('/auth/profile', {
+      await apiCall('/users/profile', {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
@@ -405,7 +405,7 @@ export const AuthProvider = ({ children }) => {
       setError(null);
 
       // Update user in backend with onboarding data
-      const response = await apiCall('/auth/profile', {
+      const response = await apiCall('/users/profile', {
         method: 'PUT',
         body: JSON.stringify(onboardingData),
       });
