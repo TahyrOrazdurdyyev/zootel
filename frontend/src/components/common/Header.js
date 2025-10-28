@@ -83,9 +83,10 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 z-10">
             <Link to="/" className="flex items-center">
               <img src="/logo.svg" alt="Zootel" className="h-8 w-auto" />
+              <span className="ml-2 text-xl font-bold text-gray-900">Zootel</span>
             </Link>
           </div>
 
@@ -135,7 +136,7 @@ const Header = () => {
           </div>
 
           {/* Right side - Icons and Auth */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
             {/* Currency Selector */}
             <CurrencySelector />
             
@@ -163,85 +164,27 @@ const Header = () => {
 
                 {/* User Menu */}
                 <div className="relative">
-                  <Link to="/profile" className="flex items-center space-x-2 text-gray-700 hover:text-primary-500">
+                  <Link to="/profile" className="flex items-center space-x-1 text-gray-700 hover:text-primary-500">
                     <UserIcon className="h-6 w-6" />
-                    <span className="hidden sm:block text-sm font-medium">{user.name}</span>
+                    <span className="hidden lg:block text-sm font-medium">{user.name}</span>
                   </Link>
                 </div>
 
                 {/* Logout */}
                 <button
                   onClick={handleLogout}
-                  className="text-sm text-gray-700 hover:text-primary-500 px-3 py-2"
+                  className="text-sm text-gray-700 hover:text-primary-500 px-2 py-1"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link to="/login" className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium">
+                <Link to="/login" className="text-gray-700 hover:text-primary-500 px-2 py-1 text-sm font-medium">
                   Login
                 </Link>
-                <Link to="/register" className="btn-primary text-sm">
+                <Link to="/register" className="btn-primary text-sm px-3 py-1">
                   Register
-                </Link>
-              </>
-            )}
-
-            {user && user.role === 'company_owner' && (
-              <>
-                <Link 
-                  to="/company" 
-                  className="text-gray-700 hover:text-orange-500 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Dashboard
-                </Link>
-                <Link 
-                  to="/company/services" 
-                  className="text-gray-700 hover:text-orange-500 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Services
-                </Link>
-                <Link 
-                  to="/company/chat" 
-                  className="text-gray-700 hover:text-orange-500 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Customer Chat
-                </Link>
-                <Link 
-                  to="/company/analytics" 
-                  className="text-gray-700 hover:text-orange-500 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Analytics
-                </Link>
-                <Link 
-                  to="/company/ai-prompts" 
-                  className="text-gray-700 hover:text-orange-500 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  AI Prompts
-                </Link>
-              </>
-            )}
-
-            {user && user.role === 'super_admin' && (
-              <>
-                <Link to="/admin/analytics" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  Analytics
-                </Link>
-                <Link to="/admin/companies" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  Companies
-                </Link>
-                <Link to="/admin/plan-settings" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  Plan Settings
-                </Link>
-                <Link to="/admin/payment-settings" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  Payment Settings
-                </Link>
-                <Link to="/admin/ai-agents" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  AI Agents
-                </Link>
-                <Link to="/admin/prompts" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  AI Prompts
                 </Link>
               </>
             )}
@@ -325,6 +268,101 @@ const Header = () => {
               >
                 For Business
               </Link>
+
+              {/* Company Owner Links */}
+              {user && user.role === 'company_owner' && (
+                <>
+                  <div className="border-t border-gray-200 pt-2 mt-2">
+                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Company</div>
+                    <Link 
+                      to="/company" 
+                      className="text-gray-700 hover:text-orange-500 px-3 py-2 text-sm font-medium block"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <Link 
+                      to="/company/services" 
+                      className="text-gray-700 hover:text-orange-500 px-3 py-2 text-sm font-medium block"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Services
+                    </Link>
+                    <Link 
+                      to="/company/chat" 
+                      className="text-gray-700 hover:text-orange-500 px-3 py-2 text-sm font-medium block"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Customer Chat
+                    </Link>
+                    <Link 
+                      to="/company/analytics" 
+                      className="text-gray-700 hover:text-orange-500 px-3 py-2 text-sm font-medium block"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Analytics
+                    </Link>
+                    <Link 
+                      to="/company/ai-prompts" 
+                      className="text-gray-700 hover:text-orange-500 px-3 py-2 text-sm font-medium block"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      AI Prompts
+                    </Link>
+                  </div>
+                </>
+              )}
+
+              {/* Super Admin Links */}
+              {user && user.role === 'super_admin' && (
+                <>
+                  <div className="border-t border-gray-200 pt-2 mt-2">
+                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Admin</div>
+                    <Link 
+                      to="/admin/analytics" 
+                      className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium block"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Analytics
+                    </Link>
+                    <Link 
+                      to="/admin/companies" 
+                      className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium block"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Companies
+                    </Link>
+                    <Link 
+                      to="/admin/plan-settings" 
+                      className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium block"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Plan Settings
+                    </Link>
+                    <Link 
+                      to="/admin/payment-settings" 
+                      className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium block"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Payment Settings
+                    </Link>
+                    <Link 
+                      to="/admin/ai-agents" 
+                      className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium block"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      AI Agents
+                    </Link>
+                    <Link 
+                      to="/admin/prompts" 
+                      className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium block"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      AI Prompts
+                    </Link>
+                  </div>
+                </>
+              )}
             </nav>
           </div>
         )}
