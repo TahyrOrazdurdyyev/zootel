@@ -84,16 +84,21 @@ func (s *UserService) GetUserByFirebaseUID(firebaseUID string) (*models.User, er
 	var user models.User
 	query := `
 		SELECT id, firebase_uid, email, first_name, last_name, role, gender,
-			   date_of_birth, phone, address, country, state, city, timezone,
-			   avatar_url, emergency_contact, vet_contact, notification_methods,
-			   marketing_opt_in, created_at, updated_at
+			   date_of_birth, phone, address, apartment_number, country, state, city, 
+			   postal_code, timezone, avatar_url, emergency_contact, emergency_contact_name,
+			   emergency_contact_phone, emergency_contact_relation, vet_contact, vet_name,
+			   vet_clinic, vet_phone, notification_methods, notifications_push, 
+			   notifications_sms, notifications_email, marketing_opt_in, created_at, updated_at
 		FROM users WHERE firebase_uid = $1`
 
 	err := s.db.QueryRow(query, firebaseUID).Scan(
 		&user.ID, &user.FirebaseUID, &user.Email, &user.FirstName, &user.LastName,
 		&user.Role, &user.Gender, &user.DateOfBirth, &user.Phone, &user.Address,
-		&user.Country, &user.State, &user.City, &user.Timezone, &user.AvatarURL,
-		&user.EmergencyContact, &user.VetContact, &user.NotificationMethods,
+		&user.ApartmentNumber, &user.Country, &user.State, &user.City, &user.PostalCode,
+		&user.Timezone, &user.AvatarURL, &user.EmergencyContact, &user.EmergencyContactName,
+		&user.EmergencyContactPhone, &user.EmergencyContactRelation, &user.VetContact,
+		&user.VetName, &user.VetClinic, &user.VetPhone, &user.NotificationMethods,
+		&user.NotificationsPush, &user.NotificationsSMS, &user.NotificationsEmail,
 		&user.MarketingOptIn, &user.CreatedAt, &user.UpdatedAt,
 	)
 
