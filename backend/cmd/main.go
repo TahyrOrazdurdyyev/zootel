@@ -219,7 +219,7 @@ func main() {
 		}
 		{
 			// Auth endpoints
-			protected.GET("/auth/me", authHandler.GetMe)
+			auth.GET("/me", middleware.AuthMiddleware(authClient, db), authHandler.GetMe)
 
 			// User profile endpoints
 			users := protected.Group("/users")
