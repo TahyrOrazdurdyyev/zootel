@@ -162,6 +162,7 @@ func main() {
 			auth.POST("/logout", authHandler.Logout)
 			auth.POST("/verify-email", authHandler.VerifyEmail)
 			auth.POST("/reset-password", authHandler.ResetPassword)
+			auth.GET("/me", middleware.AuthMiddleware(authClient, db), authHandler.GetMe)
 		}
 
 		// Public marketplace endpoints
@@ -218,9 +219,6 @@ func main() {
 			log.Fatal("Firebase Auth client is nil - cannot initialize protected routes")
 		}
 		{
-			// Auth endpoints
-			auth.GET("/me", middleware.AuthMiddleware(authClient, db), authHandler.GetMe)
-
 			// User profile endpoints
 			users := protected.Group("/users")
 			{
