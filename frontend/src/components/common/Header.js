@@ -83,9 +83,9 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex-shrink-0 z-10" style={{ minWidth: '120px', width: '120px' }}>
+          <div className="flex-none z-10">
             <Link to="/" className="flex items-center">
-              <img src="/logo.svg" alt="Zootel" className="h-8 flex-shrink-0" style={{ width: '32px', minWidth: '32px' }} />
+              <img src="/logo.svg" alt="Zootel" className="h-8 w-auto" />
               <span className="ml-2 text-xl font-bold text-gray-900 whitespace-nowrap">Zootel</span>
             </Link>
           </div>
@@ -107,7 +107,7 @@ const Header = () => {
           </nav>
 
           {/* Search Bar */}
-          <div className="hidden lg:flex flex-1 max-w-md mx-4">
+          <div className="hidden lg:flex w-80 mx-4">
             <form onSubmit={handleSearch} className="w-full flex">
               <select
                 value={searchCategory}
@@ -136,7 +136,7 @@ const Header = () => {
           </div>
 
           {/* Right side - Icons and Auth */}
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1 flex-none">
             {/* Currency Selector */}
             <CurrencySelector />
             
