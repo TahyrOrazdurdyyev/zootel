@@ -53,9 +53,14 @@ export const AuthProvider = ({ children }) => {
     return response.json();
   };
 
-  // Get user data from backend
-  const fetchUserData = async (firebaseUser) => {
+  // Get user data from backend with retry logic
+  const fetchUserData = async (firebaseUser, retryCount = 0) => {
     try {
+      // Wait a bit for backend to be ready on first load
+      if (retryCount === 0) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
       // Get fresh token from Firebase
       const token = await firebaseUser.getIdToken();
       
@@ -69,6 +74,13 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (!response.ok) {
+        // If 404 and first retry, try again after delay
+        if (response.status === 404 && retryCount < 2) {
+          console.log(`Retrying fetchUserData (attempt ${retryCount + 1})`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          return fetchUserData(firebaseUser, retryCount + 1);
+        }
+        
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
@@ -77,6 +89,14 @@ export const AuthProvider = ({ children }) => {
       return result.data;
     } catch (error) {
       console.error('Error fetching user data:', error);
+      
+      // Retry on network errors
+      if (retryCount < 2 && (error.message.includes('Failed to fetch') || error.message.includes('404'))) {
+        console.log(`Retrying fetchUserData after error (attempt ${retryCount + 1})`);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return fetchUserData(firebaseUser, retryCount + 1);
+      }
+      
       return null;
     }
   };
