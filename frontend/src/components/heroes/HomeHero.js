@@ -35,24 +35,23 @@ const HomeHero = () => {
   };
 
   return (
-    <div className="relative bg-gradient-to-br from-red-50 to-orange-100 overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-white bg-opacity-70"></div>
-      
-      {/* Background Image - positioned on the right side */}
-      <div className="absolute right-0 top-0 w-1/2 h-full opacity-30">
+    <div className="relative overflow-hidden" style={{ backgroundColor: '#f8f4f0' }}>
+      {/* Background Image - positioned on the LEFT side behind text */}
+      <div className="absolute left-0 top-0 w-1/2 h-full">
         <img 
           src="/images/background-image/Backgorund.jpg" 
           alt="" 
-          className="w-full h-full object-cover object-left"
+          className="w-full h-full object-cover object-right opacity-40"
         />
+        {/* Gradient overlay to blend with background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-white"></div>
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           
           {/* Left side - B2C Hero */}
-          <div className="text-center lg:text-left">
+          <div className="text-center lg:text-left relative">
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               Find and book
               <span className="text-red-600"> the best Pet Care services</span> 
@@ -65,7 +64,7 @@ const HomeHero = () => {
             </p>
 
             {/* Search Form */}
-            <form onSubmit={handleSearch} className="bg-white p-4 rounded-2xl shadow-xl">
+            <form onSubmit={handleSearch} className="bg-white p-4 rounded-2xl shadow-xl mb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {/* Category Select */}
                 <select
@@ -102,6 +101,28 @@ const HomeHero = () => {
                 </button>
               </div>
             </form>
+
+            {/* Category Dropdown like in Figma */}
+            <div className="bg-white rounded-xl shadow-lg p-4 max-w-xs">
+              <div className="space-y-2">
+                <div className="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                  <span className="text-red-600 mr-3">✂️</span>
+                  <span className="text-gray-700">Grooming</span>
+                </div>
+                <div className="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                  <span className="text-red-600 mr-3">🎾</span>
+                  <span className="text-gray-700">Training</span>
+                </div>
+                <div className="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                  <span className="text-red-600 mr-3">🏠</span>
+                  <span className="text-gray-700">Pet Sitting</span>
+                </div>
+                <div className="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                  <span className="text-red-600 mr-3">🏥</span>
+                  <span className="text-gray-700">Veterinary</span>
+                </div>
+              </div>
+            </div>
 
             {/* Quick Stats */}
             <div className="grid grid-cols-3 gap-6 mt-8">
