@@ -29,6 +29,7 @@ const AnalyticsPage = React.lazy(() => import('./pages/admin/AnalyticsPage'));
 const CompaniesManagement = React.lazy(() => import('./pages/admin/CompaniesManagement'));
 const CurrencyManagement = React.lazy(() => import('./pages/admin/CurrencyManagement'));
 const PromptsManagement = React.lazy(() => import('./pages/admin/PromptsManagement'));
+const ServiceCategoriesManagement = React.lazy(() => import('./pages/admin/ServiceCategoriesManagement'));
 const AIPromptsCustomization = React.lazy(() => import('./pages/company/AIPromptsCustomization'));
 import BusinessLandingPage from './pages/BusinessLandingPage';
 
@@ -142,6 +143,11 @@ function App() {
                     <Route path="/prompts" element={
                       <ProtectedRoute requiredRole="super_admin">
                         <PromptsManagement />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/service-categories" element={
+                      <ProtectedRoute requiredRole="super_admin">
+                        <ServiceCategoriesManagement />
                       </ProtectedRoute>
                     } />
                   </Routes>

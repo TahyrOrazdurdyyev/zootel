@@ -545,13 +545,14 @@ var PredefinedRoles = map[string]EmployeeRole{
 
 // ServiceCategory represents service categories
 type ServiceCategory struct {
-	ID          string    `json:"id" db:"id"`
-	Name        string    `json:"name" db:"name"`
-	Description string    `json:"description" db:"description"`
-	Icon        string    `json:"icon" db:"icon"`
-	IconName    string    `json:"icon_name" db:"icon_name"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
+	ID              string    `json:"id" db:"id"`
+	Name            string    `json:"name" db:"name"`
+	Description     string    `json:"description" db:"description"`
+	Icon            string    `json:"icon" db:"icon"`
+	IconName        string    `json:"icon_name" db:"icon_name"`
+	BackgroundImage string    `json:"background_image" db:"background_image"`
+	CreatedAt       time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at" db:"updated_at"`
 }
 
 // Service represents a company service

@@ -355,7 +355,7 @@ type UpdatePaymentSettingsRequest struct {
 
 // Service Categories Management
 func (s *AdminService) GetServiceCategories() ([]models.ServiceCategory, error) {
-	query := `SELECT id, name, icon, created_at FROM service_categories ORDER BY name`
+	query := `SELECT id, name, description, icon, background_image, created_at, updated_at FROM service_categories ORDER BY name`
 
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -366,9 +366,16 @@ func (s *AdminService) GetServiceCategories() ([]models.ServiceCategory, error) 
 	var categories []models.ServiceCategory
 	for rows.Next() {
 		var category models.ServiceCategory
-		err := rows.Scan(&category.ID, &category.Name, &category.Icon, &category.CreatedAt)
+		var description, backgroundImage sql.NullString
+		err := rows.Scan(&category.ID, &category.Name, &description, &category.Icon, &backgroundImage, &category.CreatedAt, &category.UpdatedAt)
 		if err != nil {
 			return nil, err
+		}
+		if description.Valid {
+			category.Description = description.String
+		}
+		if backgroundImage.Valid {
+			category.BackgroundImage = backgroundImage.String
 		}
 		categories = append(categories, category)
 	}
@@ -379,15 +386,17 @@ func (s *AdminService) GetServiceCategories() ([]models.ServiceCategory, error) 
 func (s *AdminService) CreateServiceCategory(category *models.ServiceCategory) error {
 	category.ID = uuid.New().String()
 	category.CreatedAt = time.Now()
+	category.UpdatedAt = time.Now()
 
-	query := `INSERT INTO service_categories (id, name, icon, created_at) VALUES ($1, $2, $3, $4)`
-	_, err := s.db.Exec(query, category.ID, category.Name, category.Icon, category.CreatedAt)
+	query := `INSERT INTO service_categories (id, name, description, icon, background_image, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	_, err := s.db.Exec(query, category.ID, category.Name, category.Description, category.Icon, category.BackgroundImage, category.CreatedAt, category.UpdatedAt)
 	return err
 }
 
 func (s *AdminService) UpdateServiceCategory(categoryID string, category *models.ServiceCategory) error {
-	query := `UPDATE service_categories SET name = $2, icon = $3 WHERE id = $1`
-	_, err := s.db.Exec(query, categoryID, category.Name, category.Icon)
+	category.UpdatedAt = time.Now()
+	query := `UPDATE service_categories SET name = $2, description = $3, icon = $4, background_image = $5, updated_at = $6 WHERE id = $1`
+	_, err := s.db.Exec(query, categoryID, category.Name, category.Description, category.Icon, category.BackgroundImage, category.UpdatedAt)
 	return err
 }
 

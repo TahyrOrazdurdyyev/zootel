@@ -15,50 +15,7 @@ const HomePage = () => {
   const [customerReviews, setCustomerReviews] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const serviceCategories = [
-    { 
-      id: 'grooming', 
-      name: 'Grooming', 
-      icon: '✂️', 
-      description: 'Haircut, washing, coat care',
-      count: '120+ masters'
-    },
-    { 
-      id: 'veterinary', 
-      name: 'Veterinary', 
-      icon: '🏥', 
-      description: 'Consultations, treatment, vaccinations',
-      count: '85+ clinics'
-    },
-    { 
-      id: 'boarding', 
-      name: 'Boarding', 
-      icon: '🏠', 
-      description: 'Pet hotels',
-      count: '45+ hotels'
-    },
-    { 
-      id: 'training', 
-      name: 'Training', 
-      icon: '🎾', 
-      description: 'Education and behavior correction',
-      count: '30+ trainers'
-    },
-    { 
-      id: 'walking', 
-      name: 'Walking', 
-      icon: '🚶', 
-      description: 'Dog walks',
-      count: '200+ sitters'
-    },
-    { 
-      id: 'sitting', 
-      name: 'Pet Sitting', 
-      icon: '👥', 
-      description: 'Home care',
-      count: '150+ sitters'
-    }
-  ];
+  const [serviceCategories, setServiceCategories] = useState([]);
 
   const howItWorks = [
     {
@@ -90,26 +47,38 @@ const HomePage = () => {
   useEffect(() => {
     const fetchHomePageData = async () => {
       try {
-        const [dealsResponse, companiesResponse, reviewsResponse] = await Promise.all([
+        const [dealsResponse, companiesResponse, reviewsResponse, categoriesResponse] = await Promise.all([
           fetch('/api/deals/featured'),
           fetch('/api/companies/top'),
-          fetch('/api/reviews/recent')
+          fetch('/api/reviews/recent'),
+          fetch('/api/marketplace/categories')
         ]);
 
-        const [dealsData, companiesData, reviewsData] = await Promise.all([
+        const [dealsData, companiesData, reviewsData, categoriesData] = await Promise.all([
           dealsResponse.json(),
           companiesResponse.json(),
-          reviewsResponse.json()
+          reviewsResponse.json(),
+          categoriesResponse.json()
         ]);
 
         setFeaturedDeals(dealsData.deals || []);
         setTopCompanies(companiesData.companies || []);
         setCustomerReviews(reviewsData.reviews || []);
+        setServiceCategories(categoriesData.categories || []);
       } catch (error) {
         console.error('Error fetching homepage data:', error);
         setFeaturedDeals([]);
         setTopCompanies([]);
         setCustomerReviews([]);
+        // Fallback categories with background images
+        setServiceCategories([
+          { id: 'grooming', name: 'Grooming', icon: '✂️', description: 'Haircut, washing, coat care', background_image: '/images/grooming.png' },
+          { id: 'veterinary', name: 'Veterinary', icon: '🏥', description: 'Consultations, treatment, vaccinations', background_image: '/images/veterinary.png' },
+          { id: 'boarding', name: 'Boarding', icon: '🏠', description: 'Pet hotels', background_image: '/images/boarding.png' },
+          { id: 'training', name: 'Training', icon: '🎾', description: 'Education and behavior correction', background_image: '/images/training.png' },
+          { id: 'walking', name: 'Walking', icon: '🚶', description: 'Dog walks', background_image: '/images/walking.png' },
+          { id: 'sitting', name: 'Pet Sitting', icon: '👥', description: 'Home care', background_image: '/images/sitting.png' }
+        ]);
       } finally {
         setLoading(false);
       }
@@ -151,7 +120,7 @@ const HomePage = () => {
                 to={`/services/${category.id}`}
                 className="relative bg-white rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 group h-48"
                 style={{
-                  backgroundImage: `linear-gradient(135deg, rgba(246, 88, 20, 0.8) 0%, rgba(246, 88, 20, 0.6) 100%), url(/images/${category.id}.png)`,
+                  backgroundImage: `linear-gradient(135deg, rgba(246, 88, 20, 0.8) 0%, rgba(246, 88, 20, 0.6) 100%), url(${category.background_image || `/images/${category.id}.png`})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   backgroundRepeat: 'no-repeat'
@@ -163,7 +132,7 @@ const HomePage = () => {
                     {category.name}
                   </h3>
                   <p className="text-sm opacity-90 mb-1">{category.description}</p>
-                  <p className="text-xs font-medium opacity-80">{category.count}</p>
+                  {category.count && <p className="text-xs font-medium opacity-80">{category.count}</p>}
                 </div>
               </Link>
             ))}
