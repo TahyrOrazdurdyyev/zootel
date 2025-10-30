@@ -35,14 +35,18 @@ const HomeHero = () => {
   };
 
   return (
-    <div className="relative overflow-hidden" style={{
-      backgroundImage: 'url(/images/background-image/Backgorund.jpg)',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat'
-    }}>
-      {/* Background Overlay */}
-      <div className="absolute inset-0 bg-white bg-opacity-80"></div>
+    <div className="relative bg-gradient-to-br from-red-50 to-orange-100 overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-white bg-opacity-70"></div>
+      
+      {/* Background Image - positioned on the right side */}
+      <div className="absolute right-0 top-0 w-1/2 h-full opacity-30">
+        <img 
+          src="/images/background-image/Backgorund.jpg" 
+          alt="" 
+          className="w-full h-full object-cover object-left"
+        />
+      </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
