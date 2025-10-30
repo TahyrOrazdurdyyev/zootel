@@ -67,8 +67,27 @@ const ProfilePage = () => {
         marketingOptIn: user.marketingOptIn || false,
         avatarUrl: user.avatarURL || null
       });
+      
+      // Load user's pets
+      loadUserPets();
     }
   }, [user]);
+
+  const loadUserPets = async () => {
+    try {
+      const response = await fetch('/api/v1/pets', {
+        headers: {
+          'Authorization': `Bearer ${await user.getIdToken()}`,
+        },
+      });
+      if (response.ok) {
+        const result = await response.json();
+        setPets(result.data || []);
+      }
+    } catch (error) {
+      console.error('Failed to load pets:', error);
+    }
+  };
 
   const [pets, setPets] = useState([]);
 
