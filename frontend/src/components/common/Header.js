@@ -83,7 +83,7 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left: Logo */}
-          <div className="flex items-center flex-shrink-0">
+          <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <img src="/images/icons/Logo_orange.png" alt="Zootel" className="h-8 w-auto" />
               <span className="ml-2 text-xl font-bold text-gray-900 whitespace-nowrap">Zootel</span>
@@ -91,7 +91,7 @@ const Header = () => {
           </div>
 
           {/* Center: Navigation and Search */}
-          <div className="flex items-center space-x-6 flex-1">
+          <div className="flex items-center space-x-6">
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-4">
               <Link to="/marketplace" className="text-gray-700 hover:text-primary-500 px-2 py-2 text-sm font-medium">
@@ -139,7 +139,7 @@ const Header = () => {
           </div>
 
           {/* Right: Icons and Auth */}
-          <div className="flex items-center space-x-1 flex-shrink-0">
+          <div className="flex items-center space-x-1">
             {/* Currency Selector */}
             <CurrencySelector />
             
