@@ -14,6 +14,7 @@ const HomeHero = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchLocation, setSearchLocation] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   const serviceCategories = [
     { id: '', name: 'All categories' },
@@ -35,17 +36,12 @@ const HomeHero = () => {
   };
 
   return (
-    <div className="relative overflow-hidden" style={{ backgroundColor: '#f8f4f0' }}>
-      {/* Background Image - positioned on the LEFT side behind text */}
-      <div className="absolute left-0 top-0 w-1/2 h-full">
-        <img 
-          src="/images/background-image/Backgorund.jpg" 
-          alt="" 
-          className="w-full h-full object-cover object-right opacity-40"
-        />
-        {/* Gradient overlay to blend with background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-white"></div>
-      </div>
+    <div className="relative overflow-hidden" style={{
+      backgroundImage: 'linear-gradient(135deg, rgba(248, 244, 240, 0.9) 0%, rgba(255, 255, 255, 0.8) 50%), url(/images/background-image/Backgorund.jpg)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center right',
+      backgroundRepeat: 'no-repeat'
+    }}>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -66,18 +62,44 @@ const HomeHero = () => {
             {/* Search Form */}
             <form onSubmit={handleSearch} className="bg-white p-4 rounded-2xl shadow-xl mb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {/* Category Select */}
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                >
-                  {serviceCategories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
+                {/* Category Dropdown */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-gray-50 text-left flex items-center justify-between"
+                  >
+                    <span>{selectedCategory ? serviceCategories.find(cat => cat.id === selectedCategory)?.name : 'All categories'}</span>
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  
+                  {/* Dropdown Menu */}
+                  {showCategoryDropdown && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                      {serviceCategories.map((category) => (
+                        <button
+                          key={category.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCategory(category.id);
+                            setShowCategoryDropdown(false);
+                          }}
+                          className="w-full px-4 py-3 text-left hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg flex items-center"
+                        >
+                          {category.id === 'grooming' && <span className="mr-3">✂️</span>}
+                          {category.id === 'veterinary' && <span className="mr-3">🏥</span>}
+                          {category.id === 'boarding' && <span className="mr-3">🏠</span>}
+                          {category.id === 'training' && <span className="mr-3">🎾</span>}
+                          {category.id === 'walking' && <span className="mr-3">🚶</span>}
+                          {category.id === 'sitting' && <span className="mr-3">🐕</span>}
+                          <span>{category.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 {/* Location Input */}
                 <div className="relative">
@@ -87,7 +109,7 @@ const HomeHero = () => {
                     placeholder="Enter city"
                     value={searchLocation}
                     onChange={(e) => setSearchLocation(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-gray-50"
                   />
                 </div>
 
@@ -101,28 +123,6 @@ const HomeHero = () => {
                 </button>
               </div>
             </form>
-
-            {/* Category Dropdown like in Figma */}
-            <div className="bg-white rounded-xl shadow-lg p-4 max-w-xs">
-              <div className="space-y-2">
-                <div className="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                  <span className="text-orange-600 mr-3">✂️</span>
-                  <span className="text-gray-700">Grooming</span>
-                </div>
-                <div className="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                  <span className="text-orange-600 mr-3">🎾</span>
-                  <span className="text-gray-700">Training</span>
-                </div>
-                <div className="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                  <span className="text-orange-600 mr-3">🏠</span>
-                  <span className="text-gray-700">Pet Sitting</span>
-                </div>
-                <div className="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                  <span className="text-orange-600 mr-3">🏥</span>
-                  <span className="text-gray-700">Veterinary</span>
-                </div>
-              </div>
-            </div>
 
             {/* Quick Stats */}
             <div className="grid grid-cols-3 gap-6 mt-8">
@@ -142,33 +142,43 @@ const HomeHero = () => {
           </div>
 
           {/* Right side - B2B Hero */}
-          <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
             <div className="text-center mb-6">
-              <BuildingOfficeIcon className="h-16 w-16 text-orange-600 mx-auto mb-4" />
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <BuildingOfficeIcon className="h-6 w-6 text-orange-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Manage Pet Care business
               </h2>
-              <p className="text-gray-600">
+              <p className="text-sm text-gray-600">
                 CRM system for vet clinics, groomers, pet stores and other Pet Care services
               </p>
             </div>
 
             {/* B2B Features */}
-            <div className="space-y-4 mb-6">
+            <div className="space-y-3 mb-6">
               <div className="flex items-center text-sm text-gray-700">
-                <ChartBarIcon className="h-5 w-5 text-orange-500 mr-3 flex-shrink-0" />
+                <div className="w-5 h-5 bg-orange-100 rounded flex items-center justify-center mr-3 flex-shrink-0">
+                  <ChartBarIcon className="h-3 w-3 text-orange-600" />
+                </div>
                 <span>Booking and schedule management</span>
               </div>
               <div className="flex items-center text-sm text-gray-700">
-                <ChatBubbleLeftIcon className="h-5 w-5 text-orange-500 mr-3 flex-shrink-0" />
+                <div className="w-5 h-5 bg-orange-100 rounded flex items-center justify-center mr-3 flex-shrink-0">
+                  <ChatBubbleLeftIcon className="h-3 w-3 text-orange-600" />
+                </div>
                 <span>Automatic reminders and customer chat</span>
               </div>
               <div className="flex items-center text-sm text-gray-700">
-                <SparklesIcon className="h-5 w-5 text-orange-500 mr-3 flex-shrink-0" />
+                <div className="w-5 h-5 bg-orange-100 rounded flex items-center justify-center mr-3 flex-shrink-0">
+                  <SparklesIcon className="h-3 w-3 text-orange-600" />
+                </div>
                 <span>AI assistants for customer work</span>
               </div>
               <div className="flex items-center text-sm text-gray-700">
-                <ChartBarIcon className="h-5 w-5 text-orange-500 mr-3 flex-shrink-0" />
+                <div className="w-5 h-5 bg-orange-100 rounded flex items-center justify-center mr-3 flex-shrink-0">
+                  <ChartBarIcon className="h-3 w-3 text-orange-600" />
+                </div>
                 <span>Detailed analytics and reports</span>
               </div>
             </div>
@@ -177,24 +187,24 @@ const HomeHero = () => {
             <div className="space-y-3">
               <Link
                 to="/business"
-                className="block w-full bg-orange-600 text-white text-center py-3 px-6 rounded-lg hover:bg-orange-700 transition-colors duration-200 font-medium"
+                className="block w-full bg-orange-600 text-white text-center py-3 px-6 rounded-lg hover:bg-orange-700 transition-colors duration-200 font-medium text-sm"
               >
                 Learn about CRM →
               </Link>
               <Link
                 to="/demo"
-                className="block w-full border border-orange-600 text-orange-600 text-center py-3 px-6 rounded-lg hover:bg-orange-50 transition-colors duration-200 font-medium"
+                className="block w-full border border-orange-600 text-orange-600 text-center py-3 px-6 rounded-lg hover:bg-orange-50 transition-colors duration-200 font-medium text-sm"
               >
                 Request demo
               </Link>
             </div>
 
             {/* Trust indicators */}
-            <div className="mt-6 pt-6 border-t border-gray-100">
-              <p className="text-xs text-gray-500 text-center mb-2">Already trusted:</p>
+            <div className="mt-6 pt-4 border-t border-gray-100">
+              <p className="text-xs text-gray-500 text-center mb-1">Already trusted:</p>
               <div className="text-center">
                 <span className="text-lg font-semibold text-orange-600">200+</span>
-                <span className="text-sm text-gray-600 ml-1">Pet Care companies</span>
+                <span className="text-xs text-gray-600 ml-1">Pet Care companies</span>
               </div>
             </div>
           </div>
