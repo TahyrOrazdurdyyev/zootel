@@ -7,9 +7,32 @@ module.exports = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'static/js/bundle.[contenthash:8].js',
+    filename: 'static/js/[name].[contenthash:8].js',
+    chunkFilename: 'static/js/[name].[contenthash:8].chunk.js',
     publicPath: '/',
     clean: true,
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+        admin: {
+          test: /[\\/]src[\\/]pages[\\/]admin[\\/]/,
+          name: 'admin',
+          chunks: 'all',
+        },
+        company: {
+          test: /[\\/]src[\\/]pages[\\/]company[\\/]/,
+          name: 'company',
+          chunks: 'all',
+        },
+      },
+    },
   },
   module: {
     rules: [
@@ -46,6 +69,11 @@ module.exports = {
     }),
     new MiniCssExtractPlugin({
       filename: 'static/css/[name].[contenthash:8].css'
+    }),
+    // Ignore all moment.js locales except English - saves ~500KB
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^\.\/locale$/,
+      contextRegExp: /moment$/,
     })
   ],
   resolve: {

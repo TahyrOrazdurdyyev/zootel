@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
@@ -22,14 +22,14 @@ import CheckoutPage from './pages/CheckoutPage';
 import ProfilePage from './pages/ProfilePage';
 import ChatPage from './pages/ChatPage';
 
-// Admin pages
-import PaymentSettings from './pages/admin/PaymentSettings';
-import PlanSettings from './pages/admin/PlanSettings';
-import AnalyticsPage from './pages/admin/AnalyticsPage';
-import CompaniesManagement from './pages/admin/CompaniesManagement';
-import CurrencyManagement from './pages/admin/CurrencyManagement';
-import PromptsManagement from './pages/admin/PromptsManagement';
-import AIPromptsCustomization from './pages/company/AIPromptsCustomization';
+// Lazy load heavy admin pages
+const PaymentSettings = React.lazy(() => import('./pages/admin/PaymentSettings'));
+const PlanSettings = React.lazy(() => import('./pages/admin/PlanSettings'));
+const AnalyticsPage = React.lazy(() => import('./pages/admin/AnalyticsPage'));
+const CompaniesManagement = React.lazy(() => import('./pages/admin/CompaniesManagement'));
+const CurrencyManagement = React.lazy(() => import('./pages/admin/CurrencyManagement'));
+const PromptsManagement = React.lazy(() => import('./pages/admin/PromptsManagement'));
+const AIPromptsCustomization = React.lazy(() => import('./pages/company/AIPromptsCustomization'));
 import BusinessLandingPage from './pages/BusinessLandingPage';
 
 // Payment pages
@@ -58,6 +58,7 @@ function App() {
         <CurrencyProvider>
           <CartProvider>
             <LayoutRouter>
+            <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-600"></div></div>}>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
@@ -150,6 +151,7 @@ function App() {
               {/* 404 Page */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
+            </Suspense>
           </LayoutRouter>
         </CartProvider>
         </CurrencyProvider>
