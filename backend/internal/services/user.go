@@ -83,12 +83,36 @@ func (s *UserService) GetUserByID(userID string) (*models.User, error) {
 func (s *UserService) GetUserByFirebaseUID(firebaseUID string) (*models.User, error) {
 	var user models.User
 	query := `
-		SELECT id, firebase_uid, email, first_name, last_name, role, gender,
-			   date_of_birth, phone, address, apartment_number, country, state, city, 
-			   postal_code, timezone, avatar_url, emergency_contact, emergency_contact_name,
-			   emergency_contact_phone, emergency_contact_relation, vet_contact, vet_name,
-			   vet_clinic, vet_phone, notification_methods, notifications_push, 
-			   notifications_sms, notifications_email, marketing_opt_in, created_at, updated_at
+		SELECT id, firebase_uid, email, 
+			   COALESCE(first_name, '') as first_name, 
+			   COALESCE(last_name, '') as last_name, 
+			   role, 
+			   COALESCE(gender, '') as gender,
+			   date_of_birth, 
+			   COALESCE(phone, '') as phone, 
+			   COALESCE(address, '') as address, 
+			   COALESCE(apartment_number, '') as apartment_number, 
+			   COALESCE(country, '') as country, 
+			   COALESCE(state, '') as state, 
+			   COALESCE(city, '') as city, 
+			   COALESCE(postal_code, '') as postal_code, 
+			   COALESCE(timezone, '') as timezone, 
+			   avatar_url, 
+			   COALESCE(emergency_contact, '') as emergency_contact, 
+			   COALESCE(emergency_contact_name, '') as emergency_contact_name,
+			   COALESCE(emergency_contact_phone, '') as emergency_contact_phone, 
+			   COALESCE(emergency_contact_relation, '') as emergency_contact_relation, 
+			   COALESCE(vet_contact, '') as vet_contact, 
+			   COALESCE(vet_name, '') as vet_name,
+			   COALESCE(vet_clinic, '') as vet_clinic, 
+			   COALESCE(vet_phone, '') as vet_phone, 
+			   notification_methods, 
+			   notifications_push, 
+			   notifications_sms, 
+			   notifications_email, 
+			   marketing_opt_in, 
+			   created_at, 
+			   updated_at
 		FROM users WHERE firebase_uid = $1`
 
 	err := s.db.QueryRow(query, firebaseUID).Scan(
