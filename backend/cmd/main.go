@@ -212,7 +212,11 @@ func main() {
 
 		// Protected routes requiring authentication
 		protected := api.Group("/")
-		protected.Use(middleware.AuthMiddleware(authClient, db))
+		if authClient != nil {
+			protected.Use(middleware.AuthMiddleware(authClient, db))
+		} else {
+			log.Fatal("Firebase Auth client is nil - cannot initialize protected routes")
+		}
 		{
 			// Auth endpoints
 			protected.GET("/auth/me", authHandler.GetMe)
