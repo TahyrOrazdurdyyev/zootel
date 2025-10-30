@@ -116,7 +116,7 @@ const UniversalHeader = () => {
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <img src="/logo.svg" alt="Zootel" className="h-8 w-auto" />
+              <img src="/images/icons/Logo_orange.png" alt="Zootel" className="h-8 w-auto" />
             </Link>
           </div>
 

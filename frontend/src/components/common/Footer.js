@@ -53,7 +53,7 @@ const Footer = () => {
           {/* Company info */}
           <div className="lg:col-span-2">
             <div className="flex items-center mb-4">
-              <img src="/logo.svg" alt="Zootel" className="h-8 w-auto" />
+              <img src="/images/icons/Logo_orange.png" alt="Zootel" className="h-8 w-auto" />
             </div>
             <p className="text-gray-300 mb-6">
               Pet Care services marketplace and CRM for business. 
