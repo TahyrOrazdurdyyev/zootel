@@ -83,9 +83,9 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left: Logo */}
-          <div className="flex items-center">
+          <div className="flex items-center flex-shrink-0">
             <Link to="/" className="flex items-center">
-              <img src="/logo.svg" alt="Zootel" className="h-8 w-auto" />
+              <img src="/logo.svg" alt="Zootel" className="h-8 w-auto flex-shrink-0" />
               <span className="ml-2 text-xl font-bold text-gray-900 whitespace-nowrap">Zootel</span>
             </Link>
           </div>
@@ -139,7 +139,7 @@ const Header = () => {
           </div>
 
           {/* Right: Icons and Auth */}
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1 flex-shrink-0">
             {/* Currency Selector */}
             <CurrencySelector />
             
