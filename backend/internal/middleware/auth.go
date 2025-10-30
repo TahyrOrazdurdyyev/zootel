@@ -17,8 +17,11 @@ import (
 // AuthMiddleware validates Firebase JWT tokens and sets user context
 func AuthMiddleware(authClient *auth.Client, db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		fmt.Printf("[AUTH] Request: %s %s from %s\n", c.Request.Method, c.Request.URL.Path, c.ClientIP())
+
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
+			fmt.Printf("[AUTH] No authorization header\n")
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
 			c.Abort()
 			return
@@ -32,20 +35,26 @@ func AuthMiddleware(authClient *auth.Client, db *sql.DB) gin.HandlerFunc {
 		}
 
 		// Verify Firebase JWT token
+		fmt.Printf("[AUTH] Verifying Firebase token...\n")
 		token, err := authClient.VerifyIDToken(context.Background(), tokenString)
 		if err != nil {
+			fmt.Printf("[AUTH] Firebase token invalid: %v\n", err)
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			c.Abort()
 			return
 		}
 
 		// Get user from database using Firebase UID
+		fmt.Printf("[AUTH] Looking up user with Firebase UID: %s\n", token.UID)
 		user, err := getUserByFirebaseUID(db, token.UID)
 		if err != nil {
+			fmt.Printf("[AUTH] User not found in database: %v\n", err)
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 			c.Abort()
 			return
 		}
+
+		fmt.Printf("[AUTH] User found: %s (%s)\n", user.Email, user.Role)
 
 		// Set user context
 		c.Set("user_id", user.ID)
