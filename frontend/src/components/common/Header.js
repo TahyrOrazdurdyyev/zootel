@@ -83,38 +83,38 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left: Logo */}
-          <div className="flex items-center flex-shrink-0">
+          <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <img src="/logo.svg" alt="Zootel" className="h-8 w-auto flex-shrink-0" />
+              <img src="/images/icons/Logo_orange.png" alt="Zootel" className="h-8 w-auto" />
               <span className="ml-2 text-xl font-bold text-gray-900 whitespace-nowrap">Zootel</span>
             </Link>
           </div>
 
           {/* Center: Navigation and Search */}
-          <div className="flex-1 flex items-center justify-center space-x-8">
+          <div className="flex items-center space-x-6">
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-6">
-              <Link to="/marketplace" className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium">
+            <nav className="hidden md:flex space-x-4">
+              <Link to="/marketplace" className="text-gray-700 hover:text-primary-500 px-2 py-2 text-sm font-medium">
                 Services
               </Link>
-              <Link to="/marketplace?type=products" className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium">
+              <Link to="/marketplace?type=products" className="text-gray-700 hover:text-primary-500 px-2 py-2 text-sm font-medium">
                 Shop
               </Link>
-              <Link to="/marketplace?type=companies" className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium">
+              <Link to="/marketplace?type=companies" className="text-gray-700 hover:text-primary-500 px-2 py-2 text-sm font-medium">
                 Companies
               </Link>
-              <Link to="/business" className="text-gray-700 hover:text-primary-500 px-3 py-2 text-sm font-medium">
+              <Link to="/business" className="text-gray-700 hover:text-primary-500 px-2 py-2 text-sm font-medium">
                 For Business
               </Link>
             </nav>
 
             {/* Search Bar */}
-            <div className="hidden lg:flex max-w-md">
+            <div className="hidden lg:flex">
               <form onSubmit={handleSearch} className="flex">
                 <select
                   value={searchCategory}
                   onChange={(e) => setSearchCategory(e.target.value)}
-                  className="rounded-l-lg border border-r-0 border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="rounded-l-lg border border-r-0 border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
                   <option value="all">All</option>
                   <option value="services">Services</option>
@@ -123,23 +123,23 @@ const Header = () => {
                 </select>
                 <input
                   type="text"
-                  placeholder="Search by location or service..."
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent min-w-0"
+                  className="px-3 py-1 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-48"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary-500 text-white rounded-r-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="px-3 py-1 bg-primary-500 text-white rounded-r-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
-                  <MagnifyingGlassIcon className="h-5 w-5" />
+                  <MagnifyingGlassIcon className="h-4 w-4" />
                 </button>
               </form>
             </div>
           </div>
 
           {/* Right: Icons and Auth */}
-          <div className="flex items-center space-x-1 flex-shrink-0">
+          <div className="flex items-center space-x-1">
             {/* Currency Selector */}
             <CurrencySelector />
             
