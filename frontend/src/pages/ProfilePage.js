@@ -20,51 +20,57 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   
   const [profileData, setProfileData] = useState({
-    firstName: 'Anna',
-    lastName: 'Johnson',
-    gender: 'female',
-    dateOfBirth: '1990-05-15',
-    email: 'anna.johnson@example.com',
-    phone: '+12345678901',
-    address: '123 Main St, Apt 5',
-    country: 'United States',
-    state: 'California',
-    city: 'Los Angeles',
-    timezone: 'America/Los_Angeles',
-    emergencyName: 'John Johnson',
-    emergencyRelation: 'husband',
-    emergencyPhone: '+12345678902',
-    vetName: 'Happy Pets Veterinary Clinic',
-    vetClinic: 'Pet Care Medical Center',
-    vetPhone: '+12345551234',
-    notificationMethods: ['email', 'push'],
-    marketingOptIn: true,
-    avatarUrl: null // Added avatarUrl to state
+    firstName: '',
+    lastName: '',
+    gender: '',
+    dateOfBirth: '',
+    email: '',
+    phone: '',
+    address: '',
+    country: '',
+    state: '',
+    city: '',
+    timezone: '',
+    emergencyName: '',
+    emergencyRelation: '',
+    emergencyPhone: '',
+    vetName: '',
+    vetClinic: '',
+    vetPhone: '',
+    notificationMethods: ['email'],
+    marketingOptIn: false,
+    avatarUrl: null
   });
 
-  const [pets, setPets] = useState([
-    {
-      id: 1,
-      name: 'Mursik',
-      species: 'cat',
-      breed: 'British Shorthair',
-      gender: 'male',
-      dateOfBirth: '2020-03-10',
-      weight: 4.2,
-      microchipId: 'ABC123456789',
-      sterilized: true,
-      photoUrl: null,
-      vaccinations: [
-        { vaccine: 'Complex vaccine', date: '2023-03-15', expiry: '2024-03-15' },
-        { vaccine: 'Rabies', date: '2023-03-15', expiry: '2024-03-15' }
-      ],
-      allergies: ['chicken'],
-      medications: 'Vitamins for coat - 1 tablet per day',
-      specialNeeds: 'Dietary food',
-      vetContact: 'Dr. Ivanov, +74951234567',
-      notes: 'Very calm and affectionate cat'
+  // Load user data when user is available
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        gender: user.gender || '',
+        dateOfBirth: user.dateOfBirth || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || '',
+        country: user.country || '',
+        state: user.state || '',
+        city: user.city || '',
+        timezone: user.timezone || '',
+        emergencyName: user.emergencyContactName || '',
+        emergencyRelation: user.emergencyContactRelation || '',
+        emergencyPhone: user.emergencyContactPhone || '',
+        vetName: user.vetName || '',
+        vetClinic: user.vetClinic || '',
+        vetPhone: user.vetPhone || '',
+        notificationMethods: user.notificationMethods || ['email'],
+        marketingOptIn: user.marketingOptIn || false,
+        avatarUrl: user.avatarURL || null
+      });
     }
-  ]);
+  }, [user]);
+
+  const [pets, setPets] = useState([]);
 
   const tabs = [
     { id: 'personal', name: 'Personal Data', icon: UserIcon },
