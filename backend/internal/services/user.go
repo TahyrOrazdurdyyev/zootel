@@ -97,7 +97,7 @@ func (s *UserService) GetUserByFirebaseUID(firebaseUID string) (*models.User, er
 			   COALESCE(city, '') as city, 
 			   COALESCE(postal_code, '') as postal_code, 
 			   COALESCE(timezone, '') as timezone, 
-			   avatar_url, 
+			   COALESCE(avatar_url, '') as avatar_url, 
 			   COALESCE(emergency_contact, '') as emergency_contact, 
 			   COALESCE(emergency_contact_name, '') as emergency_contact_name,
 			   COALESCE(emergency_contact_phone, '') as emergency_contact_phone, 
