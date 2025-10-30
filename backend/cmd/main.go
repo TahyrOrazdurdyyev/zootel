@@ -552,8 +552,13 @@ func main() {
 				admin.GET("/analytics/top-companies", analyticsHandler.GetTopPerformingCompanies)
 				admin.GET("/analytics/service-performance", analyticsHandler.GetServiceCategoryPerformance)
 				admin.GET("/analytics/pet-popularity", analyticsHandler.GetPetTypePopularity)
-				admin.GET("/analytics/cohort", analyticsHandler.GetCohortAnalysis)
+				admin.GET("/analytics/cohort", analyticsHandler.GetCohortAnalytics)
 				admin.GET("/analytics/geographic", analyticsHandler.GetGeographicDistribution)
+
+				// New advanced analytics endpoints
+				admin.GET("/analytics/segments", analyticsHandler.GetSegmentAnalytics)
+				admin.GET("/analytics/funnel", analyticsHandler.GetFunnelAnalytics)
+				admin.GET("/analytics/recent-activity", analyticsHandler.GetRecentActivity)
 
 				// Addon management
 				admin.GET("/addons", addonHandler.GetAvailableAddons)
