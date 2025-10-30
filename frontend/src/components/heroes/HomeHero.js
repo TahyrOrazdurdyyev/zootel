@@ -37,9 +37,9 @@ const HomeHero = () => {
 
   return (
     <div className="relative overflow-hidden" style={{
-      backgroundImage: 'linear-gradient(135deg, rgba(248, 244, 240, 0.9) 0%, rgba(255, 255, 255, 0.8) 50%), url(/images/background-image/Backgorund.jpg)',
+      backgroundImage: 'linear-gradient(135deg, rgba(248, 244, 240, 0.7) 0%, rgba(255, 255, 255, 0.6) 40%, rgba(255, 255, 255, 0.3) 70%), url(/images/background-image/Backgorund.jpg)',
       backgroundSize: 'cover',
-      backgroundPosition: 'center right',
+      backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat'
     }}>
 
@@ -50,8 +50,7 @@ const HomeHero = () => {
           <div className="text-center lg:text-left relative">
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               Find and book
-              <span className="text-orange-600"> the best Pet Care services</span> 
-              near you
+              <span className="text-orange-600"> the best Pet Care services</span> near you
             </h1>
             
             <p className="text-xl text-gray-600 mb-8">
