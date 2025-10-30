@@ -534,8 +534,34 @@ type Employee struct {
 
 func getUserByFirebaseUID(db *sql.DB, firebaseUID string) (*User, error) {
 	var user User
-	query := `SELECT id, firebase_uid, email, role FROM users WHERE firebase_uid = $1`
-	err := db.QueryRow(query, firebaseUID).Scan(&user.ID, &user.FirebaseUID, &user.Email, &user.Role)
+	query := `
+		SELECT id, firebase_uid, email, first_name, last_name, role, gender,
+			   date_of_birth, phone, address, apartment_number, country, state, city, 
+			   postal_code, timezone, avatar_url, emergency_contact, emergency_contact_name,
+			   emergency_contact_phone, emergency_contact_relation, vet_contact, vet_name,
+			   vet_clinic, vet_phone, notification_methods, notifications_push, 
+			   notifications_sms, notifications_email, marketing_opt_in, created_at, updated_at
+		FROM users WHERE firebase_uid = $1`
+	
+	var firstName, lastName, gender, phone, address, apartmentNumber sql.NullString
+	var country, state, city, postalCode, timezone, avatarURL sql.NullString
+	var emergencyContact, emergencyContactName, emergencyContactPhone, emergencyContactRelation sql.NullString
+	var vetContact, vetName, vetClinic, vetPhone sql.NullString
+	var notificationMethods sql.NullString
+	var notificationsPush, notificationsSMS, notificationsEmail, marketingOptIn sql.NullBool
+	var dateOfBirth sql.NullTime
+	var createdAt, updatedAt sql.NullTime
+
+	err := db.QueryRow(query, firebaseUID).Scan(
+		&user.ID, &user.FirebaseUID, &user.Email, &firstName, &lastName,
+		&user.Role, &gender, &dateOfBirth, &phone, &address,
+		&apartmentNumber, &country, &state, &city, &postalCode,
+		&timezone, &avatarURL, &emergencyContact, &emergencyContactName,
+		&emergencyContactPhone, &emergencyContactRelation, &vetContact,
+		&vetName, &vetClinic, &vetPhone, &notificationMethods,
+		&notificationsPush, &notificationsSMS, &notificationsEmail,
+		&marketingOptIn, &createdAt, &updatedAt,
+	)
 	if err != nil {
 		return nil, err
 	}
