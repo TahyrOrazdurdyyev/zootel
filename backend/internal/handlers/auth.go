@@ -123,12 +123,15 @@ func (h *AuthHandler) GetMe(c *gin.Context) {
 	fmt.Printf("[HANDLER] Firebase UID from context: %s\n", firebaseUID)
 
 	// Get user from database
+	fmt.Printf("[HANDLER] Calling userService.GetUserByFirebaseUID...\n")
 	user, err := h.userService.GetUserByFirebaseUID(firebaseUID.(string))
 	if err != nil {
+		fmt.Printf("[HANDLER] Error from userService: %v\n", err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
+	fmt.Printf("[HANDLER] User retrieved successfully: %s\n", user.Email)
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    user,
