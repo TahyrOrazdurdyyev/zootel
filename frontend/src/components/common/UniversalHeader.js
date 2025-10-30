@@ -242,7 +242,7 @@ const UniversalHeader = () => {
           )}
 
           {/* Right side */}
-          <div className="flex items-center space-x-4 ml-auto">
+          <div className="flex items-center space-x-4 ml-auto mr-4">
             
             {/* Icons (only for authenticated users on public pages) */}
             {shouldShowFullMenu() && user && (
