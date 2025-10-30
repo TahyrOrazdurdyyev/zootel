@@ -114,9 +114,9 @@ const UniversalHeader = () => {
         <div className="flex justify-between items-center h-16">
           
           {/* Logo - Always visible */}
-          <div className="flex items-center">
+          <div className="flex items-center flex-shrink-0">
             <Link to="/" className="flex items-center">
-              <img src="/images/icons/Logo_orange.png" alt="Zootel" className="h-8 w-auto" />
+              <img src="/images/icons/Logo_orange.png" alt="Zootel" className="h-8 w-auto flex-shrink-0" style={{minWidth: '32px'}} />
             </Link>
           </div>
 
