@@ -17,7 +17,7 @@ const LocationAnalytics = () => {
   const fetchLocationAnalytics = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/analytics/location/overview', {
+      const response = await fetch('/api/v1/admin/analytics/location/overview', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -41,7 +41,7 @@ const LocationAnalytics = () => {
       if (selectedRole) params.append('role', selectedRole);
       params.append('limit', '100');
 
-      const response = await fetch(`/api/admin/analytics/location/detailed?${params}`, {
+      const response = await fetch(`/api/v1/admin/analytics/location/detailed?${params}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -63,7 +63,7 @@ const LocationAnalytics = () => {
       params.append('group_by', 'week');
       if (selectedCountry) params.append('country', selectedCountry);
 
-      const response = await fetch(`/api/admin/analytics/location/trends?${params}`, {
+      const response = await fetch(`/api/v1/admin/analytics/location/trends?${params}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

@@ -107,8 +107,14 @@ const AnalyticsPage = () => {
       case 'bookings':
         return <BookingAnalyticsTab timeframe={timeframe} />;
       
-      case 'geography':
-        return <GeographyAnalyticsTab timeframe={timeframe} />;
+      case 'cohort':
+        return <CohortAnalyticsTab timeframe={timeframe} />;
+      
+      case 'segments':
+        return <SegmentsAnalyticsTab timeframe={timeframe} />;
+      
+      case 'funnel':
+        return <FunnelAnalyticsTab timeframe={timeframe} />;
       
       default:
         return <AnalyticsDashboard isAdmin={true} />;
@@ -170,30 +176,47 @@ const AnalyticsPage = () => {
 // Recent Activity Widget
 const RecentActivityWidget = () => {
   const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Mock data - replace with API call
-    setActivities([
-      { id: 1, type: 'user_registration', message: 'New user registered', time: '5 min ago' },
-      { id: 2, type: 'company_created', message: 'New company "Pet Care Pro" created', time: '15 min ago' },
-      { id: 3, type: 'booking_completed', message: 'Booking completed for $2,500', time: '30 min ago' },
-      { id: 4, type: 'payment_processed', message: 'Payment processed $1,200', time: '1 hour ago' },
-    ]);
+    fetchRecentActivity();
   }, []);
+
+  const fetchRecentActivity = async () => {
+    try {
+      const response = await fetch('/api/v1/admin/analytics/recent-activity');
+      if (response.ok) {
+        const data = await response.json();
+        setActivities(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching recent activity:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="card">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
       <div className="space-y-3">
-        {activities.map((activity) => (
-          <div key={activity.id} className="flex items-start space-x-3">
-            <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-            <div className="flex-1">
-              <p className="text-sm text-gray-700">{activity.message}</p>
-              <p className="text-xs text-gray-500">{activity.time}</p>
-            </div>
+        {loading ? (
+          <div className="text-center py-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-600 mx-auto"></div>
           </div>
-        ))}
+        ) : activities.length > 0 ? (
+          activities.map((activity) => (
+            <div key={activity.id} className="flex items-start space-x-3">
+              <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+              <div className="flex-1">
+                <p className="text-sm text-gray-700">{activity.message}</p>
+                <p className="text-xs text-gray-500">{activity.time}</p>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-gray-500 text-center py-4">No recent activity</p>
+        )}
       </div>
     </div>
   );
@@ -290,6 +313,65 @@ const GeographyAnalyticsTab = ({ timeframe }) => (
     <h3 className="text-lg font-semibold text-gray-900 mb-4">Geographic Analytics</h3>
     <p className="text-gray-600">Regional distribution for {timeframe}</p>
     {/* Add geography-specific charts and maps here */}
+  </div>
+);
+
+// Placeholder components for missing analytics tabs
+const CohortAnalyticsTab = ({ timeframe }) => (
+  <div className="bg-white rounded-lg shadow p-6">
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">Cohort Analysis</h3>
+    <div className="text-center py-12">
+      <p className="text-gray-500">Cohort analysis coming soon...</p>
+      <p className="text-sm text-gray-400 mt-2">Track user retention over time</p>
+    </div>
+  </div>
+);
+
+const SegmentsAnalyticsTab = ({ timeframe }) => (
+  <div className="bg-white rounded-lg shadow p-6">
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">User Segments</h3>
+    <div className="text-center py-12">
+      <p className="text-gray-500">User segmentation coming soon...</p>
+      <p className="text-sm text-gray-400 mt-2">Analyze user behavior patterns</p>
+    </div>
+  </div>
+);
+
+const FunnelAnalyticsTab = ({ timeframe }) => (
+  <div className="bg-white rounded-lg shadow p-6">
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">Conversion Funnel</h3>
+    <div className="text-center py-12">
+      <p className="text-gray-500">Funnel analysis coming soon...</p>
+      <p className="text-sm text-gray-400 mt-2">Track conversion rates through user journey</p>
+    </div>
+  </div>
+);
+
+// Placeholder for missing analytics tabs
+const UserAnalyticsTab = ({ timeframe }) => (
+  <div className="bg-white rounded-lg shadow p-6">
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">User Analytics</h3>
+    <div className="text-center py-12">
+      <p className="text-gray-500">User analytics coming soon...</p>
+    </div>
+  </div>
+);
+
+const CompanyAnalyticsTab = ({ timeframe }) => (
+  <div className="bg-white rounded-lg shadow p-6">
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">Company Analytics</h3>
+    <div className="text-center py-12">
+      <p className="text-gray-500">Company analytics coming soon...</p>
+    </div>
+  </div>
+);
+
+const RevenueAnalyticsTab = ({ timeframe }) => (
+  <div className="bg-white rounded-lg shadow p-6">
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Analytics</h3>
+    <div className="text-center py-12">
+      <p className="text-gray-500">Revenue analytics coming soon...</p>
+    </div>
   </div>
 );
 

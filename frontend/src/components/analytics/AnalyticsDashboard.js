@@ -64,20 +64,20 @@ const AnalyticsDashboard = ({
       if (isAdmin) {
         // Global analytics for admin
         endpoints.push(
-          fetch('/api/admin/analytics/global-dashboard'),
-          fetch(`/api/admin/analytics/revenue-trends?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/admin/analytics/user-registration-trends?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/admin/analytics/booking-trends?days=${getDaysFromRange(dateRange)}`),
-          fetch('/api/admin/analytics/top-companies?limit=10'),
-          fetch('/api/admin/analytics/service-category-performance')
+          fetch('/api/v1/admin/analytics/global-dashboard'),
+          fetch(`/api/v1/admin/analytics/revenue-trends?days=${getDaysFromRange(dateRange)}`),
+          fetch(`/api/v1/admin/analytics/user-registration-trends?days=${getDaysFromRange(dateRange)}`),
+          fetch(`/api/v1/admin/analytics/booking-trends?days=${getDaysFromRange(dateRange)}`),
+          fetch('/api/v1/admin/analytics/top-companies?limit=10'),
+          fetch('/api/v1/admin/analytics/service-category-performance')
         );
       } else if (companyId) {
         // Company-specific analytics
         endpoints.push(
-          fetch(`/api/companies/${companyId}/analytics/dashboard`),
-          fetch(`/api/companies/${companyId}/analytics/revenue?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/companies/${companyId}/analytics/bookings?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/companies/${companyId}/analytics/customers?days=${getDaysFromRange(dateRange)}`)
+          fetch(`/api/v1/companies/${companyId}/analytics/dashboard`),
+          fetch(`/api/v1/companies/${companyId}/analytics/revenue?days=${getDaysFromRange(dateRange)}`),
+          fetch(`/api/v1/companies/${companyId}/analytics/bookings?days=${getDaysFromRange(dateRange)}`),
+          fetch(`/api/v1/companies/${companyId}/analytics/customers?days=${getDaysFromRange(dateRange)}`)
         );
       }
 
