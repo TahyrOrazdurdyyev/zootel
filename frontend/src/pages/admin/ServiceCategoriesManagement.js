@@ -21,6 +21,8 @@ const ServiceCategoriesManagement = () => {
     icon: '',
     background_image: ''
   });
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
 
   useEffect(() => {
     fetchCategories();
@@ -29,7 +31,7 @@ const ServiceCategoriesManagement = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await apiCall('/admin/service-categories', 'GET');
+      const response = await apiCall('/api/v1/admin/service-categories', 'GET');
       if (response.success) {
         setCategories(response.data || []);
       }
@@ -46,11 +48,11 @@ const ServiceCategoriesManagement = () => {
     try {
       if (editingCategory) {
         // Update existing category
-        await apiCall(`/admin/service-categories/${editingCategory.id}`, 'PUT', formData);
+        await apiCall(`/api/v1/admin/service-categories/${editingCategory.id}`, 'PUT', formData);
         toast.success('Category updated successfully');
       } else {
         // Create new category
-        await apiCall('/admin/service-categories', 'POST', formData);
+        await apiCall('/api/v1/admin/service-categories', 'POST', formData);
         toast.success('Category created successfully');
       }
       
@@ -62,6 +64,7 @@ const ServiceCategoriesManagement = () => {
         icon: '',
         background_image: ''
       });
+      setUploadedFile(null);
       fetchCategories();
     } catch (error) {
       console.error('Error saving category:', error);
@@ -77,6 +80,15 @@ const ServiceCategoriesManagement = () => {
       icon: category.icon || '',
       background_image: category.background_image || ''
     });
+    // If category has existing image, show it as uploaded
+    if (category.background_image) {
+      setUploadedFile({
+        url: category.background_image,
+        name: 'existing-image'
+      });
+    } else {
+      setUploadedFile(null);
+    }
     setShowModal(true);
   };
 
@@ -86,7 +98,7 @@ const ServiceCategoriesManagement = () => {
     }
 
     try {
-      await apiCall(`/admin/service-categories/${id}`, 'DELETE');
+      await apiCall(`/api/v1/admin/service-categories/${id}`, 'DELETE');
       toast.success('Category deleted successfully');
       fetchCategories();
     } catch (error) {
@@ -101,6 +113,35 @@ const ServiceCategoriesManagement = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+
+      const uploadResponse = await apiCall('/api/v1/uploads/gallery', 'POST', uploadFormData);
+
+      if (uploadResponse.success && uploadResponse.data.files && uploadResponse.data.files.length > 0) {
+        const uploadedFileData = uploadResponse.data.files[0];
+        setUploadedFile(uploadedFileData);
+        setFormData(prev => ({
+          ...prev,
+          background_image: uploadedFileData.url
+        }));
+      } else {
+        alert('Failed to upload image. Please try again.');
+      }
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   if (loading) {
@@ -256,19 +297,33 @@ const ServiceCategoriesManagement = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Background Image URL
+                  Background Image
                 </label>
-                <input
-                  type="url"
-                  name="background_image"
-                  value={formData.background_image}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="e.g., /images/grooming.png"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Use format: /images/categoryname.png
-                </p>
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    disabled={isUploading}
+                  />
+                  {isUploading && (
+                    <p className="text-sm text-blue-600">Uploading image...</p>
+                  )}
+                  {uploadedFile && (
+                    <div className="flex items-center space-x-2">
+                      <img 
+                        src={uploadedFile.url} 
+                        alt="Preview" 
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                      <span className="text-sm text-green-600">✓ Image uploaded</span>
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500">
+                    Upload an image file (JPG, PNG, GIF). Max size: 5MB
+                  </p>
+                </div>
               </div>
 
               <div className="flex justify-end space-x-3 pt-4">
@@ -278,6 +333,7 @@ const ServiceCategoriesManagement = () => {
                     setShowModal(false);
                     setEditingCategory(null);
                     setFormData({ name: '', description: '', icon: '', background_image: '' });
+                    setUploadedFile(null);
                   }}
                   className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
                 >
