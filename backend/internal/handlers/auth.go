@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -109,12 +110,17 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 func (h *AuthHandler) GetMe(c *gin.Context) {
+	fmt.Printf("[HANDLER] GetMe called from %s\n", c.ClientIP())
+	
 	// Get user data from Firebase UID in context (set by AuthMiddleware)
 	firebaseUID, exists := c.Get("firebase_uid")
 	if !exists {
+		fmt.Printf("[HANDLER] No firebase_uid in context\n")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
 		return
 	}
+	
+	fmt.Printf("[HANDLER] Firebase UID from context: %s\n", firebaseUID)
 
 	// Get user from database
 	user, err := h.userService.GetUserByFirebaseUID(firebaseUID.(string))
