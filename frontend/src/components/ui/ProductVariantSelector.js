@@ -218,7 +218,7 @@ const ProductVariantSelector = ({
                   <span className="text-sm line-through text-gray-500">
                     {formatPrice(product.original_price)}
                   </span>
-                  <span className="text-sm font-medium text-red-600">
+                  <span className="text-sm font-medium text-orange-600">
                     -{getDiscountPercentage(product.original_price, getVariantPrice(selectedVariant))}%
                   </span>
                 </>
@@ -228,7 +228,7 @@ const ProductVariantSelector = ({
 
           <div className="flex items-center justify-between text-sm">
             <span className={`font-medium ${
-              getVariantStock(selectedVariant) > 0 ? 'text-green-600' : 'text-red-600'
+              getVariantStock(selectedVariant) > 0 ? 'text-green-600' : 'text-orange-600'
             }`}>
               {getVariantStock(selectedVariant) > 0 
                 ? `${getVariantStock(selectedVariant)} in stock`

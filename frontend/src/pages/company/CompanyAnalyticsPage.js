@@ -200,9 +200,9 @@ const CompanyAnalyticsPage = () => {
                     {metrics.bookingsTrend >= 0 ? (
                       <ArrowTrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
                     ) : (
-                      <ArrowTrendingUpIcon className="h-4 w-4 text-red-500 mr-1" />
+                      <ArrowTrendingUpIcon className="h-4 w-4 text-orange-500 mr-1" />
                     )}
-                    <span className={`text-sm ${metrics.bookingsTrend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <span className={`text-sm ${metrics.bookingsTrend >= 0 ? 'text-green-600' : 'text-orange-600'}`}>
                       {Math.abs(metrics.bookingsTrend)}% vs last period
                     </span>
                   </div>
@@ -224,9 +224,9 @@ const CompanyAnalyticsPage = () => {
                     {metrics.revenueTrend >= 0 ? (
                       <ArrowTrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
                     ) : (
-                      <ArrowTrendingUpIcon className="h-4 w-4 text-red-500 mr-1" />
+                      <ArrowTrendingUpIcon className="h-4 w-4 text-orange-500 mr-1" />
                     )}
-                    <span className={`text-sm ${metrics.revenueTrend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <span className={`text-sm ${metrics.revenueTrend >= 0 ? 'text-green-600' : 'text-orange-600'}`}>
                       {Math.abs(metrics.revenueTrend)}% vs last period
                     </span>
                   </div>
@@ -266,7 +266,7 @@ const CompanyAnalyticsPage = () => {
                     onClick={() => setActiveView('overview')}
                     className={`py-2 px-1 border-b-2 font-medium text-sm ${
                       activeView === 'overview'
-                        ? 'border-red-500 text-red-600'
+                        ? 'border-red-500 text-orange-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >
@@ -276,7 +276,7 @@ const CompanyAnalyticsPage = () => {
                     onClick={() => setActiveView('bookings')}
                     className={`py-2 px-1 border-b-2 font-medium text-sm ${
                       activeView === 'bookings'
-                        ? 'border-red-500 text-red-600'
+                        ? 'border-red-500 text-orange-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >
@@ -286,7 +286,7 @@ const CompanyAnalyticsPage = () => {
                     onClick={() => setActiveView('customers')}
                     className={`py-2 px-1 border-b-2 font-medium text-sm ${
                       activeView === 'customers'
-                        ? 'border-red-500 text-red-600'
+                        ? 'border-red-500 text-orange-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >
@@ -672,7 +672,7 @@ const BookingAnalyticsView = ({ companyId, dateRange }) => {
           </div>
           <div className="bg-red-50 p-4 rounded-lg">
             <h4 className="text-sm font-medium text-gray-600">Cancelled</h4>
-            <p className="text-2xl font-bold text-red-600">{analyticsData?.cancellations?.cancelled_bookings || 0}</p>
+            <p className="text-2xl font-bold text-orange-600">{analyticsData?.cancellations?.cancelled_bookings || 0}</p>
           </div>
           <div className="bg-yellow-50 p-4 rounded-lg">
             <h4 className="text-sm font-medium text-gray-600">Cancellation %</h4>
@@ -811,7 +811,7 @@ const CustomerAnalyticsView = ({ companyId, dateRange }) => {
         {/* Customer Value Distribution */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-red-600">{customerData?.segmentation?.high_value_customers || 0}</div>
+            <div className="text-2xl font-bold text-orange-600">{customerData?.segmentation?.high_value_customers || 0}</div>
                                 <div className="text-sm text-gray-600">High value (10k+)</div>
           </div>
           <div className="text-center">
@@ -836,7 +836,7 @@ const CustomerAnalyticsView = ({ companyId, dateRange }) => {
           </div>
           <div className="bg-red-50 p-4 rounded-lg">
                             <h4 className="text-sm font-medium text-gray-600">Refunds</h4>
-            <p className="text-2xl font-bold text-red-600">{customerData?.refunds?.refunded_payments || 0}</p>
+            <p className="text-2xl font-bold text-orange-600">{customerData?.refunds?.refunded_payments || 0}</p>
           </div>
           <div className="bg-yellow-50 p-4 rounded-lg">
                             <h4 className="text-sm font-medium text-gray-600">Refund %</h4>

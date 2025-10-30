@@ -137,7 +137,7 @@ const AIPromptsCustomization = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
           <p className="mt-2 text-gray-600">Loading AI agents...</p>
         </div>
       </div>
@@ -150,7 +150,7 @@ const AIPromptsCustomization = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-            <SparklesIcon className="h-8 w-8 mr-3 text-red-600" />
+            <SparklesIcon className="h-8 w-8 mr-3 text-orange-600" />
             AI Prompts Customization
           </h1>
           <p className="mt-2 text-sm text-gray-700">
@@ -202,14 +202,14 @@ const AIPromptsCustomization = () => {
                   <div className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center">
-                        <CodeBracketIcon className="h-5 w-5 text-red-600 mr-2" />
+                        <CodeBracketIcon className="h-5 w-5 text-orange-600 mr-2" />
                         <span className="font-medium text-gray-900">System Prompt</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         {getSourceBadge(agent.SystemPrompt.Source)}
                         <button
                           onClick={() => handleEditPrompt(agent, 'system')}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-orange-600 hover:text-red-800"
                           title="Edit"
                         >
                           <PencilIcon className="h-4 w-4" />
@@ -217,7 +217,7 @@ const AIPromptsCustomization = () => {
                         {agent.SystemPrompt.Source === 'company' && (
                           <button
                             onClick={() => handleDeleteCustomPrompt(agent.AgentKey, 'system')}
-                            className="text-gray-400 hover:text-red-600"
+                            className="text-gray-400 hover:text-orange-600"
                             title="Delete custom prompt"
                           >
                             <TrashIcon className="h-4 w-4" />
@@ -248,14 +248,14 @@ const AIPromptsCustomization = () => {
                   <div className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center">
-                        <CodeBracketIcon className="h-5 w-5 text-red-600 mr-2" />
+                        <CodeBracketIcon className="h-5 w-5 text-orange-600 mr-2" />
                         <span className="font-medium text-gray-900">User Prompt</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         {getSourceBadge(agent.UserPrompt.Source)}
                         <button
                           onClick={() => handleEditPrompt(agent, 'user')}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-orange-600 hover:text-red-800"
                           title="Edit"
                         >
                           <PencilIcon className="h-4 w-4" />
@@ -263,7 +263,7 @@ const AIPromptsCustomization = () => {
                         {agent.UserPrompt.Source === 'company' && (
                           <button
                             onClick={() => handleDeleteCustomPrompt(agent.AgentKey, 'user')}
-                            className="text-gray-400 hover:text-red-600"
+                            className="text-gray-400 hover:text-orange-600"
                             title="Delete custom prompt"
                           >
                             <TrashIcon className="h-4 w-4" />
@@ -382,7 +382,7 @@ const AIPromptsCustomization = () => {
                   </button>
                   <button
                     onClick={handleSavePrompt}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
                     disabled={!editingPrompt.content.trim()}
                   >
                     Save

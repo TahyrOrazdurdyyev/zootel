@@ -576,7 +576,7 @@ const ProfilePage = () => {
               </h4>
               <button
                 onClick={() => deletePet(pet.id)}
-                className="text-red-500 hover:text-red-700"
+                className="text-orange-500 hover:text-red-700"
               >
                 <XMarkIcon className="w-5 h-5" />
               </button>

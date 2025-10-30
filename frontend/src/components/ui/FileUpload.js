@@ -369,7 +369,7 @@ const FileUpload = ({
                   
                   <button
                     onClick={() => removeFile(file.id)}
-                    className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600"
+                    className="p-2 bg-red-500 text-white rounded-full hover:bg-orange-600"
                     title="Delete"
                   >
                     <TrashIcon className="w-4 h-4" />

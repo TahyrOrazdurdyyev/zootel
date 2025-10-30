@@ -97,7 +97,7 @@ const SearchPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
           <p className="mt-2 text-gray-600">Searching for results...</p>
         </div>
       </div>
@@ -262,7 +262,7 @@ const SearchPage = () => {
                   setFilters({ category: '', location: '', priceRange: '', rating: '', availability: '' });
                   navigate('/search');
                 }}
-                className="w-full text-red-600 hover:text-red-700 text-sm font-medium"
+                className="w-full text-orange-600 hover:text-red-700 text-sm font-medium"
               >
                 Clear Filters
               </button>
@@ -304,7 +304,7 @@ const SearchPage = () => {
                         <HeartIcon className="h-5 w-5 text-gray-600" />
                       </button>
                       {result.originalPrice && (
-                        <div className="absolute top-4 left-4 bg-red-600 text-white px-2 py-1 rounded text-sm font-bold">
+                        <div className="absolute top-4 left-4 bg-orange-600 text-white px-2 py-1 rounded text-sm font-bold">
                           -{Math.round((1 - result.price / result.originalPrice) * 100)}%
                         </div>
                       )}
@@ -369,7 +369,7 @@ const SearchPage = () => {
                             </span>
                           )}
                         </div>
-                        <button className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200">
+                        <button className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition-colors duration-200">
                           {result.type === 'service' ? 'Book Now' : 'Add to Cart'}
                         </button>
                       </div>

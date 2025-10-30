@@ -269,7 +269,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                   }`}
                   placeholder="e.g., Dog Grooming"
                 />
-                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                {errors.name && <p className="text-orange-500 text-xs mt-1">{errors.name}</p>}
               </div>
 
               <div>
@@ -326,7 +326,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                     </option>
                   ))}
                 </select>
-                {errors.category_id && <p className="text-red-500 text-xs mt-1">{errors.category_id}</p>}
+                {errors.category_id && <p className="text-orange-500 text-xs mt-1">{errors.category_id}</p>}
               </div>
 
               {/* Price */}
@@ -345,7 +345,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                   }`}
                   placeholder="0.00"
                 />
-                {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
+                {errors.price && <p className="text-orange-500 text-xs mt-1">{errors.price}</p>}
               </div>
 
               {/* Discount Section */}
@@ -394,7 +394,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                         }`}
                         placeholder="0.00"
                       />
-                      {errors.originalPrice && <p className="text-red-500 text-xs mt-1">{errors.originalPrice}</p>}
+                      {errors.originalPrice && <p className="text-orange-500 text-xs mt-1">{errors.originalPrice}</p>}
                     </div>
 
                     {/* Discount Percentage */}
@@ -422,7 +422,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                         }`}
                         placeholder="e.g., 30"
                       />
-                      {errors.discountPercentage && <p className="text-red-500 text-xs mt-1">{errors.discountPercentage}</p>}
+                      {errors.discountPercentage && <p className="text-orange-500 text-xs mt-1">{errors.discountPercentage}</p>}
                     </div>
 
                     {/* Sale Start Date */}
@@ -497,7 +497,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                     </label>
                   ))}
                 </div>
-                {errors.pet_types && <p className="text-red-500 text-xs mt-1">{errors.pet_types}</p>}
+                {errors.pet_types && <p className="text-orange-500 text-xs mt-1">{errors.pet_types}</p>}
               </div>
 
               <div>
@@ -517,7 +517,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                     </label>
                   ))}
                 </div>
-                {errors.available_days && <p className="text-red-500 text-xs mt-1">{errors.available_days}</p>}
+                {errors.available_days && <p className="text-orange-500 text-xs mt-1">{errors.available_days}</p>}
               </div>
 
               <div className="grid grid-cols-2 gap-4">

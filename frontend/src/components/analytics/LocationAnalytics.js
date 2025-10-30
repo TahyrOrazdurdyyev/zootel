@@ -236,7 +236,7 @@ const LocationAnalytics = () => {
             
             <div className="bg-white shadow rounded-lg p-6">
               <div className="flex items-center">
-                <MapPinIcon className="h-8 w-8 text-red-600" />
+                <MapPinIcon className="h-8 w-8 text-orange-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Cities</p>
                   <p className="text-2xl font-bold text-gray-900">{locationData.total_stats?.unique_cities || 0}</p>

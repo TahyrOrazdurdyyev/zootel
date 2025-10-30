@@ -127,7 +127,7 @@ const UniversalHeader = () => {
               <div className="relative" ref={servicesMenuRef}>
                 <button
                   onClick={() => setShowServicesMenu(!showServicesMenu)}
-                  className="flex items-center text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium"
+                  className="flex items-center text-gray-700 hover:text-orange-600 px-3 py-2 text-sm font-medium"
                 >
                   Services
                   <ChevronDownIcon className="ml-1 h-4 w-4" />
@@ -140,7 +140,7 @@ const UniversalHeader = () => {
                         <Link
                           key={category.id}
                           to={`/services/${category.id}`}
-                          className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded"
+                          className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded"
                           onClick={() => setShowServicesMenu(false)}
                         >
                           <span className="mr-2">{category.icon}</span>
@@ -151,7 +151,7 @@ const UniversalHeader = () => {
                     <div className="border-t border-gray-100 mt-2 pt-2">
                       <Link
                         to="/services"
-                        className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium"
+                        className="block px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 font-medium"
                         onClick={() => setShowServicesMenu(false)}
                       >
                         All Services →
@@ -164,7 +164,7 @@ const UniversalHeader = () => {
               {/* Shop */}
               <Link
                 to="/shop"
-                className="text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium"
+                className="text-gray-700 hover:text-orange-600 px-3 py-2 text-sm font-medium"
               >
                 Shop
               </Link>
@@ -172,7 +172,7 @@ const UniversalHeader = () => {
               {/* Companies */}
               <Link
                 to="/companies"
-                className="text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium"
+                className="text-gray-700 hover:text-orange-600 px-3 py-2 text-sm font-medium"
               >
                 Companies
               </Link>
@@ -180,7 +180,7 @@ const UniversalHeader = () => {
               {/* For Business */}
               <Link
                 to="/business"
-                className="text-red-600 hover:text-red-700 px-3 py-2 text-sm font-medium border border-red-600 rounded-lg hover:bg-red-50"
+                className="text-orange-600 hover:text-red-700 px-3 py-2 text-sm font-medium border border-orange-600 rounded-lg hover:bg-orange-50"
               >
                 For Business
               </Link>
@@ -209,7 +209,7 @@ const UniversalHeader = () => {
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-red-600 text-white rounded-r-lg hover:bg-red-700"
+                    className="px-4 py-2 bg-orange-600 text-white rounded-r-lg hover:bg-orange-700"
                   >
                     <MagnifyingGlassIcon className="h-5 w-5" />
                   </button>
@@ -248,25 +248,25 @@ const UniversalHeader = () => {
             {shouldShowFullMenu() && user && (
               <>
                 {/* Cart */}
-                <Link to="/cart" className="relative p-2 text-gray-700 hover:text-red-600">
+                <Link to="/cart" className="relative p-2 text-gray-700 hover:text-orange-600">
                   <ShoppingCartIcon className="h-6 w-6" />
                   {cartItemsCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {cartItemsCount}
                     </span>
                   )}
                 </Link>
 
                 {/* Notifications */}
-                <button className="relative p-2 text-gray-700 hover:text-red-600">
+                <button className="relative p-2 text-gray-700 hover:text-orange-600">
                   <BellIcon className="h-6 w-6" />
-                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     3
                   </span>
                 </button>
 
                 {/* Chat */}
-                <Link to="/chat" className="p-2 text-gray-700 hover:text-red-600">
+                <Link to="/chat" className="p-2 text-gray-700 hover:text-orange-600">
                   <ChatBubbleLeftIcon className="h-6 w-6" />
                 </Link>
               </>
@@ -396,7 +396,7 @@ const UniversalHeader = () => {
 
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      className="block w-full text-left px-4 py-2 text-sm text-orange-600 hover:bg-orange-50"
                     >
                       Logout
                     </button>
@@ -409,13 +409,13 @@ const UniversalHeader = () => {
                 <div className="flex items-center space-x-3">
                   <Link
                     to="/login"
-                    className="text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium"
+                    className="text-gray-700 hover:text-orange-600 px-3 py-2 text-sm font-medium"
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
-                    className="bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium"
+                    className="bg-orange-600 text-white hover:bg-orange-700 px-4 py-2 rounded-lg text-sm font-medium"
                   >
                     Register
                   </Link>
@@ -427,7 +427,7 @@ const UniversalHeader = () => {
             {shouldShowFullMenu() && (
               <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="lg:hidden p-2 text-gray-700 hover:text-red-600"
+                className="lg:hidden p-2 text-gray-700 hover:text-orange-600"
               >
                 {showMobileMenu ? (
                   <XMarkIcon className="h-6 w-6" />
@@ -445,28 +445,28 @@ const UniversalHeader = () => {
             <div className="space-y-2">
               <Link
                 to="/services"
-                className="block px-3 py-2 text-gray-700 hover:text-red-600"
+                className="block px-3 py-2 text-gray-700 hover:text-orange-600"
                 onClick={() => setShowMobileMenu(false)}
               >
                 Services
               </Link>
               <Link
                 to="/shop"
-                className="block px-3 py-2 text-gray-700 hover:text-red-600"
+                className="block px-3 py-2 text-gray-700 hover:text-orange-600"
                 onClick={() => setShowMobileMenu(false)}
               >
                 Shop
               </Link>
               <Link
                 to="/companies"
-                className="block px-3 py-2 text-gray-700 hover:text-red-600"
+                className="block px-3 py-2 text-gray-700 hover:text-orange-600"
                 onClick={() => setShowMobileMenu(false)}
               >
                 Companies
               </Link>
               <Link
                 to="/business"
-                className="block px-3 py-2 text-red-600 font-medium"
+                className="block px-3 py-2 text-orange-600 font-medium"
                 onClick={() => setShowMobileMenu(false)}
               >
                 For Business
@@ -494,7 +494,7 @@ const UniversalHeader = () => {
                     />
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
                     >
                       Search
                     </button>

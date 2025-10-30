@@ -95,9 +95,9 @@ const CryptoPaymentDisplay = ({
       case 'confirmed':
         return 'text-green-600 bg-green-100';
       case 'expired':
-        return 'text-red-600 bg-red-100';
+        return 'text-orange-600 bg-red-100';
       case 'failed':
-        return 'text-red-600 bg-red-100';
+        return 'text-orange-600 bg-red-100';
       default:
         return 'text-gray-600 bg-gray-100';
     }
@@ -132,7 +132,7 @@ const CryptoPaymentDisplay = ({
     return (
       <div className={`${className}`}>
         <div className="text-center py-8">
-          <ExclamationTriangleIcon className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <ExclamationTriangleIcon className="h-12 w-12 text-orange-500 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Error</h3>
           <p className="text-gray-600">{error}</p>
           <button

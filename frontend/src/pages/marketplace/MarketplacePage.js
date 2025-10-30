@@ -136,7 +136,7 @@ const MarketplacePage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-red-500 text-lg mb-4">{error}</div>
+          <div className="text-orange-500 text-lg mb-4">{error}</div>
           <button
             onClick={fetchMarketplaceData}
             className="btn-primary"
@@ -344,7 +344,7 @@ const MarketplacePage = () => {
                       className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-sm hover:shadow-md"
                     >
                       {favorites.has(item.id) ? (
-                        <HeartIconSolid className="h-5 w-5 text-red-500" />
+                        <HeartIconSolid className="h-5 w-5 text-orange-500" />
                       ) : (
                         <HeartIcon className="h-5 w-5 text-gray-400" />
                       )}

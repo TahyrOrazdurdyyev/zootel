@@ -41,7 +41,7 @@ const AdminLayout = ({ children }) => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors duration-150"
+                  className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors duration-150"
                 >
                   <Icon className="h-5 w-5 mr-3" />
                   {item.name}

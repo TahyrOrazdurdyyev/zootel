@@ -185,7 +185,7 @@ const LocationSelect = ({
       <div>
         {showLabels && (
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Country {required && <span className="text-red-500">*</span>}
+            Country {required && <span className="text-orange-500">*</span>}
           </label>
         )}
         <Combobox value={selectedCountry} onChange={setSelectedCountry}>
@@ -258,7 +258,7 @@ const LocationSelect = ({
         <div>
           {showLabels && (
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Region/State {required && <span className="text-red-500">*</span>}
+              Region/State {required && <span className="text-orange-500">*</span>}
             </label>
           )}
           <Combobox value={selectedState} onChange={setSelectedState} disabled={loadingStates}>
@@ -337,7 +337,7 @@ const LocationSelect = ({
         <div>
           {showLabels && (
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              City {required && <span className="text-red-500">*</span>}
+              City {required && <span className="text-orange-500">*</span>}
             </label>
           )}
           <Combobox value={selectedCity} onChange={setSelectedCity} disabled={loadingCities}>

@@ -124,7 +124,7 @@ const PhoneAuth = ({ onSuccess, onBack }) => {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg flex items-center">
+            <div className="bg-red-50 border border-red-200 text-orange-600 px-4 py-3 rounded-lg flex items-center">
               <XCircleIcon className="h-5 w-5 mr-2" />
               {error}
             </div>
@@ -180,7 +180,7 @@ const PhoneAuth = ({ onSuccess, onBack }) => {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg flex items-center">
+            <div className="bg-red-50 border border-red-200 text-orange-600 px-4 py-3 rounded-lg flex items-center">
               <XCircleIcon className="h-5 w-5 mr-2" />
               {error}
             </div>

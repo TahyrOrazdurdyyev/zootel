@@ -75,7 +75,7 @@ const CartPage = () => {
                   </h2>
                   <button
                     onClick={clearCart}
-                    className="text-red-500 hover:text-red-700 text-sm font-medium"
+                    className="text-orange-500 hover:text-red-700 text-sm font-medium"
                   >
                     Clear Cart
                   </button>
@@ -148,7 +148,7 @@ const CartPage = () => {
                       {/* Remove Button */}
                       <button
                         onClick={() => removeItem(item.id, item.type)}
-                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full"
+                        className="p-2 text-orange-500 hover:text-red-700 hover:bg-orange-50 rounded-full"
                         title="Remove from cart"
                       >
                         <TrashIcon className="h-5 w-5" />

@@ -413,7 +413,7 @@ const BookingCalendar = ({
                           {['pending', 'confirmed'].includes(selectedBooking.status) && (
                             <button
                               onClick={() => handleBookingUpdate(selectedBooking.id, { status: 'cancelled' })}
-                              className="flex-1 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 flex items-center justify-center space-x-2"
+                              className="flex-1 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 flex items-center justify-center space-x-2"
                             >
                               <XMarkIcon className="w-4 h-4" />
                               <span>Cancel</span>

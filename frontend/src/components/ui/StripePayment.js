@@ -140,7 +140,7 @@ const PaymentForm = ({
           />
         </div>
         {cardError && (
-          <div className="flex items-center space-x-2 text-red-600 text-sm">
+          <div className="flex items-center space-x-2 text-orange-600 text-sm">
             <XCircleIcon className="w-4 h-4" />
             <span>{cardError}</span>
           </div>

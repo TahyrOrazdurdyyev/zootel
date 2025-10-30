@@ -94,7 +94,7 @@ const CompanyDashboard = () => {
   };
 
   const getTrendColor = (trend) => {
-    return trend >= 0 ? 'text-green-600' : 'text-red-600';
+    return trend >= 0 ? 'text-green-600' : 'text-orange-600';
   };
 
   const quickActions = [

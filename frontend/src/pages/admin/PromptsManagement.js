@@ -120,7 +120,7 @@ const PromptsManagement = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
           <p className="mt-2 text-gray-600">Loading prompts...</p>
         </div>
       </div>
@@ -134,7 +134,7 @@ const PromptsManagement = () => {
         <div className="sm:flex sm:items-center sm:justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-              <SparklesIcon className="h-8 w-8 mr-3 text-red-600" />
+              <SparklesIcon className="h-8 w-8 mr-3 text-orange-600" />
               AI Prompts Management
             </h1>
             <p className="mt-2 text-sm text-gray-700">
@@ -143,7 +143,7 @@ const PromptsManagement = () => {
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-red-700"
+            className="bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-orange-700"
           >
             <PlusIcon className="h-5 w-5 mr-2" />
             Create Prompt
@@ -190,7 +190,7 @@ const PromptsManagement = () => {
                       <div key={prompt.id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center">
-                            <CodeBracketIcon className="h-5 w-5 text-red-600 mr-2" />
+                            <CodeBracketIcon className="h-5 w-5 text-orange-600 mr-2" />
                             <span className="font-medium text-gray-900">
                               {promptTypes.find(pt => pt.value === prompt.prompt_type)?.label}
                             </span>
@@ -204,7 +204,7 @@ const PromptsManagement = () => {
                                 setEditingPrompt(prompt);
                                 setShowEditModal(true);
                               }}
-                              className="text-red-600 hover:text-red-800"
+                              className="text-orange-600 hover:text-red-800"
                             >
                               <PencilIcon className="h-4 w-4" />
                             </button>
@@ -246,7 +246,7 @@ const PromptsManagement = () => {
                         setFormData({ ...formData, agent_key: agent.key });
                         setShowCreateModal(true);
                       }}
-                      className="mt-2 text-red-600 hover:text-red-800 text-sm"
+                      className="mt-2 text-orange-600 hover:text-red-800 text-sm"
                     >
                       Create first prompt
                     </button>
@@ -325,7 +325,7 @@ const PromptsManagement = () => {
                 </button>
                 <button
                   onClick={handleCreate}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
                   disabled={!formData.agent_key || !formData.content}
                 >
                   Create
@@ -385,7 +385,7 @@ const PromptsManagement = () => {
                 </button>
                 <button
                   onClick={handleUpdate}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
                 >
                   Save
                 </button>

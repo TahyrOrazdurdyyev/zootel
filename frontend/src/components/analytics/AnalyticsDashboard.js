@@ -173,7 +173,7 @@ const AnalyticsDashboard = ({
             <p className="text-2xl font-bold text-gray-900">{value}</p>
             {change !== undefined && (
               <div className={`flex items-center text-sm ${
-                isPositive ? 'text-green-600' : 'text-red-600'
+                isPositive ? 'text-green-600' : 'text-orange-600'
               }`}>
                 {isPositive ? (
                   <ArrowTrendingUpIcon className="w-4 h-4 mr-1" />
@@ -203,7 +203,7 @@ const AnalyticsDashboard = ({
   if (error) {
     return (
       <div className={`text-center py-8 ${className}`}>
-        <p className="text-red-600">{error}</p>
+        <p className="text-orange-600">{error}</p>
         <button 
           onClick={fetchAnalytics}
           className="btn-primary mt-4"

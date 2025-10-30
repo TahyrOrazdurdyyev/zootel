@@ -165,7 +165,7 @@ const CheckoutPage = () => {
             className={`input-field ${errors.firstName ? 'border-red-300' : ''}`}
             placeholder="Your first name"
           />
-          {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
+          {errors.firstName && <p className="mt-1 text-sm text-orange-600">{errors.firstName}</p>}
         </div>
 
         <div>
@@ -179,7 +179,7 @@ const CheckoutPage = () => {
             className={`input-field ${errors.lastName ? 'border-red-300' : ''}`}
             placeholder="Your last name"
           />
-          {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
+          {errors.lastName && <p className="mt-1 text-sm text-orange-600">{errors.lastName}</p>}
         </div>
       </div>
 
@@ -195,7 +195,7 @@ const CheckoutPage = () => {
             className={`input-field ${errors.email ? 'border-red-300' : ''}`}
             placeholder="your@email.com"
           />
-          {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+          {errors.email && <p className="mt-1 text-sm text-orange-600">{errors.email}</p>}
         </div>
 
         <div>
@@ -209,7 +209,7 @@ const CheckoutPage = () => {
             inputClass={`input-field !pl-14 ${errors.phone ? 'border-red-300' : ''}`}
             containerClass="w-full"
           />
-          {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+          {errors.phone && <p className="mt-1 text-sm text-orange-600">{errors.phone}</p>}
         </div>
       </div>
 
@@ -224,7 +224,7 @@ const CheckoutPage = () => {
           className={`input-field ${errors.address ? 'border-red-300' : ''}`}
           placeholder="Street, Building"
         />
-        {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
+        {errors.address && <p className="mt-1 text-sm text-orange-600">{errors.address}</p>}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -346,7 +346,7 @@ const CheckoutPage = () => {
                 placeholder="1234 5678 9012 3456"
                 maxLength={19}
               />
-              {errors.cardNumber && <p className="mt-1 text-sm text-red-600">{errors.cardNumber}</p>}
+              {errors.cardNumber && <p className="mt-1 text-sm text-orange-600">{errors.cardNumber}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -362,7 +362,7 @@ const CheckoutPage = () => {
                   placeholder="MM/YY"
                   maxLength={5}
                 />
-                {errors.expiryDate && <p className="mt-1 text-sm text-red-600">{errors.expiryDate}</p>}
+                {errors.expiryDate && <p className="mt-1 text-sm text-orange-600">{errors.expiryDate}</p>}
               </div>
 
               <div>
@@ -377,7 +377,7 @@ const CheckoutPage = () => {
                   placeholder="123"
                   maxLength={4}
                 />
-                {errors.cvv && <p className="mt-1 text-sm text-red-600">{errors.cvv}</p>}
+                {errors.cvv && <p className="mt-1 text-sm text-orange-600">{errors.cvv}</p>}
               </div>
             </div>
 
@@ -392,7 +392,7 @@ const CheckoutPage = () => {
                 className={`input-field ${errors.cardName ? 'border-red-300' : ''}`}
                 placeholder="IVAN PETROV"
               />
-              {errors.cardName && <p className="mt-1 text-sm text-red-600">{errors.cardName}</p>}
+              {errors.cardName && <p className="mt-1 text-sm text-orange-600">{errors.cardName}</p>}
             </div>
           </div>
         </div>

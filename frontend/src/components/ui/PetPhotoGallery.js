@@ -152,7 +152,7 @@ const PetPhotoGallery = ({ petId, photos = [], mainPhoto, onPhotosUpdate }) => {
                   e.stopPropagation();
                   handleDeletePhoto(photo);
                 }}
-                className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                className="px-2 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700"
               >
                 Delete
               </button>

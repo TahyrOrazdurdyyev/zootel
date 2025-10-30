@@ -19,6 +19,18 @@ module.exports = {
           800: '#a62d00',
           900: '#8a2600',
         },
+        orange: {
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#f97316',
+          600: '#F65814', // Custom orange color
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
+        },
         background: {
           DEFAULT: '#ffffff',
           secondary: '#f8fafc',

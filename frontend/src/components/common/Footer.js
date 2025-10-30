@@ -63,15 +63,15 @@ const Footer = () => {
             {/* Contact info */}
             <div className="space-y-3">
               <div className="flex items-center text-gray-300">
-                <MapPinIcon className="h-5 w-5 mr-3 text-red-500" />
+                <MapPinIcon className="h-5 w-5 mr-3 text-orange-500" />
                 <span>1111B S Governors Ave STE 37817, Dover, DE 19904, United States</span>
               </div>
               <div className="flex items-center text-gray-300">
-                <PhoneIcon className="h-5 w-5 mr-3 text-red-500" />
+                <PhoneIcon className="h-5 w-5 mr-3 text-orange-500" />
                 <span>+99365532570</span>
               </div>
               <div className="flex items-center text-gray-300">
-                <EnvelopeIcon className="h-5 w-5 mr-3 text-red-500" />
+                <EnvelopeIcon className="h-5 w-5 mr-3 text-orange-500" />
                 <span>support@zootel.com</span>
               </div>
             </div>

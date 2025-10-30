@@ -319,7 +319,7 @@ const AIAgentsManagement = () => {
                           {agent.status === 'active' && (
                             <button
                               onClick={() => handleDeactivateAgent(companyInfo.company_id, agent.agent_key)}
-                              className="ml-2 text-red-600 hover:text-red-800"
+                              className="ml-2 text-orange-600 hover:text-red-800"
                               title="Deactivate"
                             >
                               <XMarkIcon className="h-4 w-4" />
@@ -376,7 +376,7 @@ const AIAgentsManagement = () => {
                     </button>
                     <button
                       onClick={() => handleDeleteAgent(agent.addon_key)}
-                      className="text-red-600 hover:text-red-800 text-sm"
+                      className="text-orange-600 hover:text-red-800 text-sm"
                       title="Delete Agent"
                     >
                       <TrashIcon className="h-4 w-4" />

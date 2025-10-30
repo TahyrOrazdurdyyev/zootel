@@ -219,14 +219,14 @@ const BusinessLandingPage = () => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => setShowDemoModal(true)}
-                  className="bg-white text-red-600 px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors duration-200 font-semibold flex items-center justify-center"
+                  className="bg-white text-orange-600 px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors duration-200 font-semibold flex items-center justify-center"
                 >
                   <PlayCircleIcon className="h-5 w-5 mr-2" />
                   Request demo
                 </button>
                 <Link
                   to="/register?type=business"
-                  className="border-2 border-white text-white px-8 py-4 rounded-lg hover:bg-white hover:text-red-600 transition-colors duration-200 font-semibold text-center"
+                  className="border-2 border-white text-white px-8 py-4 rounded-lg hover:bg-white hover:text-orange-600 transition-colors duration-200 font-semibold text-center"
                 >
                   Start for free
                 </Link>
@@ -275,7 +275,7 @@ const BusinessLandingPage = () => {
               return (
                 <div key={index} className="bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
                   <div className="flex items-center justify-center w-16 h-16 bg-red-100 rounded-xl mb-6">
-                    <Icon className="h-8 w-8 text-red-600" />
+                    <Icon className="h-8 w-8 text-orange-600" />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-3">
                     {feature.title}
@@ -316,13 +316,13 @@ const BusinessLandingPage = () => {
                 key={plan.id}
                 className={`rounded-2xl p-8 border-2 ${
                   plan.popular 
-                    ? 'border-red-600 bg-red-50 relative' 
+                    ? 'border-orange-600 bg-red-50 relative' 
                     : 'border-gray-200 bg-white'
                 } hover:shadow-lg transition-shadow duration-200`}
               >
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-medium">
+                    <span className="bg-orange-600 text-white px-4 py-2 rounded-full text-sm font-medium">
                       Popular
                     </span>
                   </div>
@@ -349,7 +349,7 @@ const BusinessLandingPage = () => {
                   to={`/register?plan=${plan.id}`}
                   className={`block w-full text-center py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
                     plan.popular
-                      ? 'bg-red-600 text-white hover:bg-red-700'
+                      ? 'bg-orange-600 text-white hover:bg-orange-700'
                       : 'bg-gray-900 text-white hover:bg-gray-800'
                   }`}
                 >
@@ -365,7 +365,7 @@ const BusinessLandingPage = () => {
             </p>
             <Link
               to="/contact"
-              className="text-red-600 hover:text-red-700 font-medium"
+              className="text-orange-600 hover:text-red-700 font-medium"
             >
               Contact sales team →
             </Link>
@@ -418,7 +418,7 @@ const BusinessLandingPage = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-red-600">
+      <section className="py-20 bg-orange-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
             {stats.map((stat, index) => (
@@ -444,13 +444,13 @@ const BusinessLandingPage = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => setShowDemoModal(true)}
-              className="bg-red-600 text-white px-8 py-4 rounded-lg hover:bg-red-700 transition-colors duration-200 font-semibold"
+              className="bg-orange-600 text-white px-8 py-4 rounded-lg hover:bg-orange-700 transition-colors duration-200 font-semibold"
             >
               Get demo
             </button>
             <Link
               to="/register?type=business"
-              className="border border-red-600 text-red-600 px-8 py-4 rounded-lg hover:bg-red-50 transition-colors duration-200 font-semibold"
+              className="border border-orange-600 text-orange-600 px-8 py-4 rounded-lg hover:bg-orange-50 transition-colors duration-200 font-semibold"
             >
               Start free trial
             </Link>
@@ -531,7 +531,7 @@ const BusinessLandingPage = () => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
                 >
                   Submit
                 </button>

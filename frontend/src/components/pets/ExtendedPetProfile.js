@@ -374,7 +374,7 @@ const ExtendedPetProfile = ({ petId, onClose }) => {
                     <button
                       type="button"
                       onClick={() => removeCondition(condition)}
-                      className="ml-2 text-red-600 hover:text-red-800"
+                      className="ml-2 text-orange-600 hover:text-red-800"
                     >
                       ✕
                     </button>

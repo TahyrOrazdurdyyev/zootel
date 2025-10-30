@@ -358,7 +358,7 @@ const CompanyPublicPage = () => {
                       <span className="text-xl font-bold text-blue-600">
                         {formatPrice(product.price)}
                       </span>
-                      <span className={`text-sm ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <span className={`text-sm ${product.stock > 0 ? 'text-green-600' : 'text-orange-600'}`}>
                         {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
                       </span>
                     </div>

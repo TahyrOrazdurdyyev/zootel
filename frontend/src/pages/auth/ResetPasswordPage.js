@@ -64,7 +64,7 @@ const ResetPasswordPage = () => {
     switch (strength) {
       case 0:
       case 1:
-        return { text: 'Very Weak', color: 'text-red-500', bgColor: 'bg-red-500' };
+        return { text: 'Very Weak', color: 'text-orange-500', bgColor: 'bg-red-500' };
       case 2:
         return { text: 'Weak', color: 'text-orange-500', bgColor: 'bg-orange-500' };
       case 3:
@@ -186,7 +186,7 @@ const ResetPasswordPage = () => {
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             <div className="text-center">
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
               </div>

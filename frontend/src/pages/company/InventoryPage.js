@@ -176,7 +176,7 @@ const InventoryPage = () => {
   });
 
   const getStockStatus = (item) => {
-    if (item.stock === 0) return { status: 'out', icon: XCircleIcon, color: 'text-red-600', bg: 'bg-red-50' };
+    if (item.stock === 0) return { status: 'out', icon: XCircleIcon, color: 'text-orange-600', bg: 'bg-red-50' };
     if (item.stock <= item.low_stock_alert) return { status: 'low', icon: ExclamationTriangleIcon, color: 'text-yellow-600', bg: 'bg-yellow-50' };
     return { status: 'in', icon: CheckCircleIcon, color: 'text-green-600', bg: 'bg-green-50' };
   };
@@ -358,7 +358,7 @@ const InventoryPage = () => {
                           </button>
                           <button
                             onClick={() => handleDelete(item.id)}
-                            className="text-red-600 hover:text-red-900"
+                            className="text-orange-600 hover:text-red-900"
                             title="Delete Product"
                           >
                             <TrashIcon className="h-5 w-5" />

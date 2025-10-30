@@ -339,7 +339,7 @@ const PetMedicalProfile = ({ petId }) => {
                     </div>
                     <button
                       onClick={() => deleteVaccination(vaccination.id)}
-                      className="ml-4 text-red-600 hover:text-red-800"
+                      className="ml-4 text-orange-600 hover:text-red-800"
                     >
                       Delete
                     </button>
@@ -531,7 +531,7 @@ const PetMedicalProfile = ({ petId }) => {
                     </div>
                     <button
                       onClick={() => deleteMedication(medication.id)}
-                      className="ml-4 text-red-600 hover:text-red-800"
+                      className="ml-4 text-orange-600 hover:text-red-800"
                     >
                       Delete
                     </button>

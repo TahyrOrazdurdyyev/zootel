@@ -318,7 +318,7 @@ const AddonManagementPage = () => {
                   {addon.status === 'active' && addon.billing_cycle !== 'manual' && (
                     <button
                       onClick={() => handleCancelAddon(addon.id)}
-                      className="w-full px-4 py-2 border border-red-300 text-red-700 rounded-md text-sm hover:bg-red-50"
+                      className="w-full px-4 py-2 border border-red-300 text-red-700 rounded-md text-sm hover:bg-orange-50"
                     >
                       Cancel Addon
                     </button>

@@ -392,7 +392,7 @@ const CompanyProfileForm = ({
               <button
                 type="button"
                 onClick={() => removeImage(index)}
-                className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-orange-600"
               >
                 <XMarkIcon className="w-4 h-4" />
               </button>

@@ -270,14 +270,14 @@ const CurrencyManagement = () => {
                     </button>
                     <button
                       onClick={() => handleToggleStatus(currency.code)}
-                      className={currency.is_active ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}
+                      className={currency.is_active ? 'text-orange-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}
                     >
                       {currency.is_active ? <XMarkIcon className="w-4 h-4" /> : <CheckIcon className="w-4 h-4" />}
                     </button>
                     {!currency.is_base && (
                       <button
                         onClick={() => handleDelete(currency.code)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-orange-600 hover:text-red-900"
                       >
                         <TrashIcon className="w-4 h-4" />
                       </button>

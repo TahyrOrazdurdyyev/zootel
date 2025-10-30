@@ -102,7 +102,7 @@ const LocationSelector = ({
       {/* Country Dropdown */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Country {required && <span className="text-red-500">*</span>}
+          Country {required && <span className="text-orange-500">*</span>}
         </label>
         <select
           value={selectedCountry?.isoCode || ''}
@@ -124,7 +124,7 @@ const LocationSelector = ({
       {selectedCountry && states.length > 0 && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            State/Province {required && <span className="text-red-500">*</span>}
+            State/Province {required && <span className="text-orange-500">*</span>}
           </label>
           <select
             value={selectedState?.isoCode || ''}
@@ -147,7 +147,7 @@ const LocationSelector = ({
       {selectedCountry && cities.length > 0 && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            City {required && <span className="text-red-500">*</span>}
+            City {required && <span className="text-orange-500">*</span>}
           </label>
           <select
             value={selectedCity?.name || ''}
@@ -170,7 +170,7 @@ const LocationSelector = ({
       {selectedCountry && cities.length === 0 && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            City {required && <span className="text-red-500">*</span>}
+            City {required && <span className="text-orange-500">*</span>}
           </label>
           <input
             type="text"

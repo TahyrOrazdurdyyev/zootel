@@ -390,7 +390,7 @@ const ServicesManagementPage = () => {
                     </button>
                     <button
                       onClick={() => handleDeleteService(service.id)}
-                      className="px-3 py-2 border border-red-300 text-red-700 rounded-md text-sm hover:bg-red-50 flex items-center justify-center"
+                      className="px-3 py-2 border border-red-300 text-red-700 rounded-md text-sm hover:bg-orange-50 flex items-center justify-center"
                     >
                       <TrashIcon className="w-4 h-4" />
                     </button>

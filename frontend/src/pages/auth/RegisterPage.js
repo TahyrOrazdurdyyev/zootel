@@ -277,7 +277,7 @@ const RegisterPage = () => {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {errors.submit && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+              <div className="bg-red-50 border border-red-200 text-orange-600 px-4 py-3 rounded-lg">
                 {errors.submit}
               </div>
             )}
@@ -290,7 +290,7 @@ const RegisterPage = () => {
                   
                   <div>
                     <label htmlFor="companyName" className="block text-sm font-medium text-gray-700">
-                      Company Name <span className="text-red-500">*</span>
+                      Company Name <span className="text-orange-500">*</span>
                     </label>
                     <div className="mt-1">
                       <input
@@ -304,14 +304,14 @@ const RegisterPage = () => {
                         placeholder="Your company name"
                       />
                       {errors.companyName && (
-                        <p className="mt-1 text-sm text-red-600">{errors.companyName}</p>
+                        <p className="mt-1 text-sm text-orange-600">{errors.companyName}</p>
                       )}
                     </div>
                   </div>
 
                   <div>
                     <label htmlFor="businessType" className="block text-sm font-medium text-gray-700">
-                      Business Type <span className="text-red-500">*</span>
+                      Business Type <span className="text-orange-500">*</span>
                     </label>
                     <div className="mt-1">
                       <select
@@ -330,7 +330,7 @@ const RegisterPage = () => {
                         ))}
                       </select>
                       {errors.businessType && (
-                        <p className="mt-1 text-sm text-red-600">{errors.businessType}</p>
+                        <p className="mt-1 text-sm text-orange-600">{errors.businessType}</p>
                       )}
                     </div>
                   </div>
@@ -373,7 +373,7 @@ const RegisterPage = () => {
                     placeholder="Your first name"
                   />
                   {errors.firstName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+                    <p className="mt-1 text-sm text-orange-600">{errors.firstName}</p>
                   )}
                 </div>
               </div>
@@ -395,7 +395,7 @@ const RegisterPage = () => {
                     placeholder="Your last name"
                   />
                   {errors.lastName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
+                    <p className="mt-1 text-sm text-orange-600">{errors.lastName}</p>
                   )}
                 </div>
               </div>
@@ -418,7 +418,7 @@ const RegisterPage = () => {
                   placeholder="your@email.com"
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                  <p className="mt-1 text-sm text-orange-600">{errors.email}</p>
                 )}
               </div>
             </div>
@@ -440,14 +440,14 @@ const RegisterPage = () => {
                   placeholder="Enter phone number"
                 />
                 {errors.phone && (
-                  <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                  <p className="mt-1 text-sm text-orange-600">{errors.phone}</p>
                 )}
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Location <span className="text-red-500">*</span>
+                Location <span className="text-orange-500">*</span>
               </label>
               <LocationSelector
                 selectedCountry={formData.country}
@@ -457,10 +457,10 @@ const RegisterPage = () => {
                 required={true}
               />
               {errors.country && (
-                <p className="mt-1 text-sm text-red-600">{errors.country}</p>
+                <p className="mt-1 text-sm text-orange-600">{errors.country}</p>
               )}
               {errors.city && (
-                <p className="mt-1 text-sm text-red-600">{errors.city}</p>
+                <p className="mt-1 text-sm text-orange-600">{errors.city}</p>
               )}
             </div>
 
@@ -469,7 +469,7 @@ const RegisterPage = () => {
               <>
                 <div>
                   <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                    Street Address <span className="text-red-500">*</span>
+                    Street Address <span className="text-orange-500">*</span>
                   </label>
                   <div className="mt-1">
                     <input
@@ -483,7 +483,7 @@ const RegisterPage = () => {
                       placeholder="Street address, apartment, suite, etc."
                     />
                     {errors.address && (
-                      <p className="mt-1 text-sm text-red-600">{errors.address}</p>
+                      <p className="mt-1 text-sm text-orange-600">{errors.address}</p>
                     )}
                   </div>
                 </div>
@@ -555,7 +555,7 @@ const RegisterPage = () => {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                <p className="mt-1 text-sm text-orange-600">{errors.password}</p>
               )}
             </div>
 
@@ -588,7 +588,7 @@ const RegisterPage = () => {
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                <p className="mt-1 text-sm text-orange-600">{errors.confirmPassword}</p>
               )}
             </div>
 
@@ -615,7 +615,7 @@ const RegisterPage = () => {
                   </Link>
                 </label>
                 {errors.agreeToTerms && (
-                  <p className="mt-1 text-sm text-red-600">{errors.agreeToTerms}</p>
+                  <p className="mt-1 text-sm text-orange-600">{errors.agreeToTerms}</p>
                 )}
               </div>
             </div>

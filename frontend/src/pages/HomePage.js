@@ -152,11 +152,11 @@ const HomePage = () => {
                 className="bg-white border border-gray-200 rounded-xl p-6 text-center hover:shadow-lg hover:border-red-300 transition-all duration-200 group"
               >
                 <div className="text-4xl mb-3">{category.icon}</div>
-                <h3 className="font-semibold text-gray-900 group-hover:text-red-600 mb-2">
+                <h3 className="font-semibold text-gray-900 group-hover:text-orange-600 mb-2">
                   {category.name}
                 </h3>
                 <p className="text-sm text-gray-600 mb-2">{category.description}</p>
-                <p className="text-xs text-red-600 font-medium">{category.count}</p>
+                <p className="text-xs text-orange-600 font-medium">{category.count}</p>
               </Link>
             ))}
           </div>
@@ -177,7 +177,7 @@ const HomePage = () => {
             </div>
             <Link
               to="/deals"
-              className="text-red-600 hover:text-red-700 font-medium flex items-center"
+              className="text-orange-600 hover:text-red-700 font-medium flex items-center"
             >
               All Deals <ArrowRightIcon className="ml-1 h-4 w-4" />
             </Link>
@@ -197,7 +197,7 @@ const HomePage = () => {
                       alt={deal.title}
                       className="w-full h-48 object-cover"
                     />
-                    <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                    <div className="absolute top-4 left-4 bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-bold">
                       -{deal.discount}%
                     </div>
                     <button className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-sm hover:bg-gray-50">
@@ -224,14 +224,14 @@ const HomePage = () => {
                     
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-2xl font-bold text-red-600">
+                        <span className="text-2xl font-bold text-orange-600">
                           {deal.discountPrice.toLocaleString()}₽
                         </span>
                         <span className="text-lg text-gray-500 line-through ml-2">
                           {deal.originalPrice.toLocaleString()}₽
                         </span>
                       </div>
-                      <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200">
+                      <button className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors duration-200">
                                                 Book Now
                       </button>
                     </div>
@@ -303,7 +303,7 @@ const HomePage = () => {
                   
                   <Link
                     to={`/companies/${company.id}`}
-                    className="block w-full text-center bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors duration-200"
+                    className="block w-full text-center bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 transition-colors duration-200"
                   >
                                             Go
                   </Link>
@@ -315,7 +315,7 @@ const HomePage = () => {
           <div className="text-center mt-8">
             <Link
               to="/companies"
-              className="inline-flex items-center text-red-600 hover:text-red-700 font-medium"
+              className="inline-flex items-center text-orange-600 hover:text-red-700 font-medium"
             >
               View All Companies <ArrowRightIcon className="ml-1 h-4 w-4" />
             </Link>
@@ -342,7 +342,7 @@ const HomePage = () => {
                   <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-3xl">{step.icon}</span>
                   </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                     {step.step}
                   </div>
                 </div>
@@ -395,7 +395,7 @@ const HomePage = () => {
                   
                   <p className="text-gray-700 mb-3">"{review.review}"</p>
                   
-                  <div className="text-sm text-red-600 font-medium">
+                  <div className="text-sm text-orange-600 font-medium">
                     {review.service}
                   </div>
                 </div>
@@ -406,7 +406,7 @@ const HomePage = () => {
       </section>
 
       {/* B2B CTA Section */}
-      <section className="py-16 bg-red-600">
+      <section className="py-16 bg-orange-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
                             Start using Zootel for your business
@@ -418,7 +418,7 @@ const HomePage = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/business"
-              className="bg-white text-red-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 font-medium"
+              className="bg-white text-orange-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 font-medium"
             >
               Learn More About CRM
             </Link>

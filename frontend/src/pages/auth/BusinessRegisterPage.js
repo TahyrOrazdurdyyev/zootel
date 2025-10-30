@@ -223,7 +223,7 @@ const BusinessRegisterPage = () => {
                   onChange={handleChange}
                 />
                 {errors.companyName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.companyName}</p>
+                  <p className="mt-1 text-sm text-orange-600">{errors.companyName}</p>
                 )}
               </div>
 
@@ -247,7 +247,7 @@ const BusinessRegisterPage = () => {
                   ))}
                 </select>
                 {errors.businessType && (
-                  <p className="mt-1 text-sm text-red-600">{errors.businessType}</p>
+                  <p className="mt-1 text-sm text-orange-600">{errors.businessType}</p>
                 )}
               </div>
 
@@ -313,7 +313,7 @@ const BusinessRegisterPage = () => {
                     onChange={handleChange}
                   />
                   {errors.firstName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+                    <p className="mt-1 text-sm text-orange-600">{errors.firstName}</p>
                   )}
                 </div>
 
@@ -332,7 +332,7 @@ const BusinessRegisterPage = () => {
                     onChange={handleChange}
                   />
                   {errors.lastName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
+                    <p className="mt-1 text-sm text-orange-600">{errors.lastName}</p>
                   )}
                 </div>
               </div>
@@ -353,7 +353,7 @@ const BusinessRegisterPage = () => {
                   onChange={handleChange}
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                  <p className="mt-1 text-sm text-orange-600">{errors.email}</p>
                 )}
               </div>
 
@@ -370,7 +370,7 @@ const BusinessRegisterPage = () => {
                   placeholder="Enter phone number"
                 />
                 {errors.phone && (
-                  <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                  <p className="mt-1 text-sm text-orange-600">{errors.phone}</p>
                 )}
               </div>
             </div>
@@ -399,7 +399,7 @@ const BusinessRegisterPage = () => {
                   onChange={handleChange}
                 />
                 {errors.address && (
-                  <p className="mt-1 text-sm text-red-600">{errors.address}</p>
+                  <p className="mt-1 text-sm text-orange-600">{errors.address}</p>
                 )}
               </div>
 
@@ -469,7 +469,7 @@ const BusinessRegisterPage = () => {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                  <p className="mt-1 text-sm text-orange-600">{errors.password}</p>
                 )}
               </div>
 
@@ -502,7 +502,7 @@ const BusinessRegisterPage = () => {
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                  <p className="mt-1 text-sm text-orange-600">{errors.confirmPassword}</p>
                 )}
               </div>
             </div>
@@ -530,7 +530,7 @@ const BusinessRegisterPage = () => {
               </label>
             </div>
             {errors.agreeToTerms && (
-              <p className="mt-1 text-sm text-red-600">{errors.agreeToTerms}</p>
+              <p className="mt-1 text-sm text-orange-600">{errors.agreeToTerms}</p>
             )}
 
             {errors.submit && (

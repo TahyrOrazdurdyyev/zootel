@@ -355,7 +355,7 @@ const PlanSettings = () => {
                       </button>
                       <button
                         onClick={() => handleDeletePlan(plan.id)}
-                        className="text-red-400 hover:text-red-600"
+                        className="text-red-400 hover:text-orange-600"
                       >
                         <TrashIcon className="w-4 h-4" />
                       </button>
@@ -452,7 +452,7 @@ const PlanSettings = () => {
                       </button>
                       <button
                         onClick={() => handleDeleteAddon(addon.id)}
-                        className="text-red-400 hover:text-red-600"
+                        className="text-red-400 hover:text-orange-600"
                       >
                         <TrashIcon className="w-4 h-4" />
                       </button>
