@@ -149,14 +149,22 @@ const HomePage = () => {
               <Link
                 key={category.id}
                 to={`/services/${category.id}`}
-                className="bg-white border border-gray-200 rounded-xl p-6 text-center hover:shadow-lg hover:border-red-300 transition-all duration-200 group"
+                className="relative bg-white rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 group h-48"
+                style={{
+                  backgroundImage: `linear-gradient(135deg, rgba(246, 88, 20, 0.8) 0%, rgba(246, 88, 20, 0.6) 100%), url(/images/${category.id}.png)`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat'
+                }}
               >
-                <div className="text-4xl mb-3">{category.icon}</div>
-                <h3 className="font-semibold text-gray-900 group-hover:text-orange-600 mb-2">
-                  {category.name}
-                </h3>
-                <p className="text-sm text-gray-600 mb-2">{category.description}</p>
-                <p className="text-xs text-orange-600 font-medium">{category.count}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                <div className="relative h-full flex flex-col justify-end p-4 text-white">
+                  <h3 className="font-bold text-lg mb-1">
+                    {category.name}
+                  </h3>
+                  <p className="text-sm opacity-90 mb-1">{category.description}</p>
+                  <p className="text-xs font-medium opacity-80">{category.count}</p>
+                </div>
               </Link>
             ))}
           </div>
