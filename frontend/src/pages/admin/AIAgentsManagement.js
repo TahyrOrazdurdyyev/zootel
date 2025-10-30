@@ -58,8 +58,8 @@ const AIAgentsManagement = () => {
     setLoading(true);
     try {
       const [companiesResponse, agentsResponse] = await Promise.all([
-        apiCall('/admin/companies/ai-agents', 'GET'),
-        apiCall('/admin/ai-agents', 'GET')
+        apiCall('/api/v1/admin/companies/ai-agents', 'GET'),
+        apiCall('/api/v1/admin/ai-agents', 'GET')
       ]);
 
       if (companiesResponse.success) {
@@ -78,7 +78,7 @@ const AIAgentsManagement = () => {
 
   const handleActivateAgent = async () => {
     try {
-      const response = await apiCall('/admin/companies/ai-agents/activate', 'POST', {
+      const response = await apiCall('/api/v1/admin/companies/ai-agents/activate', 'POST', {
         company_id: activationData.companyId,
         agent_key: activationData.agentKey,
         billing_cycle: activationData.billingCycle
@@ -104,7 +104,7 @@ const AIAgentsManagement = () => {
     }
 
     try {
-      const response = await apiCall(`/admin/companies/${companyId}/ai-agents/${agentKey}`, 'DELETE');
+      const response = await apiCall(`/api/v1/admin/companies/${companyId}/ai-agents/${agentKey}`, 'DELETE');
 
       if (response.success) {
         loadData(); // Refresh data
@@ -120,7 +120,7 @@ const AIAgentsManagement = () => {
 
   const handleUpdatePricing = async () => {
     try {
-      const response = await apiCall(`/admin/ai-agents/${editingAgent.addon_key}/pricing`, 'PUT', pricingData);
+      const response = await apiCall(`/api/v1/admin/ai-agents/${editingAgent.addon_key}/pricing`, 'PUT', pricingData);
 
       if (response.success) {
         setShowPricingModal(false);
@@ -139,7 +139,7 @@ const AIAgentsManagement = () => {
 
   const handleCreateAgent = async () => {
     try {
-      const response = await apiCall('/admin/ai-agents', 'POST', createData);
+      const response = await apiCall('/api/v1/admin/ai-agents', 'POST', createData);
 
       if (response.success) {
         setShowCreateModal(false);
