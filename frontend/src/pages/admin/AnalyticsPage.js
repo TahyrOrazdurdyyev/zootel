@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { auth } from '../../config/firebase';
 import AnalyticsDashboard from '../../components/analytics/AnalyticsDashboard';
 import LocationAnalytics from '../../components/analytics/LocationAnalytics';
 import {
@@ -184,7 +185,12 @@ const RecentActivityWidget = () => {
 
   const fetchRecentActivity = async () => {
     try {
-      const response = await fetch('/api/v1/admin/analytics/recent-activity');
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch('/api/v1/admin/analytics/recent-activity', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         setActivities(data.data || []);
@@ -330,7 +336,12 @@ const CohortAnalyticsTab = ({ timeframe }) => {
   const fetchCohortData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/v1/admin/analytics/cohort?period=${selectedPeriod}&metric=${selectedMetric}&timeframe=${timeframe}`);
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch(`/api/v1/admin/analytics/cohort?period=${selectedPeriod}&metric=${selectedMetric}&timeframe=${timeframe}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         setCohortData(data.data);
@@ -478,7 +489,12 @@ const SegmentsAnalyticsTab = ({ timeframe }) => {
   const fetchSegmentData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/v1/admin/analytics/segments?type=${selectedSegmentType}&timeframe=${timeframe}`);
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch(`/api/v1/admin/analytics/segments?type=${selectedSegmentType}&timeframe=${timeframe}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         setSegmentData(data.data);
@@ -627,7 +643,12 @@ const FunnelAnalyticsTab = ({ timeframe }) => {
   const fetchFunnelData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/v1/admin/analytics/funnel?type=${selectedFunnel}&timeframe=${timeframe}`);
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch(`/api/v1/admin/analytics/funnel?type=${selectedFunnel}&timeframe=${timeframe}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         setFunnelData(data.data);

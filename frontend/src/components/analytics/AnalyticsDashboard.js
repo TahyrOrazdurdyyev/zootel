@@ -6,6 +6,7 @@ import {
   CalendarIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
+import { auth } from '../../config/firebase';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -57,24 +58,32 @@ const AnalyticsDashboard = ({
     setError(null);
     
     try {
+      // Get Firebase token for authentication
+      const token = await auth.currentUser?.getIdToken();
+      const authHeaders = {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      };
+      
       const endpoints = [];
       
       if (isAdmin) {
         // Global analytics for admin
         endpoints.push(
-          fetch('/api/v1/admin/analytics/dashboard'),
-          fetch(`/api/v1/admin/analytics/revenue-trends?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/v1/admin/analytics/registration-trends?days=${getDaysFromRange(dateRange)}`),
-          fetch('/api/v1/admin/analytics/top-companies?limit=10'),
-          fetch('/api/v1/admin/analytics/service-performance')
+          fetch('/api/v1/admin/analytics/dashboard', authHeaders),
+          fetch(`/api/v1/admin/analytics/revenue-trends?days=${getDaysFromRange(dateRange)}`, authHeaders),
+          fetch(`/api/v1/admin/analytics/registration-trends?days=${getDaysFromRange(dateRange)}`, authHeaders),
+          fetch('/api/v1/admin/analytics/top-companies?limit=10', authHeaders),
+          fetch('/api/v1/admin/analytics/service-performance', authHeaders)
         );
       } else if (companyId) {
         // Company-specific analytics
         endpoints.push(
-          fetch(`/api/v1/companies/${companyId}/analytics/dashboard`),
-          fetch(`/api/v1/companies/${companyId}/analytics/revenue?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/v1/companies/${companyId}/analytics/bookings?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/v1/companies/${companyId}/analytics/customers?days=${getDaysFromRange(dateRange)}`)
+          fetch(`/api/v1/companies/${companyId}/analytics/dashboard`, authHeaders),
+          fetch(`/api/v1/companies/${companyId}/analytics/revenue?days=${getDaysFromRange(dateRange)}`, authHeaders),
+          fetch(`/api/v1/companies/${companyId}/analytics/bookings?days=${getDaysFromRange(dateRange)}`, authHeaders),
+          fetch(`/api/v1/companies/${companyId}/analytics/customers?days=${getDaysFromRange(dateRange)}`, authHeaders)
         );
       }
 

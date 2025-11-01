@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GlobeAltIcon, UsersIcon, MapPinIcon, FlagIcon } from '@heroicons/react/24/outline';
+import { auth } from '../../config/firebase';
 
 const LocationAnalytics = () => {
   const [locationData, setLocationData] = useState(null);
@@ -17,9 +18,10 @@ const LocationAnalytics = () => {
   const fetchLocationAnalytics = async () => {
     try {
       setLoading(true);
+      const token = await auth.currentUser?.getIdToken();
       const response = await fetch('/api/v1/admin/analytics/location/overview', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
@@ -41,9 +43,10 @@ const LocationAnalytics = () => {
       if (selectedRole) params.append('role', selectedRole);
       params.append('limit', '100');
 
+      const token = await auth.currentUser?.getIdToken();
       const response = await fetch(`/api/v1/admin/analytics/location/detailed?${params}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
@@ -63,9 +66,10 @@ const LocationAnalytics = () => {
       params.append('group_by', 'week');
       if (selectedCountry) params.append('country', selectedCountry);
 
+      const token = await auth.currentUser?.getIdToken();
       const response = await fetch(`/api/v1/admin/analytics/location/trends?${params}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
