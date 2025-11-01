@@ -554,10 +554,10 @@ func (s *AnalyticsService) GetGlobalDashboard() (*DashboardMetrics, error) {
 
 func (s *AnalyticsService) GetRevenueTrends(companyID string, days int) ([]map[string]interface{}, error) {
 	whereClause := ""
-	args := []interface{}{days}
+	args := []interface{}{}
 
 	if companyID != "" {
-		whereClause = "AND company_id = $2"
+		whereClause = "AND company_id = $1"
 		args = append(args, companyID)
 	}
 
@@ -573,7 +573,13 @@ func (s *AnalyticsService) GetRevenueTrends(companyID string, days int) ([]map[s
 		ORDER BY date ASC
 	`, days, whereClause)
 
-	rows, err := s.db.Query(query, args...)
+	var rows *sql.Rows
+	var err error
+	if len(args) > 0 {
+		rows, err = s.db.Query(query, args...)
+	} else {
+		rows, err = s.db.Query(query)
+	}
 	if err != nil {
 		return nil, err
 	}
