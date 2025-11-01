@@ -4,8 +4,6 @@ import {
   CurrencyDollarIcon,
   UserIcon,
   CalendarIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import {
@@ -64,12 +62,11 @@ const AnalyticsDashboard = ({
       if (isAdmin) {
         // Global analytics for admin
         endpoints.push(
-          fetch('/api/v1/admin/analytics/global-dashboard'),
+          fetch('/api/v1/admin/analytics/dashboard'),
           fetch(`/api/v1/admin/analytics/revenue-trends?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/v1/admin/analytics/user-registration-trends?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/v1/admin/analytics/booking-trends?days=${getDaysFromRange(dateRange)}`),
+          fetch(`/api/v1/admin/analytics/registration-trends?days=${getDaysFromRange(dateRange)}`),
           fetch('/api/v1/admin/analytics/top-companies?limit=10'),
-          fetch('/api/v1/admin/analytics/service-category-performance')
+          fetch('/api/v1/admin/analytics/service-performance')
         );
       } else if (companyId) {
         // Company-specific analytics
@@ -84,13 +81,33 @@ const AnalyticsDashboard = ({
       const responses = await Promise.all(endpoints);
       const data = await Promise.all(responses.map(r => r.json()));
       
+      // Transform revenue trends to chart format
+      const revenueTrends = data[1]?.data || [];
+      const revenueChartData = {
+        labels: revenueTrends.map(item => item.date),
+        data: revenueTrends.map(item => item.revenue)
+      };
+      
+      // Transform registration trends to chart format
+      const registrationTrends = data[2]?.data || [];
+      const registrationChartData = {
+        labels: registrationTrends.map(item => item.date),
+        data: registrationTrends.map(item => item.registrations)
+      };
+      
+      // Transform categories to chart format
+      const categories = data[4]?.data || [];
+      const categoriesChartData = {
+        labels: categories.map(item => item.category_name),
+        data: categories.map(item => item.total_bookings)
+      };
+      
       setDashboardData({
         global: data[0]?.data || data[0],
-        revenue: data[1]?.data || data[1],
-        registrations: data[2]?.data || data[2],
-        bookings: data[3]?.data || data[3],
-        topCompanies: data[4]?.data || data[4],
-        categories: data[5]?.data || data[5],
+        revenue: revenueChartData,
+        registrations: registrationChartData,
+        topCompanies: data[3]?.data || data[3],
+        categories: categoriesChartData,
       });
     } catch (err) {
       setError('Failed to load analytics data');
@@ -129,12 +146,6 @@ const AnalyticsDashboard = ({
     return num.toString();
   };
 
-  // Calculate percentage change
-  const calculateChange = (current, previous) => {
-    if (!previous || previous === 0) return 0;
-    return ((current - previous) / previous * 100).toFixed(1);
-  };
-
   // Chart configurations
   const chartOptions = {
     responsive: true,
@@ -162,27 +173,13 @@ const AnalyticsDashboard = ({
   };
 
   // Metric Card Component
-  const MetricCard = ({ title, value, change, icon: Icon, color = "blue" }) => {
-    const isPositive = parseFloat(change) >= 0;
-    
+  const MetricCard = ({ title, value, icon: Icon, color = "blue" }) => {
     return (
       <div className="card">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-gray-600">{title}</p>
             <p className="text-2xl font-bold text-gray-900">{value}</p>
-            {change !== undefined && (
-              <div className={`flex items-center text-sm ${
-                isPositive ? 'text-green-600' : 'text-orange-600'
-              }`}>
-                {isPositive ? (
-                  <ArrowTrendingUpIcon className="w-4 h-4 mr-1" />
-                ) : (
-                  <ArrowTrendingDownIcon className="w-4 h-4 mr-1" />
-                )}
-                {Math.abs(change)}%
-              </div>
-            )}
           </div>
           <div className={`p-3 rounded-full bg-${color}-100`}>
             <Icon className={`w-6 h-6 text-${color}-600`} />
@@ -248,41 +245,25 @@ const AnalyticsDashboard = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
             title="Total Revenue"
-            value={formatCurrency(dashboardData.global.totalRevenue || 0)}
-            change={calculateChange(
-              dashboardData.global.totalRevenue, 
-              dashboardData.global.previousRevenue
-            )}
+            value={formatCurrency(dashboardData.global.total_revenue || 0)}
             icon={CurrencyDollarIcon}
             color="green"
           />
           <MetricCard
             title="Total Users"
-            value={formatNumber(dashboardData.global.totalUsers || 0)}
-            change={calculateChange(
-              dashboardData.global.totalUsers,
-              dashboardData.global.previousUsers
-            )}
+            value={formatNumber(dashboardData.global.total_users || 0)}
             icon={UserIcon}
             color="blue"
           />
           <MetricCard
             title="Bookings"
-            value={formatNumber(dashboardData.global.totalBookings || 0)}
-            change={calculateChange(
-              dashboardData.global.totalBookings,
-              dashboardData.global.previousBookings
-            )}
+            value={formatNumber(dashboardData.global.total_bookings || 0)}
             icon={CalendarIcon}
             color="purple"
           />
           <MetricCard
             title="Active Companies"
-            value={formatNumber(dashboardData.global.activeCompanies || 0)}
-            change={calculateChange(
-              dashboardData.global.activeCompanies,
-              dashboardData.global.previousCompanies
-            )}
+            value={formatNumber(dashboardData.global.active_companies || 0)}
             icon={ChartBarIcon}
             color="orange"
           />
@@ -408,25 +389,25 @@ const AnalyticsDashboard = ({
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {dashboardData.topCompanies.map((company, index) => (
-                  <tr key={company.id || index}>
+                  <tr key={company.company_id || index}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {company.name}
+                        {company.company_name}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {formatCurrency(company.revenue || 0)}
+                        {formatCurrency(company.total_revenue || 0)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {company.bookings || 0}
+                        {company.total_bookings || 0}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {company.rating ? `${company.rating}/5` : 'N/A'}
+                        N/A
                       </div>
                     </td>
                   </tr>
