@@ -79,34 +79,44 @@ const AnalyticsDashboard = ({
       }
 
       const responses = await Promise.all(endpoints);
-      const data = await Promise.all(responses.map(r => r.json()));
+      
+      // Process responses safely
+      const dataPromises = responses.map(async (response) => {
+        if (!response.ok) {
+          console.error('Failed to fetch analytics:', response.status, response.statusText);
+          return null;
+        }
+        return await response.json();
+      });
+      
+      const data = await Promise.all(dataPromises);
       
       // Transform revenue trends to chart format
-      const revenueTrends = data[1]?.data || [];
+      const revenueTrends = (data[1]?.data || []);
       const revenueChartData = {
         labels: revenueTrends.map(item => item.date),
         data: revenueTrends.map(item => item.revenue)
       };
       
       // Transform registration trends to chart format
-      const registrationTrends = data[2]?.data || [];
+      const registrationTrends = (data[2]?.data || []);
       const registrationChartData = {
         labels: registrationTrends.map(item => item.date),
         data: registrationTrends.map(item => item.registrations)
       };
       
       // Transform categories to chart format
-      const categories = data[4]?.data || [];
+      const categories = (data[4]?.data || []);
       const categoriesChartData = {
         labels: categories.map(item => item.category_name),
         data: categories.map(item => item.total_bookings)
       };
       
       setDashboardData({
-        global: data[0]?.data || data[0],
+        global: data[0]?.data || data[0] || {},
         revenue: revenueChartData,
         registrations: registrationChartData,
-        topCompanies: data[3]?.data || data[3],
+        topCompanies: (data[3]?.data || data[3] || []),
         categories: categoriesChartData,
       });
     } catch (err) {
@@ -366,7 +376,7 @@ const AnalyticsDashboard = ({
       </div>
 
       {/* Top Companies Table (Admin only) */}
-      {isAdmin && dashboardData?.topCompanies && (
+      {isAdmin && dashboardData?.topCompanies && Array.isArray(dashboardData.topCompanies) && (
         <div className="card">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Companies</h3>
           <div className="overflow-x-auto">
@@ -388,7 +398,7 @@ const AnalyticsDashboard = ({
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {dashboardData.topCompanies.map((company, index) => (
+                {dashboardData.topCompanies.length > 0 ? dashboardData.topCompanies.map((company, index) => (
                   <tr key={company.company_id || index}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
@@ -411,7 +421,13 @@ const AnalyticsDashboard = ({
                       </div>
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <tr>
+                    <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
+                      No companies found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
