@@ -1020,60 +1020,28 @@ func calculateTotalRevenue(segments []map[string]interface{}) int {
 
 // GetRecentActivity returns recent activity data for the dashboard
 func (h *AnalyticsHandler) GetRecentActivity(c *gin.Context) {
-	// Mock data for recent activity - replace with real database queries
-	activities := []map[string]interface{}{
-		{
-			"id":      1,
-			"message": "New user registered: john.doe@example.com",
-			"time":    "2 minutes ago",
-			"type":    "user_registration",
-		},
-		{
-			"id":      2,
-			"message": "Booking confirmed for Pet Grooming service",
-			"time":    "5 minutes ago",
-			"type":    "booking_confirmed",
-		},
-		{
-			"id":      3,
-			"message": "Payment processed: ₽2,500",
-			"time":    "8 minutes ago",
-			"type":    "payment_processed",
-		},
-		{
-			"id":      4,
-			"message": "New company registered: Happy Pets Clinic",
-			"time":    "12 minutes ago",
-			"type":    "company_registration",
-		},
-		{
-			"id":      5,
-			"message": "Service review submitted: 5 stars",
-			"time":    "15 minutes ago",
-			"type":    "review_submitted",
-		},
-		{
-			"id":      6,
-			"message": "AI Agent activated for company: VetCare Plus",
-			"time":    "18 minutes ago",
-			"type":    "ai_agent_activated",
-		},
-		{
-			"id":      7,
-			"message": "Subscription upgraded to Premium plan",
-			"time":    "22 minutes ago",
-			"type":    "subscription_upgraded",
-		},
-		{
-			"id":      8,
-			"message": "New pet profile created: Golden Retriever",
-			"time":    "25 minutes ago",
-			"type":    "pet_profile_created",
-		},
+	activities, err := h.analyticsService.GetRecentActivity()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    activities,
+	})
+}
+
+// GetKeyMetrics returns key platform metrics for the dashboard
+func (h *AnalyticsHandler) GetKeyMetrics(c *gin.Context) {
+	metrics, err := h.analyticsService.GetKeyMetrics()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    metrics,
 	})
 }

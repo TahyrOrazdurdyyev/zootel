@@ -559,6 +559,7 @@ func main() {
 				admin.GET("/analytics/segments", analyticsHandler.GetSegmentAnalytics)
 				admin.GET("/analytics/funnel", analyticsHandler.GetFunnelAnalytics)
 				admin.GET("/analytics/recent-activity", analyticsHandler.GetRecentActivity)
+				admin.GET("/analytics/key-metrics", analyticsHandler.GetKeyMetrics)
 
 				// Addon management
 				admin.GET("/addons", addonHandler.GetAvailableAddons)

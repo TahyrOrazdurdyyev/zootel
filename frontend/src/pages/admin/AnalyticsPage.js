@@ -259,23 +259,50 @@ const PlatformHealthWidget = () => {
 
 // Top Metrics Widget
 const TopMetricsWidget = () => {
+  const [metrics, setMetrics] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchKeyMetrics();
+  }, []);
+
+  const fetchKeyMetrics = async () => {
+    try {
+      const response = await fetch('/api/v1/admin/analytics/key-metrics');
+      if (response.ok) {
+        const data = await response.json();
+        setMetrics(data.data || {});
+      }
+    } catch (error) {
+      console.error('Error fetching key metrics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const topMetrics = [
-    { name: 'Most Popular Service', value: 'Grooming' },
-    { name: 'Top City', value: 'Moscow' },
-    { name: 'Average Check', value: '₽2,450' },
-    { name: 'Conversion Rate', value: '12.5%' },
+    { name: 'Most Popular Service', value: metrics.most_popular_service || 'No data' },
+    { name: 'Top City', value: metrics.top_city || 'No data' },
+    { name: 'Average Check', value: metrics.average_check || '₽0' },
+    { name: 'Conversion Rate', value: metrics.conversion_rate || '0%' },
   ];
 
   return (
     <div className="card">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Metrics</h3>
       <div className="space-y-3">
-        {topMetrics.map((metric, index) => (
-          <div key={index} className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">{metric.name}</span>
-            <span className="text-sm font-medium text-gray-900">{metric.value}</span>
+        {loading ? (
+          <div className="text-center py-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-600 mx-auto"></div>
           </div>
-        ))}
+        ) : (
+          topMetrics.map((metric, index) => (
+            <div key={index} className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">{metric.name}</span>
+              <span className="text-sm font-medium text-gray-900">{metric.value}</span>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

@@ -1964,6 +1964,206 @@ func (s *AnalyticsService) getTotalUserStatsByLocation() (*models.LocationStats,
 	return &stats, nil
 }
 
+// GetRecentActivity returns recent activity from database
+func (s *AnalyticsService) GetRecentActivity() ([]map[string]interface{}, error) {
+	var activities []map[string]interface{}
+
+	// Get recent user registrations
+	userQuery := `
+		SELECT 'user_registration' as type, 
+			   CONCAT('New user registered: ', email) as message,
+			   created_at
+		FROM users 
+		WHERE created_at >= NOW() - INTERVAL '24 hours'
+		ORDER BY created_at DESC
+		LIMIT 5
+	`
+	
+	// Get recent company registrations
+	companyQuery := `
+		SELECT 'company_registration' as type,
+			   CONCAT('New company registered: ', name) as message,
+			   created_at
+		FROM companies
+		WHERE created_at >= NOW() - INTERVAL '24 hours'
+		ORDER BY created_at DESC
+		LIMIT 5
+	`
+
+	// Get recent bookings
+	bookingQuery := `
+		SELECT 'booking_confirmed' as type,
+			   CONCAT('Booking confirmed for service: ', s.name) as message,
+			   b.created_at
+		FROM bookings b
+		JOIN services s ON b.service_id = s.id
+		WHERE b.created_at >= NOW() - INTERVAL '24 hours'
+		  AND b.status = 'confirmed'
+		ORDER BY b.created_at DESC
+		LIMIT 5
+	`
+
+	// Get recent orders/payments
+	orderQuery := `
+		SELECT 'payment_processed' as type,
+			   CONCAT('Payment processed: ₽', total_amount) as message,
+			   created_at
+		FROM orders
+		WHERE created_at >= NOW() - INTERVAL '24 hours'
+		  AND status = 'completed'
+		ORDER BY created_at DESC
+		LIMIT 5
+	`
+
+	// Combine all queries with UNION
+	combinedQuery := fmt.Sprintf(`
+		(%s) UNION ALL
+		(%s) UNION ALL
+		(%s) UNION ALL
+		(%s)
+		ORDER BY created_at DESC
+		LIMIT 20
+	`, userQuery, companyQuery, bookingQuery, orderQuery)
+
+	rows, err := s.db.Query(combinedQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	id := 1
+	for rows.Next() {
+		var activityType, message string
+		var createdAt time.Time
+		
+		err := rows.Scan(&activityType, &message, &createdAt)
+		if err != nil {
+			continue
+		}
+
+		// Calculate time ago
+		timeAgo := s.formatTimeAgo(createdAt)
+
+		activity := map[string]interface{}{
+			"id":      id,
+			"message": message,
+			"time":    timeAgo,
+			"type":    activityType,
+		}
+		activities = append(activities, activity)
+		id++
+	}
+
+	// If no recent activities, return empty array instead of nil
+	if activities == nil {
+		activities = []map[string]interface{}{}
+	}
+
+	return activities, nil
+}
+
+// GetKeyMetrics returns key platform metrics
+func (s *AnalyticsService) GetKeyMetrics() (map[string]interface{}, error) {
+	metrics := make(map[string]interface{})
+
+	// Most popular service
+	var popularService string
+	err := s.db.QueryRow(`
+		SELECT s.name
+		FROM services s
+		JOIN bookings b ON s.id = b.service_id
+		WHERE b.created_at >= NOW() - INTERVAL '30 days'
+		GROUP BY s.id, s.name
+		ORDER BY COUNT(b.id) DESC
+		LIMIT 1
+	`).Scan(&popularService)
+	if err != nil {
+		popularService = "No data"
+	}
+
+	// Top city by user count
+	var topCity string
+	err = s.db.QueryRow(`
+		SELECT city
+		FROM users
+		WHERE city IS NOT NULL AND city != ''
+		GROUP BY city
+		ORDER BY COUNT(*) DESC
+		LIMIT 1
+	`).Scan(&topCity)
+	if err != nil {
+		topCity = "No data"
+	}
+
+	// Average check from completed orders
+	var avgCheck float64
+	err = s.db.QueryRow(`
+		SELECT COALESCE(AVG(total_amount), 0)
+		FROM orders
+		WHERE status = 'completed'
+		  AND created_at >= NOW() - INTERVAL '30 days'
+	`).Scan(&avgCheck)
+	if err != nil {
+		avgCheck = 0
+	}
+
+	// Conversion rate (users who made bookings vs total users)
+	var totalUsers, convertedUsers int
+	err = s.db.QueryRow("SELECT COUNT(*) FROM users").Scan(&totalUsers)
+	if err != nil {
+		totalUsers = 1 // Avoid division by zero
+	}
+
+	err = s.db.QueryRow(`
+		SELECT COUNT(DISTINCT user_id)
+		FROM bookings
+		WHERE created_at >= NOW() - INTERVAL '30 days'
+	`).Scan(&convertedUsers)
+	if err != nil {
+		convertedUsers = 0
+	}
+
+	conversionRate := 0.0
+	if totalUsers > 0 {
+		conversionRate = (float64(convertedUsers) / float64(totalUsers)) * 100
+	}
+
+	metrics["most_popular_service"] = popularService
+	metrics["top_city"] = topCity
+	metrics["average_check"] = fmt.Sprintf("₽%.0f", avgCheck)
+	metrics["conversion_rate"] = fmt.Sprintf("%.1f%%", conversionRate)
+
+	return metrics, nil
+}
+
+// formatTimeAgo converts time to "X minutes ago" format
+func (s *AnalyticsService) formatTimeAgo(t time.Time) string {
+	now := time.Now()
+	diff := now.Sub(t)
+
+	if diff < time.Minute {
+		return "Just now"
+	} else if diff < time.Hour {
+		minutes := int(diff.Minutes())
+		if minutes == 1 {
+			return "1 minute ago"
+		}
+		return fmt.Sprintf("%d minutes ago", minutes)
+	} else if diff < 24*time.Hour {
+		hours := int(diff.Hours())
+		if hours == 1 {
+			return "1 hour ago"
+		}
+		return fmt.Sprintf("%d hours ago", hours)
+	} else {
+		days := int(diff.Hours() / 24)
+		if days == 1 {
+			return "1 day ago"
+		}
+		return fmt.Sprintf("%d days ago", days)
+	}
+}
+
 // getUserRolesByLocation returns user role distribution by location
 func (s *AnalyticsService) getUserRolesByLocation() ([]models.LocationRoleBreakdown, error) {
 	query := `
