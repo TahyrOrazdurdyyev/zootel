@@ -371,13 +371,304 @@ const TopMetricsWidget = () => {
 };
 
 // Placeholder tabs - to be implemented
-const UserAnalyticsTab = ({ timeframe }) => (
-  <div className="card">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">User Analytics</h3>
-    <p className="text-gray-600">Detailed user analytics for {timeframe}</p>
-    {/* Add user-specific charts and metrics here */}
-  </div>
-);
+const UserAnalyticsTab = ({ timeframe }) => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    page_size: 20,
+    total: 0,
+    total_pages: 0
+  });
+  const [filters, setFilters] = useState({
+    role: '',
+    country: '',
+    search: ''
+  });
+
+  useEffect(() => {
+    fetchUsers();
+  }, [pagination.page, filters]);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      
+      // Build query parameters
+      const params = new URLSearchParams({
+        page: pagination.page,
+        limit: pagination.page_size,
+        ...(filters.role && { role: filters.role }),
+        ...(filters.search && { q: filters.search })
+      });
+
+      const endpoint = filters.search 
+        ? `/api/v1/auth/search-users?${params}`
+        : `/api/v1/auth/users?${params}`;
+
+      const response = await fetch(endpoint, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data.data || []);
+        if (data.pagination) {
+          setPagination(prev => ({
+            ...prev,
+            total: data.pagination.total,
+            total_pages: Math.ceil(data.pagination.total / pagination.page_size)
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
+  const handlePageChange = (newPage) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('ru-RU', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getRoleBadge = (role) => {
+    const roleColors = {
+      'super_admin': 'bg-red-100 text-red-800',
+      'company_owner': 'bg-blue-100 text-blue-800',
+      'pet_owner': 'bg-green-100 text-green-800'
+    };
+    
+    const roleLabels = {
+      'super_admin': 'Super Admin',
+      'company_owner': 'Company Owner', 
+      'pet_owner': 'Pet Owner'
+    };
+
+    return (
+      <span className={`px-2 py-1 text-xs font-medium rounded-full ${roleColors[role] || 'bg-gray-100 text-gray-800'}`}>
+        {roleLabels[role] || role}
+      </span>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Filters */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">User Management</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+            <input
+              type="text"
+              placeholder="Search by email or name..."
+              value={filters.search}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+            <select
+              value={filters.role}
+              onChange={(e) => handleFilterChange('role', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="">All Roles</option>
+              <option value="pet_owner">Pet Owner</option>
+              <option value="company_owner">Company Owner</option>
+              <option value="super_admin">Super Admin</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+            <input
+              type="text"
+              placeholder="Filter by country..."
+              value={filters.country}
+              onChange={(e) => handleFilterChange('country', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-blue-600">{pagination.total}</div>
+            <div className="text-sm text-blue-600">Total Users</div>
+          </div>
+          <div className="bg-green-50 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-green-600">{users.filter(u => u.role === 'pet_owner').length}</div>
+            <div className="text-sm text-green-600">Pet Owners</div>
+          </div>
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-purple-600">{users.filter(u => u.role === 'company_owner').length}</div>
+            <div className="text-sm text-purple-600">Company Owners</div>
+          </div>
+          <div className="bg-orange-50 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-orange-600">{users.filter(u => new Date(u.created_at) > new Date(Date.now() - 30*24*60*60*1000)).length}</div>
+            <div className="text-sm text-orange-600">New (30 days)</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Users Table */}
+      <div className="card">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Users List</h3>
+          <div className="text-sm text-gray-500">
+            Showing {((pagination.page - 1) * pagination.page_size) + 1}-{Math.min(pagination.page * pagination.page_size, pagination.total)} of {pagination.total}
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto"></div>
+            <p className="mt-2 text-gray-500">Loading users...</p>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registered</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {users.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center">
+                              <span className="text-sm font-medium text-orange-600">
+                                {(user.first_name?.[0] || user.email?.[0] || '?').toUpperCase()}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {user.first_name || user.last_name ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : 'No name'}
+                            </div>
+                            <div className="text-sm text-gray-500">{user.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{user.phone || 'No phone'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {[user.city, user.state, user.country].filter(Boolean).join(', ') || 'No location'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getRoleBadge(user.role)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(user.created_at)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            {pagination.total_pages > 1 && (
+              <div className="flex items-center justify-between px-6 py-3 bg-gray-50">
+                <div className="flex justify-between flex-1 sm:hidden">
+                  <button
+                    onClick={() => handlePageChange(pagination.page - 1)}
+                    disabled={pagination.page === 1}
+                    className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => handlePageChange(pagination.page + 1)}
+                    disabled={pagination.page === pagination.total_pages}
+                    className="relative ml-3 inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+                <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm text-gray-700">
+                      Page <span className="font-medium">{pagination.page}</span> of{' '}
+                      <span className="font-medium">{pagination.total_pages}</span>
+                    </p>
+                  </div>
+                  <div>
+                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                      <button
+                        onClick={() => handlePageChange(pagination.page - 1)}
+                        disabled={pagination.page === 1}
+                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        ←
+                      </button>
+                      {[...Array(Math.min(5, pagination.total_pages))].map((_, i) => {
+                        const pageNum = i + 1;
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => handlePageChange(pageNum)}
+                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                              pageNum === pagination.page
+                                ? 'z-10 bg-orange-50 border-orange-500 text-orange-600'
+                                : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                      <button
+                        onClick={() => handlePageChange(pagination.page + 1)}
+                        disabled={pagination.page === pagination.total_pages}
+                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        →
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const CompanyAnalyticsTab = ({ timeframe }) => (
   <div className="card">
