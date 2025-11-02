@@ -239,7 +239,12 @@ const PlatformHealthWidget = () => {
 
   const fetchPlatformStatus = async () => {
     try {
-      const response = await fetch('/api/v1/admin/analytics/platform-status');
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/v1/admin/analytics/platform-status', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         const statusData = data.data || {};
@@ -320,7 +325,12 @@ const TopMetricsWidget = () => {
 
   const fetchKeyMetrics = async () => {
     try {
-      const response = await fetch('/api/v1/admin/analytics/key-metrics');
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/v1/admin/analytics/key-metrics', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         setMetrics(data.data || {});
