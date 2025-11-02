@@ -685,7 +685,7 @@ func (s *AdminService) GetGlobalAnalytics() (map[string]interface{}, error) {
 	var totalUsers, totalCompanies, totalBookings, totalOrders int
 	var totalRevenue float64
 
-	err := s.db.QueryRow("SELECT COUNT(*) FROM users WHERE role = 'pet_owner'").Scan(&totalUsers)
+	err := s.db.QueryRow("SELECT COUNT(*) FROM users").Scan(&totalUsers)
 	if err != nil {
 		return nil, err
 	}
@@ -720,7 +720,7 @@ func (s *AdminService) GetGlobalAnalytics() (map[string]interface{}, error) {
 	var recentUsers, recentCompanies int
 	err = s.db.QueryRow(`
 		SELECT COUNT(*) FROM users 
-		WHERE role = 'pet_owner' AND created_at >= NOW() - INTERVAL '30 days'
+		WHERE created_at >= NOW() - INTERVAL '30 days'
 	`).Scan(&recentUsers)
 	if err != nil {
 		return nil, err

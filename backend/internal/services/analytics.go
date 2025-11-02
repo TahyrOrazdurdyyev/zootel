@@ -500,7 +500,7 @@ func (s *AnalyticsService) GetGlobalDashboard() (*DashboardMetrics, error) {
 
 	query := `
 		SELECT
-			(SELECT COUNT(*) FROM users WHERE role = 'pet_owner') as total_users,
+			(SELECT COUNT(*) FROM users) as total_users,
 			(SELECT COUNT(*) FROM companies WHERE is_active = true AND is_demo = false) as total_companies,
 			(SELECT COUNT(*) FROM bookings) as total_bookings,
 			(SELECT COUNT(*) FROM orders) as total_orders,
@@ -514,7 +514,7 @@ func (s *AnalyticsService) GetGlobalDashboard() (*DashboardMetrics, error) {
 				AND (id IN (SELECT DISTINCT company_id FROM bookings WHERE created_at >= NOW() - INTERVAL '30 days')
 					OR id IN (SELECT DISTINCT company_id FROM orders WHERE created_at >= NOW() - INTERVAL '30 days'))
 			) as active_companies,
-			(SELECT COUNT(*) FROM users WHERE role = 'pet_owner' AND created_at >= NOW() - INTERVAL '30 days') as recent_users,
+			(SELECT COUNT(*) FROM users WHERE created_at >= NOW() - INTERVAL '30 days') as recent_users,
 			(SELECT COUNT(*) FROM companies WHERE is_demo = false AND created_at >= NOW() - INTERVAL '30 days') as recent_companies
 	`
 
