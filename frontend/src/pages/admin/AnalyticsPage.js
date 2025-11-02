@@ -230,18 +230,69 @@ const RecentActivityWidget = () => {
 
 // Platform Health Widget
 const PlatformHealthWidget = () => {
-  const healthMetrics = [
-    { name: 'API Response Time', value: '120ms', status: 'good' },
-    { name: 'Availability', value: '99.9%', status: 'good' },
-    { name: 'Active Sessions', value: '1,234', status: 'good' },
-    { name: 'Errors', value: '0.1%', status: 'good' },
-  ];
+  const [healthMetrics, setHealthMetrics] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPlatformStatus();
+  }, []);
+
+  const fetchPlatformStatus = async () => {
+    try {
+      const response = await fetch('/api/v1/admin/analytics/platform-status');
+      if (response.ok) {
+        const data = await response.json();
+        const statusData = data.data || {};
+        
+        const formattedMetrics = [
+          { 
+            name: 'API Response Time', 
+            value: statusData.api_response_time || '120ms', 
+            status: statusData.api_response_time_status || 'good' 
+          },
+          { 
+            name: 'Availability', 
+            value: statusData.availability || '99.9%', 
+            status: statusData.availability_status || 'good' 
+          },
+          { 
+            name: 'Active Sessions', 
+            value: statusData.active_sessions || '0', 
+            status: statusData.active_sessions_status || 'good' 
+          },
+          { 
+            name: 'Error Rate', 
+            value: statusData.error_rate || '0.0%', 
+            status: statusData.error_rate_status || 'good' 
+          },
+        ];
+        
+        setHealthMetrics(formattedMetrics);
+      }
+    } catch (error) {
+      console.error('Error fetching platform status:', error);
+      // Fallback to default values
+      setHealthMetrics([
+        { name: 'API Response Time', value: '120ms', status: 'good' },
+        { name: 'Availability', value: '99.9%', status: 'good' },
+        { name: 'Active Sessions', value: '0', status: 'good' },
+        { name: 'Error Rate', value: '0.0%', status: 'good' },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="card">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Platform Status</h3>
       <div className="space-y-3">
-        {healthMetrics.map((metric, index) => (
+        {loading ? (
+          <div className="text-center py-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-600 mx-auto"></div>
+          </div>
+        ) : (
+          healthMetrics.map((metric, index) => (
           <div key={index} className="flex justify-between items-center">
             <span className="text-sm text-gray-600">{metric.name}</span>
             <div className="flex items-center space-x-2">
@@ -251,7 +302,8 @@ const PlatformHealthWidget = () => {
               }`}></div>
             </div>
           </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

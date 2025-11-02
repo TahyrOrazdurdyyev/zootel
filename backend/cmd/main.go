@@ -555,11 +555,12 @@ func main() {
 				admin.GET("/analytics/cohort", analyticsHandler.GetCohortAnalytics)
 				admin.GET("/analytics/geographic", analyticsHandler.GetGeographicDistribution)
 
-				// New advanced analytics endpoints
-				admin.GET("/analytics/segments", analyticsHandler.GetSegmentAnalytics)
-				admin.GET("/analytics/funnel", analyticsHandler.GetFunnelAnalytics)
-				admin.GET("/analytics/recent-activity", analyticsHandler.GetRecentActivity)
-				admin.GET("/analytics/key-metrics", analyticsHandler.GetKeyMetrics)
+		// New advanced analytics endpoints
+		admin.GET("/analytics/segments", analyticsHandler.GetSegmentAnalytics)
+		admin.GET("/analytics/funnel", analyticsHandler.GetFunnelAnalytics)
+		admin.GET("/analytics/recent-activity", analyticsHandler.GetRecentActivity)
+		admin.GET("/analytics/key-metrics", analyticsHandler.GetKeyMetrics)
+		admin.GET("/analytics/platform-status", analyticsHandler.GetPlatformStatus)
 
 				// Addon management
 				admin.GET("/addons", addonHandler.GetAvailableAddons)

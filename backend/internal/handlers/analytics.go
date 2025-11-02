@@ -742,38 +742,14 @@ func (h *AnalyticsHandler) GetLocationTrends(c *gin.Context) {
 
 // GetCohortAnalytics handles cohort analysis requests
 func (h *AnalyticsHandler) GetCohortAnalytics(c *gin.Context) {
-	_ = c.DefaultQuery("period", "weekly")
-	_ = c.DefaultQuery("metric", "retention")
-	_ = c.DefaultQuery("timeframe", "30d")
+	period := c.DefaultQuery("period", "weekly")
+	metric := c.DefaultQuery("metric", "retention")
+	timeframe := c.DefaultQuery("timeframe", "30d")
 
-	// Mock data for now - replace with real database queries
-	cohortData := map[string]interface{}{
-		"cohorts": []map[string]interface{}{
-			{
-				"period":      "2025-01-01",
-				"total_users": 1250,
-				"retention_rates": []int{100, 85, 72, 65, 58, 52, 48, 45, 42, 38, 35, 32},
-			},
-			{
-				"period":      "2025-01-08", 
-				"total_users": 1180,
-				"retention_rates": []int{100, 88, 75, 68, 61, 55, 50, 46, 43, 40, 36, 33},
-			},
-			{
-				"period":      "2025-01-15",
-				"total_users": 1320,
-				"retention_rates": []int{100, 82, 70, 63, 56, 50, 45, 41, 38, 35, 32, 29},
-			},
-			{
-				"period":      "2025-01-22",
-				"total_users": 1450,
-				"retention_rates": []int{100, 90, 78, 71, 64, 58, 53, 49, 45, 42, 38, 35},
-			},
-		},
-		"summary": map[string]interface{}{
-			"avg_week1_retention":  86,
-			"avg_month1_retention": 42,
-		},
+	cohortData, err := h.analyticsService.GetCohortAnalytics(period, metric, timeframe)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -785,112 +761,13 @@ func (h *AnalyticsHandler) GetCohortAnalytics(c *gin.Context) {
 // GetSegmentAnalytics handles user segmentation requests
 func (h *AnalyticsHandler) GetSegmentAnalytics(c *gin.Context) {
 	segmentType := c.DefaultQuery("type", "behavior")
-	_ = c.DefaultQuery("timeframe", "30d")
+	timeframe := c.DefaultQuery("timeframe", "30d")
 
-	var segments []map[string]interface{}
 
-	switch segmentType {
-	case "behavior":
-		segments = []map[string]interface{}{
-			{
-				"name":           "Power Users",
-				"description":    "Users with high engagement",
-				"user_count":     2450,
-				"percentage":     15.2,
-				"avg_revenue":    1250,
-				"retention_rate": 85,
-			},
-			{
-				"name":           "Regular Users", 
-				"description":    "Moderate usage patterns",
-				"user_count":     8920,
-				"percentage":     55.4,
-				"avg_revenue":    420,
-				"retention_rate": 65,
-			},
-			{
-				"name":           "Casual Users",
-				"description":    "Low engagement users",
-				"user_count":     4730,
-				"percentage":     29.4,
-				"avg_revenue":    180,
-				"retention_rate": 35,
-			},
-		}
-	case "demographic":
-		segments = []map[string]interface{}{
-			{
-				"name":           "18-25 Age Group",
-				"description":    "Young adults",
-				"user_count":     3200,
-				"percentage":     19.8,
-				"avg_revenue":    380,
-				"retention_rate": 58,
-			},
-			{
-				"name":           "26-35 Age Group",
-				"description":    "Young professionals",
-				"user_count":     6800,
-				"percentage":     42.2,
-				"avg_revenue":    720,
-				"retention_rate": 72,
-			},
-			{
-				"name":           "36-50 Age Group",
-				"description":    "Established professionals",
-				"user_count":     4900,
-				"percentage":     30.4,
-				"avg_revenue":    950,
-				"retention_rate": 78,
-			},
-			{
-				"name":           "50+ Age Group",
-				"description":    "Senior users",
-				"user_count":     1200,
-				"percentage":     7.6,
-				"avg_revenue":    1100,
-				"retention_rate": 82,
-			},
-		}
-	case "geographic":
-		segments = []map[string]interface{}{
-			{
-				"name":           "Moscow",
-				"description":    "Capital region users",
-				"user_count":     5200,
-				"percentage":     32.3,
-				"avg_revenue":    850,
-				"retention_rate": 75,
-			},
-			{
-				"name":           "St. Petersburg",
-				"description":    "Northern capital users",
-				"user_count":     2800,
-				"percentage":     17.4,
-				"avg_revenue":    720,
-				"retention_rate": 70,
-			},
-			{
-				"name":           "Other Cities",
-				"description":    "Regional users",
-				"user_count":     8100,
-				"percentage":     50.3,
-				"avg_revenue":    480,
-				"retention_rate": 62,
-			},
-		}
-	default:
-		segments = []map[string]interface{}{}
-	}
-
-	segmentData := map[string]interface{}{
-		"segments": segments,
-		"trends": map[string]interface{}{
-			"total_segments":    len(segments),
-			"avg_segment_size":  calculateAvgSegmentSize(segments),
-			"highest_retention": getHighestRetention(segments),
-			"total_revenue":     calculateTotalRevenue(segments),
-		},
+	segmentData, err := h.analyticsService.GetSegmentAnalytics(segmentType, timeframe)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -902,78 +779,12 @@ func (h *AnalyticsHandler) GetSegmentAnalytics(c *gin.Context) {
 // GetFunnelAnalytics handles conversion funnel requests
 func (h *AnalyticsHandler) GetFunnelAnalytics(c *gin.Context) {
 	funnelType := c.DefaultQuery("type", "registration")
-	_ = c.DefaultQuery("timeframe", "30d")
+	timeframe := c.DefaultQuery("timeframe", "30d")
 
-	var steps []map[string]interface{}
-	var overallConversion float64
-	var biggestDropoff map[string]interface{}
-
-	switch funnelType {
-	case "registration":
-		steps = []map[string]interface{}{
-			{"name": "Landing Page Visit", "users": 25000},
-			{"name": "Sign Up Started", "users": 8500},
-			{"name": "Email Verified", "users": 6800},
-			{"name": "Profile Completed", "users": 5200},
-			{"name": "First Service Booked", "users": 3100},
-		}
-		overallConversion = 12.4
-		biggestDropoff = map[string]interface{}{
-			"step": "Landing → Sign Up",
-			"rate": 66.0,
-		}
-	case "booking":
-		steps = []map[string]interface{}{
-			{"name": "Service Search", "users": 15000},
-			{"name": "Service Selected", "users": 9500},
-			{"name": "Date/Time Selected", "users": 7200},
-			{"name": "Payment Info Added", "users": 5800},
-			{"name": "Booking Confirmed", "users": 4900},
-		}
-		overallConversion = 32.7
-		biggestDropoff = map[string]interface{}{
-			"step": "Search → Selection",
-			"rate": 36.7,
-		}
-	case "payment":
-		steps = []map[string]interface{}{
-			{"name": "Checkout Started", "users": 5800},
-			{"name": "Payment Method Selected", "users": 5200},
-			{"name": "Payment Details Entered", "users": 4800},
-			{"name": "Payment Submitted", "users": 4600},
-			{"name": "Payment Confirmed", "users": 4500},
-		}
-		overallConversion = 77.6
-		biggestDropoff = map[string]interface{}{
-			"step": "Details → Submit",
-			"rate": 4.2,
-		}
-	default:
-		steps = []map[string]interface{}{}
-		overallConversion = 0
-		biggestDropoff = map[string]interface{}{}
-	}
-
-	suggestions := []map[string]interface{}{
-		{
-			"title":       "Optimize Landing Page",
-			"description": "Improve call-to-action visibility and reduce form complexity",
-		},
-		{
-			"title":       "Simplify Registration",
-			"description": "Reduce required fields and add social login options",
-		},
-		{
-			"title":       "Add Progress Indicators",
-			"description": "Show users their progress through the funnel steps",
-		},
-	}
-
-	funnelData := map[string]interface{}{
-		"steps":                   steps,
-		"overall_conversion_rate": overallConversion,
-		"biggest_dropoff":         biggestDropoff,
-		"suggestions":             suggestions,
+	funnelData, err := h.analyticsService.GetFunnelAnalytics(funnelType, timeframe)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -1043,5 +854,19 @@ func (h *AnalyticsHandler) GetKeyMetrics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    metrics,
+	})
+}
+
+// GetPlatformStatus returns platform health metrics for the dashboard
+func (h *AnalyticsHandler) GetPlatformStatus(c *gin.Context) {
+	status, err := h.analyticsService.GetPlatformStatus()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    status,
 	})
 }
