@@ -139,6 +139,10 @@ export const AuthProvider = ({ children }) => {
 
       if (firebaseUser) {
         try {
+          // Get Firebase token and save to localStorage
+          const token = await firebaseUser.getIdToken();
+          localStorage.setItem('token', token);
+          
           // Get user data from backend
           let userData = await fetchUserData(firebaseUser);
           
@@ -180,6 +184,8 @@ export const AuthProvider = ({ children }) => {
         }
       } else {
         setUser(null);
+        // Clear token when user logs out
+        localStorage.removeItem('token');
       }
 
       setLoading(false);
@@ -195,6 +201,10 @@ export const AuthProvider = ({ children }) => {
       
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
+      
+      // Get token and save to localStorage immediately
+      const token = await firebaseUser.getIdToken();
+      localStorage.setItem('token', token);
       
       // The onAuthStateChanged listener will handle fetching user data
       return firebaseUser;
