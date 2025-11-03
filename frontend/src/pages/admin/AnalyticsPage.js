@@ -710,7 +710,8 @@ const CompanyAnalyticsTab = ({ timeframe }) => {
           filteredCompanies = filteredCompanies.filter(c => c.status === filters.status);
         }
         if (filters.businessType) {
-          filteredCompanies = filteredCompanies.filter(c => c.business_type === filters.businessType);
+          // Поскольку business_type не приходит с backend, пропускаем этот фильтр
+          // filteredCompanies = filteredCompanies.filter(c => c.business_type === filters.businessType);
         }
         if (filters.country) {
           filteredCompanies = filteredCompanies.filter(c => 
@@ -924,7 +925,7 @@ const CompanyAnalyticsTab = ({ timeframe }) => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">{company.name}</div>
-                          <div className="text-sm text-gray-500">{company.business_type}</div>
+                          <div className="text-sm text-gray-500">General Business</div>
                           <div className="text-sm text-gray-500">{company.email}</div>
                         </div>
                       </div>

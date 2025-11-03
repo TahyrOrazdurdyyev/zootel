@@ -849,12 +849,13 @@ func (s *AdminService) GetTrialExpiringCompanies(daysBeforeExpiry int) ([]models
 func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 	query := `
 		SELECT 
-			c.id, c.name, c.business_type, c.description, c.email, c.phone,
-			c.address, c.city, c.state, c.postal_code, c.country,
-			c.website, c.logo_url, c.is_active, c.is_verified,
-			c.created_at, c.updated_at, c.trial_start_date, c.trial_end_date,
-			c.plan_id, p.name as plan_name, p.price as plan_price,
-			u.id as owner_id, u.first_name, u.last_name, u.email as owner_email,
+			c.id, c.name, COALESCE(c.description, '') as description, c.email, c.phone,
+			c.address, c.city, c.state, c.country,
+			c.website, c.logo_url, c.is_active,
+			c.created_at, c.updated_at,
+			c.plan_id, COALESCE(p.name, '') as plan_name, COALESCE(p.price, 0) as plan_price,
+			COALESCE(u.id::text, '') as owner_id, COALESCE(u.first_name, '') as owner_first_name, 
+			COALESCE(u.last_name, '') as owner_last_name, COALESCE(u.email, '') as owner_email,
 			COALESCE(cs.total_bookings, 0) as total_bookings,
 			COALESCE(cs.total_customers, 0) as total_customers,
 			COALESCE(cs.total_revenue, 0) as total_revenue,
@@ -888,18 +889,15 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 	var companies []models.CompanyDetails
 	for rows.Next() {
 		var company models.CompanyDetails
-		var planName, ownerFirstName, ownerLastName, ownerEmail sql.NullString
-		var planPrice sql.NullFloat64
-		var trialStartDate, trialEndDate sql.NullTime
 
 		err := rows.Scan(
-			&company.ID, &company.Name, &company.BusinessType, &company.Description,
+			&company.ID, &company.Name, &company.Description,
 			&company.Email, &company.Phone, &company.Address, &company.City,
-			&company.State, &company.PostalCode, &company.Country, &company.Website,
-			&company.LogoURL, &company.IsActive, &company.IsVerified,
-			&company.CreatedAt, &company.UpdatedAt, &trialStartDate, &trialEndDate,
-			&company.PlanID, &planName, &planPrice,
-			&company.OwnerID, &ownerFirstName, &ownerLastName, &ownerEmail,
+			&company.State, &company.Country, &company.Website,
+			&company.LogoURL, &company.IsActive,
+			&company.CreatedAt, &company.UpdatedAt,
+			&company.PlanID, &company.PlanName, &company.PlanPrice,
+			&company.OwnerID, &company.OwnerFirstName, &company.OwnerLastName, &company.OwnerEmail,
 			&company.TotalBookings, &company.TotalCustomers, &company.TotalRevenue,
 			&company.EmployeeCount,
 		)
@@ -907,28 +905,12 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			continue
 		}
 
-		// Обработка nullable полей
-		if planName.Valid {
-			company.PlanName = planName.String
-		}
-		if planPrice.Valid {
-			company.PlanPrice = planPrice.Float64
-		}
-		if ownerFirstName.Valid {
-			company.OwnerFirstName = ownerFirstName.String
-		}
-		if ownerLastName.Valid {
-			company.OwnerLastName = ownerLastName.String
-		}
-		if ownerEmail.Valid {
-			company.OwnerEmail = ownerEmail.String
-		}
-		if trialStartDate.Valid {
-			company.TrialStartDate = &trialStartDate.Time
-		}
-		if trialEndDate.Valid {
-			company.TrialEndDate = &trialEndDate.Time
-		}
+		// Устанавливаем значения по умолчанию для отсутствующих полей
+		company.BusinessType = "general" // значение по умолчанию
+		company.PostalCode = ""
+		company.IsVerified = false
+		company.TrialStartDate = nil
+		company.TrialEndDate = nil
 
 		// Определяем статус компании
 		company.Status = s.determineCompanyStatus(&company)

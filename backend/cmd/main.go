@@ -163,6 +163,8 @@ func main() {
 			auth.POST("/verify-email", authHandler.VerifyEmail)
 			auth.POST("/reset-password", authHandler.ResetPassword)
 			auth.GET("/me", middleware.AuthMiddleware(authClient, db), authHandler.GetMe)
+			auth.GET("/users", middleware.AuthMiddleware(authClient, db), middleware.SuperAdminMiddleware(), authHandler.GetUsers)
+			auth.GET("/search-users", middleware.AuthMiddleware(authClient, db), middleware.SuperAdminMiddleware(), authHandler.SearchUsers)
 		}
 
 		// Public marketplace endpoints
