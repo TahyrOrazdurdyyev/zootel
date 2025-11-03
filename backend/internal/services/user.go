@@ -399,53 +399,6 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 	return users, total, nil
 }
 
-func (s *UserService) SearchUsers(query string, role string, limit int) ([]models.User, error) {
-	searchQuery := `
-		SELECT id, firebase_uid, email, first_name, last_name, role, gender,
-			   date_of_birth, phone, address, country, state, city, timezone,
-			   avatar_url, emergency_contact, vet_contact, notification_methods,
-			   marketing_opt_in, created_at, updated_at
-		FROM users 
-		WHERE (
-			LOWER(first_name) LIKE LOWER($1) OR 
-			LOWER(last_name) LIKE LOWER($1) OR 
-			LOWER(email) LIKE LOWER($1)
-		)`
-
-	args := []interface{}{"%" + query + "%"}
-
-	if role != "" {
-		searchQuery += " AND role = $2"
-		args = append(args, role)
-	}
-
-	searchQuery += " ORDER BY created_at DESC LIMIT $" + fmt.Sprintf("%d", len(args)+1)
-	args = append(args, limit)
-
-	rows, err := s.db.Query(searchQuery, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var users []models.User
-	for rows.Next() {
-		var user models.User
-		err := rows.Scan(
-			&user.ID, &user.FirebaseUID, &user.Email, &user.FirstName, &user.LastName,
-			&user.Role, &user.Gender, &user.DateOfBirth, &user.Phone, &user.Address,
-			&user.Country, &user.State, &user.City, &user.Timezone, &user.AvatarURL,
-			&user.EmergencyContact, &user.VetContact, &user.NotificationMethods,
-			&user.MarketingOptIn, &user.CreatedAt, &user.UpdatedAt,
-		)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, user)
-	}
-
-	return users, nil
-}
 
 // User statistics
 func (s *UserService) GetUserStats() (map[string]interface{}, error) {
