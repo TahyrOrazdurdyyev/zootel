@@ -133,6 +133,109 @@ func (s *UserService) GetUserByFirebaseUID(firebaseUID string) (*models.User, er
 	return &user, nil
 }
 
+// GetUsers returns paginated list of users (admin only)
+func (s *UserService) GetUsers(page, limit int, role string) ([]models.User, error) {
+	offset := (page - 1) * limit
+	
+	query := `
+		SELECT id, firebase_uid, email, 
+		       COALESCE(first_name, '') as first_name, 
+		       COALESCE(last_name, '') as last_name, 
+		       role, 
+		       COALESCE(phone, '') as phone, 
+		       COALESCE(country, '') as country, 
+		       COALESCE(state, '') as state, 
+		       COALESCE(city, '') as city, 
+		       created_at
+		FROM users`
+	
+	args := []interface{}{}
+	
+	if role != "" {
+		query += " WHERE role = $1"
+		args = append(args, role)
+		query += " ORDER BY created_at DESC LIMIT $2 OFFSET $3"
+		args = append(args, limit, offset)
+	} else {
+		query += " ORDER BY created_at DESC LIMIT $1 OFFSET $2"
+		args = append(args, limit, offset)
+	}
+	
+	rows, err := s.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	
+	var users []models.User
+	for rows.Next() {
+		var user models.User
+		err := rows.Scan(
+			&user.ID, &user.FirebaseUID, &user.Email,
+			&user.FirstName, &user.LastName, &user.Role,
+			&user.Phone, &user.Country, &user.State, &user.City,
+			&user.CreatedAt,
+		)
+		if err != nil {
+			continue
+		}
+		users = append(users, user)
+	}
+	
+	return users, nil
+}
+
+// SearchUsers searches users by query (admin only)
+func (s *UserService) SearchUsers(query, role string, limit int) ([]models.User, error) {
+	sqlQuery := `
+		SELECT id, firebase_uid, email, 
+		       COALESCE(first_name, '') as first_name, 
+		       COALESCE(last_name, '') as last_name, 
+		       role, 
+		       COALESCE(phone, '') as phone, 
+		       COALESCE(country, '') as country, 
+		       COALESCE(state, '') as state, 
+		       COALESCE(city, '') as city, 
+		       created_at
+		FROM users
+		WHERE (email ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1)`
+	
+	args := []interface{}{"%" + query + "%"}
+	
+	if role != "" {
+		sqlQuery += " AND role = $2"
+		args = append(args, role)
+		sqlQuery += " ORDER BY created_at DESC LIMIT $3"
+		args = append(args, limit)
+	} else {
+		sqlQuery += " ORDER BY created_at DESC LIMIT $2"
+		args = append(args, limit)
+	}
+	
+	rows, err := s.db.Query(sqlQuery, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	
+	var users []models.User
+	for rows.Next() {
+		var user models.User
+		err := rows.Scan(
+			&user.ID, &user.FirebaseUID, &user.Email,
+			&user.FirstName, &user.LastName, &user.Role,
+			&user.Phone, &user.Country, &user.State, &user.City,
+			&user.CreatedAt,
+		)
+		if err != nil {
+			continue
+		}
+		users = append(users, user)
+	}
+	
+	return users, nil
+}
+
 func (s *UserService) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 	query := `
