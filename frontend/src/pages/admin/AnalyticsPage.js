@@ -670,13 +670,322 @@ const UserAnalyticsTab = ({ timeframe }) => {
   );
 };
 
-const CompanyAnalyticsTab = ({ timeframe }) => (
-  <div className="card">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">Company Analytics</h3>
-    <p className="text-gray-600">Company performance for {timeframe}</p>
-    {/* Add company-specific charts and metrics here */}
-  </div>
-);
+const CompanyAnalyticsTab = ({ timeframe }) => {
+  const [companies, setCompanies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    status: '',
+    businessType: '',
+    country: '',
+    search: ''
+  });
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    trial: 0,
+    verified: 0
+  });
+
+  useEffect(() => {
+    fetchCompanies();
+  }, [filters]);
+
+  const fetchCompanies = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch('/api/v1/admin/companies', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        let filteredCompanies = data.data || [];
+        
+        // Apply filters
+        if (filters.status) {
+          filteredCompanies = filteredCompanies.filter(c => c.status === filters.status);
+        }
+        if (filters.businessType) {
+          filteredCompanies = filteredCompanies.filter(c => c.business_type === filters.businessType);
+        }
+        if (filters.country) {
+          filteredCompanies = filteredCompanies.filter(c => 
+            c.country?.toLowerCase().includes(filters.country.toLowerCase())
+          );
+        }
+        if (filters.search) {
+          filteredCompanies = filteredCompanies.filter(c => 
+            c.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
+            c.email?.toLowerCase().includes(filters.search.toLowerCase()) ||
+            c.owner_email?.toLowerCase().includes(filters.search.toLowerCase())
+          );
+        }
+
+        setCompanies(filteredCompanies);
+        
+        // Calculate stats
+        const allCompanies = data.data || [];
+        setStats({
+          total: allCompanies.length,
+          active: allCompanies.filter(c => c.status === 'active').length,
+          trial: allCompanies.filter(c => c.status === 'trial').length,
+          verified: allCompanies.filter(c => c.is_verified).length
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('ru-RU', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getStatusBadge = (status) => {
+    const statusColors = {
+      'active': 'bg-green-100 text-green-800',
+      'trial': 'bg-blue-100 text-blue-800',
+      'trial_expired': 'bg-yellow-100 text-yellow-800',
+      'inactive': 'bg-red-100 text-red-800',
+      'paid': 'bg-purple-100 text-purple-800'
+    };
+    
+    const statusLabels = {
+      'active': 'Active',
+      'trial': 'Trial',
+      'trial_expired': 'Trial Expired',
+      'inactive': 'Inactive',
+      'paid': 'Paid'
+    };
+
+    return (
+      <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
+        {statusLabels[status] || status}
+      </span>
+    );
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
+      minimumFractionDigits: 0
+    }).format(amount || 0);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Filters */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Company Management</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              value={filters.search}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select
+              value={filters.status}
+              onChange={(e) => handleFilterChange('status', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="trial">Trial</option>
+              <option value="trial_expired">Trial Expired</option>
+              <option value="inactive">Inactive</option>
+              <option value="paid">Paid</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Business Type</label>
+            <select
+              value={filters.businessType}
+              onChange={(e) => handleFilterChange('businessType', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="">All Types</option>
+              <option value="veterinary">Veterinary</option>
+              <option value="grooming">Grooming</option>
+              <option value="boarding">Boarding</option>
+              <option value="training">Training</option>
+              <option value="walking">Walking</option>
+              <option value="sitting">Pet Sitting</option>
+              <option value="pet_taxi">Pet Taxi</option>
+              <option value="retail">Retail</option>
+              <option value="general">General</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+            <input
+              type="text"
+              placeholder="Filter by country..."
+              value={filters.country}
+              onChange={(e) => handleFilterChange('country', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
+            <div className="text-sm text-blue-600">Total Companies</div>
+          </div>
+          <div className="bg-green-50 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+            <div className="text-sm text-green-600">Active</div>
+          </div>
+          <div className="bg-yellow-50 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-yellow-600">{stats.trial}</div>
+            <div className="text-sm text-yellow-600">Trial</div>
+          </div>
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-purple-600">{stats.verified}</div>
+            <div className="text-sm text-purple-600">Verified</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Companies Table */}
+      <div className="card">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Companies List</h3>
+          <div className="text-sm text-gray-500">
+            Showing {companies.length} companies
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto"></div>
+            <p className="mt-2 text-gray-500">Loading companies...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {companies.map((company) => (
+                  <tr key={company.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          {company.logo_url ? (
+                            <img 
+                              src={company.logo_url} 
+                              alt={company.name}
+                              className="h-10 w-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center">
+                              <span className="text-sm font-medium text-orange-600">
+                                {(company.name?.[0] || '?').toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">{company.name}</div>
+                          <div className="text-sm text-gray-500">{company.business_type}</div>
+                          <div className="text-sm text-gray-500">{company.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {company.owner_first_name || company.owner_last_name 
+                          ? `${company.owner_first_name || ''} ${company.owner_last_name || ''}`.trim()
+                          : 'No name'
+                        }
+                      </div>
+                      <div className="text-sm text-gray-500">{company.owner_email}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {[company.city, company.state, company.country].filter(Boolean).join(', ') || 'No location'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col space-y-1">
+                        {getStatusBadge(company.status)}
+                        {company.is_verified && (
+                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                            ✓ Verified
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{company.plan_name || 'No plan'}</div>
+                      <div className="text-sm text-gray-500">
+                        {company.plan_price ? formatCurrency(company.plan_price) : 'Free'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        <div>📊 {company.total_bookings} bookings</div>
+                        <div>👥 {company.total_customers} customers</div>
+                        <div>💰 {formatCurrency(company.total_revenue)}</div>
+                        <div>👨‍💼 {company.employee_count} employees</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(company.created_at)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {!loading && companies.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No companies found matching your filters.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const RevenueAnalyticsTab = ({ timeframe }) => (
   <div className="card">
