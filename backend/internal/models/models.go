@@ -303,9 +303,10 @@ type CompanyDetails struct {
 	Country    string `json:"country" db:"country"`
 
 	// Статус и активность
-	IsActive   bool   `json:"is_active" db:"is_active"`
-	IsVerified bool   `json:"is_verified" db:"is_verified"`
-	Status     string `json:"status"` // active, trial, trial_expired, inactive, paid
+	IsActive      bool   `json:"is_active" db:"is_active"`
+	IsVerified    bool   `json:"is_verified" db:"is_verified"`
+	Status        string `json:"status"` // active, trial, trial_expired, inactive, paid
+	TrialExpired  bool   `json:"trial_expired" db:"trial_expired"`
 
 	// Информация о плане
 	PlanID    string  `json:"plan_id" db:"plan_id"`

@@ -849,9 +849,10 @@ func (s *AdminService) GetTrialExpiringCompanies(daysBeforeExpiry int) ([]models
 func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 	query := `
 		SELECT 
-			c.id, c.name, COALESCE(c.description, '') as description, c.email, c.phone,
-			c.address, c.city, c.state, c.country,
-			c.website, c.logo_url, c.is_active,
+			c.id, c.name, c.business_type, COALESCE(c.description, '') as description, 
+			c.email, c.phone, c.address, c.city, c.state, c.country,
+			c.website, c.logo_url, c.is_active, c.subscription_status,
+			c.trial_ends_at, c.subscription_expires_at, c.trial_expired,
 			c.created_at, c.updated_at,
 			c.plan_id, COALESCE(p.name, '') as plan_name, COALESCE(p.price, 0) as plan_price,
 			COALESCE(u.id::text, '') as owner_id, COALESCE(u.first_name, '') as owner_first_name, 
@@ -889,12 +890,14 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 	var companies []models.CompanyDetails
 	for rows.Next() {
 		var company models.CompanyDetails
+		var trialEndsAt, subscriptionExpiresAt sql.NullTime
 
 		err := rows.Scan(
-			&company.ID, &company.Name, &company.Description,
+			&company.ID, &company.Name, &company.BusinessType, &company.Description,
 			&company.Email, &company.Phone, &company.Address, &company.City,
 			&company.State, &company.Country, &company.Website,
-			&company.LogoURL, &company.IsActive,
+			&company.LogoURL, &company.IsActive, &company.Status,
+			&trialEndsAt, &subscriptionExpiresAt, &company.TrialExpired,
 			&company.CreatedAt, &company.UpdatedAt,
 			&company.PlanID, &company.PlanName, &company.PlanPrice,
 			&company.OwnerID, &company.OwnerFirstName, &company.OwnerLastName, &company.OwnerEmail,
@@ -905,12 +908,28 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			continue
 		}
 
+		// Обрабатываем nullable поля
+		if trialEndsAt.Valid {
+			company.TrialEndDate = &trialEndsAt.Time
+		}
+		if subscriptionExpiresAt.Valid {
+			company.TrialStartDate = &subscriptionExpiresAt.Time // используем как start date
+		}
+
 		// Устанавливаем значения по умолчанию для отсутствующих полей
-		company.BusinessType = "general" // значение по умолчанию
 		company.PostalCode = ""
 		company.IsVerified = false
-		company.TrialStartDate = nil
-		company.TrialEndDate = nil
+		
+		// Если статус не определен, используем subscription_status
+		if company.Status == "" {
+			if company.TrialExpired {
+				company.Status = "trial_expired"
+			} else if trialEndsAt.Valid && trialEndsAt.Time.After(time.Now()) {
+				company.Status = "trial"
+			} else {
+				company.Status = "active"
+			}
+		}
 
 		// Определяем статус компании
 		company.Status = s.determineCompanyStatus(&company)
