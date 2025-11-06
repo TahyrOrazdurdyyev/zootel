@@ -333,16 +333,14 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 
 	whereClause := ""
 	args := []interface{}{limit, offset}
-	argIndex := 3
 
 	if role != "" {
-		whereClause = "WHERE role = $3"
+		whereClause = "WHERE u.role = $3"
 		args = append(args, role)
-		argIndex++
 	}
 
 	// Get total count
-	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM users %s", whereClause)
+	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM users u %s", whereClause)
 	var total int
 	if role != "" {
 		err := s.db.QueryRow(countQuery, role).Scan(&total)
@@ -358,26 +356,74 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 
 	// Get users
 	query := fmt.Sprintf(`
-		SELECT id, firebase_uid, email, 
-		       COALESCE(first_name, '') as first_name, 
-		       COALESCE(last_name, '') as last_name, 
-		       role, 
-		       COALESCE(gender, '') as gender,
-		       date_of_birth, 
-		       COALESCE(phone, '') as phone, 
-		       COALESCE(address, '') as address, 
-		       COALESCE(country, '') as country, 
-		       COALESCE(state, '') as state, 
-		       COALESCE(city, '') as city, 
-		       COALESCE(timezone, '') as timezone,
-		       COALESCE(avatar_url, '') as avatar_url, 
-		       COALESCE(emergency_contact, '') as emergency_contact, 
-		       COALESCE(vet_contact, '') as vet_contact, 
-		       COALESCE(notification_methods::text, '[]') as notification_methods,
-		       COALESCE(marketing_opt_in, false) as marketing_opt_in, 
-		       created_at, updated_at
-		FROM users %s
-		ORDER BY created_at DESC
+		SELECT u.id, u.firebase_uid, u.email, 
+		       COALESCE(u.first_name, '') as first_name, 
+		       COALESCE(u.last_name, '') as last_name, 
+		       u.role, 
+		       COALESCE(u.gender, '') as gender,
+		       u.date_of_birth, 
+		       COALESCE(u.phone, '') as phone, 
+		       COALESCE(u.address, '') as address, 
+		       COALESCE(u.country, '') as country, 
+		       COALESCE(u.state, '') as state, 
+		       COALESCE(u.city, '') as city, 
+		       COALESCE(u.timezone, '') as timezone,
+		       COALESCE(u.avatar_url, '') as avatar_url, 
+		       COALESCE(u.emergency_contact, '') as emergency_contact, 
+		       COALESCE(u.vet_contact, '') as vet_contact, 
+		       COALESCE(u.notification_methods::text, '[]') as notification_methods,
+		       COALESCE(u.marketing_opt_in, false) as marketing_opt_in, 
+		       u.created_at, u.updated_at,
+		       -- Analytics fields
+		       COALESCE(bs.total_bookings, 0) as total_bookings,
+		       COALESCE(os.total_orders, 0) as total_orders,
+		       COALESCE(os.order_frequency, 0) as order_frequency,
+		       COALESCE(os.average_check, 0) as average_check,
+		       COALESCE(os.total_spent, 0) as total_spent,
+		       COALESCE(os.total_spent * 0.1, 0) as zootel_commission,
+		       COALESCE(os.cancelled_orders, 0) as cancelled_orders,
+		       COALESCE(os.refunded_orders, 0) as refunded_orders,
+		       COALESCE(cs.favorite_category, '') as favorite_category,
+		       COALESCE(cs.favorite_company, '') as favorite_company,
+		       COALESCE(ps.preferred_payment, '') as preferred_payment
+		FROM users u
+		LEFT JOIN (
+			SELECT user_id, 
+				COUNT(*) as total_bookings
+			FROM bookings 
+			WHERE status IN ('confirmed', 'completed')
+			GROUP BY user_id
+		) bs ON u.id = bs.user_id
+		LEFT JOIN (
+			SELECT user_id,
+				COUNT(*) as total_orders,
+				ROUND(COUNT(*)::numeric / GREATEST(EXTRACT(EPOCH FROM (NOW() - MIN(created_at))) / 2592000, 1), 2) as order_frequency,
+				ROUND(AVG(price), 2) as average_check,
+				ROUND(SUM(price), 2) as total_spent,
+				COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_orders,
+				COUNT(CASE WHEN status = 'refunded' THEN 1 END) as refunded_orders
+			FROM orders
+			GROUP BY user_id
+		) os ON u.id = os.user_id
+		LEFT JOIN (
+			SELECT user_id,
+				MODE() WITHIN GROUP (ORDER BY s.category) as favorite_category,
+				MODE() WITHIN GROUP (ORDER BY c.name) as favorite_company
+			FROM bookings b
+			JOIN services s ON b.service_id = s.id
+			JOIN companies c ON s.company_id = c.id
+			WHERE b.status IN ('confirmed', 'completed')
+			GROUP BY user_id
+		) cs ON u.id = cs.user_id
+		LEFT JOIN (
+			SELECT user_id,
+				MODE() WITHIN GROUP (ORDER BY payment_method) as preferred_payment
+			FROM payments
+			WHERE status = 'completed'
+			GROUP BY user_id
+		) ps ON u.id = ps.user_id
+		%s
+		ORDER BY u.created_at DESC
 		LIMIT $1 OFFSET $2`, whereClause)
 
 	var rows *sql.Rows
@@ -404,11 +450,16 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 			&user.Country, &user.State, &user.City, &user.Timezone, &user.AvatarURL,
 			&user.EmergencyContact, &user.VetContact, &notificationMethodsStr,
 			&user.MarketingOptIn, &user.CreatedAt, &user.UpdatedAt,
+			// Analytics fields
+			&user.TotalBookings, &user.TotalOrders, &user.OrderFrequency,
+			&user.AverageCheck, &user.TotalSpent, &user.ZootelCommission,
+			&user.CancelledOrders, &user.RefundedOrders, &user.FavoriteCategory,
+			&user.FavoriteCompany, &user.PreferredPayment,
 		)
 		if err != nil {
 			return nil, 0, err
 		}
-
+		
 		// Convert string back to pq.StringArray if needed
 		// For now, we'll leave it as empty array since it's not used in UI
 		user.NotificationMethods = pq.StringArray{}

@@ -50,6 +50,19 @@ type User struct {
 
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+
+	// Analytics fields for Pet Owners
+	TotalBookings     int     `json:"total_bookings,omitempty"`
+	TotalOrders       int     `json:"total_orders,omitempty"`
+	OrderFrequency    float64 `json:"order_frequency,omitempty"`    // orders per month
+	AverageCheck      float64 `json:"average_check,omitempty"`
+	TotalSpent        float64 `json:"total_spent,omitempty"`
+	ZootelCommission  float64 `json:"zootel_commission,omitempty"`  // 10% of total spent
+	CancelledOrders   int     `json:"cancelled_orders,omitempty"`
+	RefundedOrders    int     `json:"refunded_orders,omitempty"`
+	FavoriteCategory  string  `json:"favorite_category,omitempty"`
+	FavoriteCompany   string  `json:"favorite_company,omitempty"`
+	PreferredPayment  string  `json:"preferred_payment,omitempty"`
 }
 
 // Plan represents subscription plans
