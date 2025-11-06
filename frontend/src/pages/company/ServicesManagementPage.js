@@ -54,7 +54,7 @@ const ServicesManagementPage = () => {
 
   const loadCategories = async () => {
     try {
-      const response = await apiCall('/api/service-categories');
+      const response = await apiCall('/admin/service-categories');
       if (response.success) {
         setCategories(response.data || []);
       }

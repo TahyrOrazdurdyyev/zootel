@@ -94,7 +94,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
   const loadFormData = async () => {
     try {
       // Load service categories
-      const categoriesResponse = await apiCall('/api/service-categories');
+      const categoriesResponse = await apiCall('/admin/service-categories');
       if (categoriesResponse.success) {
         setCategories(categoriesResponse.data || []);
       }
