@@ -373,7 +373,7 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 		       COALESCE(avatar_url, '') as avatar_url, 
 		       COALESCE(emergency_contact, '') as emergency_contact, 
 		       COALESCE(vet_contact, '') as vet_contact, 
-		       COALESCE(notification_methods, '') as notification_methods,
+		       COALESCE(notification_methods::text, '[]') as notification_methods,
 		       COALESCE(marketing_opt_in, false) as marketing_opt_in, 
 		       created_at, updated_at
 		FROM users %s
