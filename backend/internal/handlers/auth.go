@@ -82,7 +82,14 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		MarketingOptIn:      req.MarketingOptIn,
 	}
 
-	if err := h.userService.CreateUser(user); err != nil {
+	// Use appropriate creation method based on role
+	if req.Role == "company_owner" {
+		err = h.userService.CreateCompanyOwner(user)
+	} else {
+		err = h.userService.CreateUser(user)
+	}
+	
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user", "details": err.Error()})
 		return
 	}

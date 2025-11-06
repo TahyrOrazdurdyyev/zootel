@@ -4,7 +4,8 @@ import {
   CurrencyDollarIcon,
   UserIcon,
   CalendarIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
 import { auth } from '../../config/firebase';
 import {
@@ -192,13 +193,16 @@ const AnalyticsDashboard = ({
   };
 
   // Metric Card Component
-  const MetricCard = ({ title, value, icon: Icon, color = "blue" }) => {
+  const MetricCard = ({ title, value, icon: Icon, color = "blue", subtitle }) => {
     return (
       <div className="card">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-gray-600">{title}</p>
             <p className="text-2xl font-bold text-gray-900">{value}</p>
+            {subtitle && (
+              <p className="text-xs text-gray-500">{subtitle}</p>
+            )}
           </div>
           <div className={`p-3 rounded-full bg-${color}-100`}>
             <Icon className={`w-6 h-6 text-${color}-600`} />
@@ -261,7 +265,7 @@ const AnalyticsDashboard = ({
 
       {/* Key Metrics */}
       {dashboardData?.global && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <MetricCard
             title="Total Revenue"
             value={formatCurrency(dashboardData.global.total_revenue || 0)}
@@ -273,6 +277,14 @@ const AnalyticsDashboard = ({
             value={formatNumber(dashboardData.global.total_users || 0)}
             icon={UserIcon}
             color="blue"
+            subtitle="Pet Owners"
+          />
+          <MetricCard
+            title="Total Companies"
+            value={formatNumber(dashboardData.global.total_companies || 0)}
+            icon={BuildingOfficeIcon}
+            color="orange"
+            subtitle="Businesses"
           />
           <MetricCard
             title="Bookings"
