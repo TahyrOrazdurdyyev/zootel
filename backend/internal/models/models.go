@@ -345,6 +345,27 @@ type CompanyDetails struct {
 	// Даты
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+
+	// Расширенная аналитика
+	Instagram            string    `json:"instagram,omitempty"`
+	Facebook             string    `json:"facebook,omitempty"`
+	SubscriptionActivatedAt *time.Time `json:"subscription_activated_at,omitempty"`
+	AverageCheck         float64   `json:"average_check,omitempty"`
+	ZootelEarnings       float64   `json:"zootel_earnings,omitempty"`    // 10% комиссия + подписки
+	CancelledOrders      int       `json:"cancelled_orders,omitempty"`
+	RefundedOrders       int       `json:"refunded_orders,omitempty"`
+	AverageResponseTime  float64   `json:"average_response_time,omitempty"` // в минутах
+	CompanyRating        float64   `json:"company_rating,omitempty"`
+	TotalReviews         int       `json:"total_reviews,omitempty"`
+	TotalChats           int       `json:"total_chats,omitempty"`
+	CustomerRequests     int       `json:"customer_requests,omitempty"`
+	LastLoginAt          *time.Time `json:"last_login_at,omitempty"`
+	ProfileCompleteness  float64   `json:"profile_completeness,omitempty"` // в процентах
+	WeeklyOrders         int       `json:"weekly_orders,omitempty"`
+	MonthlyOrders        int       `json:"monthly_orders,omitempty"`
+	QuarterlyOrders      int       `json:"quarterly_orders,omitempty"`
+	HalfYearOrders       int       `json:"half_year_orders,omitempty"`
+	YearlyOrders         int       `json:"yearly_orders,omitempty"`
 }
 
 // CompanyFeatureStatus представляет статус функций компании с разделением на оплаченные и бесплатные

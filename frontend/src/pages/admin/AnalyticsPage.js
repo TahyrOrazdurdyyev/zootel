@@ -555,7 +555,9 @@ const UserAnalyticsTab = ({ timeframe }) => {
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Finances</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preferences</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registered</th>
                   </tr>
@@ -577,6 +579,9 @@ const UserAnalyticsTab = ({ timeframe }) => {
                               {user.first_name || user.last_name ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : 'No name'}
                             </div>
                             <div className="text-sm text-gray-500">{user.email}</div>
+                            <div className="text-sm text-gray-500">
+                              {[user.city, user.state, user.country].filter(Boolean).join(', ') || 'No location'}
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -585,7 +590,31 @@ const UserAnalyticsTab = ({ timeframe }) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {[user.city, user.state, user.country].filter(Boolean).join(', ') || 'No location'}
+                          <div>📅 {user.total_bookings || 0} bookings</div>
+                          <div>🛒 {user.total_orders || 0} orders</div>
+                          <div>📊 {user.order_frequency || 0}/month</div>
+                          {(user.cancelled_orders > 0 || user.refunded_orders > 0) && (
+                            <div className="text-red-600">
+                              ❌ {user.cancelled_orders || 0} cancelled, {user.refunded_orders || 0} refunded
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          <div>💰 ${(user.total_spent || 0).toFixed(2)} spent</div>
+                          <div>📈 ${(user.average_check || 0).toFixed(2)} avg</div>
+                          <div className="text-green-600">💵 ${(user.zootel_commission || 0).toFixed(2)} commission</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {user.favorite_category && <div>🏷️ {user.favorite_category}</div>}
+                          {user.favorite_company && <div>🏢 {user.favorite_company}</div>}
+                          {user.preferred_payment && <div>💳 {user.preferred_payment}</div>}
+                          {!user.favorite_category && !user.favorite_company && !user.preferred_payment && (
+                            <div className="text-gray-400">No data</div>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -895,10 +924,10 @@ const CompanyAnalyticsTab = ({ timeframe }) => {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Analytics</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Finances</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quality</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                 </tr>
               </thead>
@@ -926,6 +955,20 @@ const CompanyAnalyticsTab = ({ timeframe }) => {
                           <div className="text-sm font-medium text-gray-900">{company.name}</div>
                           <div className="text-sm text-gray-500">{company.business_type || 'General'}</div>
                           <div className="text-sm text-gray-500">{company.email}</div>
+                          <div className="text-sm text-gray-500">
+                            {[company.city, company.state, company.country].filter(Boolean).join(', ') || 'No location'}
+                          </div>
+                          <div className="flex space-x-2 mt-1">
+                            {company.instagram && (
+                              <a href={company.instagram} target="_blank" rel="noopener noreferrer" className="text-pink-500">📷</a>
+                            )}
+                            {company.facebook && (
+                              <a href={company.facebook} target="_blank" rel="noopener noreferrer" className="text-blue-500">📘</a>
+                            )}
+                            {company.website && (
+                              <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-gray-500">🌐</a>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -937,10 +980,48 @@ const CompanyAnalyticsTab = ({ timeframe }) => {
                         }
                       </div>
                       <div className="text-sm text-gray-500">{company.owner_email}</div>
+                      {company.last_login_at && (
+                        <div className="text-xs text-gray-400">Last: {formatDate(company.last_login_at)}</div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {[company.city, company.state, company.country].filter(Boolean).join(', ') || 'No location'}
+                        <div>📊 {company.total_bookings || 0} bookings</div>
+                        <div>👥 {company.total_customers || 0} customers</div>
+                        <div>👨‍💼 {company.employee_count || 0} employees</div>
+                        <div>💬 {company.total_chats || 0} chats</div>
+                        <div>📋 {(company.profile_completeness || 0).toFixed(0)}% complete</div>
+                        <div className="text-xs text-gray-500">
+                          📅 W:{company.weekly_orders || 0} M:{company.monthly_orders || 0} Y:{company.yearly_orders || 0}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        <div>💰 ${(company.total_revenue || 0).toFixed(2)} revenue</div>
+                        <div>📈 ${(company.average_check || 0).toFixed(2)} avg</div>
+                        <div className="text-green-600">💵 ${(company.zootel_earnings || 0).toFixed(2)} Zootel</div>
+                        {(company.cancelled_orders > 0 || company.refunded_orders > 0) && (
+                          <div className="text-red-600 text-xs">
+                            ❌ {company.cancelled_orders || 0}c {company.refunded_orders || 0}r
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {company.company_rating > 0 && (
+                          <div>⭐ {company.company_rating.toFixed(1)} ({company.total_reviews || 0})</div>
+                        )}
+                        {company.average_response_time > 0 && (
+                          <div>⏱️ {company.average_response_time.toFixed(1)}min</div>
+                        )}
+                        {company.customer_requests > 0 && (
+                          <div>🎫 {company.customer_requests} requests</div>
+                        )}
+                        {(!company.company_rating && !company.average_response_time && !company.customer_requests) && (
+                          <div className="text-gray-400">No data</div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -951,20 +1032,7 @@ const CompanyAnalyticsTab = ({ timeframe }) => {
                             ✓ Verified
                           </span>
                         )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{company.plan_name || 'No plan'}</div>
-                      <div className="text-sm text-gray-500">
-                        {company.plan_price ? formatCurrency(company.plan_price) : 'Free'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        <div>📊 {company.total_bookings} bookings</div>
-                        <div>👥 {company.total_customers} customers</div>
-                        <div>💰 {formatCurrency(company.total_revenue)}</div>
-                        <div>👨‍💼 {company.employee_count} employees</div>
+                        <div className="text-xs text-gray-500">{company.plan_name || 'No plan'}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

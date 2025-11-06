@@ -860,7 +860,27 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			COALESCE(cs.total_bookings, 0) as total_bookings,
 			COALESCE(cs.total_customers, 0) as total_customers,
 			COALESCE(cs.total_revenue, 0) as total_revenue,
-			COALESCE(es.employee_count, 0) as employee_count
+			COALESCE(es.employee_count, 0) as employee_count,
+			-- Extended analytics
+			COALESCE(c.instagram, '') as instagram,
+			COALESCE(c.facebook, '') as facebook,
+			c.subscription_activated_at,
+			COALESCE(cs.average_check, 0) as average_check,
+			COALESCE(cs.total_revenue * 0.1 + COALESCE(p.price, 0), 0) as zootel_earnings,
+			COALESCE(os.cancelled_orders, 0) as cancelled_orders,
+			COALESCE(os.refunded_orders, 0) as refunded_orders,
+			COALESCE(rt.avg_response_time, 0) as average_response_time,
+			COALESCE(rv.rating, 0) as company_rating,
+			COALESCE(rv.total_reviews, 0) as total_reviews,
+			COALESCE(ch.total_chats, 0) as total_chats,
+			COALESCE(rq.customer_requests, 0) as customer_requests,
+			u.last_login_at,
+			COALESCE(pf.completeness, 0) as profile_completeness,
+			COALESCE(to.weekly_orders, 0) as weekly_orders,
+			COALESCE(to.monthly_orders, 0) as monthly_orders,
+			COALESCE(to.quarterly_orders, 0) as quarterly_orders,
+			COALESCE(to.half_year_orders, 0) as half_year_orders,
+			COALESCE(to.yearly_orders, 0) as yearly_orders
 		FROM companies c
 		LEFT JOIN plans p ON c.plan_id = p.id
 		LEFT JOIN users u ON c.owner_id = u.id
@@ -868,7 +888,8 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			SELECT company_id, 
 				COUNT(*) as total_bookings,
 				COUNT(DISTINCT user_id) as total_customers,
-				COALESCE(SUM(price), 0) as total_revenue
+				COALESCE(SUM(price), 0) as total_revenue,
+				ROUND(AVG(price), 2) as average_check
 			FROM bookings 
 			WHERE status IN ('confirmed', 'completed')
 			GROUP BY company_id
@@ -879,6 +900,65 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			WHERE is_active = true
 			GROUP BY company_id
 		) es ON c.id = es.company_id
+		LEFT JOIN (
+			SELECT company_id,
+				COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_orders,
+				COUNT(CASE WHEN status = 'refunded' THEN 1 END) as refunded_orders
+			FROM orders
+			GROUP BY company_id
+		) os ON c.id = os.company_id
+		LEFT JOIN (
+			SELECT company_id,
+				ROUND(AVG(EXTRACT(EPOCH FROM (responded_at - created_at)) / 60), 2) as avg_response_time
+			FROM chats
+			WHERE responded_at IS NOT NULL
+			GROUP BY company_id
+		) rt ON c.id = rt.company_id
+		LEFT JOIN (
+			SELECT company_id,
+				ROUND(AVG(rating), 2) as rating,
+				COUNT(*) as total_reviews
+			FROM reviews
+			WHERE rating IS NOT NULL
+			GROUP BY company_id
+		) rv ON c.id = rv.company_id
+		LEFT JOIN (
+			SELECT company_id, COUNT(*) as total_chats
+			FROM chats
+			GROUP BY company_id
+		) ch ON c.id = ch.company_id
+		LEFT JOIN (
+			SELECT company_id, COUNT(*) as customer_requests
+			FROM support_tickets
+			GROUP BY company_id
+		) rq ON c.id = rq.company_id
+		LEFT JOIN (
+			SELECT company_id,
+				ROUND(
+					(CASE WHEN name IS NOT NULL AND name != '' THEN 10 ELSE 0 END +
+					 CASE WHEN description IS NOT NULL AND description != '' THEN 10 ELSE 0 END +
+					 CASE WHEN phone IS NOT NULL AND phone != '' THEN 10 ELSE 0 END +
+					 CASE WHEN website IS NOT NULL AND website != '' THEN 10 ELSE 0 END +
+					 CASE WHEN logo_url IS NOT NULL AND logo_url != '' THEN 10 ELSE 0 END +
+					 CASE WHEN address IS NOT NULL AND address != '' THEN 10 ELSE 0 END +
+					 CASE WHEN instagram IS NOT NULL AND instagram != '' THEN 10 ELSE 0 END +
+					 CASE WHEN facebook IS NOT NULL AND facebook != '' THEN 10 ELSE 0 END +
+					 CASE WHEN business_type IS NOT NULL AND business_type != '' THEN 10 ELSE 0 END +
+					 CASE WHEN email IS NOT NULL AND email != '' THEN 10 ELSE 0 END), 2
+				) as completeness
+			FROM companies
+		) pf ON c.id = pf.company_id
+		LEFT JOIN (
+			SELECT company_id,
+				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '7 days' THEN 1 END) as weekly_orders,
+				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '30 days' THEN 1 END) as monthly_orders,
+				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '90 days' THEN 1 END) as quarterly_orders,
+				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '180 days' THEN 1 END) as half_year_orders,
+				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '365 days' THEN 1 END) as yearly_orders
+			FROM orders
+			WHERE status IN ('confirmed', 'completed')
+			GROUP BY company_id
+		) to ON c.id = to.company_id
 		ORDER BY c.created_at DESC`
 
 	rows, err := s.db.Query(query)
@@ -890,7 +970,7 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 	var companies []models.CompanyDetails
 	for rows.Next() {
 		var company models.CompanyDetails
-		var trialEndsAt, subscriptionExpiresAt sql.NullTime
+		var trialEndsAt, subscriptionExpiresAt, subscriptionActivatedAt, lastLoginAt sql.NullTime
 
 		err := rows.Scan(
 			&company.ID, &company.Name, &company.BusinessType, &company.Description,
@@ -903,6 +983,14 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			&company.OwnerID, &company.OwnerFirstName, &company.OwnerLastName, &company.OwnerEmail,
 			&company.TotalBookings, &company.TotalCustomers, &company.TotalRevenue,
 			&company.EmployeeCount,
+			// Extended analytics
+			&company.Instagram, &company.Facebook, &subscriptionActivatedAt,
+			&company.AverageCheck, &company.ZootelEarnings, &company.CancelledOrders,
+			&company.RefundedOrders, &company.AverageResponseTime, &company.CompanyRating,
+			&company.TotalReviews, &company.TotalChats, &company.CustomerRequests,
+			&lastLoginAt, &company.ProfileCompleteness, &company.WeeklyOrders,
+			&company.MonthlyOrders, &company.QuarterlyOrders, &company.HalfYearOrders,
+			&company.YearlyOrders,
 		)
 		if err != nil {
 			continue
@@ -914,6 +1002,12 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 		}
 		if subscriptionExpiresAt.Valid {
 			company.TrialStartDate = &subscriptionExpiresAt.Time // используем как start date
+		}
+		if subscriptionActivatedAt.Valid {
+			company.SubscriptionActivatedAt = &subscriptionActivatedAt.Time
+		}
+		if lastLoginAt.Valid {
+			company.LastLoginAt = &lastLoginAt.Time
 		}
 
 		// Устанавливаем значения по умолчанию для отсутствующих полей

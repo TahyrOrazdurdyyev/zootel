@@ -459,7 +459,7 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 		if err != nil {
 			return nil, 0, err
 		}
-		
+
 		// Convert string back to pq.StringArray if needed
 		// For now, we'll leave it as empty array since it's not used in UI
 		user.NotificationMethods = pq.StringArray{}
