@@ -398,6 +398,7 @@ func (h *AdminHandler) GetAllCompanies(c *gin.Context) {
 
 	companies, err := h.adminService.GetCompanies()
 	if err != nil {
+		fmt.Printf("[ERROR] GetAllCompanies failed: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

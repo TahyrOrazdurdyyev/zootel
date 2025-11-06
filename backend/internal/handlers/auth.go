@@ -341,8 +341,9 @@ func (h *AuthHandler) GetUsers(c *gin.Context) {
 		limit = 20
 	}
 
-	users, total, err := h.userService.GetAllUsers(page, limit, role)
+	users, total, err := h.userService.GetUsers(page, limit, role)
 	if err != nil {
+		fmt.Printf("[ERROR] GetUsers failed: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get users"})
 		return
 	}
@@ -375,6 +376,7 @@ func (h *AuthHandler) SearchUsers(c *gin.Context) {
 
 	users, err := h.userService.SearchUsers(query, role, limit)
 	if err != nil {
+		fmt.Printf("[ERROR] SearchUsers failed: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Search failed"})
 		return
 	}
