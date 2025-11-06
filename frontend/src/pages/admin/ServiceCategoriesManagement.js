@@ -31,7 +31,7 @@ const ServiceCategoriesManagement = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await apiCall('/api/v1/admin/service-categories', 'GET');
+      const response = await apiCall('/admin/service-categories', 'GET');
       if (response.success) {
         setCategories(response.data || []);
       }
@@ -48,11 +48,11 @@ const ServiceCategoriesManagement = () => {
     try {
       if (editingCategory) {
         // Update existing category
-        await apiCall(`/api/v1/admin/service-categories/${editingCategory.id}`, 'PUT', formData);
+        await apiCall(`/admin/service-categories/${editingCategory.id}`, 'PUT', formData);
         toast.success('Category updated successfully');
       } else {
         // Create new category
-        await apiCall('/api/v1/admin/service-categories', 'POST', formData);
+        await apiCall('/admin/service-categories', 'POST', formData);
         toast.success('Category created successfully');
       }
       
@@ -98,7 +98,7 @@ const ServiceCategoriesManagement = () => {
     }
 
     try {
-      await apiCall(`/api/v1/admin/service-categories/${id}`, 'DELETE');
+      await apiCall(`/admin/service-categories/${id}`, 'DELETE');
       toast.success('Category deleted successfully');
       fetchCategories();
     } catch (error) {
@@ -128,10 +128,10 @@ const ServiceCategoriesManagement = () => {
       
       // If editing existing category, use specific endpoint
       if (editingCategory && editingCategory.id) {
-        uploadResponse = await apiCall(`/api/v1/uploads/category/${editingCategory.id}/image`, 'POST', uploadFormData);
+        uploadResponse = await apiCall(`/uploads/category/${editingCategory.id}/image`, 'POST', uploadFormData);
       } else {
         // For new categories, use gallery endpoint
-        uploadResponse = await apiCall('/api/v1/uploads/gallery', 'POST', uploadFormData);
+        uploadResponse = await apiCall('/uploads/gallery', 'POST', uploadFormData);
       }
 
       if (uploadResponse.success) {
