@@ -11,7 +11,6 @@ import {
 import toast from 'react-hot-toast';
 
 const ServiceCategoriesManagement = () => {
-  const { apiCall } = useAuth();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -53,14 +52,34 @@ const ServiceCategoriesManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const token = await auth.currentUser?.getIdToken();
+      
       if (editingCategory) {
         // Update existing category
-        await apiCall(`/admin/service-categories/${editingCategory.id}`, 'PUT', formData);
-        toast.success('Category updated successfully');
+        const response = await fetch(`/api/v1/admin/service-categories/${editingCategory.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(formData)
+        });
+        if (response.ok) {
+          toast.success('Category updated successfully');
+        }
       } else {
         // Create new category
-        await apiCall('/admin/service-categories', 'POST', formData);
-        toast.success('Category created successfully');
+        const response = await fetch('/api/v1/admin/service-categories', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(formData)
+        });
+        if (response.ok) {
+          toast.success('Category created successfully');
+        }
       }
       
       setShowModal(false);
@@ -105,9 +124,17 @@ const ServiceCategoriesManagement = () => {
     }
 
     try {
-      await apiCall(`/admin/service-categories/${id}`, 'DELETE');
-      toast.success('Category deleted successfully');
-      fetchCategories();
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch(`/api/v1/admin/service-categories/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        toast.success('Category deleted successfully');
+        fetchCategories();
+      }
     } catch (error) {
       console.error('Error deleting category:', error);
       toast.error('Failed to delete category. It may be used by existing services.');
@@ -133,12 +160,28 @@ const ServiceCategoriesManagement = () => {
 
       let uploadResponse;
       
+      const token = await auth.currentUser?.getIdToken();
+      
       // If editing existing category, use specific endpoint
       if (editingCategory && editingCategory.id) {
-        uploadResponse = await apiCall(`/uploads/category/${editingCategory.id}/image`, 'POST', uploadFormData);
+        uploadResponse = await fetch(`/api/v1/uploads/category/${editingCategory.id}/image`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: uploadFormData
+        });
+        uploadResponse = await uploadResponse.json();
       } else {
         // For new categories, use gallery endpoint
-        uploadResponse = await apiCall('/uploads/gallery', 'POST', uploadFormData);
+        uploadResponse = await fetch('/api/v1/uploads/gallery', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: uploadFormData
+        });
+        uploadResponse = await uploadResponse.json();
       }
 
       if (uploadResponse.success) {
