@@ -239,7 +239,7 @@ const PlatformHealthWidget = () => {
 
   const fetchPlatformStatus = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = await auth.currentUser?.getIdToken();
       const response = await fetch('/api/v1/admin/analytics/platform-status', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -325,7 +325,7 @@ const TopMetricsWidget = () => {
 
   const fetchKeyMetrics = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = await auth.currentUser?.getIdToken();
       const response = await fetch('/api/v1/admin/analytics/key-metrics', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -393,7 +393,7 @@ const UserAnalyticsTab = ({ timeframe }) => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      const token = await auth.currentUser?.getIdToken();
       
       // Build query parameters
       const params = new URLSearchParams({
@@ -693,7 +693,7 @@ const CompanyAnalyticsTab = ({ timeframe }) => {
   const fetchCompanies = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      const token = await auth.currentUser?.getIdToken();
       
       const response = await fetch('/api/v1/admin/companies', {
         headers: {

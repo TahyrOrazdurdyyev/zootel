@@ -136,7 +136,7 @@ func (s *UserService) GetUserByFirebaseUID(firebaseUID string) (*models.User, er
 // GetUsers returns paginated list of users (admin only)
 func (s *UserService) GetUsers(page, limit int, role string) ([]models.User, error) {
 	offset := (page - 1) * limit
-	
+
 	query := `
 		SELECT id, firebase_uid, email, 
 		       COALESCE(first_name, '') as first_name, 
@@ -148,9 +148,9 @@ func (s *UserService) GetUsers(page, limit int, role string) ([]models.User, err
 		       COALESCE(city, '') as city, 
 		       created_at
 		FROM users`
-	
+
 	args := []interface{}{}
-	
+
 	if role != "" {
 		query += " WHERE role = $1"
 		args = append(args, role)
@@ -160,13 +160,13 @@ func (s *UserService) GetUsers(page, limit int, role string) ([]models.User, err
 		query += " ORDER BY created_at DESC LIMIT $1 OFFSET $2"
 		args = append(args, limit, offset)
 	}
-	
+
 	rows, err := s.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	
+
 	var users []models.User
 	for rows.Next() {
 		var user models.User
@@ -181,7 +181,7 @@ func (s *UserService) GetUsers(page, limit int, role string) ([]models.User, err
 		}
 		users = append(users, user)
 	}
-	
+
 	return users, nil
 }
 
@@ -199,9 +199,9 @@ func (s *UserService) SearchUsers(query, role string, limit int) ([]models.User,
 		       created_at
 		FROM users
 		WHERE (email ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1)`
-	
+
 	args := []interface{}{"%" + query + "%"}
-	
+
 	if role != "" {
 		sqlQuery += " AND role = $2"
 		args = append(args, role)
@@ -211,13 +211,13 @@ func (s *UserService) SearchUsers(query, role string, limit int) ([]models.User,
 		sqlQuery += " ORDER BY created_at DESC LIMIT $2"
 		args = append(args, limit)
 	}
-	
+
 	rows, err := s.db.Query(sqlQuery, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	
+
 	var users []models.User
 	for rows.Next() {
 		var user models.User
@@ -232,7 +232,7 @@ func (s *UserService) SearchUsers(query, role string, limit int) ([]models.User,
 		}
 		users = append(users, user)
 	}
-	
+
 	return users, nil
 }
 
@@ -398,7 +398,6 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 
 	return users, total, nil
 }
-
 
 // User statistics
 func (s *UserService) GetUserStats() (map[string]interface{}, error) {
