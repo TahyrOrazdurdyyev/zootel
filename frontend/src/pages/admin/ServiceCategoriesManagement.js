@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { auth } from '../../config/firebase';
 import {
   PlusIcon,
   PencilIcon,
@@ -31,9 +32,15 @@ const ServiceCategoriesManagement = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await apiCall('/admin/service-categories', 'GET');
-      if (response.success) {
-        setCategories(response.data || []);
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch('/api/v1/admin/service-categories', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data.data || []);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
