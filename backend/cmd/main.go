@@ -383,8 +383,9 @@ func main() {
 			{
 				uploads.POST("/avatar", uploadHandler.UploadAvatar)
 				uploads.POST("/pet/:petId/photo", uploadHandler.UploadPetPhoto)
-				uploads.POST("/service/:serviceId/image", uploadHandler.UploadServiceImage)
-				uploads.POST("/company/:companyId/logo", uploadHandler.UploadCompanyLogo)
+			uploads.POST("/service/:serviceId/image", uploadHandler.UploadServiceImage)
+			uploads.POST("/category/:categoryId/image", uploadHandler.UploadCategoryImage)
+			uploads.POST("/company/:companyId/logo", uploadHandler.UploadCompanyLogo)
 				uploads.POST("/gallery", uploadHandler.UploadGallery)
 				uploads.GET("/files", uploadHandler.GetFiles)
 				uploads.DELETE("/files/:fileId", uploadHandler.DeleteFile)

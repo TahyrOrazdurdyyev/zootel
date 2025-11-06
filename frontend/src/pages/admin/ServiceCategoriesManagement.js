@@ -124,21 +124,43 @@ const ServiceCategoriesManagement = () => {
       const uploadFormData = new FormData();
       uploadFormData.append('file', file);
 
-      const uploadResponse = await apiCall('/api/v1/uploads/gallery', 'POST', uploadFormData);
-
-      if (uploadResponse.success && uploadResponse.data.files && uploadResponse.data.files.length > 0) {
-        const uploadedFileData = uploadResponse.data.files[0];
-        setUploadedFile(uploadedFileData);
-        setFormData(prev => ({
-          ...prev,
-          background_image: uploadedFileData.url
-        }));
+      let uploadResponse;
+      
+      // If editing existing category, use specific endpoint
+      if (editingCategory && editingCategory.id) {
+        uploadResponse = await apiCall(`/api/v1/uploads/category/${editingCategory.id}/image`, 'POST', uploadFormData);
       } else {
-        alert('Failed to upload image. Please try again.');
+        // For new categories, use gallery endpoint
+        uploadResponse = await apiCall('/api/v1/uploads/gallery', 'POST', uploadFormData);
+      }
+
+      if (uploadResponse.success) {
+        let uploadedFileData;
+        
+        // Handle different response formats
+        if (uploadResponse.data.files && uploadResponse.data.files.length > 0) {
+          // Gallery endpoint response
+          uploadedFileData = uploadResponse.data.files[0];
+        } else if (uploadResponse.data.url) {
+          // Category endpoint response
+          uploadedFileData = uploadResponse.data;
+        }
+        
+        if (uploadedFileData) {
+          setUploadedFile(uploadedFileData);
+          setFormData(prev => ({
+            ...prev,
+            background_image: uploadedFileData.url
+          }));
+        } else {
+          toast.error('Failed to upload image. Please try again.');
+        }
+      } else {
+        toast.error('Failed to upload image. Please try again.');
       }
     } catch (error) {
       console.error('Failed to upload image:', error);
-      alert('Failed to upload image. Please try again.');
+      toast.error('Failed to upload image. Please try again.');
     } finally {
       setIsUploading(false);
     }

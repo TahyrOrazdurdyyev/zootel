@@ -150,6 +150,50 @@ func (h *UploadHandler) UploadServiceImage(c *gin.Context) {
 	})
 }
 
+// UploadCategoryImage handles service category image upload
+func (h *UploadHandler) UploadCategoryImage(c *gin.Context) {
+	userRole := c.GetString("user_role")
+	categoryID := c.Param("categoryId")
+
+	// Only super admin can upload category images
+	if userRole != "super_admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Only super admin can upload category images"})
+		return
+	}
+
+	if categoryID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Category ID is required"})
+		return
+	}
+
+	// Get uploaded file
+	file, header, err := c.Request.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
+		return
+	}
+	defer file.Close()
+
+	// Upload file
+	result, err := h.uploadService.UploadImage(file, header, &services.UploadRequest{
+		Purpose:    "categories",
+		EntityType: "service_category",
+		EntityID:   categoryID,
+		UserID:     c.GetString("user_id"),
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Category image uploaded successfully",
+		"data":    result,
+	})
+}
+
 // UploadCompanyLogo handles company logo upload
 func (h *UploadHandler) UploadCompanyLogo(c *gin.Context) {
 	userID := c.GetString("user_id")
