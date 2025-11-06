@@ -398,8 +398,8 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 			SELECT user_id,
 				COUNT(*) as total_orders,
 				ROUND(COUNT(*)::numeric / GREATEST(EXTRACT(EPOCH FROM (NOW() - MIN(created_at))) / 2592000, 1), 2) as order_frequency,
-				ROUND(AVG(price), 2) as average_check,
-				ROUND(SUM(price), 2) as total_spent,
+				ROUND(AVG(total_amount), 2) as average_check,
+				ROUND(SUM(total_amount), 2) as total_spent,
 				COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_orders,
 				COUNT(CASE WHEN status = 'refunded' THEN 1 END) as refunded_orders
 			FROM orders

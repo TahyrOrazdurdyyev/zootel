@@ -876,11 +876,11 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			COALESCE(rq.customer_requests, 0) as customer_requests,
 			u.last_login_at,
 			COALESCE(pf.completeness, 0) as profile_completeness,
-			COALESCE(to.weekly_orders, 0) as weekly_orders,
-			COALESCE(to.monthly_orders, 0) as monthly_orders,
-			COALESCE(to.quarterly_orders, 0) as quarterly_orders,
-			COALESCE(to.half_year_orders, 0) as half_year_orders,
-			COALESCE(to.yearly_orders, 0) as yearly_orders
+			COALESCE(time_orders.weekly_orders, 0) as weekly_orders,
+			COALESCE(time_orders.monthly_orders, 0) as monthly_orders,
+			COALESCE(time_orders.quarterly_orders, 0) as quarterly_orders,
+			COALESCE(time_orders.half_year_orders, 0) as half_year_orders,
+			COALESCE(time_orders.yearly_orders, 0) as yearly_orders
 		FROM companies c
 		LEFT JOIN plans p ON c.plan_id = p.id
 		LEFT JOIN users u ON c.owner_id = u.id
@@ -958,7 +958,7 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			FROM orders
 			WHERE status IN ('confirmed', 'completed')
 			GROUP BY company_id
-		) to ON c.id = to.company_id
+		) time_orders ON c.id = time_orders.company_id
 		ORDER BY c.created_at DESC`
 
 	rows, err := s.db.Query(query)
