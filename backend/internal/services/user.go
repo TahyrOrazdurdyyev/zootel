@@ -362,20 +362,11 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 		       COALESCE(first_name, '') as first_name, 
 		       COALESCE(last_name, '') as last_name, 
 		       role, 
-		       COALESCE(gender, '') as gender,
-		       date_of_birth, 
 		       COALESCE(phone, '') as phone, 
-		       COALESCE(address, '') as address, 
 		       COALESCE(country, '') as country, 
 		       COALESCE(state, '') as state, 
 		       COALESCE(city, '') as city, 
-		       COALESCE(timezone, '') as timezone,
-		       COALESCE(avatar_url, '') as avatar_url, 
-		       COALESCE(emergency_contact, '') as emergency_contact, 
-		       COALESCE(vet_contact, '') as vet_contact, 
-		       COALESCE(notification_methods::text, '[]') as notification_methods,
-		       COALESCE(marketing_opt_in, false) as marketing_opt_in, 
-		       created_at, updated_at
+		       created_at
 		FROM users %s
 		ORDER BY created_at DESC
 		LIMIT $1 OFFSET $2`, whereClause)
@@ -399,10 +390,7 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 		var user models.User
 		err := rows.Scan(
 			&user.ID, &user.FirebaseUID, &user.Email, &user.FirstName, &user.LastName,
-			&user.Role, &user.Gender, &user.DateOfBirth, &user.Phone, &user.Address,
-			&user.Country, &user.State, &user.City, &user.Timezone, &user.AvatarURL,
-			&user.EmergencyContact, &user.VetContact, &user.NotificationMethods,
-			&user.MarketingOptIn, &user.CreatedAt, &user.UpdatedAt,
+			&user.Role, &user.Phone, &user.Country, &user.State, &user.City, &user.CreatedAt,
 		)
 		if err != nil {
 			return nil, 0, err
