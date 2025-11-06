@@ -29,6 +29,9 @@ export const AuthProvider = ({ children }) => {
   const apiCall = async (endpoint, options = {}) => {
     const token = await auth.currentUser?.getIdToken();
     
+    // Debug logging
+    console.log('🔍 apiCall called with:', { endpoint, fullUrl: `${API_BASE_URL}${endpoint}` });
+    
     const defaultOptions = {
       headers: {
         'Content-Type': 'application/json',
