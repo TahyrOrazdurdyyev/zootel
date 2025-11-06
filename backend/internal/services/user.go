@@ -362,11 +362,20 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 		       COALESCE(first_name, '') as first_name, 
 		       COALESCE(last_name, '') as last_name, 
 		       role, 
+		       COALESCE(gender, '') as gender,
+		       date_of_birth, 
 		       COALESCE(phone, '') as phone, 
+		       COALESCE(address, '') as address, 
 		       COALESCE(country, '') as country, 
 		       COALESCE(state, '') as state, 
 		       COALESCE(city, '') as city, 
-		       created_at
+		       COALESCE(timezone, '') as timezone,
+		       COALESCE(avatar_url, '') as avatar_url, 
+		       COALESCE(emergency_contact, '') as emergency_contact, 
+		       COALESCE(vet_contact, '') as vet_contact, 
+		       notification_methods,
+		       COALESCE(marketing_opt_in, false) as marketing_opt_in, 
+		       created_at, updated_at
 		FROM users %s
 		ORDER BY created_at DESC
 		LIMIT $1 OFFSET $2`, whereClause)
@@ -388,12 +397,23 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 	var users []models.User
 	for rows.Next() {
 		var user models.User
+		var notificationMethods interface{}
 		err := rows.Scan(
 			&user.ID, &user.FirebaseUID, &user.Email, &user.FirstName, &user.LastName,
-			&user.Role, &user.Phone, &user.Country, &user.State, &user.City, &user.CreatedAt,
+			&user.Role, &user.Gender, &user.DateOfBirth, &user.Phone, &user.Address,
+			&user.Country, &user.State, &user.City, &user.Timezone, &user.AvatarURL,
+			&user.EmergencyContact, &user.VetContact, &notificationMethods,
+			&user.MarketingOptIn, &user.CreatedAt, &user.UpdatedAt,
 		)
 		if err != nil {
 			return nil, 0, err
+		}
+		
+		// Handle notification_methods array
+		if notificationMethods != nil {
+			user.NotificationMethods = notificationMethods.(string)
+		} else {
+			user.NotificationMethods = "[]"
 		}
 		users = append(users, user)
 	}
