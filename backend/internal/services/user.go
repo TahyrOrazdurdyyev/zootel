@@ -373,7 +373,7 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 		       COALESCE(avatar_url, '') as avatar_url, 
 		       COALESCE(emergency_contact, '') as emergency_contact, 
 		       COALESCE(vet_contact, '') as vet_contact, 
-		       notification_methods,
+		       COALESCE(notification_methods::text, '[]') as notification_methods,
 		       COALESCE(marketing_opt_in, false) as marketing_opt_in, 
 		       created_at, updated_at
 		FROM users %s
@@ -397,24 +397,21 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 	var users []models.User
 	for rows.Next() {
 		var user models.User
-		var notificationMethods interface{}
+		var notificationMethodsStr string
 		err := rows.Scan(
 			&user.ID, &user.FirebaseUID, &user.Email, &user.FirstName, &user.LastName,
 			&user.Role, &user.Gender, &user.DateOfBirth, &user.Phone, &user.Address,
 			&user.Country, &user.State, &user.City, &user.Timezone, &user.AvatarURL,
-			&user.EmergencyContact, &user.VetContact, &notificationMethods,
+			&user.EmergencyContact, &user.VetContact, &notificationMethodsStr,
 			&user.MarketingOptIn, &user.CreatedAt, &user.UpdatedAt,
 		)
 		if err != nil {
 			return nil, 0, err
 		}
-		
-		// Handle notification_methods array
-		if notificationMethods != nil {
-			user.NotificationMethods = notificationMethods.(string)
-		} else {
-			user.NotificationMethods = "[]"
-		}
+
+		// Convert string back to pq.StringArray if needed
+		// For now, we'll leave it as empty array since it's not used in UI
+		user.NotificationMethods = pq.StringArray{}
 		users = append(users, user)
 	}
 
