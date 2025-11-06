@@ -358,10 +358,24 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 
 	// Get users
 	query := fmt.Sprintf(`
-		SELECT id, firebase_uid, email, first_name, last_name, role, gender,
-			   date_of_birth, phone, address, country, state, city, timezone,
-			   avatar_url, emergency_contact, vet_contact, notification_methods,
-			   marketing_opt_in, created_at, updated_at
+		SELECT id, firebase_uid, email, 
+		       COALESCE(first_name, '') as first_name, 
+		       COALESCE(last_name, '') as last_name, 
+		       role, 
+		       COALESCE(gender, '') as gender,
+		       date_of_birth, 
+		       COALESCE(phone, '') as phone, 
+		       COALESCE(address, '') as address, 
+		       COALESCE(country, '') as country, 
+		       COALESCE(state, '') as state, 
+		       COALESCE(city, '') as city, 
+		       COALESCE(timezone, '') as timezone,
+		       COALESCE(avatar_url, '') as avatar_url, 
+		       COALESCE(emergency_contact, '') as emergency_contact, 
+		       COALESCE(vet_contact, '') as vet_contact, 
+		       COALESCE(notification_methods, '') as notification_methods,
+		       COALESCE(marketing_opt_in, false) as marketing_opt_in, 
+		       created_at, updated_at
 		FROM users %s
 		ORDER BY created_at DESC
 		LIMIT $1 OFFSET $2`, whereClause)

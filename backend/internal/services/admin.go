@@ -868,7 +868,7 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			SELECT company_id, 
 				COUNT(*) as total_bookings,
 				COUNT(DISTINCT user_id) as total_customers,
-				COALESCE(SUM(total_amount), 0) as total_revenue
+				COALESCE(SUM(price), 0) as total_revenue
 			FROM bookings 
 			WHERE status IN ('confirmed', 'completed')
 			GROUP BY company_id
