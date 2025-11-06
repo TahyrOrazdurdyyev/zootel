@@ -151,12 +151,20 @@ func (h *AdminHandler) UpdatePaymentSettings(c *gin.Context) {
 
 // Service categories
 func (h *AdminHandler) GetServiceCategories(c *gin.Context) {
+	// Debug logging
+	fmt.Printf("🔍 GetServiceCategories called from %s, User-Agent: %s, Referer: %s\n", 
+		c.ClientIP(), 
+		c.GetHeader("User-Agent"), 
+		c.GetHeader("Referer"))
+	
 	categories, err := h.adminService.GetServiceCategories()
 	if err != nil {
+		fmt.Printf("❌ GetServiceCategories error: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	fmt.Printf("✅ GetServiceCategories success, returned %d categories\n", len(categories))
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    categories,
