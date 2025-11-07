@@ -42,6 +42,7 @@ func NewUploadService(db *sql.DB) *UploadService {
 	os.MkdirAll(filepath.Join(uploadDir, "services"), 0755)
 	os.MkdirAll(filepath.Join(uploadDir, "companies"), 0755)
 	os.MkdirAll(filepath.Join(uploadDir, "galleries"), 0755)
+	os.MkdirAll(filepath.Join(uploadDir, "temp"), 0755)
 
 	return &UploadService{
 		db:        db,

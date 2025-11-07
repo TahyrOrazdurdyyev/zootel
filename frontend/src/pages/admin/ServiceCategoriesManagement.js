@@ -173,8 +173,8 @@ const ServiceCategoriesManagement = () => {
         });
         uploadResponse = await uploadResponse.json();
       } else {
-        // For new categories, use gallery endpoint
-        uploadResponse = await fetch('/api/v1/uploads/gallery', {
+        // For new categories, use temporary upload endpoint
+        uploadResponse = await fetch('/api/v1/uploads/temp', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`

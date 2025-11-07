@@ -287,6 +287,50 @@ func (h *UploadHandler) UploadGallery(c *gin.Context) {
 	})
 }
 
+// UploadTempImage handles temporary image upload for new entities (before they have an ID)
+func (h *UploadHandler) UploadTempImage(c *gin.Context) {
+	userID := c.GetString("user_id")
+	userRole := c.GetString("user_role")
+
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	// Only super admin can upload temporary images for categories
+	if userRole != "super_admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Only super admin can upload temporary images"})
+		return
+	}
+
+	// Get uploaded file
+	file, header, err := c.Request.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
+		return
+	}
+	defer file.Close()
+
+	// Upload file with temporary purpose
+	result, err := h.uploadService.UploadImage(file, header, &services.UploadRequest{
+		Purpose:    "temp",
+		EntityType: "temporary",
+		EntityID:   "temp_" + userID, // Use user ID to make it unique
+		UserID:     userID,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Temporary image uploaded successfully",
+		"data":    result,
+	})
+}
+
 // GetFiles returns files for specific entity
 func (h *UploadHandler) GetFiles(c *gin.Context) {
 	entityType := c.Query("entity_type")

@@ -387,6 +387,7 @@ func main() {
 			uploads.POST("/category/:categoryId/image", uploadHandler.UploadCategoryImage)
 			uploads.POST("/company/:companyId/logo", uploadHandler.UploadCompanyLogo)
 				uploads.POST("/gallery", uploadHandler.UploadGallery)
+				uploads.POST("/temp", uploadHandler.UploadTempImage)
 				uploads.GET("/files", uploadHandler.GetFiles)
 				uploads.DELETE("/files/:fileId", uploadHandler.DeleteFile)
 				uploads.GET("/files/:fileId", uploadHandler.GetFileInfo)
