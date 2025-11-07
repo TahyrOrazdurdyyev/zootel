@@ -19,16 +19,9 @@ const CompaniesPage = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [locationFilter, setLocationFilter] = useState('all');
   const [sortBy, setSortBy] = useState('rating');
-
-  const businessTypes = [
-    { value: 'all', label: 'All Types' },
-    { value: 'veterinary', label: 'Veterinary' },
-    { value: 'grooming', label: 'Grooming' },
-    { value: 'boarding', label: 'Boarding' },
-    { value: 'training', label: 'Training' },
-    { value: 'walking', label: 'Walking' },
-    { value: 'sitting', label: 'Pet Sitting' }
-  ];
+  const [businessTypes, setBusinessTypes] = useState([
+    { value: 'all', label: 'All Types' }
+  ]);
 
   const locations = [
     { value: 'all', label: 'All Locations' },
@@ -40,7 +33,26 @@ const CompaniesPage = () => {
 
   useEffect(() => {
     fetchCompanies();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/v1/marketplace/categories');
+      const data = await response.json();
+      if (data.success && data.categories) {
+        setBusinessTypes([
+          { value: 'all', label: 'All Types' },
+          ...data.categories.map(cat => ({ 
+            value: cat.name.toLowerCase().replace(' ', '_'), 
+            label: cat.name 
+          }))
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const fetchCompanies = async () => {
     setLoading(true);

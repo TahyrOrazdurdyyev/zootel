@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   MagnifyingGlassIcon,
@@ -15,16 +15,28 @@ const HomeHero = () => {
   const [searchLocation, setSearchLocation] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [serviceCategories, setServiceCategories] = useState([
+    { id: '', name: 'All categories' }
+  ]);
 
-  const serviceCategories = [
-    { id: '', name: 'All categories' },
-    { id: 'grooming', name: 'Grooming' },
-    { id: 'veterinary', name: 'Veterinary' },
-    { id: 'boarding', name: 'Boarding' },
-    { id: 'training', name: 'Training' },
-    { id: 'walking', name: 'Walking' },
-    { id: 'sitting', name: 'Pet Sitting' }
-  ];
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/v1/marketplace/categories');
+      const data = await response.json();
+      if (data.success && data.categories) {
+        setServiceCategories([
+          { id: '', name: 'All categories' },
+          ...data.categories.map(cat => ({ id: cat.id, name: cat.name }))
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();

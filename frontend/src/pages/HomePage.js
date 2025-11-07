@@ -70,15 +70,7 @@ const HomePage = () => {
         setFeaturedDeals([]);
         setTopCompanies([]);
         setCustomerReviews([]);
-        // Fallback categories with background images
-        setServiceCategories([
-          { id: 'grooming', name: 'Grooming', icon: '✂️', description: 'Haircut, washing, coat care', background_image: '/images/grooming.png' },
-          { id: 'veterinary', name: 'Veterinary', icon: '🏥', description: 'Consultations, treatment, vaccinations', background_image: '/images/veterinary.png' },
-          { id: 'boarding', name: 'Boarding', icon: '🏠', description: 'Pet hotels', background_image: '/images/boarding.png' },
-          { id: 'training', name: 'Training', icon: '🎾', description: 'Education and behavior correction', background_image: '/images/training.png' },
-          { id: 'walking', name: 'Walking', icon: '🚶', description: 'Dog walks', background_image: '/images/walking.png' },
-          { id: 'sitting', name: 'Pet Sitting', icon: '👥', description: 'Home care', background_image: '/images/sitting.png' }
-        ]);
+        setServiceCategories([]); // No fallback - use empty array
       } finally {
         setLoading(false);
       }
