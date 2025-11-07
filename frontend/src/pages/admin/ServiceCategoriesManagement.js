@@ -32,7 +32,7 @@ const ServiceCategoriesManagement = () => {
     try {
       setLoading(true);
       const token = await auth.currentUser?.getIdToken();
-      const response = await fetch('/admin/service-categories', {
+      const response = await fetch('/api/v1/admin/service-categories', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -56,7 +56,7 @@ const ServiceCategoriesManagement = () => {
       
       if (editingCategory) {
         // Update existing category
-        const response = await fetch(`/admin/service-categories/${editingCategory.id}`, {
+        const response = await fetch(`/api/v1/admin/service-categories/${editingCategory.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ const ServiceCategoriesManagement = () => {
         }
       } else {
         // Create new category
-        const response = await fetch('/admin/service-categories', {
+        const response = await fetch('/api/v1/admin/service-categories', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ const ServiceCategoriesManagement = () => {
 
     try {
       const token = await auth.currentUser?.getIdToken();
-      const response = await fetch(`/admin/service-categories/${id}`, {
+      const response = await fetch(`/api/v1/admin/service-categories/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -164,7 +164,7 @@ const ServiceCategoriesManagement = () => {
       
       // If editing existing category, use specific endpoint
       if (editingCategory && editingCategory.id) {
-        uploadResponse = await fetch(`/uploads/category/${editingCategory.id}/image`, {
+        uploadResponse = await fetch(`/api/v1/uploads/category/${editingCategory.id}/image`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -174,7 +174,7 @@ const ServiceCategoriesManagement = () => {
         uploadResponse = await uploadResponse.json();
       } else {
         // For new categories, use gallery endpoint
-        uploadResponse = await fetch('/uploads/gallery', {
+        uploadResponse = await fetch('/api/v1/uploads/gallery', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
