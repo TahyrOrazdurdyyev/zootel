@@ -51,7 +51,7 @@ const HomePage = () => {
           fetch('/api/deals/featured'),
           fetch('/api/companies/top'),
           fetch('/api/reviews/recent'),
-          fetch('/api/marketplace/categories')
+          fetch('/api/v1/marketplace/categories')
         ]);
 
         const [dealsData, companiesData, reviewsData, categoriesData] = await Promise.all([
@@ -106,28 +106,40 @@ const HomePage = () => {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {serviceCategories.map((category) => (
-              <Link
-                key={category.id}
-                to={`/services/${category.id}`}
-                className="relative bg-white rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 group h-48"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, rgba(246, 88, 20, 0.8) 0%, rgba(246, 88, 20, 0.6) 100%), url(${category.background_image || `/images/${category.id}.png`})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat'
-                }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                <div className="relative h-full flex flex-col justify-end p-4 text-white">
-                  <h3 className="font-bold text-lg mb-1">
-                    {category.name}
-                  </h3>
-                  <p className="text-sm opacity-90 mb-1">{category.description}</p>
-                  {category.count && <p className="text-xs font-medium opacity-80">{category.count}</p>}
-                </div>
-              </Link>
-            ))}
+            {loading ? (
+              // Loading skeleton
+              [...Array(6)].map((_, i) => (
+                <div key={i} className="bg-gray-200 rounded-xl h-48 animate-pulse"></div>
+              ))
+            ) : serviceCategories.length > 0 ? (
+              serviceCategories.map((category) => (
+                <Link
+                  key={category.id}
+                  to={`/services?category=${category.id}`}
+                  className="relative bg-white rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 group h-48"
+                  style={{
+                    backgroundImage: `linear-gradient(135deg, rgba(246, 88, 20, 0.8) 0%, rgba(246, 88, 20, 0.6) 100%), url(${category.background_image || `/images/${category.id}.png`})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                  <div className="relative h-full flex flex-col justify-end p-4 text-white">
+                    <h3 className="font-bold text-lg mb-1">
+                      {category.name}
+                    </h3>
+                    <p className="text-sm opacity-90 mb-1">{category.description}</p>
+                    {category.count && <p className="text-xs font-medium opacity-80">{category.count}</p>}
+                  </div>
+                </Link>
+              ))
+            ) : (
+              // No categories message
+              <div className="col-span-full text-center py-8">
+                <p className="text-gray-500">No service categories available</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

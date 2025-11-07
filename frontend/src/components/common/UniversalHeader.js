@@ -26,10 +26,28 @@ const UniversalHeader = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [serviceCategories, setServiceCategories] = useState([]);
   
   const userMenuRef = useRef(null);
   const servicesMenuRef = useRef(null);
   const searchRef = useRef(null);
+
+  // Fetch service categories
+  useEffect(() => {
+    fetchServiceCategories();
+  }, []);
+
+  const fetchServiceCategories = async () => {
+    try {
+      const response = await fetch('/api/v1/marketplace/categories');
+      const data = await response.json();
+      if (data.success && data.categories) {
+        setServiceCategories(data.categories);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -66,15 +84,6 @@ const UniversalHeader = () => {
   const shouldShowSearch = () => {
     return shouldShowFullMenu();
   };
-
-  const serviceCategories = [
-    { id: 'grooming', name: 'Grooming', icon: '✂️' },
-    { id: 'veterinary', name: 'Veterinary', icon: '🏥' },
-    { id: 'boarding', name: 'Boarding', icon: '🏠' },
-    { id: 'training', name: 'Training', icon: '🎾' },
-    { id: 'walking', name: 'Walking', icon: '🚶' },
-    { id: 'sitting', name: 'Pet Sitting', icon: '👥' }
-  ];
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -139,7 +148,7 @@ const UniversalHeader = () => {
                       {serviceCategories.map((category) => (
                         <Link
                           key={category.id}
-                          to={`/services/${category.id}`}
+                          to={`/services?category=${category.id}`}
                           className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded"
                           onClick={() => setShowServicesMenu(false)}
                         >
