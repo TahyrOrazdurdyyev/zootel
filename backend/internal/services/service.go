@@ -709,7 +709,7 @@ func (s *ServiceService) GetCompanyPublicServices(companyID string, limit, offse
 // GetAllCategories gets all service categories
 func (s *ServiceService) GetAllCategories() ([]*models.ServiceCategory, error) {
 	query := `
-		SELECT id, name, icon, created_at
+		SELECT id, name, description, icon, background_image, created_at, updated_at
 		FROM service_categories 
 		ORDER BY name ASC`
 
@@ -722,11 +722,18 @@ func (s *ServiceService) GetAllCategories() ([]*models.ServiceCategory, error) {
 	var categories []*models.ServiceCategory
 	for rows.Next() {
 		category := &models.ServiceCategory{}
+		var description, backgroundImage sql.NullString
 		err := rows.Scan(
-			&category.ID, &category.Name, &category.Icon, &category.CreatedAt,
+			&category.ID, &category.Name, &description, &category.Icon, &backgroundImage, &category.CreatedAt, &category.UpdatedAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan category: %w", err)
+		}
+		if description.Valid {
+			category.Description = description.String
+		}
+		if backgroundImage.Valid {
+			category.BackgroundImage = backgroundImage.String
 		}
 		categories = append(categories, category)
 	}
