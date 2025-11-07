@@ -260,7 +260,7 @@ func (s *UploadService) saveFileRecord(file *models.FileUpload) error {
 	query := `
 		INSERT INTO file_uploads (
 			id, original_name, file_name, file_path, file_size, mime_type,
-			purpose, entity_type, entity_id, uploader_id, uploader_type,
+			upload_purpose, file_type, entity_id, uploader_id, uploader_type,
 			is_public, created_at
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 	`
