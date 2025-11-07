@@ -32,7 +32,7 @@ func NewUploadService(db *sql.DB) *UploadService {
 
 	baseURL := os.Getenv("UPLOAD_BASE_URL")
 	if baseURL == "" {
-		baseURL = "http://localhost:4000/uploads"
+		baseURL = "https://zootel.shop/uploads"
 	}
 
 	// Create upload directory if it doesn't exist
