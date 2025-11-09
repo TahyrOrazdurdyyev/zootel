@@ -14,6 +14,7 @@ type CompanyHandler struct {
 	userService    *services.UserService
 	serviceService *services.ServiceService
 	productService *services.ProductService
+	adminService   *services.AdminService
 }
 
 func NewCompanyHandler(companyService *services.CompanyService, userService *services.UserService) *CompanyHandler {
@@ -27,6 +28,11 @@ func NewCompanyHandler(companyService *services.CompanyService, userService *ser
 func (h *CompanyHandler) SetServices(serviceService *services.ServiceService, productService *services.ProductService) {
 	h.serviceService = serviceService
 	h.productService = productService
+}
+
+// SetAdminService sets admin service for business types
+func (h *CompanyHandler) SetAdminService(adminService *services.AdminService) {
+	h.adminService = adminService
 }
 
 // GetPublicCompanies gets all active companies for marketplace
@@ -351,22 +357,27 @@ func (h *CompanyHandler) UpdateBusinessType(c *gin.Context) {
 	})
 }
 
-// GetBusinessTypes returns available business types
+// GetBusinessTypes returns available business types from database
 func (h *CompanyHandler) GetBusinessTypes(c *gin.Context) {
-	businessTypes := []map[string]string{
-		{"value": "veterinary", "label": "Veterinary Clinic", "description": "Medical services for animals"},
-		{"value": "grooming", "label": "Grooming Salon", "description": "Pet grooming and beauty services"},
-		{"value": "boarding", "label": "Pet Hotel", "description": "Temporary pet accommodation"},
-		{"value": "training", "label": "Pet Training", "description": "Training and behavior modification"},
-		{"value": "walking", "label": "Dog Walking", "description": "Dog walking services"},
-		{"value": "sitting", "label": "Pet Sitting", "description": "Pet care at home"},
-		{"value": "pet_taxi", "label": "Pet Transportation", "description": "Pet transportation services"},
-		{"value": "retail", "label": "Pet Store", "description": "Pet products and supplies"},
-		{"value": "general", "label": "General Services", "description": "Comprehensive pet services"},
+	// Get active business types from admin service
+	businessTypes, err := h.adminService.GetActiveBusinessTypes()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Convert to the format expected by frontend
+	var formattedTypes []map[string]string
+	for _, bt := range businessTypes {
+		formattedTypes = append(formattedTypes, map[string]string{
+			"value":       bt.Name,
+			"label":       bt.Name,
+			"description": bt.Description,
+		})
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"success":        true,
-		"business_types": businessTypes,
+		"business_types": formattedTypes,
 	})
 }

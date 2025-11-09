@@ -98,6 +98,7 @@ func main() {
 
 	// Set up additional dependencies
 	companyHandler.SetServices(serviceContainer.ServiceService(), serviceContainer.ProductService())
+	companyHandler.SetAdminService(serviceContainer.AdminService())
 
 	// Set up chat service dependencies
 	chatService.SetBookingService(bookingService)
@@ -407,7 +408,7 @@ func main() {
 				companies.GET("/profile", companyHandler.GetCompanyProfile)
 				companies.PUT("/profile", companyHandler.UpdateCompanyProfile)
 				companies.PUT("/business-type", companyHandler.UpdateBusinessType)
-				// companies.GET("/business-types", companyHandler.GetBusinessTypes) // Moved to admin panel
+				companies.GET("/business-types", companyHandler.GetBusinessTypes) // Public endpoint for registration
 				companies.POST("/upload-logo", companyHandler.UploadLogo)
 				companies.POST("/upload-media", companyHandler.UploadMedia)
 
