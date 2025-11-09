@@ -158,7 +158,7 @@ const HomePage = () => {
                   to={`/services?category=${category.id}`}
                   className="relative bg-white rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 group h-48"
                   style={{
-                    backgroundImage: `linear-gradient(135deg, rgba(246, 88, 20, 0.8) 0%, rgba(246, 88, 20, 0.6) 100%), url(${category.background_image || `/images/${category.id}.png`})`,
+                    backgroundImage: `url(${category.background_image || `/images/${category.id}.png`})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat'
