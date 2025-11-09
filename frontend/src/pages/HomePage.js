@@ -46,34 +46,69 @@ const HomePage = () => {
 
   useEffect(() => {
     const fetchHomePageData = async () => {
+      setLoading(true);
+      
+      // Fetch service categories (critical data)
       try {
-        const [dealsResponse, companiesResponse, reviewsResponse, categoriesResponse] = await Promise.all([
-          fetch('/api/deals/featured'),
-          fetch('/api/companies/top'),
-          fetch('/api/reviews/recent'),
-          fetch('/api/v1/marketplace/categories')
-        ]);
-
-        const [dealsData, companiesData, reviewsData, categoriesData] = await Promise.all([
-          dealsResponse.json(),
-          companiesResponse.json(),
-          reviewsResponse.json(),
-          categoriesResponse.json()
-        ]);
-
-        setFeaturedDeals(dealsData.deals || []);
-        setTopCompanies(companiesData.companies || []);
-        setCustomerReviews(reviewsData.reviews || []);
-        setServiceCategories(categoriesData.categories || []);
+        const categoriesResponse = await fetch('/api/v1/marketplace/categories');
+        if (categoriesResponse.ok) {
+          const categoriesData = await categoriesResponse.json();
+          setServiceCategories(categoriesData.categories || []);
+        } else {
+          console.log('Categories endpoint returned:', categoriesResponse.status);
+          setServiceCategories([]);
+        }
       } catch (error) {
-        console.error('Error fetching homepage data:', error);
-        setFeaturedDeals([]);
-        setTopCompanies([]);
-        setCustomerReviews([]);
-        setServiceCategories([]); // No fallback - use empty array
-      } finally {
-        setLoading(false);
+        console.error('Error fetching categories:', error);
+        setServiceCategories([]);
       }
+      
+      // Fetch featured deals (optional data)
+      try {
+        const dealsResponse = await fetch('/api/deals/featured');
+        if (dealsResponse.ok) {
+          const dealsData = await dealsResponse.json();
+          setFeaturedDeals(dealsData.deals || []);
+        } else {
+          console.log('No deals endpoint available yet');
+          setFeaturedDeals([]);
+        }
+      } catch (error) {
+        console.log('Deals not available yet');
+        setFeaturedDeals([]);
+      }
+      
+      // Fetch top companies (optional data)
+      try {
+        const companiesResponse = await fetch('/api/companies/top');
+        if (companiesResponse.ok) {
+          const companiesData = await companiesResponse.json();
+          setTopCompanies(companiesData.companies || []);
+        } else {
+          console.log('No top companies endpoint available yet');
+          setTopCompanies([]);
+        }
+      } catch (error) {
+        console.log('Top companies not available yet');
+        setTopCompanies([]);
+      }
+      
+      // Fetch customer reviews (optional data)
+      try {
+        const reviewsResponse = await fetch('/api/reviews/recent');
+        if (reviewsResponse.ok) {
+          const reviewsData = await reviewsResponse.json();
+          setCustomerReviews(reviewsData.reviews || []);
+        } else {
+          console.log('No reviews endpoint available yet');
+          setCustomerReviews([]);
+        }
+      } catch (error) {
+        console.log('Reviews not available yet');
+        setCustomerReviews([]);
+      }
+      
+      setLoading(false);
     };
 
     fetchHomePageData();
