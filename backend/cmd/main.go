@@ -515,6 +515,12 @@ func main() {
 				admin.PUT("/service-categories/:id", adminHandler.UpdateServiceCategory)
 				admin.DELETE("/service-categories/:id", adminHandler.DeleteServiceCategory)
 
+				// Business types management
+				admin.GET("/business-types", adminHandler.GetBusinessTypes)
+				admin.POST("/business-types", adminHandler.CreateBusinessType)
+				admin.PUT("/business-types/:id", adminHandler.UpdateBusinessType)
+				admin.DELETE("/business-types/:id", adminHandler.DeleteBusinessType)
+
 				// Pet types and breeds
 				admin.GET("/pet-types", adminHandler.GetPetTypes)
 				admin.POST("/pet-types", adminHandler.CreatePetType)

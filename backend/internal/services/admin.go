@@ -1645,3 +1645,123 @@ func (s *AdminService) CanDeactivateAgent(companyID, agentKey string) (bool, str
 
 	return false, fmt.Sprintf("Agent '%s' not found or not active", agentKey), nil
 }
+
+// Business Types Management
+func (s *AdminService) GetBusinessTypes() ([]models.BusinessType, error) {
+	query := `
+		SELECT id, name, description, is_active, sort_order, created_at, updated_at
+		FROM business_types 
+		ORDER BY sort_order ASC, name ASC`
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query business types: %w", err)
+	}
+	defer rows.Close()
+
+	var businessTypes []models.BusinessType
+	for rows.Next() {
+		var bt models.BusinessType
+		err := rows.Scan(
+			&bt.ID, &bt.Name, &bt.Description, &bt.IsActive, 
+			&bt.SortOrder, &bt.CreatedAt, &bt.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan business type: %w", err)
+		}
+		businessTypes = append(businessTypes, bt)
+	}
+
+	return businessTypes, nil
+}
+
+func (s *AdminService) GetActiveBusinessTypes() ([]models.BusinessType, error) {
+	query := `
+		SELECT id, name, description, is_active, sort_order, created_at, updated_at
+		FROM business_types 
+		WHERE is_active = true
+		ORDER BY sort_order ASC, name ASC`
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query active business types: %w", err)
+	}
+	defer rows.Close()
+
+	var businessTypes []models.BusinessType
+	for rows.Next() {
+		var bt models.BusinessType
+		err := rows.Scan(
+			&bt.ID, &bt.Name, &bt.Description, &bt.IsActive, 
+			&bt.SortOrder, &bt.CreatedAt, &bt.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan business type: %w", err)
+		}
+		businessTypes = append(businessTypes, bt)
+	}
+
+	return businessTypes, nil
+}
+
+func (s *AdminService) CreateBusinessType(bt *models.BusinessType) error {
+	bt.ID = uuid.New().String()
+	bt.CreatedAt = time.Now()
+	bt.UpdatedAt = time.Now()
+
+	query := `
+		INSERT INTO business_types (id, name, description, is_active, sort_order, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)`
+
+	_, err := s.db.Exec(query, bt.ID, bt.Name, bt.Description, bt.IsActive, bt.SortOrder, bt.CreatedAt, bt.UpdatedAt)
+	if err != nil {
+		return fmt.Errorf("failed to create business type: %w", err)
+	}
+
+	return nil
+}
+
+func (s *AdminService) UpdateBusinessType(bt *models.BusinessType) error {
+	bt.UpdatedAt = time.Now()
+
+	query := `
+		UPDATE business_types 
+		SET name = $2, description = $3, is_active = $4, sort_order = $5, updated_at = $6
+		WHERE id = $1`
+
+	result, err := s.db.Exec(query, bt.ID, bt.Name, bt.Description, bt.IsActive, bt.SortOrder, bt.UpdatedAt)
+	if err != nil {
+		return fmt.Errorf("failed to update business type: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("business type not found")
+	}
+
+	return nil
+}
+
+func (s *AdminService) DeleteBusinessType(id string) error {
+	query := `DELETE FROM business_types WHERE id = $1`
+
+	result, err := s.db.Exec(query, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete business type: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("business type not found")
+	}
+
+	return nil
+}

@@ -1407,3 +1407,14 @@ type PaymentMethod struct {
 	Icon     string `json:"icon"`     // Icon URL
 	IsActive bool   `json:"is_active"`
 }
+
+// BusinessType represents a type of business that companies can register as
+type BusinessType struct {
+	ID          string    `json:"id" db:"id"`
+	Name        string    `json:"name" db:"name"`
+	Description string    `json:"description" db:"description"`
+	IsActive    bool      `json:"is_active" db:"is_active"`
+	SortOrder   int       `json:"sort_order" db:"sort_order"`
+	CreatedAt   time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
+}
