@@ -50,16 +50,21 @@ const HomePage = () => {
       
       // Fetch service categories (critical data)
       try {
+        console.log('🔍 Fetching categories from /api/v1/marketplace/categories');
         const categoriesResponse = await fetch('/api/v1/marketplace/categories');
+        console.log('📡 Categories response status:', categoriesResponse.status);
         if (categoriesResponse.ok) {
           const categoriesData = await categoriesResponse.json();
+          console.log('📦 Categories data received:', categoriesData);
+          console.log('🎯 Categories array:', categoriesData.categories);
+          console.log('📊 Categories count:', categoriesData.categories?.length || 0);
           setServiceCategories(categoriesData.categories || []);
         } else {
-          console.log('Categories endpoint returned:', categoriesResponse.status);
+          console.log('❌ Categories endpoint returned:', categoriesResponse.status);
           setServiceCategories([]);
         }
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('💥 Error fetching categories:', error);
         setServiceCategories([]);
       }
       
@@ -146,7 +151,7 @@ const HomePage = () => {
               [...Array(6)].map((_, i) => (
                 <div key={i} className="bg-gray-200 rounded-xl h-48 animate-pulse"></div>
               ))
-            ) : serviceCategories.length > 0 ? (
+            ) : (console.log('🎨 Rendering categories, count:', serviceCategories.length, 'categories:', serviceCategories), serviceCategories.length > 0) ? (
               serviceCategories.map((category) => (
                 <Link
                   key={category.id}
