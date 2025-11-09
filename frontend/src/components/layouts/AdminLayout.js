@@ -17,6 +17,7 @@ const AdminLayout = ({ children }) => {
     { name: 'Analytics', href: '/admin/analytics', icon: ChartBarIcon },
     { name: 'Companies', href: '/admin/companies', icon: BuildingOfficeIcon },
     { name: 'Service Categories', href: '/admin/service-categories', icon: TagIcon },
+    { name: 'Business Types', href: '/admin/business-types', icon: BuildingOfficeIcon },
     { name: 'Currencies', href: '/admin/currencies', icon: CurrencyDollarIcon },
     { name: 'Plan Settings', href: '/admin/plan-settings', icon: CogIcon },
     { name: 'Payment Settings', href: '/admin/payment-settings', icon: CreditCardIcon },
