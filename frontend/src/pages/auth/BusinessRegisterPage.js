@@ -41,7 +41,7 @@ const BusinessRegisterPage = () => {
 
   const fetchBusinessTypes = async () => {
     try {
-      const response = await fetch('/api/v1/companies/business-types');
+      const response = await fetch('/api/v1/marketplace/business-types');
       if (response.ok) {
         const data = await response.json();
         setBusinessTypes(data.business_types || []);

@@ -18,7 +18,7 @@ const BusinessTypeSelector = ({ currentType, onUpdate, isEditable = true }) => {
   const fetchBusinessTypes = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/companies/business-types');
+      const response = await api.get('/marketplace/business-types');
       if (response.data.success) {
         setBusinessTypes(response.data.business_types);
       }

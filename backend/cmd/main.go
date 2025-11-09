@@ -177,6 +177,7 @@ func main() {
 			marketplace.GET("/services/discounts", serviceHandler.GetActiveDiscountServices)
 			marketplace.GET("/products", companyHandler.GetPublicProducts)
 			marketplace.GET("/categories", companyHandler.GetServiceCategories)
+			marketplace.GET("/business-types", companyHandler.GetBusinessTypes)
 			marketplace.GET("/search", companyHandler.Search)
 		}
 
@@ -408,7 +409,7 @@ func main() {
 				companies.GET("/profile", companyHandler.GetCompanyProfile)
 				companies.PUT("/profile", companyHandler.UpdateCompanyProfile)
 				companies.PUT("/business-type", companyHandler.UpdateBusinessType)
-				companies.GET("/business-types", companyHandler.GetBusinessTypes) // Public endpoint for registration
+				// companies.GET("/business-types", companyHandler.GetBusinessTypes) // Moved to public marketplace
 				companies.POST("/upload-logo", companyHandler.UploadLogo)
 				companies.POST("/upload-media", companyHandler.UploadMedia)
 
