@@ -63,7 +63,10 @@ const BusinessTypesManagement = () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify(formData)
+          body: JSON.stringify({
+            ...formData,
+            sort_order: parseInt(formData.sort_order) || 0
+          })
         });
         
         if (response.ok) {
@@ -79,7 +82,10 @@ const BusinessTypesManagement = () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify(formData)
+          body: JSON.stringify({
+            ...formData,
+            sort_order: parseInt(formData.sort_order) || 0
+          })
         });
         
         if (response.ok) {
@@ -159,7 +165,8 @@ const BusinessTypesManagement = () => {
         },
         body: JSON.stringify({
           ...businessType,
-          is_active: !businessType.is_active
+          is_active: !businessType.is_active,
+          sort_order: parseInt(businessType.sort_order) || 0
         })
       });
       
