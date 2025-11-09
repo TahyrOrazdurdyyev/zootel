@@ -1059,17 +1059,24 @@ func (h *AdminHandler) GetBusinessTypes(c *gin.Context) {
 }
 
 func (h *AdminHandler) CreateBusinessType(c *gin.Context) {
+	fmt.Printf("🔍 CreateBusinessType called from %s\n", c.ClientIP())
+	
 	var businessType models.BusinessType
 	if err := c.ShouldBindJSON(&businessType); err != nil {
+		fmt.Printf("❌ JSON binding error: %v\n", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	
+	fmt.Printf("📦 Business type data: %+v\n", businessType)
 
 	if err := h.adminService.CreateBusinessType(&businessType); err != nil {
+		fmt.Printf("❌ Service error: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	fmt.Printf("✅ Business type created successfully: %s\n", businessType.Name)
 	c.JSON(http.StatusCreated, gin.H{
 		"success": true,
 		"message": "Business type created successfully",

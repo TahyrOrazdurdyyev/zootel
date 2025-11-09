@@ -407,7 +407,7 @@ func main() {
 				companies.GET("/profile", companyHandler.GetCompanyProfile)
 				companies.PUT("/profile", companyHandler.UpdateCompanyProfile)
 				companies.PUT("/business-type", companyHandler.UpdateBusinessType)
-				companies.GET("/business-types", companyHandler.GetBusinessTypes)
+				// companies.GET("/business-types", companyHandler.GetBusinessTypes) // Moved to admin panel
 				companies.POST("/upload-logo", companyHandler.UploadLogo)
 				companies.POST("/upload-media", companyHandler.UploadMedia)
 
