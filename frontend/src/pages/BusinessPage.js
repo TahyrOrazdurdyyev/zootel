@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import BusinessHero from '../components/heroes/BusinessHero';
 import {
@@ -14,6 +14,83 @@ import {
 } from '@heroicons/react/24/outline';
 
 const BusinessPage = () => {
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadPlans();
+  }, []);
+
+  const loadPlans = async () => {
+    try {
+      const response = await fetch('/api/v1/marketplace/plans');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          // Transform API data to match component format
+          const transformedPlans = data.data
+            .filter(plan => plan.is_active)
+            .map(plan => ({
+              name: plan.name,
+              price: Math.round(plan.monthly_price * 100), // Convert to cents for display
+              description: plan.description,
+              features: plan.features || [],
+              highlighted: plan.name === 'Professional' || plan.name === 'Business'
+            }));
+          setPlans(transformedPlans);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load plans:', error);
+      // Fallback to hardcoded plans if API fails
+      setPlans([
+        {
+          name: 'Starter',
+          price: 2999,
+          description: 'For small clinics and salons',
+          features: [
+            'Up to 5 employees',
+            'Basic CRM',
+            'Online Booking',
+            'Basic Analytics',
+            'Email support'
+          ],
+          highlighted: false
+        },
+        {
+          name: 'Professional',
+          price: 4999,
+          description: 'For growing businesses',
+          features: [
+            'Up to 15 employees',
+            'Advanced CRM',
+            'AI assistants',
+            'Advanced Analytics',
+            'Integrations',
+            'Priority support'
+          ],
+          highlighted: true
+        },
+        {
+          name: 'Enterprise',
+          price: 9999,
+          description: 'For large networks',
+          features: [
+            'Unlimited employees',
+            'Full CRM',
+            'All AI agents',
+            'White label',
+            'API access',
+            'Personal manager'
+          ],
+          highlighted: false
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const features = [
     {
       icon: CalendarIcon,
@@ -54,50 +131,6 @@ const BusinessPage = () => {
       icon: CogIcon,
       title: 'Customization',
       description: 'Fully customizable to match your business needs and branding.'
-    }
-  ];
-
-  const plans = [
-    {
-      name: 'Starter',
-      price: 2999,
-      description: 'For small clinics and salons',
-      features: [
-        'Up to 5 employees',
-        'Basic CRM',
-        'Online Booking',
-        'Basic Analytics',
-        'Email support'
-      ],
-      highlighted: false
-    },
-    {
-      name: 'Professional',
-      price: 4999,
-      description: 'For growing businesses',
-      features: [
-        'Up to 15 employees',
-        'Advanced CRM',
-        'AI assistants',
-        'Advanced Analytics',
-        'Integrations',
-        'Priority support'
-      ],
-      highlighted: true
-    },
-    {
-      name: 'Enterprise',
-      price: 9999,
-      description: 'For large networks',
-      features: [
-        'Unlimited employees',
-        'Full CRM',
-        'All AI agents',
-        'White label',
-        'API access',
-        'Personal manager'
-      ],
-      highlighted: false
     }
   ];
 

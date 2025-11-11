@@ -33,6 +33,27 @@ func (h *AdminHandler) GetPlans(c *gin.Context) {
 	})
 }
 
+func (h *AdminHandler) GetPublicPlans(c *gin.Context) {
+	plans, err := h.adminService.GetPlans()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Filter only active plans for public display
+	var activePlans []models.Plan
+	for _, plan := range plans {
+		if plan.IsActive {
+			activePlans = append(activePlans, plan)
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    activePlans,
+	})
+}
+
 func (h *AdminHandler) CreatePlan(c *gin.Context) {
 	fmt.Printf("🔍 CreatePlan called from %s\n", c.ClientIP())
 	
