@@ -596,10 +596,7 @@ func main() {
 				admin.GET("/companies/:companyId/addon-check", addonHandler.CheckCompanyAddon)
 				admin.GET("/companies/addon-summaries", addonHandler.GetAllCompaniesAddonSummary)
 
-				// Admin addon management
-				admin.GET("/addon-pricing", addonHandler.GetAddonPricing)
-				admin.POST("/addon-pricing", addonHandler.CreateAddonPricing)
-				admin.PUT("/addon-pricing/:addonId", addonHandler.UpdateAddonPricing)
+				// Admin addon management (addon-pricing moved to adminHandler above)
 				admin.POST("/companies/:companyId/addons/enable", addonHandler.ManuallyEnableAddon)
 				admin.POST("/addon-billing/process", addonHandler.ProcessBilling)
 
