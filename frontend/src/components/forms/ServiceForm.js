@@ -94,23 +94,37 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     try {
       // Load service categories
       const categoriesResponse = await apiCall('/marketplace/categories');
-      if (categoriesResponse.success) {
-        setCategories(categoriesResponse.categories || []);
+      console.log('Categories response:', categoriesResponse);
+      if (categoriesResponse && categoriesResponse.success && Array.isArray(categoriesResponse.categories)) {
+        setCategories(categoriesResponse.categories);
+      } else {
+        console.error('Invalid categories response:', categoriesResponse);
+        setCategories([]);
       }
 
       // Load company employees
       const employeesResponse = await apiCall('/companies/employees');
-      if (employeesResponse.success) {
-        setEmployees(employeesResponse.data || []);
+      if (employeesResponse && employeesResponse.success && Array.isArray(employeesResponse.data)) {
+        setEmployees(employeesResponse.data);
+      } else {
+        console.error('Invalid employees response:', employeesResponse);
+        setEmployees([]);
       }
 
       // Load pet types
       const petTypesResponse = await apiCall('/api/pet-types');
-      if (petTypesResponse.success) {
-        setPetTypes(petTypesResponse.data || []);
+      if (petTypesResponse && petTypesResponse.success && Array.isArray(petTypesResponse.data)) {
+        setPetTypes(petTypesResponse.data);
+      } else {
+        console.error('Invalid pet types response:', petTypesResponse);
+        setPetTypes([]);
       }
     } catch (error) {
       console.error('Failed to load form data:', error);
+      // Set empty arrays as fallback
+      setCategories([]);
+      setEmployees([]);
+      setPetTypes([]);
     }
   };
 
