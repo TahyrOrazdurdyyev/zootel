@@ -92,12 +92,12 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
 
   const loadFormData = async () => {
     try {
-      // Load service categories
-      const categoriesResponse = await apiCall('/marketplace/categories');
+      // Load service categories from companies API
+      const categoriesResponse = await apiCall('/companies/service-categories');
       console.log('🔍 ServiceForm - Categories response:', categoriesResponse);
-      if (categoriesResponse && categoriesResponse.success && Array.isArray(categoriesResponse.categories)) {
-        console.log('✅ ServiceForm - Categories loaded:', categoriesResponse.categories.length);
-        setCategories(categoriesResponse.categories);
+      if (categoriesResponse && categoriesResponse.success && Array.isArray(categoriesResponse.data)) {
+        console.log('✅ ServiceForm - Categories loaded:', categoriesResponse.data.length);
+        setCategories(categoriesResponse.data);
       } else {
         console.error('❌ ServiceForm - Invalid categories response:', categoriesResponse);
         setCategories([]);
