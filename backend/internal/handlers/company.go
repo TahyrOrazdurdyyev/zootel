@@ -381,3 +381,71 @@ func (h *CompanyHandler) GetBusinessTypes(c *gin.Context) {
 		"business_types": formattedTypes,
 	})
 }
+
+// RegisterCompany creates a new company for authenticated user
+func (h *CompanyHandler) RegisterCompany(c *gin.Context) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	userRole, exists := c.Get("user_role")
+	if !exists || userRole != "company_owner" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Only company owners can register companies"})
+		return
+	}
+
+	var req struct {
+		Name         string `json:"name" binding:"required"`
+		BusinessType string `json:"business_type" binding:"required"`
+		Description  string `json:"description"`
+		Address      string `json:"address"`
+		Country      string `json:"country"`
+		State        string `json:"state"`
+		City         string `json:"city"`
+		Phone        string `json:"phone"`
+		Email        string `json:"email"`
+		Website      string `json:"website"`
+		TaxID        string `json:"tax_id"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Check if user already has a company
+	existingCompany, _ := h.userService.GetCompanyByOwner(userID.(string))
+	if existingCompany != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "User already has a company"})
+		return
+	}
+
+	// Prepare company data
+	companyData := map[string]interface{}{
+		"name":          req.Name,
+		"business_type": req.BusinessType,
+		"description":   req.Description,
+		"address":       req.Address,
+		"country":       req.Country,
+		"state":         req.State,
+		"city":          req.City,
+		"phone":         req.Phone,
+		"email":         req.Email,
+		"website":       req.Website,
+	}
+
+	// Create company
+	company, err := h.companyService.CreateCompany(userID.(string), companyData)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create company", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": "Company registered successfully",
+		"data":    company,
+	})
+}

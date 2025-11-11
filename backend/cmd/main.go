@@ -401,10 +401,13 @@ func main() {
 				addons.GET("/available", addonHandler.GetAvailableAddons)
 			}
 
-			// Company addon endpoints
-			companies := protected.Group("/companies")
-			companies.Use(middleware.CompanyOwnerMiddleware())
-			{
+		// Company registration endpoint (before CompanyOwnerMiddleware)
+		protected.POST("/companies/register", companyHandler.RegisterCompany)
+
+		// Company addon endpoints
+		companies := protected.Group("/companies")
+		companies.Use(middleware.CompanyOwnerMiddleware())
+		{
 				companies.GET("/trial-status", companyHandler.GetCompanyTrialStatus)
 				companies.GET("/profile", companyHandler.GetCompanyProfile)
 				companies.PUT("/profile", companyHandler.UpdateCompanyProfile)

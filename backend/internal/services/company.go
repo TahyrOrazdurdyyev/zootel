@@ -482,3 +482,67 @@ func (s *CompanyService) UpdateCompanyProfile(companyID string, updateData map[s
 
 	return nil
 }
+
+// CreateCompany creates a new company
+func (s *CompanyService) CreateCompany(ownerID string, companyData map[string]interface{}) (*models.Company, error) {
+	company := &models.Company{
+		OwnerID:     ownerID,
+		IsActive:    true,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	// Set company fields from data
+	if name, ok := companyData["name"].(string); ok {
+		company.Name = name
+	}
+	if description, ok := companyData["description"].(string); ok {
+		company.Description = description
+	}
+	if businessType, ok := companyData["business_type"].(string); ok {
+		company.BusinessType = businessType
+	}
+	if address, ok := companyData["address"].(string); ok {
+		company.Address = address
+	}
+	if country, ok := companyData["country"].(string); ok {
+		company.Country = country
+	}
+	if state, ok := companyData["state"].(string); ok {
+		company.State = state
+	}
+	if city, ok := companyData["city"].(string); ok {
+		company.City = city
+	}
+	if phone, ok := companyData["phone"].(string); ok {
+		company.Phone = phone
+	}
+	if email, ok := companyData["email"].(string); ok {
+		company.Email = email
+	}
+	if website, ok := companyData["website"].(string); ok {
+		company.Website = website
+	}
+
+	// Insert company into database
+	query := `
+		INSERT INTO companies (
+			owner_id, name, description, business_type, address, 
+			country, state, city, phone, email, website, 
+			is_active, created_at, updated_at
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+		RETURNING id`
+
+	err := s.db.QueryRow(query,
+		company.OwnerID, company.Name, company.Description, company.BusinessType,
+		company.Address, company.Country, company.State, company.City,
+		company.Phone, company.Email, company.Website,
+		company.IsActive, company.CreatedAt, company.UpdatedAt,
+	).Scan(&company.ID)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to create company: %w", err)
+	}
+
+	return company, nil
+}
