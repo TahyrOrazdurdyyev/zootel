@@ -95,10 +95,7 @@ const Header = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-4">
               <Link to="/marketplace" className="text-gray-700 hover:text-primary-500 px-2 py-2 text-sm font-medium">
-                Services
-              </Link>
-              <Link to="/marketplace?type=products" className="text-gray-700 hover:text-primary-500 px-2 py-2 text-sm font-medium">
-                Shop
+                Marketplace
               </Link>
               <Link to="/marketplace?type=companies" className="text-gray-700 hover:text-primary-500 px-2 py-2 text-sm font-medium">
                 Companies
