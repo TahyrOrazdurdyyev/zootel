@@ -510,6 +510,12 @@ func main() {
 				admin.PUT("/plans/:id", adminHandler.UpdatePlan)
 				admin.DELETE("/plans/:id", adminHandler.DeletePlan)
 
+				// Addon pricing management
+				admin.GET("/addon-pricing", adminHandler.GetAddonPricing)
+				admin.POST("/addon-pricing", adminHandler.CreateAddonPricing)
+				admin.PUT("/addon-pricing/:id", adminHandler.UpdateAddonPricing)
+				admin.DELETE("/addon-pricing/:id", adminHandler.DeleteAddonPricing)
+
 				// Payment settings
 				admin.GET("/payment-settings", adminHandler.GetPaymentSettings)
 				admin.PUT("/payment-settings", adminHandler.UpdatePaymentSettings)

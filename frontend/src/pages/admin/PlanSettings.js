@@ -80,7 +80,7 @@ const PlanSettings = () => {
 
   const loadPlans = async () => {
     try {
-      const response = await apiCall('/api/admin/plans');
+      const response = await apiCall('/admin/plans');
       if (response.success) {
         setPlans(response.data || []);
       }
@@ -91,7 +91,7 @@ const PlanSettings = () => {
 
   const loadAddonPricing = async () => {
     try {
-      const response = await apiCall('/api/admin/addon-pricing');
+      const response = await apiCall('/admin/addon-pricing');
       if (response.success) {
         setAddonPricing(response.data || []);
       }
@@ -103,8 +103,8 @@ const PlanSettings = () => {
   const handleSavePlan = async () => {
     try {
       const url = editingPlan 
-        ? `/api/admin/plans/${editingPlan.id}`
-        : '/api/admin/plans';
+        ? `/admin/plans/${editingPlan.id}`
+        : '/admin/plans';
       
       const method = editingPlan ? 'PUT' : 'POST';
 
@@ -131,8 +131,8 @@ const PlanSettings = () => {
   const handleSaveAddon = async () => {
     try {
       const url = editingAddon 
-        ? `/api/admin/addon-pricing/${editingAddon.id}`
-        : '/api/admin/addon-pricing';
+        ? `/admin/addon-pricing/${editingAddon.id}`
+        : '/admin/addon-pricing';
       
       const method = editingAddon ? 'PUT' : 'POST';
 
@@ -160,7 +160,7 @@ const PlanSettings = () => {
     if (!window.confirm('Are you sure you want to delete this plan?')) return;
 
     try {
-      const response = await apiCall(`/api/admin/plans/${planId}`, {
+      const response = await apiCall(`/admin/plans/${planId}`, {
         method: 'DELETE'
       });
 
@@ -179,7 +179,7 @@ const PlanSettings = () => {
     if (!window.confirm('Are you sure you want to delete this addon pricing?')) return;
 
     try {
-      const response = await apiCall(`/api/admin/addon-pricing/${addonId}`, {
+      const response = await apiCall(`/admin/addon-pricing/${addonId}`, {
         method: 'DELETE'
       });
 

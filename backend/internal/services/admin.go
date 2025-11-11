@@ -22,10 +22,14 @@ func NewAdminService(db *sql.DB) *AdminService {
 // Plan Management
 func (s *AdminService) GetPlans() ([]models.Plan, error) {
 	query := `
-		SELECT id, name, price, features, free_trial_enabled, free_trial_days, 
-			   max_employees, templates_access, demo_mode_access, 
-			   included_ai_agents, ai_agent_addons, created_at, updated_at
-		FROM plans ORDER BY price ASC`
+		SELECT id, name, COALESCE(description, '') as description, 
+			   COALESCE(monthly_price, 0) as monthly_price, COALESCE(yearly_price, 0) as yearly_price,
+			   features, free_trial_enabled, free_trial_days, 
+			   max_employees, COALESCE(templates_access, false) as templates_access, 
+			   COALESCE(demo_mode_access, false) as demo_mode_access, 
+			   included_ai_agents, COALESCE(ai_agent_addons, '{}') as ai_agent_addons,
+			   COALESCE(is_active, true) as is_active, created_at, updated_at
+		FROM plans ORDER BY monthly_price ASC`
 
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -37,10 +41,10 @@ func (s *AdminService) GetPlans() ([]models.Plan, error) {
 	for rows.Next() {
 		var plan models.Plan
 		err := rows.Scan(
-			&plan.ID, &plan.Name, &plan.Price, &plan.Features,
-			&plan.FreeTrialEnabled, &plan.FreeTrialDays, &plan.MaxEmployees,
+			&plan.ID, &plan.Name, &plan.Description, &plan.MonthlyPrice, &plan.YearlyPrice,
+			&plan.Features, &plan.FreeTrialEnabled, &plan.FreeTrialDays, &plan.MaxEmployees,
 			&plan.TemplatesAccess, &plan.DemoModeAccess,
-			&plan.IncludedAIAgents, &plan.AIAgentAddons,
+			&plan.IncludedAIAgents, &plan.AIAgentAddons, &plan.IsActive,
 			&plan.CreatedAt, &plan.UpdatedAt,
 		)
 		if err != nil {
@@ -58,17 +62,17 @@ func (s *AdminService) CreatePlan(plan *models.Plan) error {
 	plan.UpdatedAt = time.Now()
 
 	query := `
-		INSERT INTO plans (id, name, price, features, free_trial_enabled, free_trial_days,
-						  max_employees, templates_access, demo_mode_access,
-						  included_ai_agents, ai_agent_addons, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
+		INSERT INTO plans (id, name, description, monthly_price, yearly_price, features, 
+						  free_trial_enabled, free_trial_days, max_employees, 
+						  templates_access, demo_mode_access, included_ai_agents, 
+						  ai_agent_addons, is_active, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`
 
 	_, err := s.db.Exec(query,
-		plan.ID, plan.Name, plan.Price, plan.Features,
-		plan.FreeTrialEnabled, plan.FreeTrialDays, plan.MaxEmployees,
-		plan.TemplatesAccess, plan.DemoModeAccess,
-		plan.IncludedAIAgents, plan.AIAgentAddons,
-		plan.CreatedAt, plan.UpdatedAt,
+		plan.ID, plan.Name, plan.Description, plan.MonthlyPrice, plan.YearlyPrice,
+		plan.Features, plan.FreeTrialEnabled, plan.FreeTrialDays, plan.MaxEmployees,
+		plan.TemplatesAccess, plan.DemoModeAccess, plan.IncludedAIAgents, 
+		plan.AIAgentAddons, plan.IsActive, plan.CreatedAt, plan.UpdatedAt,
 	)
 
 	return err
@@ -78,18 +82,18 @@ func (s *AdminService) UpdatePlan(planID string, plan *models.Plan) error {
 	plan.UpdatedAt = time.Now()
 
 	query := `
-		UPDATE plans SET name = $2, price = $3, features = $4,
-						free_trial_enabled = $5, free_trial_days = $6,
-						max_employees = $7, templates_access = $8,
-						demo_mode_access = $9, included_ai_agents = $10,
-						ai_agent_addons = $11, updated_at = $12
+		UPDATE plans SET name = $2, description = $3, monthly_price = $4, yearly_price = $5,
+						features = $6, free_trial_enabled = $7, free_trial_days = $8,
+						max_employees = $9, templates_access = $10, demo_mode_access = $11,
+						included_ai_agents = $12, ai_agent_addons = $13, is_active = $14,
+						updated_at = $15
 		WHERE id = $1`
 
 	_, err := s.db.Exec(query,
-		planID, plan.Name, plan.Price, plan.Features,
-		plan.FreeTrialEnabled, plan.FreeTrialDays, plan.MaxEmployees,
-		plan.TemplatesAccess, plan.DemoModeAccess,
-		plan.IncludedAIAgents, plan.AIAgentAddons, plan.UpdatedAt,
+		planID, plan.Name, plan.Description, plan.MonthlyPrice, plan.YearlyPrice,
+		plan.Features, plan.FreeTrialEnabled, plan.FreeTrialDays, plan.MaxEmployees,
+		plan.TemplatesAccess, plan.DemoModeAccess, plan.IncludedAIAgents, 
+		plan.AIAgentAddons, plan.IsActive, plan.UpdatedAt,
 	)
 
 	return err
@@ -107,6 +111,79 @@ func (s *AdminService) DeletePlan(planID string) error {
 	}
 
 	_, err = s.db.Exec("DELETE FROM plans WHERE id = $1", planID)
+	return err
+}
+
+// Addon Pricing Management
+func (s *AdminService) GetAddonPricing() ([]models.AddonPricing, error) {
+	query := `
+		SELECT id, addon_type, addon_key, name, description, monthly_price, yearly_price,
+			   one_time_price, is_available, created_at, updated_at
+		FROM addon_pricing ORDER BY addon_type, name ASC`
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var addons []models.AddonPricing
+	for rows.Next() {
+		var addon models.AddonPricing
+		err := rows.Scan(
+			&addon.ID, &addon.AddonType, &addon.AddonKey, &addon.Name, &addon.Description,
+			&addon.MonthlyPrice, &addon.YearlyPrice, &addon.OneTimePrice, &addon.IsAvailable,
+			&addon.CreatedAt, &addon.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		addons = append(addons, addon)
+	}
+
+	return addons, nil
+}
+
+func (s *AdminService) CreateAddonPricing(addon *models.AddonPricing) error {
+	addon.ID = uuid.New().String()
+	addon.CreatedAt = time.Now()
+	addon.UpdatedAt = time.Now()
+
+	query := `
+		INSERT INTO addon_pricing (id, addon_type, addon_key, name, description, 
+								  monthly_price, yearly_price, one_time_price, 
+								  is_available, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
+
+	_, err := s.db.Exec(query,
+		addon.ID, addon.AddonType, addon.AddonKey, addon.Name, addon.Description,
+		addon.MonthlyPrice, addon.YearlyPrice, addon.OneTimePrice, addon.IsAvailable,
+		addon.CreatedAt, addon.UpdatedAt,
+	)
+
+	return err
+}
+
+func (s *AdminService) UpdateAddonPricing(addonID string, addon *models.AddonPricing) error {
+	addon.UpdatedAt = time.Now()
+
+	query := `
+		UPDATE addon_pricing SET addon_type = $2, addon_key = $3, name = $4, 
+								description = $5, monthly_price = $6, yearly_price = $7,
+								one_time_price = $8, is_available = $9, updated_at = $10
+		WHERE id = $1`
+
+	_, err := s.db.Exec(query,
+		addonID, addon.AddonType, addon.AddonKey, addon.Name, addon.Description,
+		addon.MonthlyPrice, addon.YearlyPrice, addon.OneTimePrice, addon.IsAvailable,
+		addon.UpdatedAt,
+	)
+
+	return err
+}
+
+func (s *AdminService) DeleteAddonPricing(addonID string) error {
+	_, err := s.db.Exec("DELETE FROM addon_pricing WHERE id = $1", addonID)
 	return err
 }
 

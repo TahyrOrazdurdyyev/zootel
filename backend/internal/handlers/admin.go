@@ -94,6 +94,81 @@ func (h *AdminHandler) DeletePlan(c *gin.Context) {
 	})
 }
 
+// Addon Pricing handlers
+func (h *AdminHandler) GetAddonPricing(c *gin.Context) {
+	addons, err := h.adminService.GetAddonPricing()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    addons,
+	})
+}
+
+func (h *AdminHandler) CreateAddonPricing(c *gin.Context) {
+	var addon models.AddonPricing
+	if err := c.ShouldBindJSON(&addon); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.adminService.CreateAddonPricing(&addon); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": "Addon pricing created successfully",
+		"data":    addon,
+	})
+}
+
+func (h *AdminHandler) UpdateAddonPricing(c *gin.Context) {
+	addonID := c.Param("id")
+	if addonID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Addon ID is required"})
+		return
+	}
+
+	var addon models.AddonPricing
+	if err := c.ShouldBindJSON(&addon); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.adminService.UpdateAddonPricing(addonID, &addon); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Addon pricing updated successfully",
+	})
+}
+
+func (h *AdminHandler) DeleteAddonPricing(c *gin.Context) {
+	addonID := c.Param("id")
+	if addonID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Addon ID is required"})
+		return
+	}
+
+	if err := h.adminService.DeleteAddonPricing(addonID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Addon pricing deleted successfully",
+	})
+}
+
 // Payment settings
 func (h *AdminHandler) GetPaymentSettings(c *gin.Context) {
 	settings, err := h.adminService.GetPaymentSettings()

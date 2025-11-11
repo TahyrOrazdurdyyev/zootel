@@ -69,7 +69,9 @@ type User struct {
 type Plan struct {
 	ID               string         `json:"id" db:"id"`
 	Name             string         `json:"name" db:"name"`
-	Price            float64        `json:"price" db:"price"`
+	Description      string         `json:"description" db:"description"`
+	MonthlyPrice     float64        `json:"monthly_price" db:"monthly_price"`
+	YearlyPrice      float64        `json:"yearly_price" db:"yearly_price"`
 	Features         pq.StringArray `json:"features" db:"features"`
 	FreeTrialEnabled bool           `json:"free_trial_enabled" db:"free_trial_enabled"`
 	FreeTrialDays    int            `json:"free_trial_days" db:"free_trial_days"`
@@ -78,8 +80,24 @@ type Plan struct {
 	DemoModeAccess   bool           `json:"demo_mode_access" db:"demo_mode_access"`
 	IncludedAIAgents pq.StringArray `json:"included_ai_agents" db:"included_ai_agents"`
 	AIAgentAddons    pq.StringArray `json:"ai_agent_addons" db:"ai_agent_addons"`
+	IsActive         bool           `json:"is_active" db:"is_active"`
 	CreatedAt        time.Time      `json:"created_at" db:"created_at"`
 	UpdatedAt        time.Time      `json:"updated_at" db:"updated_at"`
+}
+
+// AddonPricing represents addon pricing configuration
+type AddonPricing struct {
+	ID           string    `json:"id" db:"id"`
+	AddonType    string    `json:"addon_type" db:"addon_type"`
+	AddonKey     string    `json:"addon_key" db:"addon_key"`
+	Name         string    `json:"name" db:"name"`
+	Description  string    `json:"description" db:"description"`
+	MonthlyPrice float64   `json:"monthly_price" db:"monthly_price"`
+	YearlyPrice  float64   `json:"yearly_price" db:"yearly_price"`
+	OneTimePrice *float64  `json:"one_time_price" db:"one_time_price"`
+	IsAvailable  bool      `json:"is_available" db:"is_available"`
+	CreatedAt    time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
 }
 
 // PaymentSettings represents global payment configuration
@@ -923,20 +941,6 @@ type CompanyAddon struct {
 	UpdatedAt     time.Time  `json:"updated_at" db:"updated_at"`
 }
 
-// AddonPricing represents pricing for different addons
-type AddonPricing struct {
-	ID           string    `json:"id" db:"id"`
-	AddonType    string    `json:"addon_type" db:"addon_type"`
-	AddonKey     string    `json:"addon_key" db:"addon_key"`
-	Name         string    `json:"name" db:"name"`
-	Description  string    `json:"description" db:"description"`
-	MonthlyPrice float64   `json:"monthly_price" db:"monthly_price"`
-	YearlyPrice  float64   `json:"yearly_price" db:"yearly_price"`
-	OneTimePrice *float64  `json:"one_time_price" db:"one_time_price"`
-	IsAvailable  bool      `json:"is_available" db:"is_available"`
-	CreatedAt    time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
-}
 
 // CompanyAIAgent represents an AI agent for a company (from plan or addon)
 type CompanyAIAgent struct {
