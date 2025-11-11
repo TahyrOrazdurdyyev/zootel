@@ -30,13 +30,36 @@ const BusinessPage = () => {
           // Transform API data to match component format
           const transformedPlans = data.data
             .filter(plan => plan.is_active)
-            .map(plan => ({
-              name: plan.name,
-              price: Math.round(plan.monthly_price * 100), // Convert to cents for display
-              description: plan.description,
-              features: plan.features || [],
-              highlighted: plan.name === 'Professional' || plan.name === 'Business'
-            }));
+            .map(plan => {
+              // Default features based on plan name if features array is empty
+              let features = plan.features && plan.features.length > 0 ? plan.features : [];
+              
+              if (features.length === 0) {
+                // Fallback features based on plan characteristics
+                features = [
+                  `Up to ${plan.max_employees} employees`,
+                  'Online Booking System',
+                  'Customer Management',
+                  'Basic Analytics'
+                ];
+                
+                if (plan.free_trial_enabled) {
+                  features.push(`${plan.free_trial_days} days free trial`);
+                }
+                
+                if (plan.included_ai_agents && plan.included_ai_agents.length > 0) {
+                  features.push(`${plan.included_ai_agents.length} AI Agents included`);
+                }
+              }
+              
+              return {
+                name: plan.name,
+                price: Math.round(plan.monthly_price), // Keep as dollars
+                description: plan.description,
+                features: features,
+                highlighted: plan.name === 'Professional' || plan.name === 'Business'
+              };
+            });
           setPlans(transformedPlans);
         }
       }
@@ -317,7 +340,7 @@ const BusinessPage = () => {
                   </p>
                   <div className="mt-6">
                     <span className="text-4xl font-bold text-gray-900">
-                      ₽{plan.price.toLocaleString()}
+                      ${plan.price.toLocaleString()}
                     </span>
                     <span className="text-gray-600">/month</span>
                   </div>
