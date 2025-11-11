@@ -8,6 +8,9 @@ ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 -- Migrate existing price to monthly_price if exists
 UPDATE plans SET monthly_price = price WHERE monthly_price = 0 AND price > 0;
 
+-- Make old price column nullable (remove NOT NULL constraint)
+ALTER TABLE plans ALTER COLUMN price DROP NOT NULL;
+
 -- Create addon_pricing table
 CREATE TABLE IF NOT EXISTS addon_pricing (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
