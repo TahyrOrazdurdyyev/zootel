@@ -74,7 +74,7 @@ function App() {
               <Route path="/shop" element={<MarketplacePage />} />
               <Route path="/companies" element={<CompaniesPage />} />
               <Route path="/business" element={<BusinessPage />} />
-              <Route path="/company/:companyId" element={<CompanyPublicPage />} />
+              <Route path="/companies/:companyId" element={<CompanyPublicPage />} />
               
               {/* Payment Routes */}
               <Route path="/payment/crypto/:paymentId" element={<CryptoPaymentPage />} />

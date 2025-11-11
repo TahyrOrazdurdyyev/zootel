@@ -363,7 +363,7 @@ const MarketplacePage = () => {
                     </h3>
                     
                     <Link 
-                      to={`/company/${item.companyId || 'demo-company'}`}
+                      to={`/companies/${item.companyId || 'demo-company'}`}
                       className="text-sm text-blue-600 hover:text-blue-800 mb-2 inline-block"
                     >
                       {item.company}

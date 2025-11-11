@@ -309,7 +309,7 @@ const CompaniesPage = () => {
                 {/* Actions */}
                 <div className="flex space-x-2">
                   <Link
-                    to={`/company/${company.id}`}
+                    to={`/companies/${company.id}`}
                     className="flex-1 bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     View Details
