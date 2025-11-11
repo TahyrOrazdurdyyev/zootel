@@ -986,9 +986,9 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 		) os ON c.id = os.company_id
 		LEFT JOIN (
 			SELECT company_id,
-				ROUND(AVG(EXTRACT(EPOCH FROM (responded_at - created_at)) / 60), 2) as avg_response_time
+				ROUND(AVG(EXTRACT(EPOCH FROM (updated_at - created_at)) / 60), 2) as avg_response_time
 			FROM chats
-			WHERE responded_at IS NOT NULL
+			WHERE updated_at > created_at
 			GROUP BY company_id
 		) rt ON c.id = rt.company_id
 		LEFT JOIN (
