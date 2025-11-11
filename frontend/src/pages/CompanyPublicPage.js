@@ -32,6 +32,7 @@ const CompanyPublicPage = () => {
 
   const fetchCompanyData = async () => {
     setLoading(true);
+    console.log('🔍 CompanyPublicPage fetchCompanyData - companyId:', companyId);
     try {
       // Fetch company profile
       const companyResponse = await fetch(`/api/public/companies/${companyId}`);
