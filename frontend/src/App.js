@@ -72,6 +72,7 @@ function App() {
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/marketplace" element={<MarketplacePage />} />
               <Route path="/shop" element={<MarketplacePage />} />
+              <Route path="/services" element={<MarketplacePage />} />
               <Route path="/companies" element={<CompaniesPage />} />
               <Route path="/business" element={<BusinessPage />} />
               <Route path="/companies/:companyId" element={<CompanyPublicPage />} />

@@ -172,7 +172,7 @@ const UniversalHeader = () => {
 
               {/* Shop */}
               <Link
-                to="/shop"
+                to="/marketplace?type=products"
                 className="text-gray-700 hover:text-orange-600 px-3 py-2 text-sm font-medium"
               >
                 Shop
