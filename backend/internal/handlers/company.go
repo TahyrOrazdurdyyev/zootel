@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -166,12 +167,16 @@ func (h *CompanyHandler) GetPublicProducts(c *gin.Context) {
 
 // GetServiceCategories gets all service categories
 func (h *CompanyHandler) GetServiceCategories(c *gin.Context) {
+	fmt.Printf("🔍 CompanyHandler.GetServiceCategories called from %s\n", c.ClientIP())
+	
 	categories, err := h.serviceService.GetAllCategories()
 	if err != nil {
+		fmt.Printf("❌ CompanyHandler.GetServiceCategories error: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	fmt.Printf("✅ CompanyHandler.GetServiceCategories success, returned %d categories\n", len(categories))
 	c.JSON(http.StatusOK, gin.H{
 		"success":    true,
 		"categories": categories,
