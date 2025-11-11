@@ -28,9 +28,10 @@ func NewServiceHandler(serviceService *services.ServiceService) *ServiceHandler 
 
 // GetCompanyServices gets all services for a company
 func (h *ServiceHandler) GetCompanyServices(c *gin.Context) {
-	companyID := c.Param("companyId")
+	// Get company ID from middleware context
+	companyID := c.GetString("company_id")
 	if companyID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID not found in context"})
 		return
 	}
 

@@ -406,7 +406,7 @@ func main() {
 
 		// Company addon endpoints
 		companies := protected.Group("/companies")
-		companies.Use(middleware.CompanyOwnerMiddleware())
+		companies.Use(middleware.CompanyOwnerMiddleware(userService))
 		{
 				companies.GET("/trial-status", companyHandler.GetCompanyTrialStatus)
 				companies.GET("/profile", companyHandler.GetCompanyProfile)

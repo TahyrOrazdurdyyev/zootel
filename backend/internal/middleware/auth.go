@@ -95,9 +95,37 @@ func SuperAdminMiddleware() gin.HandlerFunc {
 	return RequireRole("super_admin")
 }
 
-// CompanyOwnerMiddleware checks if user is a company owner
-func CompanyOwnerMiddleware() gin.HandlerFunc {
-	return RequireRole("company_owner")
+// CompanyOwnerMiddleware checks if user is a company owner and sets company_id
+func CompanyOwnerMiddleware(userService *services.UserService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// First check if user has company_owner role
+		userRole := c.GetString("user_role")
+		if userRole != "company_owner" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Access denied. Company owner role required."})
+			c.Abort()
+			return
+		}
+
+		// Get user ID
+		userID := c.GetString("user_id")
+		if userID == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+			c.Abort()
+			return
+		}
+
+		// Find user's company
+		company, err := userService.GetCompanyByOwner(userID)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Company not found for this user"})
+			c.Abort()
+			return
+		}
+
+		// Set company_id in context
+		c.Set("company_id", company.ID)
+		c.Next()
+	}
 }
 
 // CompanyOwnerOrSuperAdminMiddleware checks if user is a company owner or super admin
