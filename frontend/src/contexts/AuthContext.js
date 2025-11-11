@@ -135,6 +135,59 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Register business in backend
+  const registerBusinessInBackend = async (firebaseUser, businessData = {}) => {
+    try {
+      const userData = {
+        firebase_uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        first_name: businessData.firstName || '',
+        last_name: businessData.lastName || '',
+        role: 'company_owner',
+        phone: businessData.phone || '',
+        address: businessData.address || '',
+        country: businessData.country || null,
+        state: businessData.state || null,
+        city: businessData.city || null,
+        timezone: businessData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+        notification_methods: businessData.notificationMethods || ['email'],
+        marketing_opt_in: businessData.marketingOptIn || false,
+      };
+
+      // Register user first
+      const userResponse = await apiCall('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+      });
+
+      // Then register the company
+      const companyData = {
+        name: businessData.companyName,
+        business_type: businessData.businessType,
+        description: businessData.description || '',
+        address: businessData.address || '',
+        country: businessData.country || null,
+        state: businessData.state || null,
+        city: businessData.city || null,
+        tax_id: businessData.taxId || '',
+        website: businessData.website || '',
+      };
+
+      const companyResponse = await apiCall('/companies/register', {
+        method: 'POST',
+        body: JSON.stringify(companyData),
+      });
+
+      return {
+        user: userResponse.data,
+        company: companyResponse.data
+      };
+    } catch (error) {
+      console.error('Error registering business in backend:', error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setLoading(true);
@@ -344,6 +397,40 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const registerBusiness = async (businessData) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Create user in Firebase
+      const userCredential = await createUserWithEmailAndPassword(
+        auth, 
+        businessData.email, 
+        businessData.password
+      );
+      const firebaseUser = userCredential.user;
+
+      // Update Firebase profile
+      if (businessData.firstName || businessData.lastName) {
+        await updateProfile(firebaseUser, {
+          displayName: `${businessData.firstName || ''} ${businessData.lastName || ''}`.trim()
+        });
+      }
+
+      // Register business in backend
+      await registerBusinessInBackend(firebaseUser, businessData);
+
+      // The onAuthStateChanged listener will handle setting the user state
+      return firebaseUser;
+    } catch (error) {
+      console.error('Business registration error:', error);
+      setError(getAuthErrorMessage(error));
+      throw new Error(getAuthErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = async () => {
     try {
       setLoading(true);
@@ -443,6 +530,26 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify(onboardingData),
       });
 
+      // If user chose company_owner role, create company
+      if (onboardingData.role === 'company_owner') {
+        const companyData = {
+          name: onboardingData.companyName,
+          business_type: onboardingData.businessType,
+          description: onboardingData.description || '',
+          address: onboardingData.address || '',
+          country: onboardingData.country || null,
+          state: onboardingData.state || null,
+          city: onboardingData.city || null,
+          tax_id: onboardingData.taxId || '',
+          website: onboardingData.website || '',
+        };
+
+        await apiCall('/companies/register', {
+          method: 'POST',
+          body: JSON.stringify(companyData),
+        });
+      }
+
       // Refresh user data after onboarding
       const firebaseUser = auth.currentUser;
       if (firebaseUser) {
@@ -522,6 +629,7 @@ export const AuthProvider = ({ children }) => {
     error,
     login,
     register,
+    registerBusiness,
     logout,
     resetPassword,
     updateUserProfile,
