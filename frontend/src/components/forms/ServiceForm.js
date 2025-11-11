@@ -91,8 +91,8 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
   }, [service]);
 
   const loadFormData = async () => {
+    // Load service categories from companies API
     try {
-      // Load service categories from companies API
       const categoriesResponse = await apiCall('/companies/service-categories');
       console.log('🔍 ServiceForm - Categories response:', categoriesResponse);
       if (categoriesResponse && categoriesResponse.success && Array.isArray(categoriesResponse.data)) {
@@ -102,8 +102,13 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
         console.error('❌ ServiceForm - Invalid categories response:', categoriesResponse);
         setCategories([]);
       }
+    } catch (error) {
+      console.error('❌ ServiceForm - Failed to load categories:', error);
+      setCategories([]);
+    }
 
-      // Load company employees
+    // Load company employees
+    try {
       const employeesResponse = await apiCall('/companies/employees');
       if (employeesResponse && employeesResponse.success && Array.isArray(employeesResponse.data)) {
         setEmployees(employeesResponse.data);
@@ -111,8 +116,13 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
         console.error('Invalid employees response:', employeesResponse);
         setEmployees([]);
       }
+    } catch (error) {
+      console.error('Failed to load employees:', error);
+      setEmployees([]);
+    }
 
-      // Load pet types
+    // Load pet types
+    try {
       const petTypesResponse = await apiCall('/api/pet-types');
       if (petTypesResponse && petTypesResponse.success && Array.isArray(petTypesResponse.data)) {
         setPetTypes(petTypesResponse.data);
@@ -121,10 +131,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
         setPetTypes([]);
       }
     } catch (error) {
-      console.error('Failed to load form data:', error);
-      // Set empty arrays as fallback
-      setCategories([]);
-      setEmployees([]);
+      console.error('Failed to load pet types:', error);
       setPetTypes([]);
     }
   };
