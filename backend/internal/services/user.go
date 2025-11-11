@@ -533,12 +533,23 @@ func (s *UserService) CreateCompanyOwner(user *models.User) error {
 func (s *UserService) GetCompanyByOwner(ownerID string) (*models.Company, error) {
 	var company models.Company
 	query := `
-		SELECT id, owner_id, name, description, business_type, country, state, city,
-			   address, phone, email, website, logo_url,
-			   business_hours, plan_id, trial_expired, special_partner,
-			   manual_enabled_crm, manual_enabled_ai_agents, is_demo, is_active,
-			   website_integration_enabled, api_key, publish_to_marketplace,
-			   subscription_status, trial_ends_at, subscription_expires_at,
+		SELECT id, owner_id, name, COALESCE(description, '') as description, 
+			   COALESCE(business_type, '') as business_type, 
+			   COALESCE(country, '') as country, COALESCE(state, '') as state, 
+			   COALESCE(city, '') as city, COALESCE(address, '') as address, 
+			   COALESCE(phone, '') as phone, COALESCE(email, '') as email, 
+			   COALESCE(website, '') as website, COALESCE(logo_url, '') as logo_url,
+			   COALESCE(business_hours, '') as business_hours, plan_id, 
+			   COALESCE(trial_expired, false) as trial_expired, 
+			   COALESCE(special_partner, false) as special_partner,
+			   COALESCE(manual_enabled_crm, false) as manual_enabled_crm, 
+			   COALESCE(manual_enabled_ai_agents, false) as manual_enabled_ai_agents,
+			   COALESCE(is_demo, false) as is_demo, COALESCE(is_active, true) as is_active,
+			   COALESCE(website_integration_enabled, false) as website_integration_enabled,
+			   COALESCE(api_key, '') as api_key, 
+			   COALESCE(publish_to_marketplace, true) as publish_to_marketplace,
+			   COALESCE(subscription_status, 'trial') as subscription_status, 
+			   trial_ends_at, subscription_expires_at,
 			   latitude, longitude, created_at, updated_at
 		FROM companies WHERE owner_id = $1`
 
