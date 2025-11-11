@@ -47,7 +47,7 @@ const EmployeeChatPage = () => {
 
   const loadCompanyChats = async () => {
     try {
-      const response = await apiCall('/api/companies/chats');
+      const response = await apiCall('/companies/chats');
       if (response.success) {
         setChats(response.data || []);
       }

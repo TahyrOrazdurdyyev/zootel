@@ -116,6 +116,8 @@ function App() {
                     <Route path="/analytics" element={<CompanyAnalyticsPage />} />
                     <Route path="/chat" element={<EmployeeChatPage />} />
                     <Route path="/services" element={<ServicesManagementPage />} />
+                    <Route path="/calendar" element={<div className="p-6"><h1 className="text-2xl font-bold">Calendar - Coming Soon</h1></div>} />
+                    <Route path="/employees" element={<div className="p-6"><h1 className="text-2xl font-bold">Employees - Coming Soon</h1></div>} />
                     <Route path="/addons" element={<AddonManagementPage />} />
                     <Route path="/ai-prompts" element={<AIPromptsCustomization />} />
                     <Route path="/inventory" element={<InventoryPage />} />

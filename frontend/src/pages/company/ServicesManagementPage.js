@@ -40,7 +40,7 @@ const ServicesManagementPage = () => {
   const loadServices = async () => {
     try {
       setIsLoading(true);
-      const response = await apiCall('/api/companies/services');
+      const response = await apiCall('/companies/services');
       if (response.success) {
         setServices(response.data || []);
       }
@@ -104,7 +104,7 @@ const ServicesManagementPage = () => {
     }
 
     try {
-      const response = await apiCall(`/api/companies/services/${serviceId}`, {
+      const response = await apiCall(`/companies/services/${serviceId}`, {
         method: 'DELETE'
       });
 
@@ -125,8 +125,8 @@ const ServicesManagementPage = () => {
       setIsSubmitting(true);
       
       const url = editingService 
-        ? `/api/companies/services/${editingService.id}`
-        : '/api/companies/services';
+        ? `/companies/services/${editingService.id}`
+        : '/companies/services';
       
       const method = editingService ? 'PUT' : 'POST';
 

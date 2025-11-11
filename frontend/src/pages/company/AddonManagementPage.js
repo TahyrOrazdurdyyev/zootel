@@ -54,7 +54,7 @@ const AddonManagementPage = () => {
 
   const loadCompanyAddons = async () => {
     try {
-      const response = await apiCall('/api/companies/addons');
+      const response = await apiCall('/companies/addons');
       if (response.success) {
         setCompanyAddons(response.data || []);
       }
@@ -78,7 +78,7 @@ const AddonManagementPage = () => {
     try {
       setIsPurchasing(true);
       
-      const response = await apiCall('/api/companies/addons/purchase', {
+      const response = await apiCall('/companies/addons/purchase', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -116,7 +116,7 @@ const AddonManagementPage = () => {
     }
 
     try {
-      const response = await apiCall(`/api/companies/addons/${addonId}/cancel`, {
+      const response = await apiCall(`/companies/addons/${addonId}/cancel`, {
         method: 'DELETE'
       });
 
