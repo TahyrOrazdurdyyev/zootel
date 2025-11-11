@@ -15,7 +15,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    categoryId: '',
+    category_id: '',
     price: '',
     originalPrice: '',
     discountPercentage: '',
@@ -94,11 +94,12 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     try {
       // Load service categories
       const categoriesResponse = await apiCall('/marketplace/categories');
-      console.log('Categories response:', categoriesResponse);
+      console.log('🔍 ServiceForm - Categories response:', categoriesResponse);
       if (categoriesResponse && categoriesResponse.success && Array.isArray(categoriesResponse.categories)) {
+        console.log('✅ ServiceForm - Categories loaded:', categoriesResponse.categories.length);
         setCategories(categoriesResponse.categories);
       } else {
-        console.error('Invalid categories response:', categoriesResponse);
+        console.error('❌ ServiceForm - Invalid categories response:', categoriesResponse);
         setCategories([]);
       }
 
@@ -327,18 +328,26 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                 <select
                   name="category_id"
                   value={formData.category_id}
-                  onChange={handleInputChange}
+                  onChange={(e) => handleInputChange('category_id', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                     errors.category_id ? 'border-red-500' : 'border-gray-300'
                   }`}
                 >
                   <option value="">Select a category</option>
+                  {categories.length === 0 && (
+                    <option disabled>Loading categories...</option>
+                  )}
                   {categories.map(category => (
                     <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
                   ))}
                 </select>
+                {categories.length === 0 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    🔄 Loading categories... ({categories.length} loaded)
+                  </p>
+                )}
                 {errors.category_id && <p className="text-orange-500 text-xs mt-1">{errors.category_id}</p>}
               </div>
 
