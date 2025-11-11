@@ -533,24 +533,26 @@ func (s *UserService) CreateCompanyOwner(user *models.User) error {
 func (s *UserService) GetCompanyByOwner(ownerID string) (*models.Company, error) {
 	var company models.Company
 	query := `
-		SELECT id, owner_id, name, description, categories, country, state, city,
-			   address, phone, email, website, logo_url, media_gallery,
+		SELECT id, owner_id, name, description, business_type, country, state, city,
+			   address, phone, email, website, logo_url,
 			   business_hours, plan_id, trial_expired, special_partner,
 			   manual_enabled_crm, manual_enabled_ai_agents, is_demo, is_active,
 			   website_integration_enabled, api_key, publish_to_marketplace,
-			   created_at, updated_at
+			   subscription_status, trial_ends_at, subscription_expires_at,
+			   latitude, longitude, created_at, updated_at
 		FROM companies WHERE owner_id = $1`
 
 	err := s.db.QueryRow(query, ownerID).Scan(
 		&company.ID, &company.OwnerID, &company.Name, &company.Description,
-		&company.Categories, &company.Country, &company.State, &company.City,
+		&company.BusinessType, &company.Country, &company.State, &company.City,
 		&company.Address, &company.Phone, &company.Email, &company.Website,
-		&company.LogoURL, &company.MediaGallery, &company.BusinessHours,
+		&company.LogoURL, &company.BusinessHours,
 		&company.PlanID, &company.TrialExpired, &company.SpecialPartner,
 		&company.ManualEnabledCRM, &company.ManualEnabledAIAgents,
 		&company.IsDemo, &company.IsActive, &company.WebsiteIntegrationEnabled,
 		&company.APIKey, &company.PublishToMarketplace,
-		&company.CreatedAt, &company.UpdatedAt,
+		&company.SubscriptionStatus, &company.TrialEndsAt, &company.SubscriptionExpiresAt,
+		&company.Latitude, &company.Longitude, &company.CreatedAt, &company.UpdatedAt,
 	)
 
 	if err != nil {
