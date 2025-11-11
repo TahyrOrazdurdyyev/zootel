@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"firebase.google.com/go/v4/auth"
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/models"
@@ -125,6 +126,22 @@ func CompanyOwnerMiddleware(userService *services.UserService) gin.HandlerFunc {
 		}
 
 		fmt.Printf("[MIDDLEWARE] Company found: %s (ID: %s)\n", company.Name, company.ID)
+		
+		// Check subscription status and trial expiration
+		now := time.Now()
+		trialExpired := company.TrialExpired || (company.TrialEndsAt != nil && company.TrialEndsAt.Before(now))
+		
+		if trialExpired && company.SubscriptionStatus != "active" && !company.SpecialPartner {
+			fmt.Printf("[MIDDLEWARE] Access denied - trial expired and no active subscription for company: %s\n", company.ID)
+			c.JSON(http.StatusPaymentRequired, gin.H{
+				"error": "Trial period has expired. Please upgrade to a paid plan to continue using the service.",
+				"code": "TRIAL_EXPIRED",
+				"company_id": company.ID,
+			})
+			c.Abort()
+			return
+		}
+		
 		// Set company_id in context
 		c.Set("company_id", company.ID)
 		c.Next()
