@@ -34,7 +34,6 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     advanceBookingDays: '30',
     cancellationPolicy: '',
     isActive: true,
-    ...initialData
   });
   
   const [categories, setCategories] = useState([]);
@@ -94,9 +93,9 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
   const loadFormData = async () => {
     try {
       // Load service categories
-      const categoriesResponse = await apiCall('/admin/service-categories');
+      const categoriesResponse = await apiCall('/marketplace/categories');
       if (categoriesResponse.success) {
-        setCategories(categoriesResponse.data || []);
+        setCategories(categoriesResponse.categories || []);
       }
 
       // Load company employees

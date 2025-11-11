@@ -54,9 +54,9 @@ const ServicesManagementPage = () => {
 
   const loadCategories = async () => {
     try {
-      const response = await apiCall('/admin/service-categories');
+      const response = await apiCall('/marketplace/categories');
       if (response.success) {
-        setCategories(response.data || []);
+        setCategories(response.categories || []);
       }
     } catch (error) {
       console.error('Failed to load categories:', error);
