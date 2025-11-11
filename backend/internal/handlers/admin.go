@@ -34,13 +34,19 @@ func (h *AdminHandler) GetPlans(c *gin.Context) {
 }
 
 func (h *AdminHandler) CreatePlan(c *gin.Context) {
+	fmt.Printf("🔍 CreatePlan called from %s\n", c.ClientIP())
+	
 	var plan models.Plan
 	if err := c.ShouldBindJSON(&plan); err != nil {
+		fmt.Printf("❌ JSON binding error: %v\n", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	fmt.Printf("📝 Plan data received: %+v\n", plan)
+
 	if err := h.adminService.CreatePlan(&plan); err != nil {
+		fmt.Printf("❌ CreatePlan service error: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
