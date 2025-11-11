@@ -57,10 +57,10 @@ const CompanyDashboard = () => {
       
       // Load all dashboard data
       const [metricsRes, bookingsRes, servicesRes, notificationsRes] = await Promise.all([
-        apiCall(`/api/companies/${companyId}/analytics/dashboard`),
-        apiCall(`/api/companies/${companyId}/bookings/recent?limit=5`),
-        apiCall(`/api/companies/${companyId}/services/top?limit=5`),
-        apiCall(`/api/companies/${companyId}/notifications/unread?limit=5`)
+        apiCall(`/companies/analytics`),
+        apiCall(`/companies/bookings?limit=5`),
+        apiCall(`/companies/services?limit=5`),
+        apiCall(`/companies/notifications/unread?limit=5`)
       ]);
 
       setDashboardData({

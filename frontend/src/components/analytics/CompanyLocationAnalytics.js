@@ -15,7 +15,7 @@ const CompanyLocationAnalytics = ({ companyId }) => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/companies/${companyId}/analytics/customer-location`, {
+      const response = await fetch(`/api/v1/companies/${companyId}/analytics/customer-location`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

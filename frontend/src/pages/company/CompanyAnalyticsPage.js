@@ -70,7 +70,7 @@ const CompanyAnalyticsPage = () => {
 
   const fetchUserCompany = async () => {
     try {
-      const response = await fetch('/api/companies/profile', {
+      const response = await fetch('/api/v1/companies/profile', {
         headers: {
           'Authorization': `Bearer ${user.token}`,
         },
@@ -88,7 +88,7 @@ const CompanyAnalyticsPage = () => {
   useEffect(() => {
   const fetchMetrics = async () => {
     try {
-        const response = await fetch(`/api/companies/${companyId}/analytics/metrics?days=${dateRange}`, {
+        const response = await fetch(`/api/v1/companies/analytics?days=${dateRange}`, {
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
@@ -410,7 +410,7 @@ const RecentBookingsWidget = ({ companyId }) => {
   useEffect(() => {
     const fetchRecentBookings = async () => {
       try {
-        const response = await fetch(`/api/companies/${companyId}/bookings/recent?days=7`, {
+        const response = await fetch(`/api/v1/companies/${companyId}/bookings/recent?days=7`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
@@ -474,7 +474,7 @@ const TopServicesWidget = ({ companyId }) => {
   useEffect(() => {
     const fetchTopServices = async () => {
       try {
-        const response = await fetch(`/api/companies/${companyId}/services/top?days=30`, {
+        const response = await fetch(`/api/v1/companies/${companyId}/services/top?days=30`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
@@ -519,8 +519,8 @@ const RevenueAnalyticsView = ({ companyId, dateRange }) => {
     const fetchRevenueAnalytics = async () => {
       try {
         const [revenueResponse, avgCheckResponse] = await Promise.all([
-          fetch(`/api/companies/${companyId}/analytics/revenue?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/companies/${companyId}/analytics/average-check?days=${getDaysFromRange(dateRange)}`)
+          fetch(`/api/v1/companies/${companyId}/analytics/revenue?days=${getDaysFromRange(dateRange)}`),
+          fetch(`/api/v1/companies/${companyId}/analytics/average-check?days=${getDaysFromRange(dateRange)}`)
         ]);
 
         const revenueData = await revenueResponse.json();
@@ -615,9 +615,9 @@ const BookingAnalyticsView = ({ companyId, dateRange }) => {
     const fetchBookingAnalytics = async () => {
       try {
         const [bookingsResponse, cancellationResponse, repeatOrdersResponse] = await Promise.all([
-          fetch(`/api/companies/${companyId}/analytics/bookings?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/companies/${companyId}/analytics/cancellations?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/companies/${companyId}/analytics/repeat-orders?days=${getDaysFromRange(dateRange)}`)
+          fetch(`/api/v1/companies/${companyId}/analytics/bookings?days=${getDaysFromRange(dateRange)}`),
+          fetch(`/api/v1/companies/${companyId}/analytics/cancellations?days=${getDaysFromRange(dateRange)}`),
+          fetch(`/api/v1/companies/${companyId}/analytics/repeat-orders?days=${getDaysFromRange(dateRange)}`)
         ]);
 
         const bookingsData = await bookingsResponse.json();
@@ -744,8 +744,8 @@ const CustomerAnalyticsView = ({ companyId, dateRange }) => {
     const fetchCustomerAnalytics = async () => {
       try {
         const [segmentationResponse, refundsResponse] = await Promise.all([
-          fetch(`/api/companies/${companyId}/analytics/customer-segmentation?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/companies/${companyId}/analytics/refunds?days=${getDaysFromRange(dateRange)}`)
+          fetch(`/api/v1/companies/${companyId}/analytics/customer-segmentation?days=${getDaysFromRange(dateRange)}`),
+          fetch(`/api/v1/companies/${companyId}/analytics/refunds?days=${getDaysFromRange(dateRange)}`)
         ]);
 
         const segmentationData = await segmentationResponse.json();
@@ -885,7 +885,7 @@ const PerformanceAnalyticsView = ({ companyId, dateRange }) => {
   useEffect(() => {
     const fetchPerformanceAnalytics = async () => {
       try {
-        const response = await fetch(`/api/companies/${companyId}/analytics/team-workload?days=${getDaysFromRange(dateRange)}`);
+        const response = await fetch(`/api/v1/companies/${companyId}/analytics/team-workload?days=${getDaysFromRange(dateRange)}`);
         const data = await response.json();
         setPerformanceData(data.data);
       } catch (error) {
