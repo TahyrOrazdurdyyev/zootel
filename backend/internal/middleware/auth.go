@@ -115,13 +115,16 @@ func CompanyOwnerMiddleware(userService *services.UserService) gin.HandlerFunc {
 		}
 
 		// Find user's company
+		fmt.Printf("[MIDDLEWARE] Looking up company for user ID: %s\n", userID)
 		company, err := userService.GetCompanyByOwner(userID)
 		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Company not found for this user"})
+			fmt.Printf("[MIDDLEWARE] Error finding company: %v\n", err)
+			c.JSON(http.StatusNotFound, gin.H{"error": "Company not found for this user", "details": err.Error()})
 			c.Abort()
 			return
 		}
 
+		fmt.Printf("[MIDDLEWARE] Company found: %s (ID: %s)\n", company.Name, company.ID)
 		// Set company_id in context
 		c.Set("company_id", company.ID)
 		c.Next()
