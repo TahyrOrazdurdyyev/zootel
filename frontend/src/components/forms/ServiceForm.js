@@ -123,7 +123,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
 
     // Load pet types
     try {
-      const petTypesResponse = await apiCall('/api/pet-types');
+      const petTypesResponse = await apiCall('/companies/pet-types');
       if (petTypesResponse && petTypesResponse.success && Array.isArray(petTypesResponse.data)) {
         setPetTypes(petTypesResponse.data);
       } else {
@@ -170,7 +170,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
       uploadFormData.append('file', file);
 
       // Upload to general upload endpoint first
-      const uploadResponse = await apiCall('/api/uploads/gallery', {
+      const uploadResponse = await apiCall('/uploads/gallery', {
         method: 'POST',
         body: uploadFormData
       });

@@ -425,6 +425,7 @@ func main() {
 				companies.POST("/services/:serviceId/upload-image", serviceHandler.UploadServiceImage)
 				companies.DELETE("/services/:serviceId/images/:imageId", serviceHandler.DeleteServiceImage)
 				companies.GET("/service-categories", adminHandler.GetServiceCategories)
+				companies.GET("/pet-types", adminHandler.GetPetTypes)
 
 				// Products management - Add product handler
 				companies.GET("/products", productHandler.GetCompanyProducts)
