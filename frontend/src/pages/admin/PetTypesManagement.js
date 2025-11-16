@@ -49,7 +49,16 @@ const PetTypesManagement = () => {
       fetchPetTypes();
     } catch (error) {
       console.error('Error saving pet type:', error);
-      alert('Error saving pet type: ' + error.message);
+      let errorMessage = error.message;
+      
+      // Handle specific database errors
+      if (errorMessage.includes('duplicate key value violates unique constraint')) {
+        errorMessage = 'A pet type with this name already exists. Please choose a different name.';
+      } else if (errorMessage.includes('pq: duplicate key')) {
+        errorMessage = 'This pet type name is already taken.';
+      }
+      
+      alert('Error saving pet type: ' + errorMessage);
     }
   };
 
