@@ -19,7 +19,7 @@ const PetTypesManagement = () => {
   const fetchPetTypes = async () => {
     try {
       setLoading(true);
-      const response = await apiCall('/api/v1/admin/pet-types');
+      const response = await apiCall('/admin/pet-types');
       setPetTypes(response.pet_types || []);
     } catch (error) {
       console.error('Error fetching pet types:', error);
@@ -32,12 +32,12 @@ const PetTypesManagement = () => {
     e.preventDefault();
     try {
       if (editingPetType) {
-        await apiCall(`/api/v1/admin/pet-types/${editingPetType.id}`, {
+        await apiCall(`/admin/pet-types/${editingPetType.id}`, {
           method: 'PUT',
           body: JSON.stringify(formData)
         });
       } else {
-        await apiCall('/api/v1/admin/pet-types', {
+        await apiCall('/admin/pet-types', {
           method: 'POST',
           body: JSON.stringify(formData)
         });
@@ -67,7 +67,7 @@ const PetTypesManagement = () => {
     }
 
     try {
-      await apiCall(`/api/v1/admin/pet-types/${petTypeId}`, {
+      await apiCall(`/admin/pet-types/${petTypeId}`, {
         method: 'DELETE'
       });
       fetchPetTypes();
