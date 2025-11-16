@@ -20,7 +20,8 @@ const PetTypesManagement = () => {
     try {
       setLoading(true);
       const response = await apiCall('/admin/pet-types');
-      setPetTypes(response.pet_types || []);
+      console.log('🔍 Pet Types API response:', response);
+      setPetTypes(response.data || []);
     } catch (error) {
       console.error('Error fetching pet types:', error);
     } finally {
