@@ -12,7 +12,8 @@ import {
   TagIcon,
   BriefcaseIcon,
   NewspaperIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  HeartIcon
 } from '@heroicons/react/24/outline';
 
 const AdminLayout = ({ children }) => {
@@ -21,6 +22,7 @@ const AdminLayout = ({ children }) => {
     { name: 'Companies', href: '/admin/companies', icon: BuildingOfficeIcon },
     { name: 'Service Categories', href: '/admin/service-categories', icon: TagIcon },
     { name: 'Business Types', href: '/admin/business-types', icon: BuildingOfficeIcon },
+    { name: 'Pet Types', href: '/admin/pet-types', icon: HeartIcon },
     { name: 'Currencies', href: '/admin/currencies', icon: CurrencyDollarIcon },
     { name: 'Plan Settings', href: '/admin/plan-settings', icon: CogIcon },
     { name: 'Payment Settings', href: '/admin/payment-settings', icon: CreditCardIcon },

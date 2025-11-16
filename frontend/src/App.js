@@ -34,6 +34,7 @@ const BusinessTypesManagement = React.lazy(() => import('./pages/admin/BusinessT
 const CareersManagement = React.lazy(() => import('./pages/admin/CareersManagement'));
 const PressManagement = React.lazy(() => import('./pages/admin/PressManagement'));
 const BlogManagement = React.lazy(() => import('./pages/admin/BlogManagement'));
+const PetTypesManagement = React.lazy(() => import('./pages/admin/PetTypesManagement'));
 const AIPromptsCustomization = React.lazy(() => import('./pages/company/AIPromptsCustomization'));
 import BusinessLandingPage from './pages/BusinessLandingPage';
 import CareersPage from './pages/CareersPage';
@@ -164,6 +165,11 @@ function App() {
                     <Route path="/business-types" element={
                       <ProtectedRoute requiredRole="super_admin">
                         <BusinessTypesManagement />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/pet-types" element={
+                      <ProtectedRoute requiredRole="super_admin">
+                        <PetTypesManagement />
                       </ProtectedRoute>
                     } />
                     <Route path="/careers" element={

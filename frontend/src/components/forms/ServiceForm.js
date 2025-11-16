@@ -24,7 +24,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     saleStartDate: '',
     saleEndDate: '',
     duration: '',
-    petTypes: [],
+    pet_types: [],
     availableDays: [],
     startTime: '09:00',
     endTime: '17:00',
@@ -530,8 +530,8 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                     <label key={petType.id} className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={formData.petTypes.includes(petType.id)}
-                        onChange={(e) => handleArrayChange('petTypes', petType.id, e.target.checked)}
+                        checked={formData.pet_types.includes(petType.id)}
+                        onChange={(e) => handleArrayChange('pet_types', petType.id, e.target.checked)}
                         className="mr-2 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                       />
                       <span className="text-sm text-gray-700">{petType.name}</span>
