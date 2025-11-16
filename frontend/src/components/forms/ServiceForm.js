@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { auth } from '../../config/firebase';
 import FileUpload from '../ui/FileUpload';
 import {
   XMarkIcon,
@@ -170,13 +171,19 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
       uploadFormData.append('file', file);
 
       // Upload to temporary upload endpoint first
-      const uploadResponse = await apiCall('/uploads/temp', {
+      const token = await auth.currentUser?.getIdToken();
+      const uploadResponse = await fetch('/api/v1/uploads/temp', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: uploadFormData
       });
+      
+      const uploadData = await uploadResponse.json();
 
-      if (uploadResponse.success && uploadResponse.data) {
-        const uploadedFile = uploadResponse.data;
+      if (uploadData.success && uploadData.data) {
+        const uploadedFile = uploadData.data;
         setFormData(prev => ({
           ...prev,
           image_id: uploadedFile.file_id
@@ -187,6 +194,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
           url: uploadedFile.file_url
         }]);
       } else {
+        console.error('Upload failed:', uploadData);
         alert('Failed to upload image. Please try again.');
       }
     } catch (error) {
