@@ -182,13 +182,21 @@ func main() {
 			marketplace.GET("/search", companyHandler.Search)
 		}
 
-		// Public company endpoints
-		publicCompanies := api.Group("/public/companies")
+		// Public endpoints for marketplace
+		public := api.Group("/public")
 		{
-			publicCompanies.GET("/", companyHandler.GetPublicCompanies)
-			publicCompanies.GET("/:companyId", companyHandler.GetPublicCompany)
-			publicCompanies.GET("/:companyId/services", companyHandler.GetPublicServices)
-			publicCompanies.GET("/:companyId/products", companyHandler.GetPublicProducts)
+			// Marketplace data
+			public.GET("/marketplace", companyHandler.GetMarketplaceData)
+			public.GET("/categories", companyHandler.GetServiceCategories)
+			
+			// Company endpoints
+			publicCompanies := public.Group("/companies")
+			{
+				publicCompanies.GET("/", companyHandler.GetPublicCompanies)
+				publicCompanies.GET("/:companyId", companyHandler.GetPublicCompany)
+				publicCompanies.GET("/:companyId/services", companyHandler.GetPublicServices)
+				publicCompanies.GET("/:companyId/products", companyHandler.GetPublicProducts)
+			}
 		}
 
 		// Public integration endpoints (for website widgets)
