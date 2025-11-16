@@ -31,8 +31,14 @@ const CurrencyManagement = React.lazy(() => import('./pages/admin/CurrencyManage
 const PromptsManagement = React.lazy(() => import('./pages/admin/PromptsManagement'));
 const ServiceCategoriesManagement = React.lazy(() => import('./pages/admin/ServiceCategoriesManagement'));
 const BusinessTypesManagement = React.lazy(() => import('./pages/admin/BusinessTypesManagement'));
+const CareersManagement = React.lazy(() => import('./pages/admin/CareersManagement'));
+const PressManagement = React.lazy(() => import('./pages/admin/PressManagement'));
+const BlogManagement = React.lazy(() => import('./pages/admin/BlogManagement'));
 const AIPromptsCustomization = React.lazy(() => import('./pages/company/AIPromptsCustomization'));
 import BusinessLandingPage from './pages/BusinessLandingPage';
+import CareersPage from './pages/CareersPage';
+import PressPage from './pages/PressPage';
+import BlogPage from './pages/BlogPage';
 
 // Payment pages
 import CryptoPaymentPage from './pages/payment/CryptoPaymentPage';
@@ -76,6 +82,9 @@ function App() {
               <Route path="/companies" element={<CompaniesPage />} />
               <Route path="/business" element={<BusinessPage />} />
               <Route path="/companies/:companyId" element={<CompanyPublicPage />} />
+              <Route path="/careers" element={<CareersPage />} />
+              <Route path="/press" element={<PressPage />} />
+              <Route path="/blog" element={<BlogPage />} />
               
               {/* Payment Routes */}
               <Route path="/payment/crypto/:paymentId" element={<CryptoPaymentPage />} />
@@ -155,6 +164,21 @@ function App() {
                     <Route path="/business-types" element={
                       <ProtectedRoute requiredRole="super_admin">
                         <BusinessTypesManagement />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/careers" element={
+                      <ProtectedRoute requiredRole="super_admin">
+                        <CareersManagement />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/press" element={
+                      <ProtectedRoute requiredRole="super_admin">
+                        <PressManagement />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/blog" element={
+                      <ProtectedRoute requiredRole="super_admin">
+                        <BlogManagement />
                       </ProtectedRoute>
                     } />
                   </Routes>

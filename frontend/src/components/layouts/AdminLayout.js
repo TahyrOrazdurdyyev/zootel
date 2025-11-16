@@ -9,7 +9,10 @@ import {
   SparklesIcon,
   CpuChipIcon,
   CurrencyDollarIcon,
-  TagIcon
+  TagIcon,
+  BriefcaseIcon,
+  NewspaperIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/outline';
 
 const AdminLayout = ({ children }) => {
@@ -22,7 +25,10 @@ const AdminLayout = ({ children }) => {
     { name: 'Plan Settings', href: '/admin/plan-settings', icon: CogIcon },
     { name: 'Payment Settings', href: '/admin/payment-settings', icon: CreditCardIcon },
     { name: 'AI Agents', href: '/admin/ai-agents', icon: CpuChipIcon },
-    { name: 'AI Prompts', href: '/admin/prompts', icon: SparklesIcon }
+    { name: 'AI Prompts', href: '/admin/prompts', icon: SparklesIcon },
+    { name: 'Careers', href: '/admin/careers', icon: BriefcaseIcon },
+    { name: 'Press Center', href: '/admin/press', icon: NewspaperIcon },
+    { name: 'Blog', href: '/admin/blog', icon: DocumentTextIcon }
   ];
 
   return (

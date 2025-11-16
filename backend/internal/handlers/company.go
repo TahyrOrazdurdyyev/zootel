@@ -169,7 +169,7 @@ func (h *CompanyHandler) GetPublicProducts(c *gin.Context) {
 // GetServiceCategories gets all service categories
 func (h *CompanyHandler) GetServiceCategories(c *gin.Context) {
 	fmt.Printf("🔍 CompanyHandler.GetServiceCategories called from %s\n", c.ClientIP())
-	
+
 	categories, err := h.serviceService.GetAllCategories()
 	if err != nil {
 		fmt.Printf("❌ CompanyHandler.GetServiceCategories error: %v\n", err)
@@ -187,7 +187,7 @@ func (h *CompanyHandler) GetServiceCategories(c *gin.Context) {
 // GetMarketplaceData gets combined data for marketplace (services + products)
 func (h *CompanyHandler) GetMarketplaceData(c *gin.Context) {
 	fmt.Printf("🔍 GetMarketplaceData called from %s\n", c.ClientIP())
-	
+
 	// Get services
 	services, _, err := h.serviceService.GetPublicServices(map[string]interface{}{
 		"limit": 50,
@@ -197,28 +197,28 @@ func (h *CompanyHandler) GetMarketplaceData(c *gin.Context) {
 		fmt.Printf("❌ Failed to get services: %v\n", err)
 		services = []*models.Service{}
 	}
-	
+
 	// Get products (if productService is available)
 	var products []interface{}
 	if h.productService != nil {
 		// This would need to be implemented in productService
 		products = []interface{}{}
 	}
-	
+
 	// Combine services and products into listings
 	var listings []interface{}
-	
+
 	// Add services to listings (convert to interface{} slice)
 	for _, service := range services {
 		listings = append(listings, service)
 	}
-	
+
 	// Add products to listings
 	listings = append(listings, products...)
-	
-	fmt.Printf("✅ GetMarketplaceData success, returned %d listings (%d services, %d products)\n", 
+
+	fmt.Printf("✅ GetMarketplaceData success, returned %d listings (%d services, %d products)\n",
 		len(listings), len(services), len(products))
-	
+
 	c.JSON(http.StatusOK, gin.H{
 		"success":  true,
 		"listings": listings,

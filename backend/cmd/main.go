@@ -77,6 +77,7 @@ func main() {
 	companyHandler := handlers.NewCompanyHandler(serviceContainer.CompanyService(), serviceContainer.UserService())
 	serviceHandler := handlers.NewServiceHandler(serviceContainer.ServiceService())
 	bookingHandler := handlers.NewBookingHandler(serviceContainer.BookingService())
+	contentHandler := handlers.NewContentHandler(serviceContainer.ContentService())
 	petHandler := handlers.NewPetHandler(serviceContainer.PetService())
 	petMedicalHandler := handlers.NewPetMedicalHandler(serviceContainer.PetMedicalService(), serviceContainer.PetService())
 	orderHandler := handlers.NewOrderHandler(serviceContainer.OrderService())
@@ -188,7 +189,15 @@ func main() {
 			// Marketplace data
 			public.GET("/marketplace", companyHandler.GetMarketplaceData)
 			public.GET("/categories", companyHandler.GetServiceCategories)
-			
+
+			// Content endpoints
+			public.GET("/careers", contentHandler.GetPublicCareers)
+			public.GET("/careers/:id", contentHandler.GetCareerByID)
+			public.GET("/press", contentHandler.GetPublicPressReleases)
+			public.GET("/press/:id", contentHandler.GetPressReleaseByID)
+			public.GET("/blog", contentHandler.GetPublicBlogPosts)
+			public.GET("/blog/:slug", contentHandler.GetBlogPostBySlug)
+
 			// Company endpoints
 			publicCompanies := public.Group("/companies")
 			{
@@ -394,9 +403,9 @@ func main() {
 			{
 				uploads.POST("/avatar", uploadHandler.UploadAvatar)
 				uploads.POST("/pet/:petId/photo", uploadHandler.UploadPetPhoto)
-			uploads.POST("/service/:serviceId/image", uploadHandler.UploadServiceImage)
-			uploads.POST("/category/:categoryId/image", uploadHandler.UploadCategoryImage)
-			uploads.POST("/company/:companyId/logo", uploadHandler.UploadCompanyLogo)
+				uploads.POST("/service/:serviceId/image", uploadHandler.UploadServiceImage)
+				uploads.POST("/category/:categoryId/image", uploadHandler.UploadCategoryImage)
+				uploads.POST("/company/:companyId/logo", uploadHandler.UploadCompanyLogo)
 				uploads.POST("/gallery", uploadHandler.UploadGallery)
 				uploads.POST("/temp", uploadHandler.UploadTempImage)
 				uploads.GET("/files", uploadHandler.GetFiles)
@@ -410,13 +419,13 @@ func main() {
 				addons.GET("/available", addonHandler.GetAvailableAddons)
 			}
 
-		// Company registration endpoint (before CompanyOwnerMiddleware)
-		protected.POST("/companies/register", companyHandler.RegisterCompany)
+			// Company registration endpoint (before CompanyOwnerMiddleware)
+			protected.POST("/companies/register", companyHandler.RegisterCompany)
 
-		// Company addon endpoints
-		companies := protected.Group("/companies")
-		companies.Use(middleware.CompanyOwnerMiddleware(serviceContainer.UserService()))
-		{
+			// Company addon endpoints
+			companies := protected.Group("/companies")
+			companies.Use(middleware.CompanyOwnerMiddleware(serviceContainer.UserService()))
+			{
 				companies.GET("/trial-status", companyHandler.GetCompanyTrialStatus)
 				companies.GET("/profile", companyHandler.GetCompanyProfile)
 				companies.PUT("/profile", companyHandler.UpdateCompanyProfile)
@@ -527,6 +536,28 @@ func main() {
 				admin.PUT("/addon-pricing/:id", adminHandler.UpdateAddonPricing)
 				admin.DELETE("/addon-pricing/:id", adminHandler.DeleteAddonPricing)
 
+				// Content management
+				// Careers
+				admin.GET("/careers", contentHandler.GetCareers)
+				admin.POST("/careers", contentHandler.CreateCareer)
+				admin.PUT("/careers/:id", contentHandler.UpdateCareer)
+				admin.DELETE("/careers/:id", contentHandler.DeleteCareer)
+				admin.GET("/careers/:id", contentHandler.GetCareerByID)
+
+				// Press releases
+				admin.GET("/press", contentHandler.GetPressReleases)
+				admin.POST("/press", contentHandler.CreatePressRelease)
+				admin.PUT("/press/:id", contentHandler.UpdatePressRelease)
+				admin.DELETE("/press/:id", contentHandler.DeletePressRelease)
+				admin.GET("/press/:id", contentHandler.GetPressReleaseByID)
+
+				// Blog posts
+				admin.GET("/blog", contentHandler.GetBlogPosts)
+				admin.POST("/blog", contentHandler.CreateBlogPost)
+				admin.PUT("/blog/:id", contentHandler.UpdateBlogPost)
+				admin.DELETE("/blog/:id", contentHandler.DeleteBlogPost)
+				admin.GET("/blog/:id", contentHandler.GetBlogPostByID)
+
 				// Payment settings
 				admin.GET("/payment-settings", adminHandler.GetPaymentSettings)
 				admin.PUT("/payment-settings", adminHandler.UpdatePaymentSettings)
@@ -587,12 +618,12 @@ func main() {
 				admin.GET("/analytics/cohort", analyticsHandler.GetCohortAnalytics)
 				admin.GET("/analytics/geographic", analyticsHandler.GetGeographicDistribution)
 
-		// New advanced analytics endpoints
-		admin.GET("/analytics/segments", analyticsHandler.GetSegmentAnalytics)
-		admin.GET("/analytics/funnel", analyticsHandler.GetFunnelAnalytics)
-		admin.GET("/analytics/recent-activity", analyticsHandler.GetRecentActivity)
-		admin.GET("/analytics/key-metrics", analyticsHandler.GetKeyMetrics)
-		admin.GET("/analytics/platform-status", analyticsHandler.GetPlatformStatus)
+				// New advanced analytics endpoints
+				admin.GET("/analytics/segments", analyticsHandler.GetSegmentAnalytics)
+				admin.GET("/analytics/funnel", analyticsHandler.GetFunnelAnalytics)
+				admin.GET("/analytics/recent-activity", analyticsHandler.GetRecentActivity)
+				admin.GET("/analytics/key-metrics", analyticsHandler.GetKeyMetrics)
+				admin.GET("/analytics/platform-status", analyticsHandler.GetPlatformStatus)
 
 				// Addon management
 				admin.GET("/addons", addonHandler.GetAvailableAddons)

@@ -52,17 +52,17 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 
 	// Analytics fields for Pet Owners
-	TotalBookings     int     `json:"total_bookings,omitempty"`
-	TotalOrders       int     `json:"total_orders,omitempty"`
-	OrderFrequency    float64 `json:"order_frequency,omitempty"`    // orders per month
-	AverageCheck      float64 `json:"average_check,omitempty"`
-	TotalSpent        float64 `json:"total_spent,omitempty"`
-	ZootelCommission  float64 `json:"zootel_commission,omitempty"`  // 10% of total spent
-	CancelledOrders   int     `json:"cancelled_orders,omitempty"`
-	RefundedOrders    int     `json:"refunded_orders,omitempty"`
-	FavoriteCategory  string  `json:"favorite_category,omitempty"`
-	FavoriteCompany   string  `json:"favorite_company,omitempty"`
-	PreferredPayment  string  `json:"preferred_payment,omitempty"`
+	TotalBookings    int     `json:"total_bookings,omitempty"`
+	TotalOrders      int     `json:"total_orders,omitempty"`
+	OrderFrequency   float64 `json:"order_frequency,omitempty"` // orders per month
+	AverageCheck     float64 `json:"average_check,omitempty"`
+	TotalSpent       float64 `json:"total_spent,omitempty"`
+	ZootelCommission float64 `json:"zootel_commission,omitempty"` // 10% of total spent
+	CancelledOrders  int     `json:"cancelled_orders,omitempty"`
+	RefundedOrders   int     `json:"refunded_orders,omitempty"`
+	FavoriteCategory string  `json:"favorite_category,omitempty"`
+	FavoriteCompany  string  `json:"favorite_company,omitempty"`
+	PreferredPayment string  `json:"preferred_payment,omitempty"`
 }
 
 // Plan represents subscription plans
@@ -98,6 +98,59 @@ type AddonPricing struct {
 	IsAvailable  bool      `json:"is_available" db:"is_available"`
 	CreatedAt    time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+}
+
+// Career represents a job posting
+type Career struct {
+	ID           string    `json:"id" db:"id"`
+	Title        string    `json:"title" db:"title"`
+	Department   string    `json:"department" db:"department"`
+	Location     string    `json:"location" db:"location"`
+	Type         string    `json:"type" db:"type"` // Full-time, Part-time, Remote, Contract
+	Description  string    `json:"description" db:"description"`
+	Requirements string    `json:"requirements" db:"requirements"`
+	Benefits     string    `json:"benefits" db:"benefits"`
+	SalaryRange  string    `json:"salary_range" db:"salary_range"`
+	IsActive     bool      `json:"is_active" db:"is_active"`
+	CreatedAt    time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+}
+
+// PressRelease represents a press release or news item
+type PressRelease struct {
+	ID          string         `json:"id" db:"id"`
+	Title       string         `json:"title" db:"title"`
+	Subtitle    string         `json:"subtitle" db:"subtitle"`
+	Content     string         `json:"content" db:"content"`
+	Summary     string         `json:"summary" db:"summary"`
+	ImageURL    string         `json:"image_url" db:"image_url"`
+	ImageID     string         `json:"image_id" db:"image_id"`
+	Tags        pq.StringArray `json:"tags" db:"tags"`
+	IsPublished bool           `json:"is_published" db:"is_published"`
+	PublishedAt *time.Time     `json:"published_at" db:"published_at"`
+	CreatedAt   time.Time      `json:"created_at" db:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at" db:"updated_at"`
+}
+
+// BlogPost represents a blog article
+type BlogPost struct {
+	ID          string         `json:"id" db:"id"`
+	Title       string         `json:"title" db:"title"`
+	Slug        string         `json:"slug" db:"slug"`
+	Content     string         `json:"content" db:"content"`
+	Excerpt     string         `json:"excerpt" db:"excerpt"`
+	ImageURL    string         `json:"image_url" db:"image_url"`
+	ImageID     string         `json:"image_id" db:"image_id"`
+	Category    string         `json:"category" db:"category"`
+	Tags        pq.StringArray `json:"tags" db:"tags"`
+	AuthorName  string         `json:"author_name" db:"author_name"`
+	AuthorBio   string         `json:"author_bio" db:"author_bio"`
+	AuthorImage string         `json:"author_image" db:"author_image"`
+	IsPublished bool           `json:"is_published" db:"is_published"`
+	PublishedAt *time.Time     `json:"published_at" db:"published_at"`
+	ViewCount   int            `json:"view_count" db:"view_count"`
+	CreatedAt   time.Time      `json:"created_at" db:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at" db:"updated_at"`
 }
 
 // PaymentSettings represents global payment configuration
@@ -334,10 +387,10 @@ type CompanyDetails struct {
 	Country    string `json:"country" db:"country"`
 
 	// Статус и активность
-	IsActive      bool   `json:"is_active" db:"is_active"`
-	IsVerified    bool   `json:"is_verified" db:"is_verified"`
-	Status        string `json:"status"` // active, trial, trial_expired, inactive, paid
-	TrialExpired  bool   `json:"trial_expired" db:"trial_expired"`
+	IsActive     bool   `json:"is_active" db:"is_active"`
+	IsVerified   bool   `json:"is_verified" db:"is_verified"`
+	Status       string `json:"status"` // active, trial, trial_expired, inactive, paid
+	TrialExpired bool   `json:"trial_expired" db:"trial_expired"`
 
 	// Информация о плане
 	PlanID    string  `json:"plan_id" db:"plan_id"`
@@ -365,25 +418,25 @@ type CompanyDetails struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 
 	// Расширенная аналитика
-	Instagram            string    `json:"instagram,omitempty"`
-	Facebook             string    `json:"facebook,omitempty"`
+	Instagram               string     `json:"instagram,omitempty"`
+	Facebook                string     `json:"facebook,omitempty"`
 	SubscriptionActivatedAt *time.Time `json:"subscription_activated_at,omitempty"`
-	AverageCheck         float64   `json:"average_check,omitempty"`
-	ZootelEarnings       float64   `json:"zootel_earnings,omitempty"`    // 10% комиссия + подписки
-	CancelledOrders      int       `json:"cancelled_orders,omitempty"`
-	RefundedOrders       int       `json:"refunded_orders,omitempty"`
-	AverageResponseTime  float64   `json:"average_response_time,omitempty"` // в минутах
-	CompanyRating        float64   `json:"company_rating,omitempty"`
-	TotalReviews         int       `json:"total_reviews,omitempty"`
-	TotalChats           int       `json:"total_chats,omitempty"`
-	CustomerRequests     int       `json:"customer_requests,omitempty"`
-	LastLoginAt          *time.Time `json:"last_login_at,omitempty"`
-	ProfileCompleteness  float64   `json:"profile_completeness,omitempty"` // в процентах
-	WeeklyOrders         int       `json:"weekly_orders,omitempty"`
-	MonthlyOrders        int       `json:"monthly_orders,omitempty"`
-	QuarterlyOrders      int       `json:"quarterly_orders,omitempty"`
-	HalfYearOrders       int       `json:"half_year_orders,omitempty"`
-	YearlyOrders         int       `json:"yearly_orders,omitempty"`
+	AverageCheck            float64    `json:"average_check,omitempty"`
+	ZootelEarnings          float64    `json:"zootel_earnings,omitempty"` // 10% комиссия + подписки
+	CancelledOrders         int        `json:"cancelled_orders,omitempty"`
+	RefundedOrders          int        `json:"refunded_orders,omitempty"`
+	AverageResponseTime     float64    `json:"average_response_time,omitempty"` // в минутах
+	CompanyRating           float64    `json:"company_rating,omitempty"`
+	TotalReviews            int        `json:"total_reviews,omitempty"`
+	TotalChats              int        `json:"total_chats,omitempty"`
+	CustomerRequests        int        `json:"customer_requests,omitempty"`
+	LastLoginAt             *time.Time `json:"last_login_at,omitempty"`
+	ProfileCompleteness     float64    `json:"profile_completeness,omitempty"` // в процентах
+	WeeklyOrders            int        `json:"weekly_orders,omitempty"`
+	MonthlyOrders           int        `json:"monthly_orders,omitempty"`
+	QuarterlyOrders         int        `json:"quarterly_orders,omitempty"`
+	HalfYearOrders          int        `json:"half_year_orders,omitempty"`
+	YearlyOrders            int        `json:"yearly_orders,omitempty"`
 }
 
 // CompanyFeatureStatus представляет статус функций компании с разделением на оплаченные и бесплатные
@@ -941,7 +994,6 @@ type CompanyAddon struct {
 	UpdatedAt     time.Time  `json:"updated_at" db:"updated_at"`
 }
 
-
 // CompanyAIAgent represents an AI agent for a company (from plan or addon)
 type CompanyAIAgent struct {
 	AgentKey     string     `json:"agent_key"`
@@ -1273,42 +1325,42 @@ type ExchangeRateAPIResponse struct {
 
 // Crypto Payment Models
 type CryptoPayment struct {
-	ID                string    `json:"id" db:"id"`
-	OrderID           string    `json:"order_id" db:"order_id"`
-	PaymentID         string    `json:"payment_id" db:"payment_id"` // NowPayments payment ID
-	Currency          string    `json:"currency" db:"currency"`     // BTC, ETH, etc.
-	Network           string    `json:"network" db:"network"`       // bitcoin, ethereum, etc.
-	Amount            float64   `json:"amount" db:"amount"`         // Amount in crypto
-	Address           string    `json:"address" db:"address"`       // Wallet address
-	Status            string    `json:"status" db:"status"`         // new, confirming, confirmed, expired, failed
-	TransactionHash   string    `json:"transaction_hash" db:"transaction_hash"`
-	QRCode            string    `json:"qr_code" db:"qr_code"`
-	ExpiresAt         time.Time `json:"expires_at" db:"expires_at"`
-	CreatedAt         time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at" db:"updated_at"`
+	ID              string    `json:"id" db:"id"`
+	OrderID         string    `json:"order_id" db:"order_id"`
+	PaymentID       string    `json:"payment_id" db:"payment_id"` // NowPayments payment ID
+	Currency        string    `json:"currency" db:"currency"`     // BTC, ETH, etc.
+	Network         string    `json:"network" db:"network"`       // bitcoin, ethereum, etc.
+	Amount          float64   `json:"amount" db:"amount"`         // Amount in crypto
+	Address         string    `json:"address" db:"address"`       // Wallet address
+	Status          string    `json:"status" db:"status"`         // new, confirming, confirmed, expired, failed
+	TransactionHash string    `json:"transaction_hash" db:"transaction_hash"`
+	QRCode          string    `json:"qr_code" db:"qr_code"`
+	ExpiresAt       time.Time `json:"expires_at" db:"expires_at"`
+	CreatedAt       time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at" db:"updated_at"`
 }
 
 type CryptoCurrency struct {
-	ID          string  `json:"id" db:"id"`
-	Code        string  `json:"code" db:"code"`         // BTC, ETH, USDT
-	Name        string  `json:"name" db:"name"`         // Bitcoin, Ethereum, Tether
-	Symbol      string  `json:"symbol" db:"symbol"`     // ₿, Ξ, ₮
-	Icon        string  `json:"icon" db:"icon"`         // Icon URL
-	IsActive    bool    `json:"is_active" db:"is_active"`
-	MinAmount   float64 `json:"min_amount" db:"min_amount"`
-	MaxAmount   float64 `json:"max_amount" db:"max_amount"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
+	ID        string    `json:"id" db:"id"`
+	Code      string    `json:"code" db:"code"`     // BTC, ETH, USDT
+	Name      string    `json:"name" db:"name"`     // Bitcoin, Ethereum, Tether
+	Symbol    string    `json:"symbol" db:"symbol"` // ₿, Ξ, ₮
+	Icon      string    `json:"icon" db:"icon"`     // Icon URL
+	IsActive  bool      `json:"is_active" db:"is_active"`
+	MinAmount float64   `json:"min_amount" db:"min_amount"`
+	MaxAmount float64   `json:"max_amount" db:"max_amount"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
 type CryptoNetwork struct {
-	ID           string  `json:"id" db:"id"`
-	CurrencyCode string  `json:"currency_code" db:"currency_code"`
-	Name         string  `json:"name" db:"name"`         // Bitcoin, Ethereum, Polygon
-	Code         string  `json:"code" db:"code"`         // bitcoin, ethereum, polygon
-	IsActive     bool    `json:"is_active" db:"is_active"`
-	MinAmount    float64 `json:"min_amount" db:"min_amount"`
-	MaxAmount    float64 `json:"max_amount" db:"max_amount"`
+	ID           string    `json:"id" db:"id"`
+	CurrencyCode string    `json:"currency_code" db:"currency_code"`
+	Name         string    `json:"name" db:"name"` // Bitcoin, Ethereum, Polygon
+	Code         string    `json:"code" db:"code"` // bitcoin, ethereum, polygon
+	IsActive     bool      `json:"is_active" db:"is_active"`
+	MinAmount    float64   `json:"min_amount" db:"min_amount"`
+	MaxAmount    float64   `json:"max_amount" db:"max_amount"`
 	CreatedAt    time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
 }
@@ -1387,10 +1439,10 @@ type NowPaymentsPaymentStatusResponse struct {
 
 // Frontend Request/Response Models
 type CreateCryptoPaymentRequest struct {
-	OrderID       string `json:"order_id" binding:"required"`
-	Currency      string `json:"currency" binding:"required"`
-	Network       string `json:"network" binding:"required"`
-	Amount        float64 `json:"amount" binding:"required,min=0"`
+	OrderID  string  `json:"order_id" binding:"required"`
+	Currency string  `json:"currency" binding:"required"`
+	Network  string  `json:"network" binding:"required"`
+	Amount   float64 `json:"amount" binding:"required,min=0"`
 }
 
 type CryptoPaymentResponse struct {
@@ -1406,9 +1458,9 @@ type CryptoPaymentResponse struct {
 }
 
 type PaymentMethod struct {
-	Type     string `json:"type"`     // card, crypto
-	Name     string `json:"name"`     // Credit Card, Bitcoin, Ethereum
-	Icon     string `json:"icon"`     // Icon URL
+	Type     string `json:"type"` // card, crypto
+	Name     string `json:"name"` // Credit Card, Bitcoin, Ethereum
+	Icon     string `json:"icon"` // Icon URL
 	IsActive bool   `json:"is_active"`
 }
 

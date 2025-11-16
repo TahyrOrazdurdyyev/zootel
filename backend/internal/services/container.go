@@ -42,6 +42,7 @@ type ServiceContainer struct {
 	inventoryService    *InventoryService
 	currencyService     *CurrencyService
 	cryptoService       *CryptoService
+	contentService      *ContentService
 
 	// Service initialization status
 	initialized map[string]bool
@@ -66,6 +67,7 @@ func NewServiceContainer(db *sql.DB) *ServiceContainer {
 	reviewService := NewReviewService(db)
 	employeeService := NewEmployeeService(db)
 	promptService := NewPromptService(db)
+	contentService := NewContentService(db)
 
 	// Initialize services with dependencies
 	emailService := NewEmailService(db)
@@ -125,6 +127,7 @@ func NewServiceContainer(db *sql.DB) *ServiceContainer {
 		inventoryService:    inventoryService,
 		currencyService:     currencyService,
 		cryptoService:       cryptoService,
+		contentService:      contentService,
 	}
 }
 
@@ -220,6 +223,9 @@ func (c *ServiceContainer) InitializeServices() error {
 	c.cryptoService = NewCryptoService(c.db)
 	c.cryptoService.SetNotificationService(c.notificationService)
 	c.initialized["crypto"] = true
+
+	c.contentService = NewContentService(c.db)
+	c.initialized["content"] = true
 
 	log.Println("All services initialized successfully")
 	return nil
@@ -340,6 +346,10 @@ func (c *ServiceContainer) CurrencyService() *CurrencyService {
 
 func (c *ServiceContainer) CryptoService() *CryptoService {
 	return c.cryptoService
+}
+
+func (c *ServiceContainer) ContentService() *ContentService {
+	return c.contentService
 }
 
 // Cleanup method
