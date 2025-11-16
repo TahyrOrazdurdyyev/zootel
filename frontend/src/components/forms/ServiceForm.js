@@ -169,19 +169,23 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
       const uploadFormData = new FormData();
       uploadFormData.append('file', file);
 
-      // Upload to general upload endpoint first
-      const uploadResponse = await apiCall('/uploads/gallery', {
+      // Upload to temporary upload endpoint first
+      const uploadResponse = await apiCall('/uploads/temp', {
         method: 'POST',
         body: uploadFormData
       });
 
-      if (uploadResponse.success && uploadResponse.data.files && uploadResponse.data.files.length > 0) {
-        const uploadedFile = uploadResponse.data.files[0];
+      if (uploadResponse.success && uploadResponse.data) {
+        const uploadedFile = uploadResponse.data;
         setFormData(prev => ({
           ...prev,
-          image_id: uploadedFile.id
+          image_id: uploadedFile.file_id
         }));
-        setUploadedImages([uploadedFile]);
+        setUploadedImages([{
+          id: uploadedFile.file_id,
+          fileName: uploadedFile.original_name,
+          url: uploadedFile.file_url
+        }]);
       } else {
         alert('Failed to upload image. Please try again.');
       }

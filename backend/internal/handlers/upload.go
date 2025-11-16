@@ -297,9 +297,9 @@ func (h *UploadHandler) UploadTempImage(c *gin.Context) {
 		return
 	}
 
-	// Only super admin can upload temporary images for categories
-	if userRole != "super_admin" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Only super admin can upload temporary images"})
+	// Allow super admin and company owners to upload temporary images
+	if userRole != "super_admin" && userRole != "company_owner" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Only super admin and company owners can upload temporary images"})
 		return
 	}
 
