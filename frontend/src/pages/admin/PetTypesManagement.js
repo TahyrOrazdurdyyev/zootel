@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { apiCall } from '../../utils/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const PetTypesManagement = () => {
+  const { apiCall } = useAuth();
   const [petTypes, setPetTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -13,7 +14,7 @@ const PetTypesManagement = () => {
 
   useEffect(() => {
     fetchPetTypes();
-  }, []);
+  }, [apiCall]);
 
   const fetchPetTypes = async () => {
     try {
