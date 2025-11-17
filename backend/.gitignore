@@ -1,0 +1,27 @@
+# Compiled binaries
+zootel-backend
+zootel-server
+zootel-retail
+zootel
+
+# Log files
+*.log
+backend.log
+detailed-backend.log
+
+# Environment files
+*.env
+!currency.env
+!nowpayments.env
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
