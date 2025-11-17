@@ -273,7 +273,13 @@ const EmployeesManagementPage = () => {
       const method = editingEmployee ? 'PUT' : 'POST';
 
       console.log('🚀 Sending request:', { endpoint, method, payload });
-      const response = await apiCall(endpoint, method, payload);
+      const response = await apiCall(endpoint, {
+        method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
       console.log('📥 Response received:', response);
       
       if (response.success) {
