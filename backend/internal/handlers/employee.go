@@ -103,9 +103,11 @@ func (h *EmployeeHandler) CreateEmployee(c *gin.Context) {
 
 	employee, err := h.employeeService.CreateEmployee(companyID, &req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create employee"})
+		fmt.Printf("🔥 ERROR: CreateEmployee service failed: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create employee: " + err.Error()})
 		return
 	}
+	fmt.Printf("🔥 SUCCESS: Employee created with ID: %s\n", employee.ID)
 
 	c.JSON(http.StatusCreated, gin.H{
 		"success":  true,

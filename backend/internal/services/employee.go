@@ -23,11 +23,15 @@ func NewEmployeeService(db *sql.DB) *EmployeeService {
 
 // CreateEmployee creates a new employee with specified permissions
 func (s *EmployeeService) CreateEmployee(companyID string, req *models.EmployeeRequest) (*models.Employee, error) {
+	fmt.Printf("🔥 SERVICE: CreateEmployee called for company %s\n", companyID)
+	
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
+		fmt.Printf("🔥 SERVICE ERROR: Failed to hash password: %v\n", err)
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
+	fmt.Printf("🔥 SERVICE: Password hashed successfully\n")
 
 	// Validate role and get default permissions if not specified
 	permissions := req.Permissions
@@ -70,6 +74,7 @@ func (s *EmployeeService) CreateEmployee(companyID string, req *models.EmployeeR
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 	`
 
+	fmt.Printf("🔥 SERVICE: Executing database insert...\n")
 	_, err = s.db.Exec(query,
 		employee.ID, employee.CompanyID, employee.Username, employee.Password,
 		employee.FirstName, employee.LastName, employee.Email, employee.Phone,
@@ -79,8 +84,10 @@ func (s *EmployeeService) CreateEmployee(companyID string, req *models.EmployeeR
 	)
 
 	if err != nil {
+		fmt.Printf("🔥 SERVICE ERROR: Database insert failed: %v\n", err)
 		return nil, fmt.Errorf("failed to create employee: %w", err)
 	}
+	fmt.Printf("🔥 SERVICE: Database insert successful\n")
 
 	// Log activity
 	s.logActivity(employee.ID, "employee_created", "employee", employee.ID, map[string]interface{}{
