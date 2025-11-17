@@ -272,7 +272,9 @@ const EmployeesManagementPage = () => {
         : '/companies/employees';
       const method = editingEmployee ? 'PUT' : 'POST';
 
+      console.log('🚀 Sending request:', { endpoint, method, payload });
       const response = await apiCall(endpoint, method, payload);
+      console.log('📥 Response received:', response);
       
       if (response.success) {
         alert(editingEmployee ? 'Employee updated successfully!' : 'Employee created successfully!');
