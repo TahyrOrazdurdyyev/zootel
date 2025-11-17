@@ -99,6 +99,7 @@ func SuperAdminMiddleware() gin.HandlerFunc {
 // CompanyOwnerMiddleware checks if user is a company owner and sets company_id
 func CompanyOwnerMiddleware(userService *services.UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		fmt.Printf("🔥 CompanyOwnerMiddleware: %s %s from %s\n", c.Request.Method, c.Request.URL.Path, c.ClientIP())
 		// First check if user has company_owner role
 		userRole := c.GetString("user_role")
 		if userRole != "company_owner" {
