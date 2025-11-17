@@ -92,7 +92,7 @@ const EmployeesManagementPage = () => {
   const loadEmployees = async () => {
     try {
       setIsLoading(true);
-      const response = await apiCall('/employees/manage/', 'GET');
+      const response = await apiCall('/companies/employees', 'GET');
       if (response.success) {
         setEmployees(response.employees || []);
       }
@@ -155,8 +155,8 @@ const EmployeesManagementPage = () => {
   const loadRolesAndPermissions = async () => {
     try {
       const [rolesResponse, permissionsResponse] = await Promise.all([
-        apiCall('/employees/reference/roles', 'GET'),
-        apiCall('/employees/reference/permissions', 'GET')
+        apiCall('/companies/employees/reference/roles', 'GET'),
+        apiCall('/companies/employees/reference/permissions', 'GET')
       ]);
       
       if (rolesResponse.success) {
@@ -268,8 +268,8 @@ const EmployeesManagementPage = () => {
       }
 
       const endpoint = editingEmployee 
-        ? `/employees/manage/${editingEmployee.id}`
-        : '/employees/manage/';
+        ? `/companies/employees/${editingEmployee.id}`
+        : '/companies/employees';
       const method = editingEmployee ? 'PUT' : 'POST';
 
       const response = await apiCall(endpoint, method, payload);
@@ -296,7 +296,7 @@ const EmployeesManagementPage = () => {
     }
 
     try {
-      const response = await apiCall(`/employees/manage/${employee.id}`, 'DELETE');
+      const response = await apiCall(`/companies/employees/${employee.id}`, 'DELETE');
       if (response.success) {
         alert('Employee deactivated successfully!');
         loadEmployees();
@@ -323,7 +323,7 @@ const EmployeesManagementPage = () => {
     try {
       // Update both role and permissions
       const response = await apiCall(
-        `/employees/manage/${selectedEmployee.id}`,
+        `/companies/employees/${selectedEmployee.id}`,
         'PUT',
         {
           role: updateData.role,

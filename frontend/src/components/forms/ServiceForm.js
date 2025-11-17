@@ -110,7 +110,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
 
     // Load company employees
     try {
-      const employeesResponse = await apiCall('/employees/manage/');
+      const employeesResponse = await apiCall('/companies/employees');
       if (employeesResponse && employeesResponse.success && Array.isArray(employeesResponse.employees)) {
         setEmployees(employeesResponse.employees);
       } else {

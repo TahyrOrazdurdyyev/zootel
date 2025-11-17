@@ -501,6 +501,16 @@ func main() {
 				companies.GET("/inventory/alerts", inventoryHandler.GetInventoryAlerts)
 				companies.PUT("/inventory/alerts/:alertId/read", inventoryHandler.MarkAlertAsRead)
 				companies.GET("/inventory/stats", inventoryHandler.GetInventoryStats)
+
+				// Employee Management for Company Owners
+				companies.POST("/employees", employeeHandler.CreateEmployee)
+				companies.GET("/employees", employeeHandler.GetCompanyEmployees)
+				companies.GET("/employees/:employeeId", employeeHandler.GetEmployee)
+				companies.PUT("/employees/:employeeId", employeeHandler.UpdateEmployee)
+				companies.PUT("/employees/:employeeId/permissions", employeeHandler.UpdateEmployeePermissions)
+				companies.DELETE("/employees/:employeeId", employeeHandler.DeactivateEmployee)
+				companies.GET("/employees/reference/permissions", employeeHandler.GetAvailablePermissions)
+				companies.GET("/employees/reference/roles", employeeHandler.GetAvailableRoles)
 			}
 
 			// AI endpoints
