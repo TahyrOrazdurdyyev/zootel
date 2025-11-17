@@ -53,6 +53,7 @@ import EmployeeChatPage from './pages/company/EmployeeChatPage';
 import ServicesManagementPage from './pages/company/ServicesManagementPage';
 import AddonManagementPage from './pages/company/AddonManagementPage';
 import InventoryPage from './pages/company/InventoryPage';
+import EmployeesManagementPage from './pages/company/EmployeesManagementPage';
 
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -127,6 +128,7 @@ function App() {
                     <Route path="/analytics" element={<CompanyAnalyticsPage />} />
                     <Route path="/chat" element={<EmployeeChatPage />} />
                     <Route path="/services" element={<ServicesManagementPage />} />
+                    <Route path="/employees" element={<EmployeesManagementPage />} />
                     <Route path="/addons" element={<AddonManagementPage />} />
                     <Route path="/ai-prompts" element={<AIPromptsCustomization />} />
                     <Route path="/inventory" element={<InventoryPage />} />

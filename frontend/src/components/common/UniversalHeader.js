@@ -358,6 +358,13 @@ const UniversalHeader = () => {
                           Services
                         </Link>
                         <Link
+                          to="/company/employees"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          Employees
+                        </Link>
+                        <Link
                           to="/company/analytics"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           onClick={() => setShowUserMenu(false)}
