@@ -98,7 +98,55 @@ const EmployeesManagementPage = () => {
       }
     } catch (error) {
       console.error('Failed to load employees:', error);
-      alert('Failed to load employees. Please try again.');
+      // Show mock data for demonstration
+      setEmployees([
+        {
+          id: '1',
+          first_name: 'John',
+          last_name: 'Doe',
+          username: 'john.doe',
+          email: 'john@example.com',
+          phone: '+1234567890',
+          role: 'veterinarian',
+          department: 'medical',
+          permissions: ['view_bookings', 'edit_bookings', 'view_customers'],
+          hire_date: '2023-01-15',
+          salary: 75000,
+          is_active: true,
+          last_login: '2024-01-15T10:30:00Z'
+        },
+        {
+          id: '2',
+          first_name: 'Jane',
+          last_name: 'Smith',
+          username: 'jane.smith',
+          email: 'jane@example.com',
+          phone: '+1234567891',
+          role: 'groomer',
+          department: 'grooming',
+          permissions: ['view_bookings', 'edit_bookings'],
+          hire_date: '2023-03-20',
+          salary: 45000,
+          is_active: true,
+          last_login: '2024-01-14T16:45:00Z'
+        },
+        {
+          id: '3',
+          first_name: 'Mike',
+          last_name: 'Johnson',
+          username: 'mike.johnson',
+          email: 'mike@example.com',
+          phone: '+1234567892',
+          role: 'manager',
+          department: 'management',
+          permissions: ['all'],
+          hire_date: '2022-06-10',
+          salary: 85000,
+          is_active: true,
+          last_login: '2024-01-15T09:15:00Z'
+        }
+      ]);
+      alert('Using demo data - API connection failed. Please check server status.');
     } finally {
       setIsLoading(false);
     }
