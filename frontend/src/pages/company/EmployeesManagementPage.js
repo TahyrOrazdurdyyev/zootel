@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import PermissionsManager from '../../components/employees/PermissionsManager';
+import EmployeeAnalytics from '../../components/employees/EmployeeAnalytics';
+import EmployeeSchedule from '../../components/employees/EmployeeSchedule';
 import {
   UsersIcon,
   PlusIcon,
@@ -18,7 +21,9 @@ import {
   ClockIcon,
   BuildingOfficeIcon,
   PhoneIcon,
-  EnvelopeIcon
+  EnvelopeIcon,
+  ChartBarIcon,
+  Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 
 const EmployeesManagementPage = () => {
@@ -31,8 +36,10 @@ const EmployeesManagementPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentView, setCurrentView] = useState('list'); // list, analytics
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -259,12 +266,21 @@ const EmployeesManagementPage = () => {
     setShowPermissionsModal(true);
   };
 
-  const handleUpdatePermissions = async (newPermissions) => {
+  const handleViewSchedule = (employee) => {
+    setSelectedEmployee(employee);
+    setShowScheduleModal(true);
+  };
+
+  const handleUpdatePermissions = async (updateData) => {
     try {
+      // Update both role and permissions
       const response = await apiCall(
-        `/employees/manage/${selectedEmployee.id}/permissions`,
+        `/employees/manage/${selectedEmployee.id}`,
         'PUT',
-        { permissions: newPermissions }
+        {
+          role: updateData.role,
+          permissions: updateData.permissions
+        }
       );
       
       if (response.success) {
@@ -348,6 +364,11 @@ const EmployeesManagementPage = () => {
     );
   }
 
+  // Show analytics view
+  if (currentView === 'analytics') {
+    return <EmployeeAnalytics />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -363,7 +384,33 @@ const EmployeesManagementPage = () => {
               Filtered: {filteredEmployees.length}
             </p>
           </div>
-          <div className="mt-4 sm:mt-0">
+          <div className="mt-4 sm:mt-0 flex items-center space-x-3">
+            {/* View Toggle */}
+            <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+              <button
+                onClick={() => setCurrentView('list')}
+                className={`px-4 py-2 text-sm font-medium flex items-center ${
+                  currentView === 'list'
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <UsersIcon className="h-4 w-4 mr-2" />
+                Employees
+              </button>
+              <button
+                onClick={() => setCurrentView('analytics')}
+                className={`px-4 py-2 text-sm font-medium flex items-center border-l border-gray-300 ${
+                  currentView === 'analytics'
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <ChartBarIcon className="h-4 w-4 mr-2" />
+                Analytics
+              </button>
+            </div>
+            
             <button
               onClick={handleCreateEmployee}
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
@@ -539,6 +586,13 @@ const EmployeesManagementPage = () => {
                           title="Manage Permissions"
                         >
                           <ShieldCheckIcon className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleViewSchedule(employee)}
+                          className="text-green-600 hover:text-green-900 p-1 rounded"
+                          title="View Schedule"
+                        >
+                          <CalendarDaysIcon className="h-4 w-4" />
                         </button>
                         {employee.is_active && (
                           <button
@@ -775,52 +829,21 @@ const EmployeesManagementPage = () => {
 
       {/* Permissions Modal */}
       {showPermissionsModal && selectedEmployee && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Manage Permissions - {selectedEmployee.first_name} {selectedEmployee.last_name}
-                </h3>
-                <button
-                  onClick={() => setShowPermissionsModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <XCircleIcon className="h-6 w-6" />
-                </button>
-              </div>
+        <PermissionsManager
+          employee={selectedEmployee}
+          availablePermissions={availablePermissions}
+          availableRoles={availableRoles}
+          onUpdatePermissions={handleUpdatePermissions}
+          onClose={() => setShowPermissionsModal(false)}
+        />
+      )}
 
-              <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900 mb-2">Current Role: {getRoleBadge(selectedEmployee.role)}</h4>
-                  <p className="text-sm text-gray-600">
-                    Role-based permissions are automatically assigned. You can add additional permissions below.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-3">Current Permissions</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    {selectedEmployee.permissions?.map(permission => (
-                      <div key={permission} className="flex items-center justify-between bg-blue-50 p-2 rounded">
-                        <span className="text-sm text-blue-800">{permission}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    onClick={() => setShowPermissionsModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Schedule Modal */}
+      {showScheduleModal && selectedEmployee && (
+        <EmployeeSchedule
+          employeeId={selectedEmployee.id}
+          onClose={() => setShowScheduleModal(false)}
+        />
       )}
     </div>
   );

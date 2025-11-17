@@ -110,9 +110,9 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
 
     // Load company employees
     try {
-      const employeesResponse = await apiCall('/companies/employees');
-      if (employeesResponse && employeesResponse.success && Array.isArray(employeesResponse.data)) {
-        setEmployees(employeesResponse.data);
+      const employeesResponse = await apiCall('/employees/manage/');
+      if (employeesResponse && employeesResponse.success && Array.isArray(employeesResponse.employees)) {
+        setEmployees(employeesResponse.employees);
       } else {
         console.error('Invalid employees response:', employeesResponse);
         setEmployees([]);
@@ -674,7 +674,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                 >
                   {employees.map(employee => (
                     <option key={employee.id} value={employee.id}>
-                      {employee.name} ({employee.role})
+                      {employee.first_name} {employee.last_name} ({employee.role})
                     </option>
                   ))}
                 </select>
