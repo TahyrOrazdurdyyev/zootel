@@ -38,6 +38,12 @@ func (s *EmployeeService) CreateEmployee(companyID string, req *models.EmployeeR
 		}
 	}
 
+	// Convert CustomDate to *time.Time for database storage
+	var hireDate *time.Time
+	if req.HireDate != nil && !req.HireDate.Time.IsZero() {
+		hireDate = &req.HireDate.Time
+	}
+
 	employee := &models.Employee{
 		ID:          uuid.New().String(),
 		CompanyID:   companyID,
@@ -50,7 +56,7 @@ func (s *EmployeeService) CreateEmployee(companyID string, req *models.EmployeeR
 		Role:        req.Role,
 		Permissions: permissions,
 		Department:  req.Department,
-		HireDate:    req.HireDate,
+		HireDate:    hireDate,
 		Salary:      req.Salary,
 		IsActive:    true,
 		CreatedAt:   time.Now(),
@@ -278,10 +284,16 @@ func (s *EmployeeService) UpdateEmployee(employeeID string, req *models.Employee
 		}
 	}
 
+	// Convert CustomDate to *time.Time for database storage
+	var hireDate *time.Time
+	if req.HireDate != nil && !req.HireDate.Time.IsZero() {
+		hireDate = &req.HireDate.Time
+	}
+
 	_, err = s.db.Exec(query,
 		req.FirstName, req.LastName, req.Email, req.Phone,
 		req.Role, pq.Array(permissions), req.Department,
-		req.HireDate, req.Salary, employeeID,
+		hireDate, req.Salary, employeeID,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update employee: %w", err)

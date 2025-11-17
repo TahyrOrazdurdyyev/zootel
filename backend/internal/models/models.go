@@ -1,10 +1,41 @@
 package models
 
 import (
+	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/lib/pq"
 )
+
+// CustomDate handles date parsing from "2006-01-02" format
+type CustomDate struct {
+	time.Time
+}
+
+func (cd *CustomDate) UnmarshalJSON(data []byte) error {
+	// Remove quotes from JSON string
+	s := strings.Trim(string(data), `"`)
+	if s == "null" || s == "" {
+		return nil
+	}
+	
+	// Parse date in YYYY-MM-DD format
+	t, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return err
+	}
+	
+	cd.Time = t
+	return nil
+}
+
+func (cd CustomDate) MarshalJSON() ([]byte, error) {
+	if cd.Time.IsZero() {
+		return []byte("null"), nil
+	}
+	return json.Marshal(cd.Time.Format("2006-01-02"))
+}
 
 // User represents a platform user (Pet Owner or Company Owner)
 type User struct {
@@ -503,17 +534,17 @@ type EmployeePermission struct {
 
 // EmployeeRequest represents request to create/update employee
 type EmployeeRequest struct {
-	Username    string     `json:"username" binding:"required"`
-	Password    string     `json:"password"`
-	FirstName   string     `json:"first_name" binding:"required"`
-	LastName    string     `json:"last_name" binding:"required"`
-	Email       string     `json:"email" binding:"required,email"`
-	Phone       string     `json:"phone"`
-	Role        string     `json:"role" binding:"required"`
-	Permissions []string   `json:"permissions"`
-	Department  string     `json:"department"`
-	HireDate    *time.Time `json:"hire_date"`
-	Salary      *float64   `json:"salary"`
+	Username    string      `json:"username" binding:"required"`
+	Password    string      `json:"password"`
+	FirstName   string      `json:"first_name" binding:"required"`
+	LastName    string      `json:"last_name" binding:"required"`
+	Email       string      `json:"email" binding:"required,email"`
+	Phone       string      `json:"phone"`
+	Role        string      `json:"role" binding:"required"`
+	Permissions []string    `json:"permissions"`
+	Department  string      `json:"department"`
+	HireDate    *CustomDate `json:"hire_date"`
+	Salary      *float64    `json:"salary"`
 }
 
 // EmployeeLoginRequest represents employee login request
