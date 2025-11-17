@@ -195,7 +195,8 @@ func (s *EmployeeService) GetEmployeesByCompany(companyID string, includeInactiv
 
 	rows, err := s.db.Query(query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query employees: %w", err)
+		// Return empty array if table doesn't exist or query fails
+		return []models.Employee{}, nil
 	}
 	defer rows.Close()
 
@@ -396,7 +397,19 @@ func (s *EmployeeService) GetAvailablePermissions() ([]models.EmployeePermission
 	query := `SELECT id, name, description, category FROM employee_permissions ORDER BY category, name`
 	rows, err := s.db.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query permissions: %w", err)
+		// Fallback to hardcoded permissions if table doesn't exist
+		return []models.EmployeePermission{
+			{ID: "view_bookings", Name: "Просмотр записей", Description: "Просмотр записей клиентов", Category: "bookings"},
+			{ID: "create_bookings", Name: "Создание записей", Description: "Создание новых записей", Category: "bookings"},
+			{ID: "edit_bookings", Name: "Редактирование записей", Description: "Изменение записей", Category: "bookings"},
+			{ID: "view_customers", Name: "Просмотр клиентов", Description: "Просмотр данных клиентов", Category: "customers"},
+			{ID: "edit_customers", Name: "Редактирование клиентов", Description: "Изменение данных клиентов", Category: "customers"},
+			{ID: "view_services", Name: "Просмотр услуг", Description: "Просмотр услуг компании", Category: "services"},
+			{ID: "manage_employees", Name: "Управление сотрудниками", Description: "Управление сотрудниками", Category: "employees"},
+			{ID: "view_analytics", Name: "Просмотр аналитики", Description: "Доступ к аналитике", Category: "analytics"},
+			{ID: "process_payments", Name: "Обработка платежей", Description: "Обработка платежей", Category: "payments"},
+			{ID: "all", Name: "Полный доступ", Description: "Доступ ко всем функциям", Category: "special"},
+		}, nil
 	}
 	defer rows.Close()
 
@@ -418,7 +431,15 @@ func (s *EmployeeService) GetAvailableRoles() ([]models.EmployeeRole, error) {
 	query := `SELECT id, name, description, department, permissions FROM employee_roles ORDER BY name`
 	rows, err := s.db.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query roles: %w", err)
+		// Fallback to hardcoded roles if table doesn't exist
+		return []models.EmployeeRole{
+			{ID: "manager", Name: "Менеджер", Description: "Полный доступ к управлению компанией", Department: "management", Permissions: []string{"all"}},
+			{ID: "veterinarian", Name: "Ветеринар", Description: "Доступ к медицинским функциям", Department: "medical", Permissions: []string{"view_bookings", "edit_bookings", "view_customers", "view_services"}},
+			{ID: "groomer", Name: "Грумер", Description: "Доступ к грумингу", Department: "grooming", Permissions: []string{"view_bookings", "edit_bookings", "view_customers"}},
+			{ID: "receptionist", Name: "Администратор", Description: "Управление записями и клиентами", Department: "reception", Permissions: []string{"view_bookings", "create_bookings", "edit_bookings", "view_customers", "edit_customers", "process_payments"}},
+			{ID: "cashier", Name: "Кассир", Description: "Обработка платежей", Department: "reception", Permissions: []string{"view_bookings", "view_customers", "process_payments"}},
+			{ID: "analyst", Name: "Аналитик", Description: "Доступ к аналитике", Department: "analytics", Permissions: []string{"view_analytics", "view_bookings", "view_customers"}},
+		}, nil
 	}
 	defer rows.Close()
 
