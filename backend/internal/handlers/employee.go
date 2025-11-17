@@ -88,15 +88,18 @@ func (h *EmployeeHandler) CreateEmployee(c *gin.Context) {
 	companyID := c.GetString("company_id")
 	fmt.Printf("🔥 Company ID: %s\n", companyID)
 	if companyID == "" {
+		fmt.Printf("🔥 ERROR: Company ID is empty\n")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID required"})
 		return
 	}
 
 	var req models.EmployeeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		fmt.Printf("🔥 ERROR: Failed to bind JSON: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: " + err.Error()})
 		return
 	}
+	fmt.Printf("🔥 Request data: %+v\n", req)
 
 	employee, err := h.employeeService.CreateEmployee(companyID, &req)
 	if err != nil {
