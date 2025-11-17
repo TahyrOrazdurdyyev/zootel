@@ -46,7 +46,7 @@ const EmployeeSchedule = ({ employeeId, onClose }) => {
 
   const loadEmployeeData = async () => {
     try {
-      const response = await apiCall(`/employees/manage/${employeeId}`);
+      const response = await apiCall(`/companies/employees/${employeeId}`);
       if (response.success) {
         setEmployee(response.employee);
       }

@@ -31,7 +31,7 @@ const EmployeeAnalytics = () => {
 
   const loadEmployees = async () => {
     try {
-      const response = await apiCall('/employees/manage/', 'GET');
+      const response = await apiCall('/companies/employees', 'GET');
       if (response.success) {
         setEmployees(response.employees || []);
         if (response.employees?.length > 0 && !selectedEmployee) {
