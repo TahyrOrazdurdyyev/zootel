@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -83,7 +84,9 @@ func (h *EmployeeHandler) GetEmployeeProfile(c *gin.Context) {
 
 // CreateEmployee creates a new employee
 func (h *EmployeeHandler) CreateEmployee(c *gin.Context) {
+	fmt.Printf("🔥 CreateEmployee handler called from %s\n", c.ClientIP())
 	companyID := c.GetString("company_id")
+	fmt.Printf("🔥 Company ID: %s\n", companyID)
 	if companyID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID required"})
 		return
