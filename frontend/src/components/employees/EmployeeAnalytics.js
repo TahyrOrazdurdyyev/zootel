@@ -5,8 +5,8 @@ import {
   ClockIcon,
   CurrencyDollarIcon,
   StarIcon,
-  TrendingUpIcon,
-  TrendingDownIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
   UserIcon,
   CalendarDaysIcon,
   CheckCircleIcon,
@@ -93,9 +93,9 @@ const EmployeeAnalytics = () => {
   };
 
   const getPerformanceIcon = (value, thresholds) => {
-    if (value >= thresholds.excellent) return TrendingUpIcon;
+    if (value >= thresholds.excellent) return ArrowTrendingUpIcon;
     if (value >= thresholds.good) return ArrowPathIcon;
-    return TrendingDownIcon;
+    return ArrowTrendingDownIcon;
   };
 
   const formatCurrency = (amount) => {
@@ -121,13 +121,13 @@ const EmployeeAnalytics = () => {
           <Icon className={`h-8 w-8 ${color}`} />
         </div>
       </div>
-      {trend && (
-        <div className="mt-4 flex items-center">
-          {trend > 0 ? (
-            <TrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
-          ) : (
-            <TrendingDownIcon className="h-4 w-4 text-red-500 mr-1" />
-          )}
+        {trend && (
+          <div className="mt-4 flex items-center">
+            {trend > 0 ? (
+              <ArrowTrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
+            ) : (
+              <ArrowTrendingDownIcon className="h-4 w-4 text-red-500 mr-1" />
+            )}
           <span className={`text-sm ${trend > 0 ? 'text-green-600' : 'text-red-600'}`}>
             {Math.abs(trend)}% vs last period
           </span>
