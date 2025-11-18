@@ -63,7 +63,7 @@ func (h *ServiceHandler) GetServiceByID(c *gin.Context) {
 
 // CreateService creates a new service
 func (h *ServiceHandler) CreateService(c *gin.Context) {
-	companyID := c.Param("companyId")
+	companyID := c.GetString("company_id")
 	if companyID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
