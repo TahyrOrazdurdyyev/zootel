@@ -24,7 +24,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     saleStartDate: '',
     saleEndDate: '',
     duration: '',
-    pet_types: [],
+    petTypes: [],
     availableDays: [],
     startTime: '09:00',
     endTime: '17:00',
@@ -64,7 +64,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
         name: service.name || '',
         description: service.description || '',
         category_id: service.category_id || '',
-        pet_types: service.pet_types || [],
+        petTypes: service.pet_types || [],
         price: service.price?.toString() || '',
         duration: service.duration?.toString() || '60',
         image_id: service.image_id || '',
@@ -246,10 +246,18 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log('🚀 Form submitted!');
+    console.log('📋 Form data:', formData);
+    console.log('🔍 Available days:', formData.availableDays);
+    console.log('🐾 Pet types:', formData.petTypes);
     
     if (!validateForm()) {
+      console.log('❌ Validation failed!');
+      console.log('🚨 Errors:', errors);
       return;
     }
+
+    console.log('✅ Validation passed!');
 
     const submitData = {
       ...formData,
@@ -261,6 +269,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
       advance_booking_days: parseInt(formData.advance_booking_days)
     };
 
+    console.log('📤 Submitting data:', submitData);
     onSubmit(submitData);
   };
 
@@ -548,15 +557,15 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                     <label key={petType.id} className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={formData.pet_types.includes(petType.id)}
-                        onChange={(e) => handleArrayChange('pet_types', petType.id, e.target.checked)}
+                        checked={formData.petTypes.includes(petType.id)}
+                        onChange={(e) => handleArrayChange('petTypes', petType.id, e.target.checked)}
                         className="mr-2 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                       />
                       <span className="text-sm text-gray-700">{petType.name}</span>
                     </label>
                   ))}
                 </div>
-                {errors.pet_types && <p className="text-orange-500 text-xs mt-1">{errors.pet_types}</p>}
+                {errors.petTypes && <p className="text-orange-500 text-xs mt-1">{errors.petTypes}</p>}
               </div>
 
               <div>
