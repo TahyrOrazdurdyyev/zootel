@@ -232,12 +232,12 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
       newErrors.duration = 'Valid duration is required';
     }
 
-    if (formData.available_days.length === 0) {
-      newErrors.available_days = 'At least one available day is required';
+    if (formData.availableDays.length === 0) {
+      newErrors.availableDays = 'At least one available day is required';
     }
 
-    if (formData.pet_types.length === 0) {
-      newErrors.pet_types = 'At least one pet type is required';
+    if (formData.petTypes.length === 0) {
+      newErrors.petTypes = 'At least one pet type is required';
     }
 
     setErrors(newErrors);
@@ -387,6 +387,24 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                   placeholder="0.00"
                 />
                 {errors.price && <p className="text-orange-500 text-xs mt-1">{errors.price}</p>}
+              </div>
+
+              {/* Duration */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Duration (minutes) *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={formData.duration}
+                  onChange={(e) => handleInputChange('duration', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                    errors.duration ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="60"
+                />
+                {errors.duration && <p className="text-orange-500 text-xs mt-1">{errors.duration}</p>}
               </div>
 
               {/* Discount Section */}
