@@ -296,7 +296,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                   type="text"
                   name="name"
                   value={formData.name}
-                  onChange={handleInputChange}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                     errors.name ? 'border-red-500' : 'border-gray-300'
                   }`}
@@ -312,7 +312,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                 <textarea
                   name="description"
                   value={formData.description}
-                  onChange={handleInputChange}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="Describe your service..."
