@@ -63,11 +63,16 @@ func (h *ServiceHandler) GetServiceByID(c *gin.Context) {
 
 // CreateService creates a new service
 func (h *ServiceHandler) CreateService(c *gin.Context) {
+	fmt.Printf("🔍 CreateService called from %s\n", c.ClientIP())
+
 	companyID := c.GetString("company_id")
 	if companyID == "" {
+		fmt.Printf("❌ Company ID not found in context\n")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
 	}
+
+	fmt.Printf("📝 Company ID: %s\n", companyID)
 
 	var request struct {
 		Name               string   `json:"name" binding:"required"`
@@ -90,9 +95,12 @@ func (h *ServiceHandler) CreateService(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
+		fmt.Printf("❌ JSON binding error: %v\n", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	fmt.Printf("📦 Service data received: %+v\n", request)
 
 	service := &models.Service{
 		CompanyID:   companyID,
@@ -122,9 +130,12 @@ func (h *ServiceHandler) CreateService(c *gin.Context) {
 
 	createdService, err := h.serviceService.CreateService(service)
 	if err != nil {
+		fmt.Printf("❌ CreateService service error: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create service"})
 		return
 	}
+
+	fmt.Printf("✅ Service created successfully: %s\n", createdService.Name)
 
 	c.JSON(http.StatusCreated, gin.H{"service": createdService})
 }
