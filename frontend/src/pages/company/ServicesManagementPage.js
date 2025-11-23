@@ -122,6 +122,9 @@ const ServicesManagementPage = () => {
 
   const handleFormSubmit = async (formData) => {
     try {
+      console.log('🚀 ServicesManagementPage - handleFormSubmit called');
+      console.log('📋 Form data received:', formData);
+      
       setIsSubmitting(true);
       
       const url = editingService 
@@ -130,19 +133,22 @@ const ServicesManagementPage = () => {
       
       const method = editingService ? 'PUT' : 'POST';
 
+      console.log('📤 Making API call:', { url, method });
       const response = await apiCall(url, method, formData);
+      console.log('📥 API Response received:', response);
 
       if (response && (response.service || response.success)) {
+        console.log('✅ Service operation successful');
         setShowForm(false);
         setEditingService(null);
         await loadServices();
         alert(`Service ${editingService ? 'updated' : 'created'} successfully!`);
       } else {
-        console.error('API Response:', response);
+        console.error('❌ API Response indicates failure:', response);
         alert(`Failed to ${editingService ? 'update' : 'create'} service. Please try again.`);
       }
     } catch (error) {
-      console.error('Failed to submit service:', error);
+      console.error('❌ Exception in handleFormSubmit:', error);
       alert(`Failed to ${editingService ? 'update' : 'create'} service. Please try again.`);
     } finally {
       setIsSubmitting(false);
