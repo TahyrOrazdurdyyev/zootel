@@ -250,6 +250,8 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     console.log('📋 Form data:', formData);
     console.log('🔍 Available days:', formData.availableDays);
     console.log('🐾 Pet types:', formData.petTypes);
+    console.log('🖼️ Image ID:', formData.image_id);
+    console.log('📸 Uploaded images:', uploadedImages);
     
     if (!validateForm()) {
       console.log('❌ Validation failed!');
@@ -263,8 +265,8 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
       ...formData,
       price: parseFloat(formData.price),
       duration: parseInt(formData.duration),
-      start_time: formData.startTime + ':00', // Convert HH:MM to HH:MM:SS
-      end_time: formData.endTime + ':00', // Convert HH:MM to HH:MM:SS
+      start_time: formData.startTime ? formData.startTime + ':00' : '', // Convert HH:MM to HH:MM:SS
+      end_time: formData.endTime ? formData.endTime + ':00' : '', // Convert HH:MM to HH:MM:SS
       max_bookings_per_slot: parseInt(formData.maxBookingsPerSlot),
       buffer_time_before: parseInt(formData.bufferTimeBefore),
       buffer_time_after: parseInt(formData.bufferTimeAfter),
@@ -273,7 +275,8 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
       available_days: formData.availableDays,
       assigned_employees: formData.assignedEmployees,
       cancellation_policy: formData.cancellationPolicy,
-      is_active: formData.isActive
+      is_active: formData.isActive,
+      image_id: formData.image_id || '' // ← ДОБАВЛЯЕМ image_id!
     };
 
     // Remove the camelCase versions to avoid confusion

@@ -128,6 +128,13 @@ func (h *ServiceHandler) CreateService(c *gin.Context) {
 			}
 			return ""
 		}(),
+		ImageURL: func() string {
+			if request.ImageID != nil && *request.ImageID != "" {
+				// Generate image URL from image ID
+				return fmt.Sprintf("/uploads/temp/%s", *request.ImageID)
+			}
+			return ""
+		}(),
 		AvailableDays: func() []string {
 			if len(request.AvailableDays) == 0 {
 				return []string{"monday", "tuesday", "wednesday", "thursday", "friday"} // Default weekdays
