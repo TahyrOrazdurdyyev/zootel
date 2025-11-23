@@ -197,6 +197,18 @@ func (h *ServiceHandler) UpdateService(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("🔍 UpdateService called for service: %s\n", serviceID)
+
+	// Get company ID from middleware context
+	companyID := c.GetString("company_id")
+	if companyID == "" {
+		fmt.Printf("❌ Company ID not found in context\n")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID not found in context"})
+		return
+	}
+
+	fmt.Printf("📝 Company ID: %s\n", companyID)
+
 	var request struct {
 		Name               string   `json:"name"`
 		Description        string   `json:"description"`
@@ -222,12 +234,15 @@ func (h *ServiceHandler) UpdateService(c *gin.Context) {
 		return
 	}
 
-	// Get existing service
-	existingService, err := h.serviceService.GetServiceByID(serviceID)
+	// Get existing service (allow inactive services for editing)
+	existingService, err := h.serviceService.GetServiceByIDForEdit(serviceID, companyID)
 	if err != nil {
+		fmt.Printf("❌ Service not found: %v\n", err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "Service not found"})
 		return
 	}
+
+	fmt.Printf("✅ Service found for editing: %s\n", existingService.Name)
 
 	// Update fields
 	if request.Name != "" {

@@ -133,6 +133,38 @@ func (s *ServiceService) GetServiceByID(serviceID string) (*models.Service, erro
 	return service, nil
 }
 
+// GetServiceByIDForEdit retrieves a service by ID for editing (allows inactive services)
+func (s *ServiceService) GetServiceByIDForEdit(serviceID, companyID string) (*models.Service, error) {
+	service := &models.Service{}
+
+	query := `
+		SELECT id, company_id, category_id, name, description, price, original_price,
+		       discount_percentage, is_on_sale, sale_start_date, sale_end_date, duration,
+		       image_url, image_id, pet_types, available_days, start_time, end_time,
+		       assigned_employees, max_bookings_per_slot, buffer_time_before,
+		       buffer_time_after, advance_booking_days, cancellation_policy,
+		       is_active, created_at, updated_at
+		FROM services 
+		WHERE id = $1 AND company_id = $2`
+
+	err := s.db.QueryRow(query, serviceID, companyID).Scan(
+		&service.ID, &service.CompanyID, &service.CategoryID, &service.Name,
+		&service.Description, &service.Price, &service.OriginalPrice,
+		&service.DiscountPercentage, &service.IsOnSale, &service.SaleStartDate, &service.SaleEndDate,
+		&service.Duration, &service.ImageURL, &service.ImageID, pq.Array(&service.PetTypes),
+		pq.Array(&service.AvailableDays), &service.StartTime, &service.EndTime,
+		pq.Array(&service.AssignedEmployees), &service.MaxBookingsPerSlot,
+		&service.BufferTimeBefore, &service.BufferTimeAfter, &service.AdvanceBookingDays,
+		&service.CancellationPolicy, &service.IsActive, &service.CreatedAt, &service.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get service: %w", err)
+	}
+
+	return service, nil
+}
+
 // GetPublicServices retrieves publicly available services for marketplace
 func (s *ServiceService) GetPublicServices(filters map[string]interface{}) ([]*models.Service, int, error) {
 	baseQuery := `

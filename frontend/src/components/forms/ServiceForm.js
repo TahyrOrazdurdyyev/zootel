@@ -60,6 +60,28 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
 
   useEffect(() => {
     if (service) {
+      console.log('🔍 ServiceForm - Loading service for editing:', service);
+      console.log('📋 Service data structure:', {
+        name: service.name,
+        description: service.description,
+        category_id: service.category_id,
+        pet_types: service.pet_types,
+        price: service.price,
+        duration: service.duration,
+        image_id: service.image_id,
+        image_url: service.image_url,
+        available_days: service.available_days,
+        start_time: service.start_time,
+        end_time: service.end_time,
+        assigned_employees: service.assigned_employees,
+        max_bookings_per_slot: service.max_bookings_per_slot,
+        buffer_time_before: service.buffer_time_before,
+        buffer_time_after: service.buffer_time_after,
+        advance_booking_days: service.advance_booking_days,
+        cancellation_policy: service.cancellation_policy,
+        is_active: service.is_active
+      });
+
       setFormData({
         name: service.name || '',
         description: service.description || '',
@@ -80,8 +102,11 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
         isActive: service.is_active !== undefined ? service.is_active : true // ← ИСПРАВЛЕНО
       });
       
+      console.log('✅ FormData set for editing');
+      
       // Set uploaded images if service has image
       if (service.image_url) {
+        console.log('🖼️ Setting uploaded image:', service.image_url);
         setUploadedImages([{
           id: service.image_id,
           fileName: 'service-image',
