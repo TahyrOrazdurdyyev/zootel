@@ -137,7 +137,7 @@ const ServicesManagementPage = () => {
       const response = await apiCall(url, method, formData);
       console.log('📥 API Response received:', response);
 
-      if (response && (response.service || response.success)) {
+      if (response && (response.service || response.services || response.success)) {
         console.log('✅ Service operation successful');
         setShowForm(false);
         setEditingService(null);
