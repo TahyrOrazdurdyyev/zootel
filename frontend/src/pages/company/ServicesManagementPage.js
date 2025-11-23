@@ -134,7 +134,10 @@ const ServicesManagementPage = () => {
       const method = editingService ? 'PUT' : 'POST';
 
       console.log('📤 Making API call:', { url, method });
-      const response = await apiCall(url, method, formData);
+      const response = await apiCall(url, {
+        method: method,
+        body: JSON.stringify(formData)
+      });
       console.log('📥 API Response received:', response);
 
       if (response && (response.service || response.services || response.success)) {
