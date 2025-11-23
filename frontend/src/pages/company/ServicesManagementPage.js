@@ -45,6 +45,12 @@ const ServicesManagementPage = () => {
       console.log('🔍 LoadServices response:', response);
       if (response && Array.isArray(response.services)) {
         console.log('✅ Services loaded:', response.services.length);
+        console.log('🖼️ Services with images:', response.services.filter(s => s.image_url).length);
+        console.log('📋 Sample service data:', response.services[0]);
+        // Log image URLs for debugging
+        response.services.forEach((service, index) => {
+          console.log(`🖼️ Service ${index + 1} (${service.name}): image_url = "${service.image_url}"`);
+        });
         setServices(response.services);
       } else {
         console.error('❌ Invalid services response:', response);

@@ -556,7 +556,7 @@ func (s *ServiceService) HardDeleteService(serviceID string) error {
 
 	// Delete related records first (if any)
 	// Note: We should only call this when there are no bookings
-	
+
 	// TODO: Delete service images when service_images table exists
 	// _, err = tx.Exec("DELETE FROM service_images WHERE service_id = $1", serviceID)
 	// if err != nil {
