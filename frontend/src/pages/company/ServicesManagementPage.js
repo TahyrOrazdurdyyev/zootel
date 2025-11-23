@@ -41,8 +41,13 @@ const ServicesManagementPage = () => {
     try {
       setIsLoading(true);
       const response = await apiCall('/companies/services');
-      if (response.success) {
-        setServices(response.data || []);
+      console.log('🔍 LoadServices response:', response);
+      if (response && Array.isArray(response.services)) {
+        console.log('✅ Services loaded:', response.services.length);
+        setServices(response.services);
+      } else {
+        console.error('❌ Invalid services response:', response);
+        setServices([]);
       }
     } catch (error) {
       console.error('Failed to load services:', error);
