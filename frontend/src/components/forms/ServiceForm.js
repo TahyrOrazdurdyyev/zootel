@@ -68,16 +68,16 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
         price: service.price?.toString() || '',
         duration: service.duration?.toString() || '60',
         image_id: service.image_id || '',
-        available_days: service.available_days || [],
-        start_time: service.start_time || '09:00',
-        end_time: service.end_time || '17:00',
-        assigned_employees: service.assigned_employees || [],
-        max_bookings_per_slot: service.max_bookings_per_slot?.toString() || '1',
-        buffer_time_before: service.buffer_time_before?.toString() || '15',
-        buffer_time_after: service.buffer_time_after?.toString() || '15',
-        advance_booking_days: service.advance_booking_days?.toString() || '7',
-        cancellation_policy: service.cancellation_policy || 'Free cancellation up to 24 hours before appointment',
-        is_active: service.is_active !== undefined ? service.is_active : true
+        availableDays: service.available_days || [], // ← ИСПРАВЛЕНО
+        startTime: service.start_time || '09:00', // ← ИСПРАВЛЕНО
+        endTime: service.end_time || '17:00', // ← ИСПРАВЛЕНО
+        assignedEmployees: service.assigned_employees || [], // ← ИСПРАВЛЕНО
+        maxBookingsPerSlot: service.max_bookings_per_slot?.toString() || '1', // ← ИСПРАВЛЕНО
+        bufferTimeBefore: service.buffer_time_before?.toString() || '15', // ← ИСПРАВЛЕНО
+        bufferTimeAfter: service.buffer_time_after?.toString() || '15', // ← ИСПРАВЛЕНО
+        advanceBookingDays: service.advance_booking_days?.toString() || '7', // ← ИСПРАВЛЕНО
+        cancellationPolicy: service.cancellation_policy || 'Free cancellation up to 24 hours before appointment', // ← ИСПРАВЛЕНО
+        isActive: service.is_active !== undefined ? service.is_active : true // ← ИСПРАВЛЕНО
       });
       
       // Set uploaded images if service has image
