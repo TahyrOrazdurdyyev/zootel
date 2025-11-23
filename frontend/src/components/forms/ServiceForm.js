@@ -96,9 +96,9 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     try {
       const categoriesResponse = await apiCall('/companies/service-categories');
       console.log('🔍 ServiceForm - Categories response:', categoriesResponse);
-      if (categoriesResponse && categoriesResponse.success && Array.isArray(categoriesResponse.data)) {
-        console.log('✅ ServiceForm - Categories loaded:', categoriesResponse.data.length);
-        setCategories(categoriesResponse.data);
+      if (categoriesResponse && Array.isArray(categoriesResponse.categories)) {
+        console.log('✅ ServiceForm - Categories loaded:', categoriesResponse.categories.length);
+        setCategories(categoriesResponse.categories);
       } else {
         console.error('❌ ServiceForm - Invalid categories response:', categoriesResponse);
         setCategories([]);
@@ -111,7 +111,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     // Load company employees
     try {
       const employeesResponse = await apiCall('/companies/employees');
-      if (employeesResponse && employeesResponse.success && Array.isArray(employeesResponse.employees)) {
+      if (employeesResponse && Array.isArray(employeesResponse.employees)) {
         setEmployees(employeesResponse.employees);
       } else {
         console.error('Invalid employees response:', employeesResponse);
@@ -125,8 +125,8 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     // Load pet types
     try {
       const petTypesResponse = await apiCall('/companies/pet-types');
-      if (petTypesResponse && petTypesResponse.success && Array.isArray(petTypesResponse.data)) {
-        setPetTypes(petTypesResponse.data);
+      if (petTypesResponse && Array.isArray(petTypesResponse.pet_types)) {
+        setPetTypes(petTypesResponse.pet_types);
       } else {
         console.error('Invalid pet types response:', petTypesResponse);
         setPetTypes([]);
