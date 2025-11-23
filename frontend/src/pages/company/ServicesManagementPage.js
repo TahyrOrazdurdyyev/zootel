@@ -109,14 +109,19 @@ const ServicesManagementPage = () => {
     }
 
     try {
+      console.log('🗑️ Deleting service:', serviceId);
       const response = await apiCall(`/companies/services/${serviceId}`, {
         method: 'DELETE'
       });
+      console.log('📥 Delete response:', response);
 
-      if (response.success) {
+      // Check if deletion was successful (200 status means success for DELETE)
+      if (response !== undefined) {
+        console.log('✅ Service deleted successfully');
         await loadServices();
         alert('Service deleted successfully!');
       } else {
+        console.error('❌ Delete response indicates failure');
         alert('Failed to delete service. It may have active bookings.');
       }
     } catch (error) {
