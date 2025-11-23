@@ -151,9 +151,9 @@ func (s *ServiceService) GetServiceByIDForEdit(serviceID, companyID string) (*mo
 		&service.ID, &service.CompanyID, &service.CategoryID, &service.Name,
 		&service.Description, &service.Price, &service.OriginalPrice,
 		&service.DiscountPercentage, &service.IsOnSale, &service.SaleStartDate, &service.SaleEndDate,
-		&service.Duration, &service.ImageURL, &service.ImageID, pq.Array(&service.PetTypes),
-		pq.Array(&service.AvailableDays), &service.StartTime, &service.EndTime,
-		pq.Array(&service.AssignedEmployees), &service.MaxBookingsPerSlot,
+		&service.Duration, &service.ImageURL, &service.ImageID, &service.PetTypes,
+		&service.AvailableDays, &service.StartTime, &service.EndTime,
+		&service.AssignedEmployees, &service.MaxBookingsPerSlot,
 		&service.BufferTimeBefore, &service.BufferTimeAfter, &service.AdvanceBookingDays,
 		&service.CancellationPolicy, &service.IsActive, &service.CreatedAt, &service.UpdatedAt,
 	)

@@ -29,7 +29,7 @@ func NewServiceHandler(serviceService *services.ServiceService) *ServiceHandler 
 // GetCompanyServices gets all services for a company
 func (h *ServiceHandler) GetCompanyServices(c *gin.Context) {
 	fmt.Printf("🔍 GetCompanyServices called from %s\n", c.ClientIP())
-	
+
 	// Get company ID from middleware context
 	companyID := c.GetString("company_id")
 	if companyID == "" {
@@ -665,8 +665,8 @@ func (h *ServiceHandler) GetServiceBookingCount(c *gin.Context) {
 
 	fmt.Printf("✅ Service %s has %d bookings\n", serviceID, count)
 	c.JSON(http.StatusOK, gin.H{
-		"service_id":     serviceID,
-		"booking_count":  count,
-		"can_delete":     count == 0,
+		"service_id":    serviceID,
+		"booking_count": count,
+		"can_delete":    count == 0,
 	})
 }
