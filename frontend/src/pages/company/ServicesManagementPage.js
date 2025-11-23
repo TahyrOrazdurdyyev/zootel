@@ -130,20 +130,15 @@ const ServicesManagementPage = () => {
       
       const method = editingService ? 'PUT' : 'POST';
 
-      const response = await apiCall(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await apiCall(url, method, formData);
 
-      if (response.success) {
+      if (response && (response.service || response.success)) {
         setShowForm(false);
         setEditingService(null);
         await loadServices();
         alert(`Service ${editingService ? 'updated' : 'created'} successfully!`);
       } else {
+        console.error('API Response:', response);
         alert(`Failed to ${editingService ? 'update' : 'create'} service. Please try again.`);
       }
     } catch (error) {
