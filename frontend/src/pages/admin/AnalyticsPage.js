@@ -278,8 +278,8 @@ const PlatformHealthWidget = () => {
       console.error('Error fetching platform status:', error);
       // Fallback to default values
       setHealthMetrics([
-        { name: 'API Response Time', value: '120ms', status: 'good' },
-        { name: 'Availability', value: '99.9%', status: 'good' },
+    { name: 'API Response Time', value: '120ms', status: 'good' },
+    { name: 'Availability', value: '99.9%', status: 'good' },
         { name: 'Active Sessions', value: '0', status: 'good' },
         { name: 'Error Rate', value: '0.0%', status: 'good' },
       ]);
@@ -359,10 +359,10 @@ const TopMetricsWidget = () => {
           </div>
         ) : (
           topMetrics.map((metric, index) => (
-            <div key={index} className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">{metric.name}</span>
-              <span className="text-sm font-medium text-gray-900">{metric.value}</span>
-            </div>
+          <div key={index} className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">{metric.name}</span>
+            <span className="text-sm font-medium text-gray-900">{metric.value}</span>
+          </div>
           ))
         )}
       </div>
@@ -471,7 +471,7 @@ const UserAnalyticsTab = ({ timeframe }) => {
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="card">
+  <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">User Management</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -484,7 +484,7 @@ const UserAnalyticsTab = ({ timeframe }) => {
               onChange={(e) => handleFilterChange('search', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
-          </div>
+  </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
@@ -819,7 +819,7 @@ const CompanyAnalyticsTab = ({ timeframe }) => {
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="card">
+  <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Company Management</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
@@ -1051,8 +1051,8 @@ const CompanyAnalyticsTab = ({ timeframe }) => {
           </div>
         )}
       </div>
-    </div>
-  );
+  </div>
+);
 };
 
 const RevenueAnalyticsTab = ({ timeframe }) => (

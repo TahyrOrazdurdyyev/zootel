@@ -107,25 +107,60 @@ func (h *ServiceHandler) CreateService(c *gin.Context) {
 		Name:        request.Name,
 		Description: request.Description,
 		CategoryID:  request.CategoryID,
-		PetTypes:    request.PetTypes,
-		Price:       request.Price,
-		Duration:    request.Duration,
+		PetTypes: func() []string {
+			if len(request.PetTypes) == 0 {
+				return []string{"dog"} // Default to dog if no pet types selected
+			}
+			return request.PetTypes
+		}(),
+		Price:    request.Price,
+		Duration: request.Duration,
 		ImageID: func() string {
 			if request.ImageID != nil {
 				return *request.ImageID
 			}
 			return ""
 		}(),
-		AvailableDays:      request.AvailableDays,
-		StartTime:          request.StartTime,
-		EndTime:            request.EndTime,
-		AssignedEmployees:  request.AssignedEmployees,
-		MaxBookingsPerSlot: request.MaxBookingsPerSlot,
-		BufferTimeBefore:   request.BufferTimeBefore,
-		BufferTimeAfter:    request.BufferTimeAfter,
-		AdvanceBookingDays: request.AdvanceBookingDays,
-		CancellationPolicy: request.CancellationPolicy,
-		IsActive:           request.IsActive,
+		AvailableDays: func() []string {
+			if len(request.AvailableDays) == 0 {
+				return []string{"monday", "tuesday", "wednesday", "thursday", "friday"} // Default weekdays
+			}
+			return request.AvailableDays
+		}(),
+		StartTime: func() string {
+			if request.StartTime == "" {
+				return "09:00:00" // Default start time
+			}
+			return request.StartTime
+		}(),
+		EndTime: func() string {
+			if request.EndTime == "" {
+				return "17:00:00" // Default end time
+			}
+			return request.EndTime
+		}(),
+		AssignedEmployees: request.AssignedEmployees,
+		MaxBookingsPerSlot: func() int {
+			if request.MaxBookingsPerSlot <= 0 {
+				return 1 // Default to 1 booking per slot
+			}
+			return request.MaxBookingsPerSlot
+		}(),
+		BufferTimeBefore: request.BufferTimeBefore,
+		BufferTimeAfter:  request.BufferTimeAfter,
+		AdvanceBookingDays: func() int {
+			if request.AdvanceBookingDays <= 0 {
+				return 30 // Default to 30 days advance booking
+			}
+			return request.AdvanceBookingDays
+		}(),
+		CancellationPolicy: func() string {
+			if request.CancellationPolicy == "" {
+				return "Cancellation allowed up to 24 hours before appointment" // Default policy
+			}
+			return request.CancellationPolicy
+		}(),
+		IsActive: true, // Always create services as active
 	}
 
 	createdService, err := h.serviceService.CreateService(service)

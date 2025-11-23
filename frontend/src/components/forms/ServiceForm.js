@@ -23,9 +23,9 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     isOnSale: false,
     saleStartDate: '',
     saleEndDate: '',
-    duration: '',
-    petTypes: [],
-    availableDays: [],
+    duration: '60',
+    petTypes: ['dog'], // Default to dog
+    availableDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'], // Default weekdays
     startTime: '09:00',
     endTime: '17:00',
     assignedEmployees: [],
@@ -33,7 +33,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     bufferTimeBefore: '0',
     bufferTimeAfter: '0',
     advanceBookingDays: '30',
-    cancellationPolicy: '',
+    cancellationPolicy: 'Cancellation allowed up to 24 hours before appointment',
     isActive: true,
   });
   
@@ -263,11 +263,31 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
       ...formData,
       price: parseFloat(formData.price),
       duration: parseInt(formData.duration),
-      max_bookings_per_slot: parseInt(formData.max_bookings_per_slot),
-      buffer_time_before: parseInt(formData.buffer_time_before),
-      buffer_time_after: parseInt(formData.buffer_time_after),
-      advance_booking_days: parseInt(formData.advance_booking_days)
+      start_time: formData.startTime + ':00', // Convert HH:MM to HH:MM:SS
+      end_time: formData.endTime + ':00', // Convert HH:MM to HH:MM:SS
+      max_bookings_per_slot: parseInt(formData.maxBookingsPerSlot),
+      buffer_time_before: parseInt(formData.bufferTimeBefore),
+      buffer_time_after: parseInt(formData.bufferTimeAfter),
+      advance_booking_days: parseInt(formData.advanceBookingDays),
+      pet_types: formData.petTypes,
+      available_days: formData.availableDays,
+      assigned_employees: formData.assignedEmployees,
+      cancellation_policy: formData.cancellationPolicy,
+      is_active: formData.isActive
     };
+
+    // Remove the camelCase versions to avoid confusion
+    delete submitData.startTime;
+    delete submitData.endTime;
+    delete submitData.maxBookingsPerSlot;
+    delete submitData.bufferTimeBefore;
+    delete submitData.bufferTimeAfter;
+    delete submitData.advanceBookingDays;
+    delete submitData.petTypes;
+    delete submitData.availableDays;
+    delete submitData.assignedEmployees;
+    delete submitData.cancellationPolicy;
+    delete submitData.isActive;
 
     console.log('📤 Submitting data:', submitData);
     onSubmit(submitData);
@@ -595,8 +615,8 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                   </label>
                   <input
                     type="time"
-                    name="start_time"
-                    value={formData.start_time}
+                    name="startTime"
+                    value={formData.startTime}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
@@ -608,8 +628,8 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                   </label>
                   <input
                     type="time"
-                    name="end_time"
-                    value={formData.end_time}
+                    name="endTime"
+                    value={formData.endTime}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />

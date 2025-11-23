@@ -200,11 +200,11 @@ func main() {
 
 			// Company endpoints
 			publicCompanies := public.Group("/companies")
-			{
-				publicCompanies.GET("/", companyHandler.GetPublicCompanies)
-				publicCompanies.GET("/:companyId", companyHandler.GetPublicCompany)
-				publicCompanies.GET("/:companyId/services", companyHandler.GetPublicServices)
-				publicCompanies.GET("/:companyId/products", companyHandler.GetPublicProducts)
+		{
+			publicCompanies.GET("/", companyHandler.GetPublicCompanies)
+			publicCompanies.GET("/:companyId", companyHandler.GetPublicCompany)
+			publicCompanies.GET("/:companyId/services", companyHandler.GetPublicServices)
+			publicCompanies.GET("/:companyId/products", companyHandler.GetPublicProducts)
 			}
 		}
 
@@ -236,7 +236,7 @@ func main() {
 		// Protected routes requiring authentication
 		protected := api.Group("/")
 		if authClient != nil {
-			protected.Use(middleware.AuthMiddleware(authClient, db))
+		protected.Use(middleware.AuthMiddleware(authClient, db))
 		} else {
 			log.Printf("Warning: Firebase Auth client is nil - protected routes will not have auth middleware")
 			// Temporary: Don't fail, just log warning for testing
