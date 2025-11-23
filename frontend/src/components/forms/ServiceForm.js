@@ -617,7 +617,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                     type="time"
                     name="startTime"
                     value={formData.startTime}
-                    onChange={handleInputChange}
+                    onChange={(e) => handleInputChange('startTime', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
@@ -630,7 +630,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
                     type="time"
                     name="endTime"
                     value={formData.endTime}
-                    onChange={handleInputChange}
+                    onChange={(e) => handleInputChange('endTime', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>

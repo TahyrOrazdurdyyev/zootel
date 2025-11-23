@@ -28,19 +28,26 @@ func NewServiceHandler(serviceService *services.ServiceService) *ServiceHandler 
 
 // GetCompanyServices gets all services for a company
 func (h *ServiceHandler) GetCompanyServices(c *gin.Context) {
+	fmt.Printf("🔍 GetCompanyServices called from %s\n", c.ClientIP())
+	
 	// Get company ID from middleware context
 	companyID := c.GetString("company_id")
 	if companyID == "" {
+		fmt.Printf("❌ Company ID not found in context\n")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID not found in context"})
 		return
 	}
 
+	fmt.Printf("📝 Getting services for company: %s\n", companyID)
+
 	services, err := h.serviceService.GetCompanyServices(companyID)
 	if err != nil {
+		fmt.Printf("❌ GetCompanyServices service error: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch services"})
 		return
 	}
 
+	fmt.Printf("✅ GetCompanyServices success, returned %d services\n", len(services))
 	c.JSON(http.StatusOK, gin.H{"services": services})
 }
 
