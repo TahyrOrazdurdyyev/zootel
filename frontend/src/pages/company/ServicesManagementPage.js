@@ -4,6 +4,7 @@ import ServiceForm from '../../components/forms/ServiceForm';
 import {
   PlusIcon,
   PencilIcon,
+  TrashIcon,
   EyeSlashIcon,
   EyeIcon,
   MagnifyingGlassIcon,
@@ -104,29 +105,66 @@ const ServicesManagementPage = () => {
   };
 
   const handleDeleteService = async (serviceId) => {
-    if (!window.confirm('Are you sure you want to deactivate this service? It will be hidden from customers but booking history will be preserved.')) {
-      return;
-    }
-
     try {
-      console.log('🗑️ Deactivating service:', serviceId);
+      console.log('🔍 Checking booking count for service:', serviceId);
+      
+      // First, check if service has bookings
+      const bookingCountResponse = await apiCall(`/companies/services/${serviceId}/booking-count`);
+      console.log('📊 Booking count response:', bookingCountResponse);
+      
+      if (!bookingCountResponse) {
+        throw new Error('Failed to check service booking history');
+      }
+
+      const { booking_count, can_delete } = bookingCountResponse;
+      
+      let confirmMessage;
+      let actionType;
+      
+      if (can_delete) {
+        // No bookings - can permanently delete
+        confirmMessage = `This service has no booking history and will be PERMANENTLY DELETED. This action cannot be undone.\n\nAre you sure you want to delete this service?`;
+        actionType = 'delete';
+      } else {
+        // Has bookings - only deactivate
+        confirmMessage = `This service has ${booking_count} booking(s) in its history and cannot be permanently deleted.\n\nIt will be DEACTIVATED instead - hidden from customers but booking history will be preserved.\n\nProceed with deactivation?`;
+        actionType = 'deactivate';
+      }
+
+      if (!window.confirm(confirmMessage)) {
+        return;
+      }
+
+      console.log(`🚀 Proceeding with ${actionType} for service:`, serviceId);
+
+      // Call delete endpoint (backend will handle smart logic)
       const response = await apiCall(`/companies/services/${serviceId}`, {
         method: 'DELETE'
       });
-      console.log('📥 Deactivate response:', response);
 
-      // Check if deactivation was successful (200 status means success for DELETE)
+      console.log('📥 Delete/deactivate response:', response);
+
       if (response !== undefined) {
-        console.log('✅ Service deactivated successfully');
-        await loadServices();
-        alert('Service deactivated successfully! It is now hidden from customers.');
+        const action = response.action || actionType;
+        let successMessage;
+        
+        if (action === 'deleted') {
+          successMessage = 'Service permanently deleted successfully!';
+        } else if (action === 'deactivated') {
+          successMessage = `Service deactivated successfully! It is now hidden from customers but booking history is preserved.`;
+        } else {
+          successMessage = 'Service updated successfully!';
+        }
+
+        alert(successMessage);
+        await loadServices(); // Reload the services list
       } else {
-        console.error('❌ Deactivate response indicates failure');
-        alert('Failed to deactivate service. Please try again.');
+        console.error('❌ API Response indicates failure:', response);
+        alert('Failed to update service. Please try again.');
       }
     } catch (error) {
-      console.error('Failed to deactivate service:', error);
-      alert('Failed to deactivate service. Please try again.');
+      console.error('❌ Exception in handleDeleteService:', error);
+      alert('Failed to update service: ' + (error.message || 'Unknown error'));
     }
   };
 
@@ -404,10 +442,10 @@ const ServicesManagementPage = () => {
                     </button>
                     <button
                       onClick={() => handleDeleteService(service.id)}
-                      className="px-3 py-2 border border-orange-300 text-orange-700 rounded-md text-sm hover:bg-orange-50 flex items-center justify-center"
-                      title="Deactivate Service"
+                      className="px-3 py-2 border border-red-300 text-red-700 rounded-md text-sm hover:bg-red-50 flex items-center justify-center"
+                      title="Delete or Deactivate Service"
                     >
-                      <EyeSlashIcon className="w-4 h-4" />
+                      <TrashIcon className="w-4 h-4" />
                     </button>
                   </div>
                 </div>

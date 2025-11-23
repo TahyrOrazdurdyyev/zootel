@@ -439,6 +439,7 @@ func main() {
 				companies.GET("/services", serviceHandler.GetCompanyServices)
 				companies.POST("/services", serviceHandler.CreateService)
 				companies.PUT("/services/:serviceId", serviceHandler.UpdateService)
+				companies.GET("/services/:serviceId/booking-count", serviceHandler.GetServiceBookingCount)
 				companies.DELETE("/services/:serviceId", serviceHandler.DeleteService)
 				companies.POST("/services/:serviceId/upload-image", serviceHandler.UploadServiceImage)
 				companies.DELETE("/services/:serviceId/images/:imageId", serviceHandler.DeleteServiceImage)

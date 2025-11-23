@@ -284,7 +284,7 @@ func (h *ServiceHandler) UpdateService(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"service": updatedService})
 }
 
-// DeleteService soft deletes a service
+// DeleteService intelligently deletes or deactivates a service based on booking history
 func (h *ServiceHandler) DeleteService(c *gin.Context) {
 	serviceID := c.Param("serviceId")
 	if serviceID == "" {
@@ -292,13 +292,65 @@ func (h *ServiceHandler) DeleteService(c *gin.Context) {
 		return
 	}
 
-	err := h.serviceService.DeleteService(serviceID)
+	fmt.Printf("🔍 DeleteService called for service: %s\n", serviceID)
+
+	// Check if service has bookings
+	bookingCount, err := h.serviceService.GetServiceBookingCount(serviceID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete service"})
+		fmt.Printf("❌ Failed to check booking count: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check service booking history"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Service deleted successfully"})
+	fmt.Printf("📊 Service %s has %d bookings\n", serviceID, bookingCount)
+
+	// Get action type from query parameter (default to smart)
+	actionType := c.DefaultQuery("action", "smart")
+
+	if actionType == "force_delete" {
+		// Force delete (admin only - could add admin check here)
+		err = h.serviceService.HardDeleteService(serviceID)
+		if err != nil {
+			fmt.Printf("❌ Failed to force delete service: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete service"})
+			return
+		}
+		fmt.Printf("🗑️ Service %s force deleted\n", serviceID)
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Service permanently deleted",
+			"action":  "deleted",
+		})
+		return
+	}
+
+	if bookingCount > 0 {
+		// Has bookings - only deactivate
+		err = h.serviceService.DeactivateService(serviceID)
+		if err != nil {
+			fmt.Printf("❌ Failed to deactivate service: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to deactivate service"})
+			return
+		}
+		fmt.Printf("👁️‍🗨️ Service %s deactivated (has %d bookings)\n", serviceID, bookingCount)
+		c.JSON(http.StatusOK, gin.H{
+			"message":       "Service deactivated successfully",
+			"action":        "deactivated",
+			"booking_count": bookingCount,
+		})
+	} else {
+		// No bookings - permanently delete
+		err = h.serviceService.HardDeleteService(serviceID)
+		if err != nil {
+			fmt.Printf("❌ Failed to delete service: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete service"})
+			return
+		}
+		fmt.Printf("🗑️ Service %s permanently deleted (no bookings)\n", serviceID)
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Service permanently deleted",
+			"action":  "deleted",
+		})
+	}
 }
 
 // GetServiceAvailability gets available time slots for a service
@@ -570,4 +622,29 @@ func (h *ServiceHandler) ExpireOutdatedSales(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Outdated sales expired successfully"})
+}
+
+// GetServiceBookingCount gets the number of bookings for a service
+func (h *ServiceHandler) GetServiceBookingCount(c *gin.Context) {
+	serviceID := c.Param("serviceId")
+	if serviceID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Service ID is required"})
+		return
+	}
+
+	fmt.Printf("🔍 GetServiceBookingCount called for service: %s\n", serviceID)
+
+	count, err := h.serviceService.GetServiceBookingCount(serviceID)
+	if err != nil {
+		fmt.Printf("❌ GetServiceBookingCount error: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get booking count"})
+		return
+	}
+
+	fmt.Printf("✅ Service %s has %d bookings\n", serviceID, count)
+	c.JSON(http.StatusOK, gin.H{
+		"service_id":     serviceID,
+		"booking_count":  count,
+		"can_delete":     count == 0,
+	})
 }
