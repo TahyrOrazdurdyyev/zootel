@@ -557,11 +557,11 @@ func (s *ServiceService) HardDeleteService(serviceID string) error {
 	// Delete related records first (if any)
 	// Note: We should only call this when there are no bookings
 	
-	// Delete service images
-	_, err = tx.Exec("DELETE FROM service_images WHERE service_id = $1", serviceID)
-	if err != nil {
-		return fmt.Errorf("failed to delete service images: %w", err)
-	}
+	// TODO: Delete service images when service_images table exists
+	// _, err = tx.Exec("DELETE FROM service_images WHERE service_id = $1", serviceID)
+	// if err != nil {
+	//     return fmt.Errorf("failed to delete service images: %w", err)
+	// }
 
 	// Delete the service
 	result, err := tx.Exec("DELETE FROM services WHERE id = $1", serviceID)
