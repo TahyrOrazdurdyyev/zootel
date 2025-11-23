@@ -4,7 +4,7 @@ import ServiceForm from '../../components/forms/ServiceForm';
 import {
   PlusIcon,
   PencilIcon,
-  TrashIcon,
+  EyeSlashIcon,
   EyeIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -104,29 +104,29 @@ const ServicesManagementPage = () => {
   };
 
   const handleDeleteService = async (serviceId) => {
-    if (!window.confirm('Are you sure you want to delete this service? This action cannot be undone.')) {
+    if (!window.confirm('Are you sure you want to deactivate this service? It will be hidden from customers but booking history will be preserved.')) {
       return;
     }
 
     try {
-      console.log('🗑️ Deleting service:', serviceId);
+      console.log('🗑️ Deactivating service:', serviceId);
       const response = await apiCall(`/companies/services/${serviceId}`, {
         method: 'DELETE'
       });
-      console.log('📥 Delete response:', response);
+      console.log('📥 Deactivate response:', response);
 
-      // Check if deletion was successful (200 status means success for DELETE)
+      // Check if deactivation was successful (200 status means success for DELETE)
       if (response !== undefined) {
-        console.log('✅ Service deleted successfully');
+        console.log('✅ Service deactivated successfully');
         await loadServices();
-        alert('Service deleted successfully!');
+        alert('Service deactivated successfully! It is now hidden from customers.');
       } else {
-        console.error('❌ Delete response indicates failure');
-        alert('Failed to delete service. It may have active bookings.');
+        console.error('❌ Deactivate response indicates failure');
+        alert('Failed to deactivate service. Please try again.');
       }
     } catch (error) {
-      console.error('Failed to delete service:', error);
-      alert('Failed to delete service. Please try again.');
+      console.error('Failed to deactivate service:', error);
+      alert('Failed to deactivate service. Please try again.');
     }
   };
 
@@ -404,9 +404,10 @@ const ServicesManagementPage = () => {
                     </button>
                     <button
                       onClick={() => handleDeleteService(service.id)}
-                      className="px-3 py-2 border border-red-300 text-red-700 rounded-md text-sm hover:bg-orange-50 flex items-center justify-center"
+                      className="px-3 py-2 border border-orange-300 text-orange-700 rounded-md text-sm hover:bg-orange-50 flex items-center justify-center"
+                      title="Deactivate Service"
                     >
-                      <TrashIcon className="w-4 h-4" />
+                      <EyeSlashIcon className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
