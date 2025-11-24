@@ -126,10 +126,19 @@ func (s *UploadService) UploadImage(file multipart.File, header *multipart.FileH
 
 	// Create file path
 	filePath := filepath.Join(s.uploadDir, subDir, fileName)
+	
+	fmt.Printf("🔍 UploadService.UploadImage called\n")
+	fmt.Printf("📁 File ID: %s\n", fileID)
+	fmt.Printf("📁 File name: %s\n", fileName)
+	fmt.Printf("📁 Sub directory: %s\n", subDir)
+	fmt.Printf("📁 Full file path: %s\n", filePath)
+	fmt.Printf("📁 Upload directory: %s\n", s.uploadDir)
+	fmt.Printf("📁 Base URL: %s\n", s.baseURL)
 
 	// Create destination file
 	dst, err := os.Create(filePath)
 	if err != nil {
+		fmt.Printf("❌ Failed to create file: %v\n", err)
 		return nil, fmt.Errorf("failed to create file: %v", err)
 	}
 	defer dst.Close()
@@ -138,8 +147,11 @@ func (s *UploadService) UploadImage(file multipart.File, header *multipart.FileH
 	file.Seek(0, 0)
 	_, err = io.Copy(dst, file)
 	if err != nil {
+		fmt.Printf("❌ Failed to save file: %v\n", err)
 		return nil, fmt.Errorf("failed to save file: %v", err)
 	}
+
+	fmt.Printf("✅ File saved to disk successfully\n")
 
 	// Generate variants (thumbnail, small, medium)
 	variants, err := s.generateImageVariants(filePath, fileID, subDir, ext)

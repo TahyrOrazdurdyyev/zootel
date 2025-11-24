@@ -292,6 +292,8 @@ func (h *UploadHandler) UploadTempImage(c *gin.Context) {
 	userID := c.GetString("user_id")
 	userRole := c.GetString("user_role")
 
+	fmt.Printf("🔍 UploadTempImage called by user: %s (role: %s)\n", userID, userRole)
+
 	if userID == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
 		return
@@ -306,10 +308,13 @@ func (h *UploadHandler) UploadTempImage(c *gin.Context) {
 	// Get uploaded file
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
+		fmt.Printf("❌ No file uploaded: %v\n", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
 		return
 	}
 	defer file.Close()
+
+	fmt.Printf("📁 File received: %s (size: %d bytes)\n", header.Filename, header.Size)
 
 	// Upload file with temporary purpose
 	result, err := h.uploadService.UploadImage(file, header, &services.UploadRequest{
@@ -320,9 +325,14 @@ func (h *UploadHandler) UploadTempImage(c *gin.Context) {
 	})
 
 	if err != nil {
+		fmt.Printf("❌ Upload failed: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	fmt.Printf("✅ File uploaded successfully: %s\n", result.FileID)
+	fmt.Printf("🖼️ File URL: %s\n", result.URL)
+	fmt.Printf("📂 File path should be: ./uploads/temp/%s\n", result.FileName)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
