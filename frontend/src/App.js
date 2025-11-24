@@ -54,6 +54,7 @@ import ServicesManagementPage from './pages/company/ServicesManagementPage';
 import AddonManagementPage from './pages/company/AddonManagementPage';
 import InventoryPage from './pages/company/InventoryPage';
 import EmployeesManagementPage from './pages/company/EmployeesManagementPage';
+import CalendarPage from './pages/company/CalendarPage';
 
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -126,6 +127,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<CompanyDashboard />} />
                     <Route path="/analytics" element={<CompanyAnalyticsPage />} />
+                    <Route path="/calendar" element={<CalendarPage />} />
                     <Route path="/chat" element={<EmployeeChatPage />} />
                     <Route path="/services" element={<ServicesManagementPage />} />
                     <Route path="/employees" element={<EmployeesManagementPage />} />
