@@ -116,9 +116,10 @@ func (h *BookingHandler) GetUserBookings(c *gin.Context) {
 
 // GetCompanyBookings returns bookings for a company (for company owners/employees)
 func (h *BookingHandler) GetCompanyBookings(c *gin.Context) {
-	companyID := c.Param("company_id")
+	// Get company ID from middleware (set by CompanyOwnerMiddleware)
+	companyID := c.GetString("company_id")
 	if companyID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID not found in context"})
 		return
 	}
 
