@@ -155,6 +155,11 @@ func (h *BookingHandler) GetCompanyBookings(c *gin.Context) {
 		return
 	}
 
+	// Ensure bookings is never nil - initialize empty array if needed
+	if bookings == nil {
+		bookings = []*models.BookingWithCustomerData{}
+	}
+
 	fmt.Printf("✅ GetCompanyBookings: Found %d bookings\n", len(bookings))
 
 	c.JSON(http.StatusOK, gin.H{
