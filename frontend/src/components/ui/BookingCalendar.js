@@ -4,10 +4,7 @@ import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { 
   Dialog,
-  DialogPanel,
-  DialogTitle,
-  Transition,
-  TransitionChild
+  Transition
 } from '@headlessui/react';
 import {
   ClockIcon,
@@ -328,7 +325,7 @@ const BookingCalendar = ({
           </TransitionChild>
 
           <div className="fixed inset-0 flex items-center justify-center p-4">
-            <TransitionChild
+            <Transition.Child
               enter="ease-out duration-300"
               enterFrom="opacity-0 scale-95"
               enterTo="opacity-100 scale-100"
@@ -336,11 +333,11 @@ const BookingCalendar = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-xl">
+                  <Dialog.Panel className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-xl">
                 {selectedBooking && (
                   <>
                     <div className="flex justify-between items-start mb-4">
-                      <DialogTitle className="text-lg font-semibold">
+                      <Dialog.Title className="text-lg font-semibold">
                         Booking Details
                       </DialogTitle>
                       <button
@@ -424,7 +421,7 @@ const BookingCalendar = ({
                     </div>
                   </>
                 )}
-              </DialogPanel>
+                </Transition.Child>
             </TransitionChild>
           </div>
         </Dialog>
@@ -445,7 +442,7 @@ const BookingCalendar = ({
           </TransitionChild>
 
           <div className="fixed inset-0 flex items-center justify-center p-4">
-            <TransitionChild
+            <Transition.Child
               enter="ease-out duration-300"
               enterFrom="opacity-0 scale-95"
               enterTo="opacity-100 scale-100"
@@ -453,7 +450,7 @@ const BookingCalendar = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-xl">
+                  <Dialog.Panel className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-xl">
                 <div className="flex justify-between items-start mb-4">
                   <DialogTitle className="text-lg font-semibold">
                     Create Booking
@@ -509,7 +506,7 @@ const BookingCalendar = ({
                     </div>
                   </div>
                 )}
-              </DialogPanel>
+                </Transition.Child>
             </TransitionChild>
           </div>
         </Dialog>
