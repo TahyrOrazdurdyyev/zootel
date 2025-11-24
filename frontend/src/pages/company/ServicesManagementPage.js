@@ -21,6 +21,7 @@ const ServicesManagementPage = () => {
   const [services, setServices] = useState([]);
   const [filteredServices, setFilteredServices] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingService, setEditingService] = useState(null);
@@ -32,6 +33,7 @@ const ServicesManagementPage = () => {
   useEffect(() => {
     loadServices();
     loadCategories();
+    loadEmployees();
   }, []);
 
   useEffect(() => {
@@ -72,6 +74,24 @@ const ServicesManagementPage = () => {
       }
     } catch (error) {
       console.error('Failed to load categories:', error);
+    }
+  };
+
+  const loadEmployees = async () => {
+    try {
+      console.log('🔍 Loading employees...');
+      const response = await apiCall('/companies/employees');
+      console.log('👥 Employees response:', response);
+      if (response && Array.isArray(response.employees)) {
+        console.log('✅ Employees loaded:', response.employees.length);
+        setEmployees(response.employees);
+      } else {
+        console.error('❌ Invalid employees response:', response);
+        setEmployees([]);
+      }
+    } catch (error) {
+      console.error('Failed to load employees:', error);
+      setEmployees([]);
     }
   };
 
@@ -225,12 +245,19 @@ const ServicesManagementPage = () => {
 
   // Helper function to get employee names
   const getEmployeeNames = (employeeIds) => {
+    console.log('🔍 getEmployeeNames called with:', employeeIds);
+    console.log('👥 Available employees:', employees);
+    
     if (!employeeIds || employeeIds.length === 0) return 'No employees assigned';
     
     const employeeNames = employeeIds.map(id => {
+      console.log('🔍 Looking for employee with ID:', id);
       const employee = employees.find(emp => emp.id === id);
+      console.log('👤 Found employee:', employee);
       return employee ? employee.name : `Employee ${id.substring(0, 8)}...`;
     });
+    
+    console.log('📝 Employee names result:', employeeNames);
     
     if (employeeNames.length > 2) {
       return `${employeeNames.slice(0, 2).join(', ')} +${employeeNames.length - 2} more`;
