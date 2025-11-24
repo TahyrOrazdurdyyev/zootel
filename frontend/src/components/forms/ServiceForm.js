@@ -187,6 +187,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
   };
 
   const handleImageUpload = async (files) => {
+    console.log('🖼️ handleImageUpload called with:', files);
     if (!files || files.length === 0) return;
 
     setIsUploadingImage(true);
@@ -194,6 +195,8 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
       const file = files[0];
       const uploadFormData = new FormData();
       uploadFormData.append('file', file);
+
+      console.log('📤 Uploading file:', file.name);
 
       // Upload to temporary upload endpoint first
       const token = await auth.currentUser?.getIdToken();
@@ -206,13 +209,21 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
       });
       
       const uploadData = await uploadResponse.json();
+      console.log('📥 Upload response:', uploadData);
 
       if (uploadData.success && uploadData.data) {
         const uploadedFile = uploadData.data;
-        setFormData(prev => ({
-          ...prev,
-          image_id: uploadedFile.file_id
-        }));
+        console.log('✅ File uploaded successfully:', uploadedFile);
+        
+        setFormData(prev => {
+          const newFormData = {
+            ...prev,
+            image_id: uploadedFile.file_id
+          };
+          console.log('📝 Updated formData with image_id:', newFormData.image_id);
+          return newFormData;
+        });
+        
         setUploadedImages([{
           id: uploadedFile.file_id,
           fileName: uploadedFile.original_name,
@@ -277,6 +288,9 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     console.log('🐾 Pet types:', formData.petTypes);
     console.log('🖼️ Image ID:', formData.image_id);
     console.log('📸 Uploaded images:', uploadedImages);
+    console.log('🎯 Event target:', e.target);
+    console.log('🎯 Event type:', e.type);
+    console.log('🎯 Stack trace:', new Error().stack);
     
     if (!validateForm()) {
       console.log('❌ Validation failed!');

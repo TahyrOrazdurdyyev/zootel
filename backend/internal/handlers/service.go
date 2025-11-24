@@ -35,12 +35,12 @@ func cleanTimeFormat(timeStr string) string {
 			return timePart
 		}
 	}
-	
+
 	// Handle HH:MM format - add :00 for seconds
 	if len(timeStr) == 5 && strings.Count(timeStr, ":") == 1 {
 		return timeStr + ":00"
 	}
-	
+
 	// Already in correct format
 	return timeStr
 }
@@ -305,7 +305,7 @@ func (h *ServiceHandler) UpdateService(c *gin.Context) {
 		fmt.Printf("🕐 StartTime: %s -> %s\n", request.StartTime, cleanTime)
 	}
 	if request.EndTime != "" {
-		// Clean time format: extract HH:MM from various formats  
+		// Clean time format: extract HH:MM from various formats
 		cleanTime := cleanTimeFormat(request.EndTime)
 		existingService.EndTime = cleanTime
 		fmt.Printf("🕐 EndTime: %s -> %s\n", request.EndTime, cleanTime)
