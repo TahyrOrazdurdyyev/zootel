@@ -304,6 +304,15 @@ func (s *ServiceService) CreateService(service *models.Service) (*models.Service
 func (s *ServiceService) UpdateService(service *models.Service) (*models.Service, error) {
 	service.UpdatedAt = time.Now()
 
+	// Generate ImageURL from ImageID if ImageID is provided
+	if service.ImageID != "" && service.ImageURL == "" {
+		service.ImageURL = fmt.Sprintf("/uploads/temp/%s", service.ImageID)
+		fmt.Printf("🖼️ Generated ImageURL: %s from ImageID: %s\n", service.ImageURL, service.ImageID)
+	}
+
+	fmt.Printf("📝 Updating service: %s (ID: %s)\n", service.Name, service.ID)
+	fmt.Printf("🖼️ ImageID: %s, ImageURL: %s\n", service.ImageID, service.ImageURL)
+
 	// Calculate discount price if on sale
 	if service.IsOnSale && service.DiscountPercentage != nil && service.OriginalPrice != nil {
 		discountAmount := (*service.OriginalPrice) * (float64(*service.DiscountPercentage) / 100.0)
@@ -325,14 +334,17 @@ func (s *ServiceService) UpdateService(service *models.Service) (*models.Service
 		service.ID, service.CategoryID, service.Name, service.Description,
 		service.Price, service.OriginalPrice, service.DiscountPercentage, service.IsOnSale,
 		service.SaleStartDate, service.SaleEndDate, service.Duration, service.ImageURL,
-		service.ImageID, pq.Array(service.PetTypes), pq.Array(service.AvailableDays),
-		service.StartTime, service.EndTime, pq.Array(service.AssignedEmployees),
+		service.ImageID, service.PetTypes, service.AvailableDays,
+		service.StartTime, service.EndTime, service.AssignedEmployees,
 		service.MaxBookingsPerSlot, service.BufferTimeBefore, service.BufferTimeAfter,
 		service.AdvanceBookingDays, service.CancellationPolicy, service.IsActive, service.UpdatedAt)
 
 	if err != nil {
+		fmt.Printf("❌ Database update error: %v\n", err)
 		return nil, fmt.Errorf("failed to update service: %w", err)
 	}
+
+	fmt.Printf("✅ Service updated in database successfully\n")
 
 	return service, nil
 }

@@ -297,12 +297,15 @@ func (h *ServiceHandler) UpdateService(c *gin.Context) {
 		existingService.IsActive = *request.IsActive
 	}
 
+	fmt.Printf("🔄 Calling serviceService.UpdateService...\n")
 	updatedService, err := h.serviceService.UpdateService(existingService)
 	if err != nil {
+		fmt.Printf("❌ UpdateService service error: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update service"})
 		return
 	}
 
+	fmt.Printf("✅ Service updated successfully: %s\n", updatedService.Name)
 	c.JSON(http.StatusOK, gin.H{"service": updatedService})
 }
 
