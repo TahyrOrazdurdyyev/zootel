@@ -178,6 +178,7 @@ const ServicesManagementPage = () => {
     try {
       console.log('🚀 ServicesManagementPage - handleFormSubmit called');
       console.log('📋 Form data received:', formData);
+      console.log('🎯 Stack trace:', new Error().stack);
       
       setIsSubmitting(true);
       

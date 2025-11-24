@@ -43,6 +43,7 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
   const [errors, setErrors] = useState({});
   const [uploadedImages, setUploadedImages] = useState([]);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isManualSubmit, setIsManualSubmit] = useState(false); // Флаг для предотвращения автоматической отправки
 
   const daysOfWeek = [
     { value: 'monday', label: 'Monday' },
@@ -291,6 +292,13 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
     console.log('🎯 Event target:', e.target);
     console.log('🎯 Event type:', e.type);
     console.log('🎯 Stack trace:', new Error().stack);
+    console.log('✋ Manual submit flag:', isManualSubmit);
+    
+    // Предотвращаем автоматическую отправку
+    if (!isManualSubmit) {
+      console.log('❌ Preventing automatic form submission');
+      return;
+    }
     
     if (!validateForm()) {
       console.log('❌ Validation failed!');
@@ -333,6 +341,9 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
 
     console.log('📤 Submitting data:', submitData);
     onSubmit(submitData);
+    
+    // Сбрасываем флаг после отправки
+    setIsManualSubmit(false);
   };
 
   return (
@@ -809,7 +820,16 @@ const ServiceForm = ({ service, onSubmit, onCancel, isLoading }) => {
               Cancel
             </button>
             <button
-              type="submit"
+              type="button"
+              onClick={() => {
+                console.log('🖱️ Submit button clicked manually');
+                setIsManualSubmit(true);
+                // Trigger form submission
+                const form = document.querySelector('form');
+                if (form) {
+                  form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                }
+              }}
               disabled={isLoading}
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50"
             >

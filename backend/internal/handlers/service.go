@@ -294,6 +294,14 @@ func (h *ServiceHandler) UpdateService(c *gin.Context) {
 	}
 	if request.ImageID != nil {
 		existingService.ImageID = *request.ImageID
+		// Update ImageURL based on new ImageID
+		if *request.ImageID != "" {
+			existingService.ImageURL = fmt.Sprintf("/uploads/temp/%s", *request.ImageID)
+			fmt.Printf("🖼️ Updated ImageURL: %s from ImageID: %s\n", existingService.ImageURL, *request.ImageID)
+		} else {
+			existingService.ImageURL = ""
+			fmt.Printf("🖼️ Cleared ImageURL (empty ImageID)\n")
+		}
 	}
 	if request.AvailableDays != nil {
 		existingService.AvailableDays = request.AvailableDays
