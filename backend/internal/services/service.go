@@ -306,7 +306,7 @@ func (s *ServiceService) UpdateService(service *models.Service) (*models.Service
 
 	// Generate ImageURL from ImageID if ImageID is provided
 	if service.ImageID != "" && service.ImageURL == "" {
-		service.ImageURL = fmt.Sprintf("/uploads/temp/%s", service.ImageID)
+		service.ImageURL = fmt.Sprintf("https://zootel.shop/uploads/temp/%s", service.ImageID)
 		fmt.Printf("🖼️ Generated ImageURL: %s from ImageID: %s\n", service.ImageURL, service.ImageID)
 	}
 

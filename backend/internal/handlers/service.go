@@ -159,8 +159,8 @@ func (h *ServiceHandler) CreateService(c *gin.Context) {
 		}(),
 		ImageURL: func() string {
 			if request.ImageID != nil && *request.ImageID != "" {
-				// Generate image URL from image ID
-				return fmt.Sprintf("/uploads/temp/%s", *request.ImageID)
+				// Generate full URL for image access
+				return fmt.Sprintf("https://zootel.shop/uploads/temp/%s", *request.ImageID)
 			}
 			return ""
 		}(),
@@ -296,7 +296,8 @@ func (h *ServiceHandler) UpdateService(c *gin.Context) {
 		existingService.ImageID = *request.ImageID
 		// Update ImageURL based on new ImageID
 		if *request.ImageID != "" {
-			existingService.ImageURL = fmt.Sprintf("/uploads/temp/%s", *request.ImageID)
+			// Generate full URL for image access
+			existingService.ImageURL = fmt.Sprintf("https://zootel.shop/uploads/temp/%s", *request.ImageID)
 			fmt.Printf("🖼️ Updated ImageURL: %s from ImageID: %s\n", existingService.ImageURL, *request.ImageID)
 		} else {
 			existingService.ImageURL = ""
