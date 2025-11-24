@@ -422,7 +422,7 @@ const BookingCalendar = ({
                   </>
                 )}
                   </Dialog.Panel>
-            </TransitionChild>
+            </Transition.Child>
           </div>
         </Dialog>
       </Transition>
@@ -507,7 +507,7 @@ const BookingCalendar = ({
                   </div>
                 )}
                   </Dialog.Panel>
-            </TransitionChild>
+            </Transition.Child>
           </div>
         </Dialog>
       </Transition>
