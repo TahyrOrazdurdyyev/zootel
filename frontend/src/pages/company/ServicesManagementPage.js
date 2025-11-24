@@ -223,6 +223,40 @@ const ServicesManagementPage = () => {
     return category ? category.name : 'Unknown Category';
   };
 
+  // Helper function to get employee names
+  const getEmployeeNames = (employeeIds) => {
+    if (!employeeIds || employeeIds.length === 0) return 'No employees assigned';
+    
+    const employeeNames = employeeIds.map(id => {
+      const employee = employees.find(emp => emp.id === id);
+      return employee ? employee.name : `Employee ${id.substring(0, 8)}...`;
+    });
+    
+    if (employeeNames.length > 2) {
+      return `${employeeNames.slice(0, 2).join(', ')} +${employeeNames.length - 2} more`;
+    }
+    
+    return employeeNames.join(', ');
+  };
+
+  // Helper function to format time
+  const formatTime = (timeString) => {
+    if (!timeString) return '';
+    
+    // Handle formats like "0000-01-01T12:45:00Z" or "12:45:00"
+    if (timeString.includes('T')) {
+      // Extract time part after T
+      const timePart = timeString.split('T')[1];
+      if (timePart.includes('Z')) {
+        return timePart.split('Z')[0].substring(0, 5); // Get HH:MM
+      }
+      return timePart.substring(0, 5); // Get HH:MM
+    }
+    
+    // Already in HH:MM:SS format, just get HH:MM
+    return timeString.substring(0, 5);
+  };
+
   const formatDuration = (minutes) => {
     if (minutes >= 60) {
       const hours = Math.floor(minutes / 60);
@@ -399,7 +433,7 @@ const ServicesManagementPage = () => {
                     {service.assigned_employees && service.assigned_employees.length > 0 && (
                       <div className="flex items-center text-sm text-gray-600">
                         <UserGroupIcon className="w-4 h-4 mr-2" />
-                        <span>{service.assigned_employees.length} employee(s)</span>
+                        <span>{getEmployeeNames(service.assigned_employees)}</span>
                       </div>
                     )}
                   </div>
@@ -433,7 +467,7 @@ const ServicesManagementPage = () => {
                         {service.available_days.join(', ')}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {service.start_time} - {service.end_time}
+                        {formatTime(service.start_time)} - {formatTime(service.end_time)}
                       </p>
                     </div>
                   )}

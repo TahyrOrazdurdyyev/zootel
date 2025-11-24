@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -130,6 +131,17 @@ func main() {
 	r.Use(cors.New(config))
 
 	// Serve static files (uploaded images)
+	fmt.Printf("🔍 Setting up static file serving: /uploads -> ./uploads\n")
+	fmt.Printf("📁 Current working directory: %s\n", func() string {
+		wd, _ := os.Getwd()
+		return wd
+	}())
+	fmt.Printf("📁 Checking if uploads directory exists: %s\n", "./uploads")
+	if _, err := os.Stat("./uploads"); os.IsNotExist(err) {
+		fmt.Printf("❌ uploads directory does not exist!\n")
+	} else {
+		fmt.Printf("✅ uploads directory exists\n")
+	}
 	r.Static("/uploads", "./uploads")
 
 	// Basic health check endpoint
