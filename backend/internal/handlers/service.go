@@ -16,6 +16,35 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// cleanTimeFormat extracts HH:MM:SS from various time formats
+func cleanTimeFormat(timeStr string) string {
+	// Handle formats like "0000-01-01T10:00:00Z:00" or "10:00:00" or "10:00"
+	if strings.Contains(timeStr, "T") {
+		// Extract time part after T
+		parts := strings.Split(timeStr, "T")
+		if len(parts) > 1 {
+			timePart := parts[1]
+			// Remove Z and anything after
+			if strings.Contains(timePart, "Z") {
+				timePart = strings.Split(timePart, "Z")[0]
+			}
+			// Remove extra :00 at the end if present
+			if strings.HasSuffix(timePart, ":00:00") {
+				timePart = strings.TrimSuffix(timePart, ":00")
+			}
+			return timePart
+		}
+	}
+	
+	// Handle HH:MM format - add :00 for seconds
+	if len(timeStr) == 5 && strings.Count(timeStr, ":") == 1 {
+		return timeStr + ":00"
+	}
+	
+	// Already in correct format
+	return timeStr
+}
+
 type ServiceHandler struct {
 	serviceService *services.ServiceService
 }
@@ -270,10 +299,16 @@ func (h *ServiceHandler) UpdateService(c *gin.Context) {
 		existingService.AvailableDays = request.AvailableDays
 	}
 	if request.StartTime != "" {
-		existingService.StartTime = request.StartTime
+		// Clean time format: extract HH:MM from various formats
+		cleanTime := cleanTimeFormat(request.StartTime)
+		existingService.StartTime = cleanTime
+		fmt.Printf("🕐 StartTime: %s -> %s\n", request.StartTime, cleanTime)
 	}
 	if request.EndTime != "" {
-		existingService.EndTime = request.EndTime
+		// Clean time format: extract HH:MM from various formats  
+		cleanTime := cleanTimeFormat(request.EndTime)
+		existingService.EndTime = cleanTime
+		fmt.Printf("🕐 EndTime: %s -> %s\n", request.EndTime, cleanTime)
 	}
 	if request.AssignedEmployees != nil {
 		existingService.AssignedEmployees = request.AssignedEmployees
