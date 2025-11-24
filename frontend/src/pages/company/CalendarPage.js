@@ -15,24 +15,40 @@ const CalendarPage = () => {
   const [selectedView, setSelectedView] = useState('week');
   const [selectedEmployee, setSelectedEmployee] = useState('all');
   const [employees, setEmployees] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    loadBookings();
-    loadEmployees();
+    const initializeCalendar = async () => {
+      try {
+        console.log('🚀 Initializing calendar page...');
+        setError(null);
+        await Promise.all([loadBookings(), loadEmployees()]);
+        console.log('✅ Calendar initialized successfully');
+      } catch (err) {
+        console.error('❌ Calendar initialization failed:', err);
+        setError(err.message || 'Failed to initialize calendar');
+      }
+    };
+    
+    initializeCalendar();
   }, []);
 
   const loadBookings = async () => {
     try {
       setIsLoading(true);
+      console.log('📅 Loading bookings...');
       const response = await apiCall('/companies/bookings');
+      console.log('📅 Bookings response:', response);
+      
       if (response && Array.isArray(response.bookings)) {
+        console.log('📅 Loaded bookings:', response.bookings.length);
         setBookings(response.bookings);
       } else {
-        console.error('Invalid bookings response:', response);
+        console.error('❌ Invalid bookings response:', response);
         setBookings([]);
       }
     } catch (error) {
-      console.error('Failed to load bookings:', error);
+      console.error('❌ Failed to load bookings:', error);
       setBookings([]);
     } finally {
       setIsLoading(false);
@@ -41,12 +57,16 @@ const CalendarPage = () => {
 
   const loadEmployees = async () => {
     try {
+      console.log('👥 Loading employees...');
       const response = await apiCall('/companies/employees');
+      console.log('👥 Employees response:', response);
+      
       if (response && Array.isArray(response.employees)) {
+        console.log('👥 Loaded employees:', response.employees.length);
         setEmployees(response.employees);
       }
     } catch (error) {
-      console.error('Failed to load employees:', error);
+      console.error('❌ Failed to load employees:', error);
     }
   };
 
@@ -76,10 +96,30 @@ const CalendarPage = () => {
     ? bookings 
     : bookings.filter(booking => booking.employee_id === selectedEmployee);
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-red-600 text-xl mb-4">❌ Ошибка загрузки календаря</div>
+          <div className="text-gray-600 mb-4">{error}</div>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700"
+          >
+            Перезагрузить
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-600"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-600 mx-auto mb-4"></div>
+          <div className="text-gray-600">Загрузка календаря...</div>
+        </div>
       </div>
     );
   }

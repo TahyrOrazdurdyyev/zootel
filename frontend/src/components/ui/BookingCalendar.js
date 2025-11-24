@@ -15,7 +15,6 @@ import {
   CheckIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
-import toast from 'react-hot-toast';
 
 // Configure moment localizer
 moment.locale('ru');
@@ -42,14 +41,30 @@ const BookingCalendar = ({
 
   // Transform bookings for calendar
   const calendarEvents = useMemo(() => {
-    return bookings.map(booking => ({
-      id: booking.id,
-      title: `${booking.service_name || 'Service'} - ${booking.client_name || 'Client'}`,
-      start: new Date(booking.date_time),
-      end: new Date(new Date(booking.date_time).getTime() + (booking.duration || 60) * 60000),
-      resource: booking,
-      status: booking.status
-    }));
+    if (!Array.isArray(bookings)) {
+      console.warn('Bookings is not an array:', bookings);
+      return [];
+    }
+    
+    return bookings.map(booking => {
+      try {
+        const startDate = new Date(booking.date_time || booking.booking_date);
+        const duration = booking.duration || 60; // Default 1 hour
+        const endDate = new Date(startDate.getTime() + duration * 60000);
+        
+        return {
+          id: booking.id,
+          title: `${booking.service_name || 'Service'} - ${booking.client_name || booking.customer_name || 'Client'}`,
+          start: startDate,
+          end: endDate,
+          resource: booking,
+          status: booking.status
+        };
+      } catch (error) {
+        console.error('Error processing booking:', booking, error);
+        return null;
+      }
+    }).filter(Boolean);
   }, [bookings]);
 
   // Event style getter
@@ -59,24 +74,24 @@ const BookingCalendar = ({
     
     switch (event.status) {
       case 'confirmed':
-        backgroundColor = '#059669';
+        backgroundColor = '#10b981';
         borderColor = '#059669';
         break;
       case 'pending':
-        backgroundColor = '#d97706';
+        backgroundColor = '#f59e0b';
         borderColor = '#d97706';
         break;
       case 'cancelled':
-        backgroundColor = '#dc2626';
+        backgroundColor = '#ef4444';
         borderColor = '#dc2626';
         break;
       case 'completed':
-        backgroundColor = '#7c3aed';
-        borderColor = '#7c3aed';
+        backgroundColor = '#6366f1';
+        borderColor = '#4f46e5';
         break;
       default:
         backgroundColor = '#6b7280';
-        borderColor = '#6b7280';
+        borderColor = '#4b5563';
     }
 
     return {
@@ -84,19 +99,17 @@ const BookingCalendar = ({
         backgroundColor,
         borderColor,
         color: 'white',
-        border: '0px',
-        borderRadius: '4px',
-        fontSize: '12px',
-        padding: '2px 4px'
+        border: `1px solid ${borderColor}`,
+        borderRadius: '4px'
       }
     };
   }, []);
 
   // Handle event selection
   const handleSelectEvent = useCallback((event) => {
+    console.log('Selected event:', event);
     setSelectedBooking(event.resource);
     setShowBookingModal(true);
-    
     if (onBookingSelect) {
       onBookingSelect(event.resource);
     }
@@ -104,216 +117,88 @@ const BookingCalendar = ({
 
   // Handle slot selection
   const handleSelectSlot = useCallback((slotInfo) => {
-    if (readOnly) return;
-    
-    setSelectedSlot(slotInfo);
-    setShowCreateModal(true);
-    
-    if (onSlotSelect) {
-      onSlotSelect(slotInfo);
+    console.log('Selected slot:', slotInfo);
+    if (!readOnly) {
+      setSelectedSlot(slotInfo);
+      setShowCreateModal(true);
+      if (onSlotSelect) {
+        onSlotSelect(slotInfo);
+      }
     }
   }, [readOnly, onSlotSelect]);
 
-  // Check if slot is available
-  const isSlotAvailable = useCallback((start, end) => {
-    const slotStart = moment(start);
-    const slotEnd = moment(end);
-    
-    // Check against existing bookings
-    const hasConflict = calendarEvents.some(event => {
-      const eventStart = moment(event.start);
-      const eventEnd = moment(event.end);
-      
-      return (
-        (slotStart.isBefore(eventEnd) && slotEnd.isAfter(eventStart)) &&
-        event.status !== 'cancelled'
-      );
-    });
-    
-    if (hasConflict) return false;
-    
-    // Check against availability rules
-    if (availability.length > 0) {
-      const dayOfWeek = slotStart.day();
-      const timeSlot = slotStart.format('HH:mm');
-      
-      return availability.some(avail => {
-        return avail.days_of_week.includes(dayOfWeek) &&
-               timeSlot >= avail.start_time &&
-               timeSlot <= avail.end_time;
-      });
-    }
-    
-    return true;
-  }, [calendarEvents, availability]);
-
-  // Format status for display
-  const getStatusLabel = (status) => {
-    const statusLabels = {
-      pending: 'Awaiting Confirmation',
-      confirmed: 'Confirmed',
-      cancelled: 'Cancelled',
-      completed: 'Completed'
-    };
-    return statusLabels[status] || status;
-  };
-
-  // Format status color
+  // Get status color for modal
   const getStatusColor = (status) => {
-    const statusColors = {
-      pending: 'text-yellow-700 bg-yellow-100',
-      confirmed: 'text-green-700 bg-green-100',
-      cancelled: 'text-red-700 bg-red-100',
-      completed: 'text-purple-700 bg-purple-100'
-    };
-    return statusColors[status] || 'text-gray-700 bg-gray-100';
-  };
-
-  // Handle booking update
-  const handleBookingUpdate = async (bookingId, updates) => {
-    try {
-      if (onBookingUpdate) {
-        await onBookingUpdate(bookingId, updates);
-        toast.success('Booking updated');
-        setShowBookingModal(false);
-      }
-    } catch (error) {
-      toast.error('Error updating booking');
+    switch (status) {
+      case 'confirmed':
+        return 'bg-green-100 text-green-800';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      case 'completed':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  // Handle booking creation
-  const handleBookingCreate = async (bookingData) => {
-    try {
-      if (onBookingCreate) {
-        await onBookingCreate(bookingData);
-        toast.success('Booking created');
-        setShowCreateModal(false);
-      }
-    } catch (error) {
-      toast.error('Error creating booking');
+  // Get status label
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'confirmed':
+        return 'Подтверждено';
+      case 'pending':
+        return 'Ожидает';
+      case 'cancelled':
+        return 'Отменено';
+      case 'completed':
+        return 'Завершено';
+      default:
+        return status;
     }
   };
-
-  // Handle booking deletion
-  const handleBookingDelete = async (bookingId) => {
-    try {
-      if (onBookingDelete) {
-        await onBookingDelete(bookingId);
-        toast.success('Booking deleted');
-        setShowBookingModal(false);
-      }
-    } catch (error) {
-      toast.error('Error deleting booking');
-    }
-  };
-
-  // Custom calendar components
-  const CustomToolbar = ({ label, onNavigate, onView }) => (
-    <div className="flex justify-between items-center mb-4 p-4 bg-white rounded-lg shadow">
-      <div className="flex items-center space-x-2">
-        <button
-          onClick={() => onNavigate('PREV')}
-          className="p-2 rounded-md border border-gray-300 hover:bg-gray-50"
-        >
-          <ChevronLeftIcon className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => onNavigate('TODAY')}
-          className="px-3 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-        >
-          Today
-        </button>
-        <button
-          onClick={() => onNavigate('NEXT')}
-          className="p-2 rounded-md border border-gray-300 hover:bg-gray-50"
-        >
-          <ChevronRightIcon className="w-4 h-4" />
-        </button>
-      </div>
-
-      <h2 className="text-lg font-semibold text-gray-900">{label}</h2>
-
-      <div className="flex space-x-1">
-        {['month', 'week', 'day'].map((viewName) => (
-          <button
-            key={viewName}
-            onClick={() => onView(viewName)}
-            className={`px-3 py-2 text-sm font-medium rounded-md ${
-              currentView === viewName
-                ? 'bg-primary-500 text-white'
-                : 'text-gray-700 border border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            {viewName === 'month' ? 'Month' : viewName === 'week' ? 'Week' : 'Day'}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
-  const ChevronLeftIcon = ({ className }) => (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-    </svg>
-  );
-
-  const ChevronRightIcon = ({ className }) => (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-    </svg>
-  );
 
   return (
     <div className={`booking-calendar ${className}`}>
-      <div className="bg-white rounded-lg shadow">
+      <div style={{ height: '600px' }}>
         <Calendar
           localizer={localizer}
           events={calendarEvents}
           startAccessor="start"
           endAccessor="end"
-          style={{ height: 600 }}
-          view={currentView}
-          onView={setCurrentView}
-          date={currentDate}
-          onNavigate={setCurrentDate}
+          style={{ height: '100%' }}
           onSelectEvent={handleSelectEvent}
           onSelectSlot={handleSelectSlot}
           selectable={!readOnly}
           eventPropGetter={eventStyleGetter}
-          components={{
-            toolbar: CustomToolbar
-          }}
+          view={currentView}
+          onView={setCurrentView}
+          date={currentDate}
+          onNavigate={setCurrentDate}
+          views={['month', 'week', 'day', 'agenda']}
           messages={{
-            next: "Next",
-            previous: "Previous",
-            today: "Today",
-            month: "Month",
-            week: "Week",
-            day: "Day",
-            agenda: "Agenda",
-            date: "Date",
-            time: "Time",
-            event: "Event",
-            noEventsInRange: "No events in this range",
-            showMore: total => `+ ${total} more`
-          }}
-          formats={{
-            timeGutterFormat: 'HH:mm',
-            eventTimeRangeFormat: ({ start, end }) => 
-              `${moment(start).format('HH:mm')} - ${moment(end).format('HH:mm')}`,
-            dayFormat: 'dd DD/MM',
-            dayHeaderFormat: 'dddd DD/MM',
-            dayRangeHeaderFormat: ({ start, end }) =>
-              `${moment(start).format('DD MMMM')} - ${moment(end).format('DD MMMM YYYY')}`
+            next: "Далее",
+            previous: "Назад",
+            today: "Сегодня",
+            month: "Месяц",
+            week: "Неделя",
+            day: "День",
+            agenda: "Повестка дня",
+            date: "Дата",
+            time: "Время",
+            event: "Событие",
+            noEventsInRange: "Нет событий в этом диапазоне.",
+            showMore: total => `+ еще ${total}`
           }}
         />
       </div>
 
       {/* Booking Details Modal */}
-      <Transition show={showBookingModal}>
-        <Dialog onClose={() => setShowBookingModal(false)} className="relative z-50">
-          <TransitionChild
+      <Transition appear show={showBookingModal} as={React.Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={() => setShowBookingModal(false)}>
+          <Transition.Child
+            as={React.Fragment}
             enter="ease-out duration-300"
             enterFrom="opacity-0"
             enterTo="opacity-100"
@@ -321,116 +206,131 @@ const BookingCalendar = ({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black/25" />
-          </TransitionChild>
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
 
-          <div className="fixed inset-0 flex items-center justify-center p-4">
-            <Transition.Child
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-                  <Dialog.Panel className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-xl">
-                {selectedBooking && (
-                  <>
-                    <div className="flex justify-between items-start mb-4">
-                      <Dialog.Title className="text-lg font-semibold">
-                        Booking Details
-                      </Dialog.Title>
-                      <button
-                        onClick={() => setShowBookingModal(false)}
-                        className="text-gray-400 hover:text-gray-600"
-                      >
-                        <XMarkIcon className="w-5 h-5" />
-                      </button>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-3">
-                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedBooking.status)}`}>
-                          {getStatusLabel(selectedBooking.status)}
-                        </div>
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={React.Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-xl">
+                  {selectedBooking && (
+                    <>
+                      <div className="flex justify-between items-start mb-4">
+                        <Dialog.Title className="text-lg font-semibold">
+                          Детали бронирования
+                        </Dialog.Title>
+                        <button
+                          onClick={() => setShowBookingModal(false)}
+                          className="text-gray-400 hover:text-gray-600"
+                        >
+                          <XMarkIcon className="w-5 h-5" />
+                        </button>
                       </div>
 
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         <div className="flex items-center space-x-3">
-                          <CalendarIcon className="w-5 h-5 text-gray-400" />
-                          <span className="text-sm">
-                            {moment(selectedBooking.date_time).format('DD MMMM YYYY, HH:mm')}
-                          </span>
+                          <div className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedBooking.status)}`}>
+                            {getStatusLabel(selectedBooking.status)}
+                          </div>
                         </div>
 
-                        <div className="flex items-center space-x-3">
-                          <ClockIcon className="w-5 h-5 text-gray-400" />
-                          <span className="text-sm">
-                            Duration: {selectedBooking.duration || 60} min
-                          </span>
-                        </div>
-
-                        <div className="flex items-center space-x-3">
-                          <UserIcon className="w-5 h-5 text-gray-400" />
-                          <span className="text-sm">
-                            {selectedBooking.client_name || 'Not specified'}
-                          </span>
-                        </div>
-
-                        {selectedBooking.client_phone && (
+                        <div className="space-y-3">
                           <div className="flex items-center space-x-3">
-                            <PhoneIcon className="w-5 h-5 text-gray-400" />
-                            <span className="text-sm">
-                              {selectedBooking.client_phone}
-                            </span>
+                            <CalendarIcon className="w-5 h-5 text-gray-400" />
+                            <div>
+                              <p className="text-sm font-medium">Услуга</p>
+                              <p className="text-sm text-gray-600">{selectedBooking.service_name || 'Не указано'}</p>
+                            </div>
                           </div>
-                        )}
 
-                        {selectedBooking.notes && (
-                          <div className="border-t pt-3">
-                            <p className="text-sm text-gray-600">
-                              <strong>Notes:</strong> {selectedBooking.notes}
-                            </p>
+                          <div className="flex items-center space-x-3">
+                            <UserIcon className="w-5 h-5 text-gray-400" />
+                            <div>
+                              <p className="text-sm font-medium">Клиент</p>
+                              <p className="text-sm text-gray-600">{selectedBooking.client_name || selectedBooking.customer_name || 'Не указано'}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-3">
+                            <ClockIcon className="w-5 h-5 text-gray-400" />
+                            <div>
+                              <p className="text-sm font-medium">Время</p>
+                              <p className="text-sm text-gray-600">
+                                {new Date(selectedBooking.date_time || selectedBooking.booking_date).toLocaleString('ru-RU')}
+                              </p>
+                            </div>
+                          </div>
+
+                          {selectedBooking.phone && (
+                            <div className="flex items-center space-x-3">
+                              <PhoneIcon className="w-5 h-5 text-gray-400" />
+                              <div>
+                                <p className="text-sm font-medium">Телефон</p>
+                                <p className="text-sm text-gray-600">{selectedBooking.phone}</p>
+                              </div>
+                            </div>
+                          )}
+
+                          {selectedBooking.notes && (
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium">Заметки</p>
+                              <p className="text-sm text-gray-600">{selectedBooking.notes}</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {!readOnly && onBookingUpdate && (
+                          <div className="flex space-x-2 pt-4">
+                            {selectedBooking.status === 'pending' && (
+                              <button
+                                onClick={() => {
+                                  onBookingUpdate(selectedBooking.id, { status: 'confirmed' });
+                                  setShowBookingModal(false);
+                                }}
+                                className="flex-1 bg-green-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-green-700"
+                              >
+                                <CheckIcon className="w-4 h-4 inline mr-1" />
+                                Подтвердить
+                              </button>
+                            )}
+                            
+                            {selectedBooking.status !== 'cancelled' && (
+                              <button
+                                onClick={() => {
+                                  onBookingUpdate(selectedBooking.id, { status: 'cancelled' });
+                                  setShowBookingModal(false);
+                                }}
+                                className="flex-1 bg-red-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-700"
+                              >
+                                <ExclamationTriangleIcon className="w-4 h-4 inline mr-1" />
+                                Отменить
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>
-
-                      {!readOnly && (
-                        <div className="flex space-x-3 pt-4 border-t">
-                          {selectedBooking.status === 'pending' && (
-                            <button
-                              onClick={() => handleBookingUpdate(selectedBooking.id, { status: 'confirmed' })}
-                              className="flex-1 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center justify-center space-x-2"
-                            >
-                              <CheckIcon className="w-4 h-4" />
-                              <span>Confirm</span>
-                            </button>
-                          )}
-                          
-                          {['pending', 'confirmed'].includes(selectedBooking.status) && (
-                            <button
-                              onClick={() => handleBookingUpdate(selectedBooking.id, { status: 'cancelled' })}
-                              className="flex-1 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 flex items-center justify-center space-x-2"
-                            >
-                              <XMarkIcon className="w-4 h-4" />
-                              <span>Cancel</span>
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
-                  </Dialog.Panel>
-            </Transition.Child>
+                    </>
+                  )}
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
           </div>
         </Dialog>
       </Transition>
 
       {/* Create Booking Modal */}
-      <Transition show={showCreateModal}>
-        <Dialog onClose={() => setShowCreateModal(false)} className="relative z-50">
-          <TransitionChild
+      <Transition appear show={showCreateModal} as={React.Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={() => setShowCreateModal(false)}>
+          <Transition.Child
+            as={React.Fragment}
             enter="ease-out duration-300"
             enterFrom="opacity-0"
             enterTo="opacity-100"
@@ -438,76 +338,61 @@ const BookingCalendar = ({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black/25" />
-          </TransitionChild>
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
 
-          <div className="fixed inset-0 flex items-center justify-center p-4">
-            <Transition.Child
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-                  <Dialog.Panel className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-xl">
-                <div className="flex justify-between items-start mb-4">
-                  <DialogTitle className="text-lg font-semibold">
-                    Create Booking
-                  </DialogTitle>
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <XMarkIcon className="w-5 h-5" />
-                  </button>
-                </div>
-
-                {selectedSlot && (
-                  <div className="space-y-4">
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="text-sm text-gray-600">
-                        <strong>Selected Time:</strong>
-                      </p>
-                      <p className="text-sm">
-                        {moment(selectedSlot.start).format('DD MMMM YYYY, HH:mm')} - 
-                        {moment(selectedSlot.end).format('HH:mm')}
-                      </p>
-                    </div>
-
-                    {!isSlotAvailable(selectedSlot.start, selectedSlot.end) && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center space-x-3">
-                        <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600" />
-                        <p className="text-sm text-yellow-800">
-                          This time is not available for booking
-                        </p>
-                      </div>
-                    )}
-
-                    <div className="flex space-x-3 pt-4">
-                      <button
-                        onClick={() => setShowCreateModal(false)}
-                        className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
-                      >
-                        Cancel
-                      </button>
-                      
-                      <button
-                        onClick={() => handleBookingCreate({
-                          start: selectedSlot.start,
-                          end: selectedSlot.end,
-                          duration: Math.round((selectedSlot.end - selectedSlot.start) / 60000)
-                        })}
-                        disabled={!isSlotAvailable(selectedSlot.start, selectedSlot.end)}
-                        className="flex-1 bg-primary-500 text-white px-4 py-2 rounded-md hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Create
-                      </button>
-                    </div>
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={React.Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-xl">
+                  <div className="flex justify-between items-start mb-4">
+                    <Dialog.Title className="text-lg font-semibold">
+                      Создать бронирование
+                    </Dialog.Title>
+                    <button
+                      onClick={() => setShowCreateModal(false)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <XMarkIcon className="w-5 h-5" />
+                    </button>
                   </div>
-                )}
-                  </Dialog.Panel>
-            </Transition.Child>
+
+                  {selectedSlot && (
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-3">
+                        <ClockIcon className="w-5 h-5 text-gray-400" />
+                        <div>
+                          <p className="text-sm font-medium">Выбранное время</p>
+                          <p className="text-sm text-gray-600">
+                            {selectedSlot.start.toLocaleString('ru-RU')} - {selectedSlot.end.toLocaleString('ru-RU')}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-center">
+                        <p className="text-sm text-gray-500 mb-4">
+                          Функция создания бронирования будет добавлена позже
+                        </p>
+                        <button
+                          onClick={() => setShowCreateModal(false)}
+                          className="bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-orange-700"
+                        >
+                          Закрыть
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
           </div>
         </Dialog>
       </Transition>
@@ -515,4 +400,4 @@ const BookingCalendar = ({
   );
 };
 
-export default BookingCalendar; 
+export default BookingCalendar;
