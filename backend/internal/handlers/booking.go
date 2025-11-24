@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -119,42 +120,50 @@ func (h *BookingHandler) GetCompanyBookings(c *gin.Context) {
 	// Get company ID from middleware (set by CompanyOwnerMiddleware)
 	companyID := c.GetString("company_id")
 	if companyID == "" {
+		fmt.Printf("❌ GetCompanyBookings: Company ID not found in context\n")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID not found in context"})
 		return
 	}
 
+	fmt.Printf("📅 GetCompanyBookings called for company: %s\n", companyID)
+
 	// Parse date range
-	startDateStr := c.DefaultQuery("start_date", time.Now().Format("2006-01-02"))
-	endDateStr := c.DefaultQuery("end_date", time.Now().AddDate(0, 0, 7).Format("2006-01-02"))
+	startDateStr := c.DefaultQuery("start_date", time.Now().AddDate(0, -1, 0).Format("2006-01-02")) // Last month
+	endDateStr := c.DefaultQuery("end_date", time.Now().AddDate(0, 1, 0).Format("2006-01-02"))     // Next month
 
 	startDate, err := time.Parse("2006-01-02", startDateStr)
 	if err != nil {
+		fmt.Printf("❌ GetCompanyBookings: Invalid start_date format: %s\n", startDateStr)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid start_date format"})
 		return
 	}
 
 	endDate, err := time.Parse("2006-01-02", endDateStr)
 	if err != nil {
+		fmt.Printf("❌ GetCompanyBookings: Invalid end_date format: %s\n", endDateStr)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid end_date format"})
 		return
 	}
 
 	status := c.Query("status")
+	fmt.Printf("📅 Fetching bookings from %s to %s, status: %s\n", startDate.Format("2006-01-02"), endDate.Format("2006-01-02"), status)
 
 	bookings, err := h.bookingService.GetBookingsByCompany(companyID, startDate, endDate, status)
 	if err != nil {
+		fmt.Printf("❌ GetCompanyBookings: Error fetching bookings: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	fmt.Printf("✅ GetCompanyBookings: Found %d bookings\n", len(bookings))
+
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data": gin.H{
-			"bookings":   bookings,
-			"start_date": startDate,
-			"end_date":   endDate,
-			"status":     status,
-		},
+		"success":    true,
+		"bookings":   bookings,
+		"start_date": startDate,
+		"end_date":   endDate,
+		"status":     status,
+		"count":      len(bookings),
 	})
 }
 

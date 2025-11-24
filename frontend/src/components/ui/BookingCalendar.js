@@ -147,13 +147,13 @@ const BookingCalendar = ({
   const getStatusLabel = (status) => {
     switch (status) {
       case 'confirmed':
-        return 'Подтверждено';
+        return 'Confirmed';
       case 'pending':
-        return 'Ожидает';
+        return 'Pending';
       case 'cancelled':
-        return 'Отменено';
+        return 'Cancelled';
       case 'completed':
-        return 'Завершено';
+        return 'Completed';
       default:
         return status;
     }
@@ -178,18 +178,18 @@ const BookingCalendar = ({
           onNavigate={setCurrentDate}
           views={['month', 'week', 'day', 'agenda']}
           messages={{
-            next: "Далее",
-            previous: "Назад",
-            today: "Сегодня",
-            month: "Месяц",
-            week: "Неделя",
-            day: "День",
-            agenda: "Повестка дня",
-            date: "Дата",
-            time: "Время",
-            event: "Событие",
-            noEventsInRange: "Нет событий в этом диапазоне.",
-            showMore: total => `+ еще ${total}`
+            next: "Next",
+            previous: "Previous",
+            today: "Today",
+            month: "Month",
+            week: "Week",
+            day: "Day",
+            agenda: "Agenda",
+            date: "Date",
+            time: "Time",
+            event: "Event",
+            noEventsInRange: "No events in this range.",
+            showMore: total => `+ ${total} more`
           }}
         />
       </div>
@@ -225,7 +225,7 @@ const BookingCalendar = ({
                     <>
                       <div className="flex justify-between items-start mb-4">
                         <Dialog.Title className="text-lg font-semibold">
-                          Детали бронирования
+                          Booking Details
                         </Dialog.Title>
                         <button
                           onClick={() => setShowBookingModal(false)}
@@ -246,25 +246,25 @@ const BookingCalendar = ({
                           <div className="flex items-center space-x-3">
                             <CalendarIcon className="w-5 h-5 text-gray-400" />
                             <div>
-                              <p className="text-sm font-medium">Услуга</p>
-                              <p className="text-sm text-gray-600">{selectedBooking.service_name || 'Не указано'}</p>
+                              <p className="text-sm font-medium">Service</p>
+                              <p className="text-sm text-gray-600">{selectedBooking.service_name || 'Not specified'}</p>
                             </div>
                           </div>
 
                           <div className="flex items-center space-x-3">
                             <UserIcon className="w-5 h-5 text-gray-400" />
                             <div>
-                              <p className="text-sm font-medium">Клиент</p>
-                              <p className="text-sm text-gray-600">{selectedBooking.client_name || selectedBooking.customer_name || 'Не указано'}</p>
+                              <p className="text-sm font-medium">Client</p>
+                              <p className="text-sm text-gray-600">{selectedBooking.client_name || selectedBooking.customer_name || 'Not specified'}</p>
                             </div>
                           </div>
 
                           <div className="flex items-center space-x-3">
                             <ClockIcon className="w-5 h-5 text-gray-400" />
                             <div>
-                              <p className="text-sm font-medium">Время</p>
+                              <p className="text-sm font-medium">Time</p>
                               <p className="text-sm text-gray-600">
-                                {new Date(selectedBooking.date_time || selectedBooking.booking_date).toLocaleString('ru-RU')}
+                                {new Date(selectedBooking.date_time || selectedBooking.booking_date).toLocaleString('en-US')}
                               </p>
                             </div>
                           </div>
@@ -273,7 +273,7 @@ const BookingCalendar = ({
                             <div className="flex items-center space-x-3">
                               <PhoneIcon className="w-5 h-5 text-gray-400" />
                               <div>
-                                <p className="text-sm font-medium">Телефон</p>
+                                <p className="text-sm font-medium">Phone</p>
                                 <p className="text-sm text-gray-600">{selectedBooking.phone}</p>
                               </div>
                             </div>
@@ -281,7 +281,7 @@ const BookingCalendar = ({
 
                           {selectedBooking.notes && (
                             <div className="space-y-1">
-                              <p className="text-sm font-medium">Заметки</p>
+                              <p className="text-sm font-medium">Notes</p>
                               <p className="text-sm text-gray-600">{selectedBooking.notes}</p>
                             </div>
                           )}
@@ -298,7 +298,7 @@ const BookingCalendar = ({
                                 className="flex-1 bg-green-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-green-700"
                               >
                                 <CheckIcon className="w-4 h-4 inline mr-1" />
-                                Подтвердить
+                                Confirm
                               </button>
                             )}
                             
@@ -311,7 +311,7 @@ const BookingCalendar = ({
                                 className="flex-1 bg-red-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-700"
                               >
                                 <ExclamationTriangleIcon className="w-4 h-4 inline mr-1" />
-                                Отменить
+                                Cancel
                               </button>
                             )}
                           </div>
@@ -355,7 +355,7 @@ const BookingCalendar = ({
                 <Dialog.Panel className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-xl">
                   <div className="flex justify-between items-start mb-4">
                     <Dialog.Title className="text-lg font-semibold">
-                      Создать бронирование
+                      Create Booking
                     </Dialog.Title>
                     <button
                       onClick={() => setShowCreateModal(false)}
@@ -370,22 +370,22 @@ const BookingCalendar = ({
                       <div className="flex items-center space-x-3">
                         <ClockIcon className="w-5 h-5 text-gray-400" />
                         <div>
-                          <p className="text-sm font-medium">Выбранное время</p>
+                          <p className="text-sm font-medium">Selected Time</p>
                           <p className="text-sm text-gray-600">
-                            {selectedSlot.start.toLocaleString('ru-RU')} - {selectedSlot.end.toLocaleString('ru-RU')}
+                            {selectedSlot.start.toLocaleString('en-US')} - {selectedSlot.end.toLocaleString('en-US')}
                           </p>
                         </div>
                       </div>
 
                       <div className="text-center">
                         <p className="text-sm text-gray-500 mb-4">
-                          Функция создания бронирования будет добавлена позже
+                          Booking creation functionality will be added later
                         </p>
                         <button
                           onClick={() => setShowCreateModal(false)}
                           className="bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-orange-700"
                         >
-                          Закрыть
+                          Close
                         </button>
                       </div>
                     </div>
