@@ -339,7 +339,7 @@ const BookingCalendar = ({
                     <div className="flex justify-between items-start mb-4">
                       <Dialog.Title className="text-lg font-semibold">
                         Booking Details
-                      </DialogTitle>
+                      </Dialog.Title>
                       <button
                         onClick={() => setShowBookingModal(false)}
                         className="text-gray-400 hover:text-gray-600"
@@ -421,7 +421,7 @@ const BookingCalendar = ({
                     </div>
                   </>
                 )}
-                </Transition.Child>
+                  </Dialog.Panel>
             </TransitionChild>
           </div>
         </Dialog>
@@ -506,7 +506,7 @@ const BookingCalendar = ({
                     </div>
                   </div>
                 )}
-                </Transition.Child>
+                  </Dialog.Panel>
             </TransitionChild>
           </div>
         </Dialog>
