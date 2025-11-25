@@ -11,6 +11,7 @@ import {
 const CalendarPage = () => {
   const { apiCall } = useAuth();
   const [bookings, setBookings] = useState([]);
+  const [services, setServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedView, setSelectedView] = useState('week');
   const [selectedEmployee, setSelectedEmployee] = useState('all');
@@ -22,7 +23,7 @@ const CalendarPage = () => {
       try {
         console.log('🚀 Initializing calendar page...');
         setError(null);
-        await Promise.all([loadBookings(), loadEmployees()]);
+        await Promise.all([loadBookings(), loadEmployees(), loadServices()]);
         console.log('✅ Calendar initialized successfully');
       } catch (err) {
         console.error('❌ Calendar initialization failed:', err);
@@ -70,6 +71,23 @@ const CalendarPage = () => {
     }
   };
 
+  const loadServices = async () => {
+    try {
+      console.log('🔧 Loading services...');
+      const response = await apiCall('/companies/services');
+      console.log('🔧 Services response:', response);
+      
+      if (response && Array.isArray(response.services)) {
+        console.log('🔧 Loaded services:', response.services.length);
+        // Only include active services for booking
+        const activeServices = response.services.filter(service => service.is_active);
+        setServices(activeServices);
+      }
+    } catch (error) {
+      console.error('❌ Failed to load services:', error);
+    }
+  };
+
   const handleBookingSelect = (booking) => {
     console.log('Selected booking:', booking);
     // TODO: Open booking details modal
@@ -78,6 +96,22 @@ const CalendarPage = () => {
   const handleSlotSelect = (slotInfo) => {
     console.log('Selected slot:', slotInfo);
     // TODO: Open create booking modal
+  };
+
+  const handleBookingCreate = async (bookingData) => {
+    try {
+      console.log('Creating booking:', bookingData);
+      const response = await apiCall('/companies/bookings', {
+        method: 'POST',
+        body: JSON.stringify(bookingData)
+      });
+      console.log('Booking created:', response);
+      loadBookings(); // Reload bookings
+      alert('Booking created successfully!');
+    } catch (error) {
+      console.error('Failed to create booking:', error);
+      throw error;
+    }
   };
 
   const handleBookingUpdate = async (bookingId, updates) => {
@@ -264,8 +298,11 @@ const CalendarPage = () => {
       <div className="bg-white shadow rounded-lg p-6">
         <BookingCalendar
           bookings={filteredBookings}
+          services={services}
+          employees={employees}
           onBookingSelect={handleBookingSelect}
           onSlotSelect={handleSlotSelect}
+          onBookingCreate={handleBookingCreate}
           onBookingUpdate={handleBookingUpdate}
           view={selectedView}
           className="h-96"

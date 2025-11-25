@@ -22,6 +22,8 @@ const localizer = momentLocalizer(moment);
 
 const BookingCalendar = ({ 
   bookings = [], 
+  services = [],
+  employees = [],
   availability = [], 
   onBookingSelect,
   onSlotSelect,
@@ -38,6 +40,13 @@ const BookingCalendar = ({
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [currentView, setCurrentView] = useState(view);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [bookingForm, setBookingForm] = useState({
+    service_id: '',
+    client_name: '',
+    phone: '',
+    pet_name: '',
+    notes: ''
+  });
 
   // Transform bookings for calendar
   const calendarEvents = useMemo(() => {
@@ -120,12 +129,63 @@ const BookingCalendar = ({
     console.log('Selected slot:', slotInfo);
     if (!readOnly) {
       setSelectedSlot(slotInfo);
+      setBookingForm({
+        service_id: '',
+        client_name: '',
+        phone: '',
+        pet_name: '',
+        notes: ''
+      });
       setShowCreateModal(true);
       if (onSlotSelect) {
         onSlotSelect(slotInfo);
       }
     }
   }, [readOnly, onSlotSelect]);
+
+  // Handle form input changes
+  const handleFormChange = (field, value) => {
+    setBookingForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle booking creation
+  const handleCreateBooking = async (e) => {
+    e.preventDefault();
+    
+    if (!bookingForm.service_id || !bookingForm.client_name || !bookingForm.phone) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const bookingData = {
+        ...bookingForm,
+        booking_date: selectedSlot.start.toISOString(),
+        duration: 60 // Default 1 hour, could be based on service
+      };
+
+      console.log('Creating booking:', bookingData);
+      
+      if (onBookingCreate) {
+        await onBookingCreate(bookingData);
+      }
+      
+      setShowCreateModal(false);
+      setBookingForm({
+        service_id: '',
+        client_name: '',
+        phone: '',
+        pet_name: '',
+        notes: ''
+      });
+    } catch (error) {
+      console.error('Failed to create booking:', error);
+      alert('Failed to create booking. Please try again.');
+    }
+  };
 
   // Get status color for modal
   const getStatusColor = (status) => {
@@ -377,39 +437,51 @@ const BookingCalendar = ({
                         </div>
                       </div>
 
-                      <form className="space-y-4">
+                      <form onSubmit={handleCreateBooking} className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Service
+                            Service *
                           </label>
-                          <select className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                          <select 
+                            value={bookingForm.service_id}
+                            onChange={(e) => handleFormChange('service_id', e.target.value)}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            required
+                          >
                             <option value="">Select a service...</option>
-                            <option value="grooming">Pet Grooming</option>
-                            <option value="checkup">Health Checkup</option>
-                            <option value="vaccination">Vaccination</option>
-                            <option value="training">Training Session</option>
+                            {services.map(service => (
+                              <option key={service.id} value={service.id}>
+                                {service.name} - ${service.price}
+                              </option>
+                            ))}
                           </select>
                         </div>
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Client Name
+                            Client Name *
                           </label>
                           <input
                             type="text"
+                            value={bookingForm.client_name}
+                            onChange={(e) => handleFormChange('client_name', e.target.value)}
                             placeholder="Enter client name"
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            required
                           />
                         </div>
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Phone Number
+                            Phone Number *
                           </label>
                           <input
                             type="tel"
+                            value={bookingForm.phone}
+                            onChange={(e) => handleFormChange('phone', e.target.value)}
                             placeholder="Enter phone number"
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            required
                           />
                         </div>
 
@@ -419,8 +491,10 @@ const BookingCalendar = ({
                           </label>
                           <input
                             type="text"
+                            value={bookingForm.pet_name}
+                            onChange={(e) => handleFormChange('pet_name', e.target.value)}
                             placeholder="Enter pet name"
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                           />
                         </div>
 
@@ -430,8 +504,10 @@ const BookingCalendar = ({
                           </label>
                           <textarea
                             rows="3"
+                            value={bookingForm.notes}
+                            onChange={(e) => handleFormChange('notes', e.target.value)}
                             placeholder="Additional notes..."
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                           />
                         </div>
 
