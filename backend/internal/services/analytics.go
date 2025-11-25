@@ -3029,20 +3029,27 @@ func (s *AnalyticsService) GetLocationTrends(period int, groupBy, country string
 
 // GetCompanyDashboard returns comprehensive dashboard data for a company
 func (s *AnalyticsService) GetCompanyDashboard(companyID string, days int) (map[string]interface{}, error) {
+	fmt.Printf("🔥 GetCompanyDashboard service: companyID=%s, days=%d\n", companyID, days)
+	
 	// Get basic metrics
 	var totalRevenue, totalBookings, totalCustomers int
 	var avgRating float64
 
 	// Total revenue
-	err := s.db.QueryRow(`
+	revenueQuery := `
 		SELECT COALESCE(SUM(price), 0) 
 		FROM bookings 
 		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL $2 || ' days'
 		AND status IN ('confirmed', 'completed')
-	`, companyID, days).Scan(&totalRevenue)
+	`
+	fmt.Printf("🔥 Revenue query: %s with params: %s, %d\n", revenueQuery, companyID, days)
+	
+	err := s.db.QueryRow(revenueQuery, companyID, days).Scan(&totalRevenue)
 	if err != nil {
+		fmt.Printf("❌ Revenue query error: %v\n", err)
 		return nil, err
 	}
+	fmt.Printf("✅ Revenue result: %d\n", totalRevenue)
 
 	// Total bookings
 	err = s.db.QueryRow(`

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -884,11 +885,16 @@ func (h *AnalyticsHandler) GetCompanyDashboard(c *gin.Context) {
 		days = 30
 	}
 
+	fmt.Printf("🔥 GetCompanyDashboard: companyID=%s, days=%d\n", companyID.(string), days)
+
 	dashboard, err := h.analyticsService.GetCompanyDashboard(companyID.(string), days)
 	if err != nil {
+		fmt.Printf("❌ GetCompanyDashboard error: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	fmt.Printf("✅ GetCompanyDashboard success: %+v\n", dashboard)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -909,11 +915,16 @@ func (h *AnalyticsHandler) GetCompanyRevenue(c *gin.Context) {
 		days = 30
 	}
 
+	fmt.Printf("🔥 GetCompanyRevenue: companyID=%s, days=%d\n", companyID.(string), days)
+
 	revenue, err := h.analyticsService.GetCompanyRevenue(companyID.(string), days)
 	if err != nil {
+		fmt.Printf("❌ GetCompanyRevenue error: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	fmt.Printf("✅ GetCompanyRevenue success: %+v\n", revenue)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
