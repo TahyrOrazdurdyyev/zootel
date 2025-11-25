@@ -511,6 +511,14 @@ const RevenueAnalyticsView = ({ companyId, dateRange }) => {
   const [revenueData, setRevenueData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount || 0);
+  };
+
   useEffect(() => {
     const fetchRevenueAnalytics = async () => {
       try {
@@ -607,6 +615,14 @@ const BookingAnalyticsView = ({ companyId, dateRange }) => {
   const { apiCall } = useAuth();
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount || 0);
+  };
 
   useEffect(() => {
     const fetchBookingAnalytics = async () => {
@@ -737,6 +753,14 @@ const CustomerAnalyticsView = ({ companyId, dateRange }) => {
   const { apiCall } = useAuth();
   const [customerData, setCustomerData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount || 0);
+  };
 
   useEffect(() => {
     const fetchCustomerAnalytics = async () => {
@@ -880,6 +904,14 @@ const PerformanceAnalyticsView = ({ companyId, dateRange }) => {
   const { apiCall } = useAuth();
   const [performanceData, setPerformanceData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount || 0);
+  };
 
   useEffect(() => {
     const fetchPerformanceAnalytics = async () => {
