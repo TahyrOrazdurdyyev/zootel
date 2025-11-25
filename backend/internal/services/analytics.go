@@ -3032,7 +3032,8 @@ func (s *AnalyticsService) GetCompanyDashboard(companyID string, days int) (map[
 	fmt.Printf("🔥 GetCompanyDashboard service: companyID=%s, days=%d\n", companyID, days)
 	
 	// Get basic metrics
-	var totalRevenue, totalBookings, totalCustomers int
+	var totalRevenue float64
+	var totalBookings, totalCustomers int
 	var avgRating float64
 
 	// Total revenue
@@ -3119,7 +3120,8 @@ func (s *AnalyticsService) GetCompanyRevenue(companyID string, days int) (map[st
 	var trends []map[string]interface{}
 	for rows.Next() {
 		var date string
-		var revenue, bookings int
+		var revenue float64
+		var bookings int
 		err := rows.Scan(&date, &revenue, &bookings)
 		if err != nil {
 			return nil, err
