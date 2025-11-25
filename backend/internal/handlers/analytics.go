@@ -329,8 +329,12 @@ func (h *AnalyticsHandler) GetServiceCategoryPerformance(c *gin.Context) {
 func (h *AnalyticsHandler) GetCompanyAnalytics(c *gin.Context) {
 	companyID := c.Param("company_id")
 	if companyID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
-		return
+		if id, exists := c.Get("company_id"); exists {
+			companyID = id.(string)
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+			return
+		}
 	}
 
 	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
