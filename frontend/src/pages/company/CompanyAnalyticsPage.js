@@ -47,7 +47,6 @@ const CompanyAnalyticsPage = () => {
   const [dateRange, setDateRange] = useState('30d');
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [analyticsData, setAnalyticsData] = useState(null);
   const [error, setError] = useState(null);
 
   // Get company ID
@@ -81,24 +80,30 @@ const CompanyAnalyticsPage = () => {
     }
   };
 
-  // Fetch company metrics
+  // Fetch company metrics using apiCall
   useEffect(() => {
-  const fetchMetrics = async () => {
-    try {
-        const response = await fetch(`/api/v1/companies/analytics?days=${dateRange}`, {
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-      });
+    const fetchMetrics = async () => {
+      if (!companyId) return;
+      
+      try {
+        setLoading(true);
+        // Use the dashboard endpoint that actually exists
+        const response = await apiCall(`/companies/analytics/dashboard?days=${getDaysFromRange(dateRange)}`);
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch metrics');
+        if (response && response.success) {
+          // Map the response to the expected metrics format
+          const dashboardData = response.data;
+          setMetrics({
+            totalBookings: dashboardData.total_bookings || 0,
+            totalRevenue: dashboardData.total_revenue || 0,
+            newCustomers: dashboardData.new_customers || 0,
+            averageRating: dashboardData.average_rating || 0,
+            bookingsTrend: dashboardData.bookings_trend || 0,
+            revenueTrend: dashboardData.revenue_trend || 0
+          });
         }
-        
-      const data = await response.json();
-        setMetrics(data.metrics);
-    } catch (error) {
-      console.error('Error fetching metrics:', error);
+      } catch (error) {
+        console.error('Error fetching metrics:', error);
         // Set empty metrics on error
         setMetrics({
           totalBookings: 0,
@@ -108,15 +113,13 @@ const CompanyAnalyticsPage = () => {
           bookingsTrend: 0,
           revenueTrend: 0
         });
-    } finally {
-      setLoading(false);
-    }
-  };
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (companyId) {
-      fetchMetrics();
-    }
-  }, [companyId, dateRange]);
+    fetchMetrics();
+  }, [companyId, dateRange, apiCall]);
 
   const getDaysFromRange = (range) => {
     switch (range) {
@@ -128,11 +131,6 @@ const CompanyAnalyticsPage = () => {
     }
   };
 
-  useEffect(() => {
-    if (companyId) {
-      fetchMetrics();
-    }
-  }, [companyId, dateRange]);
 
   const views = [
     { id: 'dashboard', name: 'Overview', icon: ChartBarIcon },
