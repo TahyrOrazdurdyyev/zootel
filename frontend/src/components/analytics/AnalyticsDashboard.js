@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   ChartBarIcon,
   CurrencyDollarIcon,
@@ -40,6 +41,7 @@ const AnalyticsDashboard = ({
   isAdmin = false,
   className = "" 
 }) => {
+  const { apiCall } = useAuth();
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30d');
   const [dashboardData, setDashboardData] = useState(null);
@@ -81,10 +83,10 @@ const AnalyticsDashboard = ({
       } else if (companyId) {
         // Company-specific analytics
         endpoints.push(
-          fetch(`/api/v1/companies/${companyId}/analytics/dashboard`, authHeaders),
-          fetch(`/api/v1/companies/${companyId}/analytics/revenue?days=${getDaysFromRange(dateRange)}`, authHeaders),
-          fetch(`/api/v1/companies/${companyId}/analytics/bookings?days=${getDaysFromRange(dateRange)}`, authHeaders),
-          fetch(`/api/v1/companies/${companyId}/analytics/customers?days=${getDaysFromRange(dateRange)}`, authHeaders)
+          fetch(`/api/v1/companies/analytics/dashboard?days=${getDaysFromRange(dateRange)}`, authHeaders),
+          fetch(`/api/v1/companies/analytics/revenue?days=${getDaysFromRange(dateRange)}`, authHeaders),
+          fetch(`/api/v1/companies/analytics/bookings?days=${getDaysFromRange(dateRange)}`, authHeaders),
+          fetch(`/api/v1/companies/analytics/customers?days=${getDaysFromRange(dateRange)}`, authHeaders)
         );
       }
 

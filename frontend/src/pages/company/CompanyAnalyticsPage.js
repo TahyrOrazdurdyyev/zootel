@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import AnalyticsDashboard from '../../components/analytics/AnalyticsDashboard';
+import CompanyAnalyticsDashboard from '../../components/analytics/CompanyAnalyticsDashboard';
 import CompanyLocationAnalytics from '../../components/analytics/CompanyLocationAnalytics';
 import {
   ChartBarIcon,
@@ -41,7 +41,7 @@ ChartJS.register(
 );
 
 const CompanyAnalyticsPage = () => {
-  const { user } = useAuth();
+  const { user, apiCall } = useAuth();
   const [companyId, setCompanyId] = useState(null);
   const [activeView, setActiveView] = useState('dashboard');
   const [dateRange, setDateRange] = useState('30d');
@@ -70,17 +70,14 @@ const CompanyAnalyticsPage = () => {
 
   const fetchUserCompany = async () => {
     try {
-      const response = await fetch('/api/v1/companies/profile', {
-        headers: {
-          'Authorization': `Bearer ${user.token}`,
-        },
-      });
-      const data = await response.json();
-      if (data.success) {
-        setCompanyId(data.company.id);
+      const response = await apiCall('/companies/profile');
+      console.log('🏢 Company profile response:', response);
+      if (response && response.company) {
+        setCompanyId(response.company.id);
       }
     } catch (error) {
-      console.error('Error fetching company:', error);
+      console.error('❌ Error fetching company:', error);
+      setError('Failed to load company profile');
     }
   };
 
@@ -297,7 +294,7 @@ const CompanyAnalyticsPage = () => {
             </div>
 
             {/* Conditional Analytics Views */}
-            {activeView === 'overview' && <OverviewAnalytics companyId={companyId} dateRange={dateRange} />}
+            {activeView === 'overview' && <CompanyAnalyticsDashboard companyId={companyId} dateRange={dateRange} />}
             {activeView === 'bookings' && <BookingAnalytics companyId={companyId} dateRange={dateRange} />}
             {activeView === 'customers' && <CustomerAnalytics companyId={companyId} dateRange={dateRange} />}
           </div>
@@ -319,7 +316,7 @@ const CompanyAnalyticsPage = () => {
         return <PerformanceAnalyticsView companyId={companyId} dateRange={dateRange} />;
       
       default:
-        return <AnalyticsDashboard companyId={companyId} />;
+        return <CompanyAnalyticsDashboard companyId={companyId} dateRange={dateRange} />;
     }
   };
 

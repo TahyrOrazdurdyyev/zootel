@@ -870,3 +870,103 @@ func (h *AnalyticsHandler) GetPlatformStatus(c *gin.Context) {
 		"data":    status,
 	})
 }
+
+// GetCompanyDashboard returns dashboard analytics for a specific company
+func (h *AnalyticsHandler) GetCompanyDashboard(c *gin.Context) {
+	companyID, exists := c.Get("company_id")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID not found"})
+		return
+	}
+
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 1 || days > 365 {
+		days = 30
+	}
+
+	dashboard, err := h.analyticsService.GetCompanyDashboard(companyID.(string), days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    dashboard,
+	})
+}
+
+// GetCompanyRevenue returns revenue analytics for a specific company
+func (h *AnalyticsHandler) GetCompanyRevenue(c *gin.Context) {
+	companyID, exists := c.Get("company_id")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID not found"})
+		return
+	}
+
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 1 || days > 365 {
+		days = 30
+	}
+
+	revenue, err := h.analyticsService.GetCompanyRevenue(companyID.(string), days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    revenue,
+	})
+}
+
+// GetCompanyBookingAnalytics returns booking analytics for a specific company
+func (h *AnalyticsHandler) GetCompanyBookingAnalytics(c *gin.Context) {
+	companyID, exists := c.Get("company_id")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID not found"})
+		return
+	}
+
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 1 || days > 365 {
+		days = 30
+	}
+
+	analytics, err := h.analyticsService.GetCompanyBookingAnalytics(companyID.(string), days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    analytics,
+	})
+}
+
+// GetCompanyCustomerAnalytics returns customer analytics for a specific company
+func (h *AnalyticsHandler) GetCompanyCustomerAnalytics(c *gin.Context) {
+	companyID, exists := c.Get("company_id")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID not found"})
+		return
+	}
+
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 1 || days > 365 {
+		days = 30
+	}
+
+	analytics, err := h.analyticsService.GetCompanyCustomerAnalytics(companyID.(string), days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    analytics,
+	})
+}

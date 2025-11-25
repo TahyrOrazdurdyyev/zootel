@@ -464,6 +464,10 @@ func main() {
 
 				// Analytics
 				companies.GET("/analytics", analyticsHandler.GetCompanyAnalytics)
+				companies.GET("/analytics/dashboard", analyticsHandler.GetCompanyDashboard)
+				companies.GET("/analytics/revenue", analyticsHandler.GetCompanyRevenue)
+				companies.GET("/analytics/bookings", analyticsHandler.GetCompanyBookingAnalytics)
+				companies.GET("/analytics/customers", analyticsHandler.GetCompanyCustomerAnalytics)
 				companies.GET("/analytics/repeat-orders", analyticsHandler.GetRepeatOrdersAnalytics)
 				companies.GET("/analytics/cancellations", analyticsHandler.GetCancellationAnalytics)
 				companies.GET("/analytics/refunds", analyticsHandler.GetRefundAnalytics)
