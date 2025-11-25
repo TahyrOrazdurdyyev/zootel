@@ -973,25 +973,24 @@ func (s *AnalyticsService) GetCompanyAnalytics(companyID string, days int) (map[
 func (s *AnalyticsService) GetRepeatOrdersAnalytics(companyID string, days int) (map[string]interface{}, error) {
 	analytics := make(map[string]interface{})
 
-	// Total customers and repeat customers
+	// Total customers and repeat customers (simplified to use only bookings)
 	var totalCustomers, repeatCustomers int
-	err := s.db.QueryRow(`
+	query := fmt.Sprintf(`
 		WITH customer_stats AS (
 			SELECT 
 				user_id,
 				COUNT(*) as order_count
-			FROM (
-				SELECT user_id FROM bookings WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
-				UNION ALL
-				SELECT user_id FROM orders WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
-			) combined_orders
+			FROM bookings 
+			WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
 			GROUP BY user_id
 		)
 		SELECT 
-			COUNT(*) as total_customers,
+			COUNT(*) as total_customers,`, days)
+	
+	err := s.db.QueryRow(query+`
 			COUNT(CASE WHEN order_count > 1 THEN 1 END) as repeat_customers
 		FROM customer_stats
-	`, companyID, days, days).Scan(&totalCustomers, &repeatCustomers)
+	`, companyID).Scan(&totalCustomers, &repeatCustomers)
 
 	if err != nil {
 		return nil, err
@@ -1058,14 +1057,15 @@ func (s *AnalyticsService) GetCancellationAnalytics(companyID string, days int) 
 	var totalBookings, cancelledBookings int
 	var cancelledRevenue float64
 
-	err := s.db.QueryRow(`
+	query := fmt.Sprintf(`
 		SELECT 
 			COUNT(*) as total_bookings,
 			COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_bookings,
 			COALESCE(SUM(CASE WHEN status = 'cancelled' THEN price END), 0) as cancelled_revenue
 		FROM bookings 
 		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
-	`, companyID, days).Scan(&totalBookings, &cancelledBookings, &cancelledRevenue)
+	`, days)
+	err := s.db.QueryRow(query, companyID).Scan(&totalBookings, &cancelledBookings, &cancelledRevenue)
 
 	if err != nil {
 		return nil, err
@@ -1082,7 +1082,7 @@ func (s *AnalyticsService) GetCancellationAnalytics(companyID string, days int) 
 	}
 
 	// Cancellation reasons (if available in notes)
-	cancellationQuery := `
+	cancellationQuery := fmt.Sprintf(`
 		SELECT 
 			DATE(created_at) as date,
 			COUNT(*) as cancellations
@@ -1090,9 +1090,9 @@ func (s *AnalyticsService) GetCancellationAnalytics(companyID string, days int) 
 		WHERE company_id = $1 AND status = 'cancelled' AND created_at >= NOW() - INTERVAL '%d days'
 		GROUP BY DATE(created_at)
 		ORDER BY date
-	`
+	`, days)
 
-	rows, err := s.db.Query(fmt.Sprintf(cancellationQuery, days), companyID)
+	rows, err := s.db.Query(cancellationQuery, companyID)
 	if err != nil {
 		return nil, err
 	}
@@ -1125,15 +1125,16 @@ func (s *AnalyticsService) GetRefundAnalytics(companyID string, days int) (map[s
 	var totalPayments, refundedPayments int
 	var totalRefundAmount float64
 
-	err := s.db.QueryRow(`
+	query := fmt.Sprintf(`
 		SELECT 
 			COUNT(p.id) as total_payments,
-			COUNT(CASE WHEN p.status LIKE '%refund%' THEN 1 END) as refunded_payments,
+			COUNT(CASE WHEN p.status LIKE '%%refund%%' THEN 1 END) as refunded_payments,
 			COALESCE(SUM(r.amount), 0) as total_refund_amount
 		FROM payments p
 		LEFT JOIN refunds r ON p.id = r.payment_id
 		WHERE p.company_id = $1 AND p.created_at >= NOW() - INTERVAL '%d days'
-	`, companyID, days).Scan(&totalPayments, &refundedPayments, &totalRefundAmount)
+	`, days)
+	err := s.db.QueryRow(query, companyID).Scan(&totalPayments, &refundedPayments, &totalRefundAmount)
 
 	if err != nil {
 		return nil, err
@@ -1150,7 +1151,7 @@ func (s *AnalyticsService) GetRefundAnalytics(companyID string, days int) (map[s
 	}
 
 	// Refund trends by day
-	refundTrendsQuery := `
+	refundTrendsQuery := fmt.Sprintf(`
 		SELECT 
 			DATE(r.created_at) as date,
 			COUNT(*) as refund_count,
@@ -1160,9 +1161,9 @@ func (s *AnalyticsService) GetRefundAnalytics(companyID string, days int) (map[s
 		WHERE p.company_id = $1 AND r.created_at >= NOW() - INTERVAL '%d days'
 		GROUP BY DATE(r.created_at)
 		ORDER BY date
-	`
+	`, days)
 
-	rows, err := s.db.Query(fmt.Sprintf(refundTrendsQuery, days), companyID)
+	rows, err := s.db.Query(refundTrendsQuery, companyID)
 	if err != nil {
 		return nil, err
 	}
@@ -1350,27 +1351,21 @@ func (s *AnalyticsService) GetAverageCheckTrends(companyID string, days int) (ma
 func (s *AnalyticsService) GetCustomerSegmentationAnalytics(companyID string, days int) (map[string]interface{}, error) {
 	analytics := make(map[string]interface{})
 
-	// New vs Returning customers
-	segmentationQuery := `
+	// New vs Returning customers (simplified to use only bookings)
+	segmentationQuery := fmt.Sprintf(`
 		WITH customer_history AS (
 			SELECT 
 				user_id,
 				MIN(created_at) as first_transaction,
 				COUNT(*) as total_transactions
-			FROM (
-				SELECT user_id, created_at FROM bookings WHERE company_id = $1
-				UNION ALL
-				SELECT user_id, created_at FROM orders WHERE company_id = $1
-			) all_transactions
+			FROM bookings 
+			WHERE company_id = $1
 			GROUP BY user_id
 		),
 		period_customers AS (
 			SELECT DISTINCT user_id
-			FROM (
-				SELECT user_id FROM bookings WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
-				UNION
-				SELECT user_id FROM orders WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
-			) period_transactions
+			FROM bookings 
+			WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
 		)
 		SELECT 
 			COUNT(pc.user_id) as total_period_customers,
@@ -1379,12 +1374,12 @@ func (s *AnalyticsService) GetCustomerSegmentationAnalytics(companyID string, da
 			AVG(ch.total_transactions) as avg_transactions_per_customer
 		FROM period_customers pc
 		JOIN customer_history ch ON pc.user_id = ch.user_id
-	`
+	`, days, days, days)
 
 	var totalCustomers, newCustomers, returningCustomers int
 	var avgTransactions float64
 
-	err := s.db.QueryRow(fmt.Sprintf(segmentationQuery, days, days, days, days), companyID, companyID, companyID, companyID).Scan(
+	err := s.db.QueryRow(segmentationQuery, companyID, companyID).Scan(
 		&totalCustomers, &newCustomers, &returningCustomers, &avgTransactions,
 	)
 
