@@ -17,7 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 // Configure moment localizer
-moment.locale('ru');
+moment.locale('en-US');
 const localizer = momentLocalizer(moment);
 
 const BookingCalendar = ({ 
@@ -377,17 +377,80 @@ const BookingCalendar = ({
                         </div>
                       </div>
 
-                      <div className="text-center">
-                        <p className="text-sm text-gray-500 mb-4">
-                          Booking creation functionality will be added later
-                        </p>
-                        <button
-                          onClick={() => setShowCreateModal(false)}
-                          className="bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-orange-700"
-                        >
-                          Close
-                        </button>
-                      </div>
+                      <form className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Service
+                          </label>
+                          <select className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option value="">Select a service...</option>
+                            <option value="grooming">Pet Grooming</option>
+                            <option value="checkup">Health Checkup</option>
+                            <option value="vaccination">Vaccination</option>
+                            <option value="training">Training Session</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Client Name
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Enter client name"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Phone Number
+                          </label>
+                          <input
+                            type="tel"
+                            placeholder="Enter phone number"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Pet Name
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Enter pet name"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Notes (Optional)
+                          </label>
+                          <textarea
+                            rows="3"
+                            placeholder="Additional notes..."
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                          />
+                        </div>
+
+                        <div className="flex space-x-3 pt-4">
+                          <button
+                            type="button"
+                            onClick={() => setShowCreateModal(false)}
+                            className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-400"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            className="flex-1 bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-orange-700"
+                          >
+                            Create Booking
+                          </button>
+                        </div>
+                      </form>
                     </div>
                   )}
                 </Dialog.Panel>
