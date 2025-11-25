@@ -454,6 +454,7 @@ func main() {
 
 				// Company bookings and orders
 				companies.GET("/bookings", bookingHandler.GetCompanyBookings)
+				companies.POST("/bookings", bookingHandler.CreateCompanyBooking)
 				companies.PUT("/bookings/:id/status", bookingHandler.UpdateBookingStatus)
 				companies.GET("/orders", orderHandler.GetCompanyOrders)
 				companies.PUT("/orders/:id/status", orderHandler.UpdateOrderStatus)

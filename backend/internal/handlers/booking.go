@@ -48,6 +48,89 @@ func (h *BookingHandler) CreateBooking(c *gin.Context) {
 	})
 }
 
+// CreateCompanyBooking creates a new booking on behalf of a company
+func (h *BookingHandler) CreateCompanyBooking(c *gin.Context) {
+	// Define request structure for company booking creation
+	type CompanyBookingRequest struct {
+		ServiceID   string    `json:"service_id" binding:"required"`
+		ClientName  string    `json:"client_name" binding:"required"`
+		Phone       string    `json:"phone" binding:"required"`
+		PetName     string    `json:"pet_name"`
+		Notes       string    `json:"notes"`
+		BookingDate time.Time `json:"booking_date" binding:"required"`
+		Duration    int       `json:"duration"` // in minutes
+	}
+
+	var req CompanyBookingRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		fmt.Printf("❌ CreateCompanyBooking: Invalid request: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get company ID from middleware context
+	companyID, exists := c.Get("company_id")
+	if !exists {
+		fmt.Printf("❌ CreateCompanyBooking: Company ID not found in context\n")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Company not authenticated"})
+		return
+	}
+
+	fmt.Printf("🔥 CreateCompanyBooking: Request data: %+v\n", req)
+	fmt.Printf("🔥 CreateCompanyBooking: Company ID: %s\n", companyID.(string))
+
+	// Create or find customer by phone
+	customer, err := h.bookingService.FindOrCreateCustomer(req.ClientName, req.Phone)
+	if err != nil {
+		fmt.Printf("❌ CreateCompanyBooking: Failed to find/create customer: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create customer"})
+		return
+	}
+
+	// Create or find pet if pet name provided
+	var petID *string
+	if req.PetName != "" {
+		pet, err := h.bookingService.FindOrCreatePet(customer.ID, req.PetName)
+		if err != nil {
+			fmt.Printf("❌ CreateCompanyBooking: Failed to find/create pet: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create pet"})
+			return
+		}
+		petID = &pet.ID
+	}
+
+	// Create booking request
+	bookingReq := services.BookingRequest{
+		UserID:    customer.ID,
+		CompanyID: companyID.(string),
+		ServiceID: req.ServiceID,
+		PetID:     "", // Will be set below if petID exists
+		DateTime:  req.BookingDate,
+		Notes:     req.Notes,
+	}
+
+	if petID != nil {
+		bookingReq.PetID = *petID
+	}
+
+	fmt.Printf("🔥 CreateCompanyBooking: Final booking request: %+v\n", bookingReq)
+
+	booking, err := h.bookingService.CreateBooking(&bookingReq)
+	if err != nil {
+		fmt.Printf("❌ CreateCompanyBooking: Failed to create booking: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	fmt.Printf("✅ CreateCompanyBooking: Booking created successfully: %+v\n", booking)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": "Booking created successfully",
+		"booking": booking,
+	})
+}
+
 // GetBooking returns a specific booking
 func (h *BookingHandler) GetBooking(c *gin.Context) {
 	bookingID := c.Param("id")

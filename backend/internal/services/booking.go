@@ -34,7 +34,7 @@ type BookingRequest struct {
 	UserID     string    `json:"user_id" binding:"required"`
 	CompanyID  string    `json:"company_id" binding:"required"`
 	ServiceID  string    `json:"service_id" binding:"required"`
-	PetID      string    `json:"pet_id" binding:"required"`
+	PetID      string    `json:"pet_id"` // Made optional for company bookings
 	EmployeeID *string   `json:"employee_id"`
 	DateTime   time.Time `json:"date_time" binding:"required"`
 	Notes      string    `json:"notes"`
@@ -1777,4 +1777,138 @@ func (s *BookingService) GetCustomerPetMedications(companyID, petID string) ([]m
 	}
 
 	return medications, nil
+}
+
+// FindOrCreateCustomer finds existing customer by phone or creates new one
+func (s *BookingService) FindOrCreateCustomer(name, phone string) (*models.User, error) {
+	// First try to find existing customer by phone
+	var user models.User
+	err := s.db.QueryRow(`
+		SELECT id, email, first_name, last_name, phone, role, created_at, updated_at
+		FROM users 
+		WHERE phone = $1 AND role = 'pet_owner'
+		LIMIT 1
+	`, phone).Scan(
+		&user.ID, &user.Email, &user.FirstName, &user.LastName, &user.Phone, 
+		&user.Role, &user.CreatedAt, &user.UpdatedAt,
+	)
+
+	if err == nil {
+		// Customer found, update name if different
+		fullName := user.FirstName + " " + user.LastName
+		if strings.TrimSpace(fullName) != name {
+			// Split name into first and last
+			nameParts := strings.Fields(name)
+			firstName := nameParts[0]
+			lastName := ""
+			if len(nameParts) > 1 {
+				lastName = strings.Join(nameParts[1:], " ")
+			}
+			
+			_, updateErr := s.db.Exec(`
+				UPDATE users SET first_name = $1, last_name = $2, updated_at = NOW() 
+				WHERE id = $3
+			`, firstName, lastName, user.ID)
+			if updateErr != nil {
+				fmt.Printf("⚠️ Warning: Failed to update customer name: %v\n", updateErr)
+			} else {
+				user.FirstName = firstName
+				user.LastName = lastName
+			}
+		}
+		return &user, nil
+	}
+
+	if err != sql.ErrNoRows {
+		return nil, fmt.Errorf("failed to query customer: %w", err)
+	}
+
+	// Customer not found, create new one
+	userID := uuid.New().String()
+	email := fmt.Sprintf("%s@temp.zootel.com", phone) // Temporary email
+	
+	// Split name into first and last
+	nameParts := strings.Fields(name)
+	firstName := nameParts[0]
+	lastName := ""
+	if len(nameParts) > 1 {
+		lastName = strings.Join(nameParts[1:], " ")
+	}
+
+	_, err = s.db.Exec(`
+		INSERT INTO users (id, email, first_name, last_name, phone, role, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, 'pet_owner', NOW(), NOW())
+	`, userID, email, firstName, lastName, phone)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to create customer: %w", err)
+	}
+
+	// Return the created user
+	user = models.User{
+		ID:        userID,
+		Email:     email,
+		FirstName: firstName,
+		LastName:  lastName,
+		Phone:     phone,
+		Role:      "pet_owner",
+	}
+
+	fmt.Printf("✅ Created new customer: %s (%s)\n", name, phone)
+	return &user, nil
+}
+
+// FindOrCreatePet finds existing pet by name and owner or creates new one
+func (s *BookingService) FindOrCreatePet(ownerID, petName string) (*models.Pet, error) {
+	// First try to find existing pet by name and owner
+	var pet models.Pet
+	err := s.db.QueryRow(`
+		SELECT id, user_id, name, pet_type_id, breed_id, weight, gender, created_at, updated_at
+		FROM pets 
+		WHERE user_id = $1 AND name = $2
+		LIMIT 1
+	`, ownerID, petName).Scan(
+		&pet.ID, &pet.UserID, &pet.Name, &pet.PetTypeID, 
+		&pet.BreedID, &pet.Weight, &pet.Gender,
+		&pet.CreatedAt, &pet.UpdatedAt,
+	)
+
+	if err == nil {
+		// Pet found
+		return &pet, nil
+	}
+
+	if err != sql.ErrNoRows {
+		return nil, fmt.Errorf("failed to query pet: %w", err)
+	}
+
+	// Pet not found, create new one
+	petID := uuid.New().String()
+	
+	// Get default pet type ID (assuming there's a default or we use empty string)
+	defaultPetTypeID := "" // Will be handled by database constraints
+	defaultBreedID := ""   // Will be handled by database constraints
+	
+	_, err = s.db.Exec(`
+		INSERT INTO pets (id, user_id, name, pet_type_id, breed_id, weight, gender, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, 0, 'unknown', NOW(), NOW())
+	`, petID, ownerID, petName, defaultPetTypeID, defaultBreedID)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to create pet: %w", err)
+	}
+
+	// Return the created pet
+	pet = models.Pet{
+		ID:        petID,
+		UserID:    ownerID,
+		Name:      petName,
+		PetTypeID: defaultPetTypeID,
+		BreedID:   defaultBreedID,
+		Weight:    0,
+		Gender:    "unknown",
+	}
+
+	fmt.Printf("✅ Created new pet: %s for owner %s\n", petName, ownerID)
+	return &pet, nil
 }
