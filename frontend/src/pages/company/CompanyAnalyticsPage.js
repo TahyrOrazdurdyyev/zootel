@@ -507,6 +507,7 @@ const TopServicesWidget = ({ companyId }) => {
 
 // Placeholder views - to be implemented with detailed analytics
 const RevenueAnalyticsView = ({ companyId, dateRange }) => {
+  const { apiCall } = useAuth();
   const [revenueData, setRevenueData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -514,12 +515,12 @@ const RevenueAnalyticsView = ({ companyId, dateRange }) => {
     const fetchRevenueAnalytics = async () => {
       try {
         const [revenueResponse, avgCheckResponse] = await Promise.all([
-          fetch(`/api/v1/companies/${companyId}/analytics/revenue?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/v1/companies/${companyId}/analytics/average-check?days=${getDaysFromRange(dateRange)}`)
+          apiCall(`/companies/analytics/revenue?days=${getDaysFromRange(dateRange)}`),
+          apiCall(`/companies/analytics/average-check?days=${getDaysFromRange(dateRange)}`)
         ]);
 
-        const revenueData = await revenueResponse.json();
-        const avgCheckData = await avgCheckResponse.json();
+        const revenueData = revenueResponse;
+        const avgCheckData = avgCheckResponse;
 
         setRevenueData({
           revenue: revenueData.data,
@@ -603,6 +604,7 @@ const RevenueAnalyticsView = ({ companyId, dateRange }) => {
 };
 
 const BookingAnalyticsView = ({ companyId, dateRange }) => {
+  const { apiCall } = useAuth();
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -610,14 +612,14 @@ const BookingAnalyticsView = ({ companyId, dateRange }) => {
     const fetchBookingAnalytics = async () => {
       try {
         const [bookingsResponse, cancellationResponse, repeatOrdersResponse] = await Promise.all([
-          fetch(`/api/v1/companies/${companyId}/analytics/bookings?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/v1/companies/${companyId}/analytics/cancellations?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/v1/companies/${companyId}/analytics/repeat-orders?days=${getDaysFromRange(dateRange)}`)
+          apiCall(`/companies/analytics/bookings?days=${getDaysFromRange(dateRange)}`),
+          apiCall(`/companies/analytics/cancellations?days=${getDaysFromRange(dateRange)}`),
+          apiCall(`/companies/analytics/repeat-orders?days=${getDaysFromRange(dateRange)}`)
         ]);
 
-        const bookingsData = await bookingsResponse.json();
-        const cancellationData = await cancellationResponse.json();
-        const repeatOrdersData = await repeatOrdersResponse.json();
+        const bookingsData = bookingsResponse;
+        const cancellationData = cancellationResponse;
+        const repeatOrdersData = repeatOrdersResponse;
 
         setAnalyticsData({
           bookings: bookingsData.data,
@@ -732,6 +734,7 @@ const BookingAnalyticsView = ({ companyId, dateRange }) => {
 };
 
 const CustomerAnalyticsView = ({ companyId, dateRange }) => {
+  const { apiCall } = useAuth();
   const [customerData, setCustomerData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -739,12 +742,12 @@ const CustomerAnalyticsView = ({ companyId, dateRange }) => {
     const fetchCustomerAnalytics = async () => {
       try {
         const [segmentationResponse, refundsResponse] = await Promise.all([
-          fetch(`/api/v1/companies/${companyId}/analytics/customer-segmentation?days=${getDaysFromRange(dateRange)}`),
-          fetch(`/api/v1/companies/${companyId}/analytics/refunds?days=${getDaysFromRange(dateRange)}`)
+          apiCall(`/companies/analytics/customer-segmentation?days=${getDaysFromRange(dateRange)}`),
+          apiCall(`/companies/analytics/refunds?days=${getDaysFromRange(dateRange)}`)
         ]);
 
-        const segmentationData = await segmentationResponse.json();
-        const refundsData = await refundsResponse.json();
+        const segmentationData = segmentationResponse;
+        const refundsData = refundsResponse;
 
         setCustomerData({
           segmentation: segmentationData.data,
@@ -874,14 +877,14 @@ const CustomerAnalyticsView = ({ companyId, dateRange }) => {
 };
 
 const PerformanceAnalyticsView = ({ companyId, dateRange }) => {
+  const { apiCall } = useAuth();
   const [performanceData, setPerformanceData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPerformanceAnalytics = async () => {
       try {
-        const response = await fetch(`/api/v1/companies/${companyId}/analytics/team-workload?days=${getDaysFromRange(dateRange)}`);
-        const data = await response.json();
+        const data = await apiCall(`/companies/analytics/team-workload?days=${getDaysFromRange(dateRange)}`);
         setPerformanceData(data.data);
       } catch (error) {
         console.error('Error fetching performance analytics:', error);

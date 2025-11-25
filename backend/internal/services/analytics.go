@@ -3037,7 +3037,7 @@ func (s *AnalyticsService) GetCompanyDashboard(companyID string, days int) (map[
 	err := s.db.QueryRow(`
 		SELECT COALESCE(SUM(price), 0) 
 		FROM bookings 
-		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL $2 || ' days'
 		AND status IN ('confirmed', 'completed')
 	`, companyID, days).Scan(&totalRevenue)
 	if err != nil {
@@ -3048,7 +3048,7 @@ func (s *AnalyticsService) GetCompanyDashboard(companyID string, days int) (map[
 	err = s.db.QueryRow(`
 		SELECT COUNT(*) 
 		FROM bookings 
-		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL $2 || ' days'
 	`, companyID, days).Scan(&totalBookings)
 	if err != nil {
 		return nil, err
@@ -3058,7 +3058,7 @@ func (s *AnalyticsService) GetCompanyDashboard(companyID string, days int) (map[
 	err = s.db.QueryRow(`
 		SELECT COUNT(DISTINCT user_id) 
 		FROM bookings 
-		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL $2 || ' days'
 	`, companyID, days).Scan(&totalCustomers)
 	if err != nil {
 		return nil, err
@@ -3069,7 +3069,7 @@ func (s *AnalyticsService) GetCompanyDashboard(companyID string, days int) (map[
 		SELECT COALESCE(AVG(rating), 0) 
 		FROM reviews r
 		JOIN bookings b ON r.booking_id = b.id
-		WHERE b.company_id = $1 AND r.created_at >= NOW() - INTERVAL '%d days'
+		WHERE b.company_id = $1 AND r.created_at >= NOW() - INTERVAL $2 || ' days'
 	`, companyID, days).Scan(&avgRating)
 	if err != nil {
 		avgRating = 0 // No reviews yet
@@ -3094,7 +3094,7 @@ func (s *AnalyticsService) GetCompanyRevenue(companyID string, days int) (map[st
 			COUNT(*) as bookings
 		FROM bookings 
 		WHERE company_id = $1 
-		AND created_at >= NOW() - INTERVAL '%d days'
+		AND created_at >= NOW() - INTERVAL $2 || ' days'
 		AND status IN ('confirmed', 'completed')
 		GROUP BY DATE(created_at)
 		ORDER BY date DESC
@@ -3134,7 +3134,7 @@ func (s *AnalyticsService) GetCompanyBookingAnalytics(companyID string, days int
 			COUNT(*) as count
 		FROM bookings 
 		WHERE company_id = $1 
-		AND created_at >= NOW() - INTERVAL '%d days'
+		AND created_at >= NOW() - INTERVAL $2 || ' days'
 		GROUP BY status
 		ORDER BY count DESC
 	`, companyID, days)
@@ -3173,14 +3173,14 @@ func (s *AnalyticsService) GetCompanyCustomerAnalytics(companyID string, days in
 		SELECT COUNT(DISTINCT user_id)
 		FROM bookings b1
 		WHERE b1.company_id = $1 
-		AND b1.created_at >= NOW() - INTERVAL '%d days'
+		AND b1.created_at >= NOW() - INTERVAL $2 || ' days'
 		AND NOT EXISTS (
 			SELECT 1 FROM bookings b2 
 			WHERE b2.user_id = b1.user_id 
 			AND b2.company_id = $1 
-			AND b2.created_at < NOW() - INTERVAL '%d days'
+			AND b2.created_at < NOW() - INTERVAL $2 || ' days'
 		)
-	`, companyID, days, days).Scan(&newCustomers)
+	`, companyID, days).Scan(&newCustomers)
 	if err != nil {
 		return nil, err
 	}
@@ -3190,14 +3190,14 @@ func (s *AnalyticsService) GetCompanyCustomerAnalytics(companyID string, days in
 		SELECT COUNT(DISTINCT user_id)
 		FROM bookings b1
 		WHERE b1.company_id = $1 
-		AND b1.created_at >= NOW() - INTERVAL '%d days'
+		AND b1.created_at >= NOW() - INTERVAL $2 || ' days'
 		AND EXISTS (
 			SELECT 1 FROM bookings b2 
 			WHERE b2.user_id = b1.user_id 
 			AND b2.company_id = $1 
-			AND b2.created_at < NOW() - INTERVAL '%d days'
+			AND b2.created_at < NOW() - INTERVAL $2 || ' days'
 		)
-	`, companyID, days, days).Scan(&returningCustomers)
+	`, companyID, days).Scan(&returningCustomers)
 	if err != nil {
 		return nil, err
 	}
