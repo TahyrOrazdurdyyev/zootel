@@ -1280,27 +1280,28 @@ func (s *AnalyticsService) GetTeamWorkloadAnalytics(companyID string, days int) 
 
 // GetAverageCheckTrends returns average check trends over time periods
 func (s *AnalyticsService) GetAverageCheckTrends(companyID string, days int) (map[string]interface{}, error) {
+	fmt.Printf("🔥 GetAverageCheckTrends: companyID=%s, days=%d\n", companyID, days)
+	
 	analytics := make(map[string]interface{})
 
-	// Daily average check trends
-	trendsQuery := `
+	// Daily average check trends (simplified to only use bookings table)
+	trendsQuery := fmt.Sprintf(`
 		SELECT 
 			DATE(created_at) as date,
 			COUNT(*) as transaction_count,
-			AVG(CASE WHEN status = 'completed' THEN price END) as avg_booking_check,
-			AVG(CASE WHEN status = 'completed' THEN total_amount END) as avg_order_check
-		FROM (
-			SELECT created_at, price, status, NULL as total_amount FROM bookings WHERE company_id = $1
-			UNION ALL
-			SELECT created_at, NULL as price, status, total_amount FROM orders WHERE company_id = $1
-		) combined_transactions
-		WHERE created_at >= NOW() - INTERVAL '%d days'
+			AVG(CASE WHEN status IN ('completed', 'confirmed') THEN price END) as avg_check
+		FROM bookings 
+		WHERE company_id = $1 
+		AND created_at >= NOW() - INTERVAL '%d days'
 		GROUP BY DATE(created_at)
 		ORDER BY date
-	`
+	`, days)
 
-	rows, err := s.db.Query(fmt.Sprintf(trendsQuery, days), companyID, companyID)
+	fmt.Printf("🔥 Average check query: %s\n", trendsQuery)
+
+	rows, err := s.db.Query(trendsQuery, companyID)
 	if err != nil {
+		fmt.Printf("❌ Average check query error: %v\n", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -1312,31 +1313,26 @@ func (s *AnalyticsService) GetAverageCheckTrends(companyID string, days int) (ma
 	for rows.Next() {
 		var date time.Time
 		var transactionCount int
-		var avgBookingCheck, avgOrderCheck sql.NullFloat64
+		var avgCheck sql.NullFloat64
 
-		err := rows.Scan(&date, &transactionCount, &avgBookingCheck, &avgOrderCheck)
+		err := rows.Scan(&date, &transactionCount, &avgCheck)
 		if err != nil {
+			fmt.Printf("❌ Scan error: %v\n", err)
 			continue
 		}
 
-		combinedAvg := 0.0
-		if avgBookingCheck.Valid && avgOrderCheck.Valid {
-			combinedAvg = (avgBookingCheck.Float64 + avgOrderCheck.Float64) / 2
-		} else if avgBookingCheck.Valid {
-			combinedAvg = avgBookingCheck.Float64
-		} else if avgOrderCheck.Valid {
-			combinedAvg = avgOrderCheck.Float64
+		checkValue := 0.0
+		if avgCheck.Valid {
+			checkValue = avgCheck.Float64
 		}
 
 		trends = append(trends, map[string]interface{}{
 			"date":               date.Format("2006-01-02"),
 			"transaction_count":  transactionCount,
-			"avg_booking_check":  avgBookingCheck.Float64,
-			"avg_order_check":    avgOrderCheck.Float64,
-			"combined_avg_check": combinedAvg,
+			"avg_check":          checkValue,
 		})
 
-		totalAvgCheck += combinedAvg
+		totalAvgCheck += checkValue
 		trendCount++
 	}
 
