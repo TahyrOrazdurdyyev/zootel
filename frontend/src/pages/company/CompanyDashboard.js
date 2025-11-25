@@ -52,7 +52,7 @@ const CompanyDashboard = () => {
     console.log('🏢 user.companyId:', user?.companyId);
     console.log('🏢 user.company_id:', user?.company_id);
     
-    const companyId = user?.companyId || user?.company_id;
+    const companyId = user?.company_id || user?.companyId;
     
     if (companyId) {
       console.log('✅ Found companyId:', companyId);
