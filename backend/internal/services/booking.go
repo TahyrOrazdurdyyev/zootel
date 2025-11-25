@@ -1887,14 +1887,11 @@ func (s *BookingService) FindOrCreatePet(ownerID, petName string) (*models.Pet, 
 	// Pet not found, create new one
 	petID := uuid.New().String()
 	
-	// Get default pet type ID (assuming there's a default or we use empty string)
-	defaultPetTypeID := "" // Will be handled by database constraints
-	defaultBreedID := ""   // Will be handled by database constraints
-	
+	// Use NULL for optional UUID fields instead of empty strings
 	_, err = s.db.Exec(`
 		INSERT INTO pets (id, user_id, name, pet_type_id, breed_id, weight, gender, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, 0, 'unknown', NOW(), NOW())
-	`, petID, ownerID, petName, defaultPetTypeID, defaultBreedID)
+		VALUES ($1, $2, $3, NULL, NULL, 0, 'unknown', NOW(), NOW())
+	`, petID, ownerID, petName)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create pet: %w", err)
@@ -1905,8 +1902,8 @@ func (s *BookingService) FindOrCreatePet(ownerID, petName string) (*models.Pet, 
 		ID:        petID,
 		UserID:    ownerID,
 		Name:      petName,
-		PetTypeID: defaultPetTypeID,
-		BreedID:   defaultBreedID,
+		PetTypeID: "", // Will be empty for temp pets
+		BreedID:   "", // Will be empty for temp pets
 		Weight:    0,
 		Gender:    "unknown",
 	}
