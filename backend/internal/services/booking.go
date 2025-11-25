@@ -485,6 +485,10 @@ func (s *BookingService) GetBookingsByCompany(companyID string, startDate ...int
 			COALESCE(u.emergency_contact_name, '') as emergency_contact_name,
 			COALESCE(u.emergency_contact_phone, '') as emergency_contact_phone,
 			COALESCE(u.emergency_contact_relation, '') as emergency_contact_relation,
+			-- Service data
+			COALESCE(s.name, '') as service_name,
+			-- Employee data
+			COALESCE(e.name, '') as employee_name,
 			-- Extended pet data
 			COALESCE(p.name, '') as pet_name,
 			COALESCE(p.gender, '') as pet_gender,
@@ -506,6 +510,8 @@ func (s *BookingService) GetBookingsByCompany(companyID string, startDate ...int
 			COALESCE(br.name, '') as breed_name
 		FROM bookings b
 		JOIN users u ON b.user_id = u.id
+		LEFT JOIN services s ON b.service_id = s.id
+		LEFT JOIN employees e ON b.employee_id = e.id
 		LEFT JOIN pets p ON b.pet_id = p.id
 		LEFT JOIN pet_types pt ON p.pet_type_id = pt.id
 		LEFT JOIN breeds br ON p.breed_id = br.id
@@ -557,6 +563,9 @@ func (s *BookingService) GetBookingsByCompany(companyID string, startDate ...int
 		// User nullable fields
 		var userGender sql.NullString
 		var userDateOfBirth sql.NullTime
+		
+		// Service and employee data
+		var serviceName, employeeName sql.NullString
 
 		err := rows.Scan(
 			&booking.ID, &booking.UserID, &booking.CompanyID, &booking.ServiceID,
@@ -572,6 +581,8 @@ func (s *BookingService) GetBookingsByCompany(companyID string, startDate ...int
 			&bookingWithData.Customer.City, &bookingWithData.Customer.PostalCode,
 			&bookingWithData.Customer.EmergencyContactName, &bookingWithData.Customer.EmergencyContactPhone,
 			&bookingWithData.Customer.EmergencyContactRelation,
+			// Service and employee data
+			&serviceName, &employeeName,
 			// Extended pet data
 			&petName, &petGender, &petDateOfBirth, &petWeight, &petMicrochipID,
 			&petSterilized, &petChronicConditions, &petAllergies, &petDietaryRestrictions,
@@ -592,6 +603,20 @@ func (s *BookingService) GetBookingsByCompany(companyID string, startDate ...int
 		}
 		if userDateOfBirth.Valid {
 			bookingWithData.Customer.DateOfBirth = &userDateOfBirth.Time
+		}
+
+		// Set service and employee data
+		if serviceName.Valid {
+			booking.ServiceName = serviceName.String
+		}
+		if employeeName.Valid {
+			booking.EmployeeName = employeeName.String
+		}
+		
+		// Set client name from customer data
+		clientName := strings.TrimSpace(bookingWithData.Customer.FirstName + " " + bookingWithData.Customer.LastName)
+		if clientName != "" {
+			booking.ClientName = clientName
 		}
 
 		// Set extended pet data

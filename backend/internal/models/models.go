@@ -925,6 +925,7 @@ type Booking struct {
 	PetInfo      *PetInfo      `json:"pet_info,omitempty"`
 	ServiceName  string        `json:"service_name,omitempty"`
 	EmployeeName string        `json:"employee_name,omitempty"`
+	ClientName   string        `json:"client_name,omitempty"`
 }
 
 // CustomerInfo contains customer details for company views
