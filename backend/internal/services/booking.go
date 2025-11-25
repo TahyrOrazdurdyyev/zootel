@@ -488,7 +488,7 @@ func (s *BookingService) GetBookingsByCompany(companyID string, startDate ...int
 			-- Service data
 			COALESCE(s.name, '') as service_name,
 			-- Employee data
-			COALESCE(e.name, '') as employee_name,
+			COALESCE(CONCAT(e.first_name, ' ', e.last_name), '') as employee_name,
 			-- Extended pet data
 			COALESCE(p.name, '') as pet_name,
 			COALESCE(p.gender, '') as pet_gender,
