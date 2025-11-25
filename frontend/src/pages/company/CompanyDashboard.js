@@ -48,9 +48,18 @@ const CompanyDashboard = () => {
   });
 
   useEffect(() => {
-    if (user?.companyId) {
-      setCompanyId(user.companyId);
-      loadDashboardData(user.companyId);
+    console.log('🔍 useEffect triggered, user:', user);
+    console.log('🏢 user.companyId:', user?.companyId);
+    console.log('🏢 user.company_id:', user?.company_id);
+    
+    const companyId = user?.companyId || user?.company_id;
+    
+    if (companyId) {
+      console.log('✅ Found companyId:', companyId);
+      setCompanyId(companyId);
+      loadDashboardData(companyId);
+    } else {
+      console.log('❌ No companyId found in user object');
     }
   }, [user]);
 
