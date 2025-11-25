@@ -553,6 +553,10 @@ func (s *BookingService) GetBookingsByCompany(companyID string, startDate ...int
 		var petWeight sql.NullFloat64
 		var petSterilized sql.NullBool
 		var petChronicConditions, petAllergies pq.StringArray
+		
+		// User nullable fields
+		var userGender sql.NullString
+		var userDateOfBirth sql.NullTime
 
 		err := rows.Scan(
 			&booking.ID, &booking.UserID, &booking.CompanyID, &booking.ServiceID,
@@ -562,7 +566,7 @@ func (s *BookingService) GetBookingsByCompany(companyID string, startDate ...int
 			// Extended user data
 			&bookingWithData.Customer.FirstName, &bookingWithData.Customer.LastName,
 			&bookingWithData.Customer.Email, &bookingWithData.Customer.Phone,
-			&bookingWithData.Customer.Gender, &bookingWithData.Customer.DateOfBirth,
+			&userGender, &userDateOfBirth,
 			&bookingWithData.Customer.Address, &bookingWithData.Customer.ApartmentNumber,
 			&bookingWithData.Customer.Country, &bookingWithData.Customer.State,
 			&bookingWithData.Customer.City, &bookingWithData.Customer.PostalCode,
@@ -581,6 +585,14 @@ func (s *BookingService) GetBookingsByCompany(companyID string, startDate ...int
 
 		// Set customer data
 		bookingWithData.Customer.UserID = booking.UserID
+		
+		// Handle nullable user fields
+		if userGender.Valid {
+			bookingWithData.Customer.Gender = userGender.String
+		}
+		if userDateOfBirth.Valid {
+			bookingWithData.Customer.DateOfBirth = &userDateOfBirth.Time
+		}
 
 		// Set extended pet data
 		if booking.PetID != nil {
