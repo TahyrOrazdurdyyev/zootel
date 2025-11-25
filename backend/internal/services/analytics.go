@@ -3129,9 +3129,19 @@ func (s *AnalyticsService) GetCompanyRevenue(companyID string, days int) (map[st
 		})
 	}
 
+	// Calculate total revenue from trends
+	var totalRevenue float64
+	for _, trend := range trends {
+		if revenue, ok := trend["revenue"].(float64); ok {
+			totalRevenue += revenue
+		}
+	}
+
 	return map[string]interface{}{
-		"daily_trends": trends,
-		"period_days":  days,
+		"daily_trends":   trends,
+		"period_days":    days,
+		"total_revenue":  totalRevenue,
+		"total_transactions": len(trends),
 	}, nil
 }
 

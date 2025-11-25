@@ -583,7 +583,7 @@ const RevenueAnalyticsView = ({ companyId, dateRange }) => {
                   labels: revenueData.averageCheck.daily_trends.map(item => item.date),
                   datasets: [{
                     label: 'Average Check',
-                    data: revenueData.averageCheck.daily_trends.map(item => item.combined_avg_check),
+                    data: revenueData.averageCheck.daily_trends.map(item => item.avg_check),
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(255, 99, 132, 0.1)',
                     fill: true,
