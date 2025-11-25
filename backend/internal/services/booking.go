@@ -1784,12 +1784,12 @@ func (s *BookingService) FindOrCreateCustomer(name, phone string) (*models.User,
 	// First try to find existing customer by phone
 	var user models.User
 	err := s.db.QueryRow(`
-		SELECT id, email, first_name, last_name, phone, role, created_at, updated_at
+		SELECT id, firebase_uid, email, first_name, last_name, phone, role, created_at, updated_at
 		FROM users 
 		WHERE phone = $1 AND role = 'pet_owner'
 		LIMIT 1
 	`, phone).Scan(
-		&user.ID, &user.Email, &user.FirstName, &user.LastName, &user.Phone, 
+		&user.ID, &user.FirebaseUID, &user.Email, &user.FirstName, &user.LastName, &user.Phone, 
 		&user.Role, &user.CreatedAt, &user.UpdatedAt,
 	)
 
@@ -1826,6 +1826,7 @@ func (s *BookingService) FindOrCreateCustomer(name, phone string) (*models.User,
 	// Customer not found, create new one
 	userID := uuid.New().String()
 	email := fmt.Sprintf("%s@temp.zootel.com", phone) // Temporary email
+	firebaseUID := fmt.Sprintf("temp_%s_%s", phone, userID[:8]) // Temporary Firebase UID
 	
 	// Split name into first and last
 	nameParts := strings.Fields(name)
@@ -1836,9 +1837,9 @@ func (s *BookingService) FindOrCreateCustomer(name, phone string) (*models.User,
 	}
 
 	_, err = s.db.Exec(`
-		INSERT INTO users (id, email, first_name, last_name, phone, role, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, 'pet_owner', NOW(), NOW())
-	`, userID, email, firstName, lastName, phone)
+		INSERT INTO users (id, firebase_uid, email, first_name, last_name, phone, role, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, 'pet_owner', NOW(), NOW())
+	`, userID, firebaseUID, email, firstName, lastName, phone)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create customer: %w", err)
@@ -1846,12 +1847,13 @@ func (s *BookingService) FindOrCreateCustomer(name, phone string) (*models.User,
 
 	// Return the created user
 	user = models.User{
-		ID:        userID,
-		Email:     email,
-		FirstName: firstName,
-		LastName:  lastName,
-		Phone:     phone,
-		Role:      "pet_owner",
+		ID:          userID,
+		FirebaseUID: firebaseUID,
+		Email:       email,
+		FirstName:   firstName,
+		LastName:    lastName,
+		Phone:       phone,
+		Role:        "pet_owner",
 	}
 
 	fmt.Printf("✅ Created new customer: %s (%s)\n", name, phone)
