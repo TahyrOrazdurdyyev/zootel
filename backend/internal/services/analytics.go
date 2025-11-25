@@ -3039,12 +3039,13 @@ func (s *AnalyticsService) GetCompanyDashboard(companyID string, days int) (map[
 	revenueQuery := `
 		SELECT COALESCE(SUM(price), 0) 
 		FROM bookings 
-		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL $2 || ' days'
+		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
 		AND status IN ('confirmed', 'completed')
 	`
-	fmt.Printf("🔥 Revenue query: %s with params: %s, %d\n", revenueQuery, companyID, days)
+	finalQuery := fmt.Sprintf(revenueQuery, days)
+	fmt.Printf("🔥 Revenue query: %s with params: %s\n", finalQuery, companyID)
 	
-	err := s.db.QueryRow(revenueQuery, companyID, days).Scan(&totalRevenue)
+	err := s.db.QueryRow(finalQuery, companyID).Scan(&totalRevenue)
 	if err != nil {
 		fmt.Printf("❌ Revenue query error: %v\n", err)
 		return nil, err
@@ -3052,32 +3053,35 @@ func (s *AnalyticsService) GetCompanyDashboard(companyID string, days int) (map[
 	fmt.Printf("✅ Revenue result: %d\n", totalRevenue)
 
 	// Total bookings
-	err = s.db.QueryRow(`
+	bookingsQuery := fmt.Sprintf(`
 		SELECT COUNT(*) 
 		FROM bookings 
-		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL $2 || ' days'
-	`, companyID, days).Scan(&totalBookings)
+		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+	`, days)
+	err = s.db.QueryRow(bookingsQuery, companyID).Scan(&totalBookings)
 	if err != nil {
 		return nil, err
 	}
 
 	// Total customers (unique users)
-	err = s.db.QueryRow(`
+	customersQuery := fmt.Sprintf(`
 		SELECT COUNT(DISTINCT user_id) 
 		FROM bookings 
-		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL $2 || ' days'
-	`, companyID, days).Scan(&totalCustomers)
+		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+	`, days)
+	err = s.db.QueryRow(customersQuery, companyID).Scan(&totalCustomers)
 	if err != nil {
 		return nil, err
 	}
 
 	// Average rating (from reviews)
-	err = s.db.QueryRow(`
+	ratingQuery := fmt.Sprintf(`
 		SELECT COALESCE(AVG(rating), 0) 
 		FROM reviews r
 		JOIN bookings b ON r.booking_id = b.id
-		WHERE b.company_id = $1 AND r.created_at >= NOW() - INTERVAL $2 || ' days'
-	`, companyID, days).Scan(&avgRating)
+		WHERE b.company_id = $1 AND r.created_at >= NOW() - INTERVAL '%d days'
+	`, days)
+	err = s.db.QueryRow(ratingQuery, companyID).Scan(&avgRating)
 	if err != nil {
 		avgRating = 0 // No reviews yet
 	}
@@ -3094,18 +3098,19 @@ func (s *AnalyticsService) GetCompanyDashboard(companyID string, days int) (map[
 // GetCompanyRevenue returns revenue analytics for a company
 func (s *AnalyticsService) GetCompanyRevenue(companyID string, days int) (map[string]interface{}, error) {
 	// Daily revenue trends
-	rows, err := s.db.Query(`
+	revenueQuery := fmt.Sprintf(`
 		SELECT 
 			DATE(created_at) as date,
 			SUM(price) as revenue,
 			COUNT(*) as bookings
 		FROM bookings 
 		WHERE company_id = $1 
-		AND created_at >= NOW() - INTERVAL $2 || ' days'
+		AND created_at >= NOW() - INTERVAL '%d days'
 		AND status IN ('confirmed', 'completed')
 		GROUP BY DATE(created_at)
 		ORDER BY date DESC
-	`, companyID, days)
+	`, days)
+	rows, err := s.db.Query(revenueQuery, companyID)
 	if err != nil {
 		return nil, err
 	}
@@ -3135,16 +3140,17 @@ func (s *AnalyticsService) GetCompanyRevenue(companyID string, days int) (map[st
 // GetCompanyBookingAnalytics returns booking analytics for a company
 func (s *AnalyticsService) GetCompanyBookingAnalytics(companyID string, days int) (map[string]interface{}, error) {
 	// Booking status distribution
-	statusRows, err := s.db.Query(`
+	statusQuery := fmt.Sprintf(`
 		SELECT 
 			status,
 			COUNT(*) as count
 		FROM bookings 
 		WHERE company_id = $1 
-		AND created_at >= NOW() - INTERVAL $2 || ' days'
+		AND created_at >= NOW() - INTERVAL '%d days'
 		GROUP BY status
 		ORDER BY count DESC
-	`, companyID, days)
+	`, days)
+	statusRows, err := s.db.Query(statusQuery, companyID)
 	if err != nil {
 		return nil, err
 	}
@@ -3176,35 +3182,37 @@ func (s *AnalyticsService) GetCompanyCustomerAnalytics(companyID string, days in
 	var newCustomers, returningCustomers int
 
 	// New customers (first booking in period)
-	err := s.db.QueryRow(`
+	newCustomersQuery := fmt.Sprintf(`
 		SELECT COUNT(DISTINCT user_id)
 		FROM bookings b1
 		WHERE b1.company_id = $1 
-		AND b1.created_at >= NOW() - INTERVAL $2 || ' days'
+		AND b1.created_at >= NOW() - INTERVAL '%d days'
 		AND NOT EXISTS (
 			SELECT 1 FROM bookings b2 
 			WHERE b2.user_id = b1.user_id 
 			AND b2.company_id = $1 
-			AND b2.created_at < NOW() - INTERVAL $2 || ' days'
+			AND b2.created_at < NOW() - INTERVAL '%d days'
 		)
-	`, companyID, days).Scan(&newCustomers)
+	`, days, days)
+	err := s.db.QueryRow(newCustomersQuery, companyID).Scan(&newCustomers)
 	if err != nil {
 		return nil, err
 	}
 
 	// Returning customers
-	err = s.db.QueryRow(`
+	returningCustomersQuery := fmt.Sprintf(`
 		SELECT COUNT(DISTINCT user_id)
 		FROM bookings b1
 		WHERE b1.company_id = $1 
-		AND b1.created_at >= NOW() - INTERVAL $2 || ' days'
+		AND b1.created_at >= NOW() - INTERVAL '%d days'
 		AND EXISTS (
 			SELECT 1 FROM bookings b2 
 			WHERE b2.user_id = b1.user_id 
 			AND b2.company_id = $1 
-			AND b2.created_at < NOW() - INTERVAL $2 || ' days'
+			AND b2.created_at < NOW() - INTERVAL '%d days'
 		)
-	`, companyID, days).Scan(&returningCustomers)
+	`, days, days)
+	err = s.db.QueryRow(returningCustomersQuery, companyID).Scan(&returningCustomers)
 	if err != nil {
 		return nil, err
 	}
