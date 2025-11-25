@@ -139,9 +139,61 @@ func (h *AuthHandler) GetMe(c *gin.Context) {
 	}
 
 	fmt.Printf("[HANDLER] User retrieved successfully: %s\n", user.Email)
+	
+	// For company owners, also get their company ID
+	var companyID string
+	if user.Role == "company_owner" {
+		company, err := h.userService.GetCompanyByOwner(user.ID)
+		if err == nil {
+			companyID = company.ID
+			fmt.Printf("[HANDLER] Found company ID for user: %s\n", companyID)
+		}
+	}
+	
+	// Create response with user data and company_id if applicable
+	responseData := map[string]interface{}{
+		"id":                         user.ID,
+		"firebase_uid":               user.FirebaseUID,
+		"email":                      user.Email,
+		"first_name":                 user.FirstName,
+		"last_name":                  user.LastName,
+		"role":                       user.Role,
+		"gender":                     user.Gender,
+		"date_of_birth":              user.DateOfBirth,
+		"phone":                      user.Phone,
+		"address":                    user.Address,
+		"apartment_number":           user.ApartmentNumber,
+		"country":                    user.Country,
+		"state":                      user.State,
+		"city":                       user.City,
+		"postal_code":                user.PostalCode,
+		"timezone":                   user.Timezone,
+		"avatar_url":                 user.AvatarURL,
+		"emergency_contact":          user.EmergencyContact,
+		"emergency_contact_name":     user.EmergencyContactName,
+		"emergency_contact_phone":    user.EmergencyContactPhone,
+		"emergency_contact_relation": user.EmergencyContactRelation,
+		"vet_contact":                user.VetContact,
+		"vet_name":                   user.VetName,
+		"vet_clinic":                 user.VetClinic,
+		"vet_phone":                  user.VetPhone,
+		"notification_methods":       user.NotificationMethods,
+		"notifications_push":         user.NotificationsPush,
+		"notifications_sms":          user.NotificationsSMS,
+		"notifications_email":        user.NotificationsEmail,
+		"marketing_opt_in":           user.MarketingOptIn,
+		"created_at":                 user.CreatedAt,
+		"updated_at":                 user.UpdatedAt,
+	}
+	
+	// Add company_id if user is company owner
+	if companyID != "" {
+		responseData["company_id"] = companyID
+	}
+	
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"data":    user,
+		"data":    responseData,
 	})
 }
 
