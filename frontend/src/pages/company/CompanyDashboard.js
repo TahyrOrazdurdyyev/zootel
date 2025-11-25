@@ -28,6 +28,9 @@ const CompanyDashboard = () => {
   const navigate = useNavigate();
   const [companyId, setCompanyId] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  console.log('🏢 CompanyDashboard component loaded');
+  console.log('👤 Current user:', user);
   const [dashboardData, setDashboardData] = useState({
     metrics: {
       totalRevenue: 0,
@@ -54,6 +57,7 @@ const CompanyDashboard = () => {
   const loadDashboardData = async (companyId) => {
     try {
       setLoading(true);
+      console.log('🔄 Loading dashboard data for company:', companyId);
       
       // Load all dashboard data
       const [metricsRes, bookingsRes, servicesRes, notificationsRes] = await Promise.all([
@@ -63,8 +67,14 @@ const CompanyDashboard = () => {
         apiCall(`/companies/notifications/unread?limit=5`)
       ]);
 
+      console.log('📊 Analytics response:', metricsRes);
+      console.log('📅 Bookings response:', bookingsRes);
+      console.log('🔧 Services response:', servicesRes);
+      console.log('🔔 Notifications response:', notificationsRes);
+
       // Transform analytics data to match expected format
       const analyticsData = metricsRes.success && metricsRes.data ? metricsRes.data.analytics : {};
+      console.log('📈 Transformed analytics data:', analyticsData);
       
       setDashboardData({
         metrics: {
@@ -81,8 +91,10 @@ const CompanyDashboard = () => {
         upcomingBookings: []
       });
 
+      console.log('✅ Dashboard data loaded successfully');
+
     } catch (error) {
-      console.error('Failed to load dashboard data:', error);
+      console.error('❌ Failed to load dashboard data:', error);
     } finally {
       setLoading(false);
     }
