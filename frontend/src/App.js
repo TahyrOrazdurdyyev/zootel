@@ -55,6 +55,7 @@ import AddonManagementPage from './pages/company/AddonManagementPage';
 import InventoryPage from './pages/company/InventoryPage';
 import EmployeesManagementPage from './pages/company/EmployeesManagementPage';
 import CalendarPage from './pages/company/CalendarPage';
+import CompanySettingsPage from './pages/company/CompanySettingsPage';
 
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -134,6 +135,7 @@ function App() {
                     <Route path="/addons" element={<AddonManagementPage />} />
                     <Route path="/ai-prompts" element={<AIPromptsCustomization />} />
                     <Route path="/inventory" element={<InventoryPage />} />
+                    <Route path="/settings" element={<CompanySettingsPage />} />
                   </Routes>
                 </ProtectedRoute>
               } />

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import BusinessTypeSelector from '../../components/forms/BusinessTypeSelector';
 import CompanyProfileForm from '../../components/forms/CompanyProfileForm';
-import { api } from '../../utils/api';
 import {
   BuildingOfficeIcon,
   CogIcon,
@@ -13,7 +12,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const CompanySettingsPage = () => {
-  const { user } = useAuth();
+  const { user, apiCall } = useAuth();
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('business-type');
@@ -25,9 +24,9 @@ const CompanySettingsPage = () => {
   const fetchCompanyProfile = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/companies/profile');
-      if (response.data.success) {
-        setCompany(response.data.company);
+      const response = await apiCall('/companies/profile');
+      if (response.success) {
+        setCompany(response.company);
       }
     } catch (error) {
       console.error('Failed to fetch company profile:', error);
@@ -40,8 +39,21 @@ const CompanySettingsPage = () => {
     setCompany(prev => ({ ...prev, business_type: newType }));
   };
 
-  const handleProfileUpdate = (updatedData) => {
-    setCompany(prev => ({ ...prev, ...updatedData }));
+  const handleProfileUpdate = async (updatedData) => {
+    try {
+      const response = await apiCall('/companies/profile', {
+        method: 'PUT',
+        body: JSON.stringify(updatedData)
+      });
+      
+      if (response.success) {
+        setCompany(response.company);
+        alert('Profile updated successfully!');
+      }
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      alert('Failed to update profile');
+    }
   };
 
   const tabs = [
@@ -160,7 +172,7 @@ const CompanySettingsPage = () => {
               <div>
                 <CompanyProfileForm
                   company={company}
-                  onUpdate={handleProfileUpdate}
+                  onSave={handleProfileUpdate}
                   section="general"
                 />
               </div>
@@ -170,7 +182,7 @@ const CompanySettingsPage = () => {
               <div>
                 <CompanyProfileForm
                   company={company}
-                  onUpdate={handleProfileUpdate}
+                  onSave={handleProfileUpdate}
                   section="location"
                 />
               </div>
@@ -180,7 +192,7 @@ const CompanySettingsPage = () => {
               <div>
                 <CompanyProfileForm
                   company={company}
-                  onUpdate={handleProfileUpdate}
+                  onSave={handleProfileUpdate}
                   section="media"
                 />
               </div>
@@ -190,7 +202,7 @@ const CompanySettingsPage = () => {
               <div>
                 <CompanyProfileForm
                   company={company}
-                  onUpdate={handleProfileUpdate}
+                  onSave={handleProfileUpdate}
                   section="online"
                 />
               </div>
