@@ -510,6 +510,8 @@ func (s *CompanyService) GetCompanyByID(companyID string) (*models.Company, erro
 	var latitude, longitude sql.NullFloat64
 	var trialEndsAt, subscriptionExpiresAt sql.NullTime
 	
+	fmt.Printf("🔍 GetCompanyByID: Querying company %s\n", companyID)
+	
 	err := s.db.QueryRow(query, companyID).Scan(
 		&company.ID, &company.OwnerID, &company.Name, &company.Description,
 		pq.Array(&company.Categories), &company.BusinessType,
@@ -526,8 +528,11 @@ func (s *CompanyService) GetCompanyByID(companyID string) (*models.Company, erro
 	)
 	
 	if err != nil {
+		fmt.Printf("❌ GetCompanyByID scan error: %v\n", err)
 		return nil, fmt.Errorf("failed to get company: %w", err)
 	}
+	
+	fmt.Printf("✅ GetCompanyByID success for company: %s\n", company.Name)
 	
 	// Handle NULL values
 	if logoURL.Valid {
