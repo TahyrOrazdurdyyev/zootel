@@ -8,13 +8,42 @@ const BusinessTypeSelector = ({ currentType, onUpdate, isEditable = true }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Map internal values to display names
+  const internalToDisplayMap = {
+    'veterinary': 'Veterinary Clinic',
+    'grooming': 'Grooming Salon',
+    'boarding': 'Pet Hotel', 
+    'training': 'Pet Training',
+    'walking': 'Dog Walking',
+    'sitting': 'Pet Sitting',
+    'pet_taxi': 'Pet Transportation',
+    'retail': 'Pet Store',
+    'general': 'General Services'
+  };
+
+  // Map display names to internal values  
+  const displayToInternalMap = {
+    'Veterinary Clinic': 'veterinary',
+    'Grooming Salon': 'grooming',
+    'Pet Hotel': 'boarding',
+    'Pet Training': 'training', 
+    'Dog Walking': 'walking',
+    'Pet Sitting': 'sitting',
+    'Pet Transportation': 'pet_taxi',
+    'Pet Store': 'retail',
+    'General Services': 'general'
+  };
+
   useEffect(() => {
     fetchBusinessTypes();
   }, []);
 
   useEffect(() => {
     console.log('BusinessTypeSelector - currentType changed:', currentType);
-    setSelectedType(currentType || 'general');
+    // Convert internal value to display name for UI
+    const displayName = internalToDisplayMap[currentType] || currentType || 'General Services';
+    console.log('Converting internal value to display:', currentType, '→', displayName);
+    setSelectedType(displayName);
   }, [currentType]);
 
   const fetchBusinessTypes = async () => {
@@ -34,19 +63,24 @@ const BusinessTypeSelector = ({ currentType, onUpdate, isEditable = true }) => {
   const handleTypeChange = async (newType) => {
     if (!isEditable || newType === selectedType) return;
 
+    console.log('Changing business type to:', newType);
+
     try {
       setSaving(true);
       const response = await apiCall('/companies/business-type', {
         method: 'PUT',
         body: JSON.stringify({
-          business_type: newType
+          business_type: newType // Send display name to backend (backend will convert)
         })
       });
 
       if (response.success) {
         setSelectedType(newType);
         if (onUpdate) {
-          onUpdate(newType);
+          // Send internal value to parent component
+          const internalValue = displayToInternalMap[newType] || newType;
+          console.log('Updating parent with internal value:', internalValue);
+          onUpdate(internalValue);
         }
       }
     } catch (error) {
