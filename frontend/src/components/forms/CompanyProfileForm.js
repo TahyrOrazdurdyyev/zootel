@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPinIcon, CameraIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import LocationMap from '../ui/LocationMap';
 import { auth } from '../../config/firebase';
+import { toast } from 'react-hot-toast';
 
 const CompanyProfileForm = ({ 
   company, 
@@ -28,6 +29,7 @@ const CompanyProfileForm = ({
   });
 
   const [uploading, setUploading] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
 
   useEffect(() => {
@@ -44,6 +46,7 @@ const CompanyProfileForm = ({
         phone: company.phone || '',
         email: company.email || '',
         website: company.website || '',
+        logo_url: company.logo_url || '',
         business_hours: company.business_hours || '',
         categories: company.categories || [],
         media_gallery: company.media_gallery || []
@@ -166,6 +169,55 @@ const CompanyProfileForm = ({
     }));
   };
 
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Logo file size must be less than 2MB');
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file');
+      return;
+    }
+
+    setUploadingLogo(true);
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+
+      const response = await fetch('/api/v1/uploads/gallery', {
+        method: 'POST',
+        body: formDataUpload,
+        headers: {
+          'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setFormData(prev => ({
+          ...prev,
+          logo_url: result.file.url
+        }));
+        toast.success('Logo uploaded successfully!');
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Logo upload error:', error);
+      toast.error('Failed to upload logo');
+    } finally {
+      setUploadingLogo(false);
+      // Clear the input
+      e.target.value = '';
+    }
+  };
+
   const validateForm = () => {
     const errors = {};
     
@@ -280,6 +332,47 @@ const CompanyProfileForm = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+        </div>
+
+        {/* Company Logo */}
+        <div className="mt-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Company Logo
+          </label>
+          <div className="flex items-center space-x-4">
+            {formData.logo_url && (
+              <div className="relative">
+                <img 
+                  src={formData.logo_url} 
+                  alt="Company Logo" 
+                  className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200"
+                />
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, logo_url: '' }))}
+                  className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            <div className="flex-1">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Recommended: Square image, max 2MB (JPG, PNG, GIF)
+              </p>
+            </div>
+          </div>
+          {uploadingLogo && (
+            <div className="mt-2 text-sm text-blue-600">
+              Uploading logo...
+            </div>
+          )}
         </div>
 
         <div className="mt-4">
