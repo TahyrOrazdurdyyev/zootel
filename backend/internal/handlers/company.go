@@ -322,7 +322,7 @@ func (h *CompanyHandler) UpdateBusinessType(c *gin.Context) {
 	// Map display names to internal values
 	businessTypeMap := map[string]string{
 		"Veterinary Clinic":  "veterinary",
-		"Grooming Salon":     "grooming", 
+		"Grooming Salon":     "grooming",
 		"Pet Hotel":          "boarding",
 		"Pet Training":       "training",
 		"Dog Walking":        "walking",
@@ -331,7 +331,7 @@ func (h *CompanyHandler) UpdateBusinessType(c *gin.Context) {
 		"Pet Store":          "retail",
 		"General Services":   "general",
 	}
-	
+
 	// Convert display name to internal value
 	internalType, exists := businessTypeMap[request.BusinessType]
 	if !exists {
@@ -351,7 +351,7 @@ func (h *CompanyHandler) UpdateBusinessType(c *gin.Context) {
 			return
 		}
 	}
-	
+
 	fmt.Printf("🔄 Converting '%s' to '%s'\n", request.BusinessType, internalType)
 
 	company, err := h.userService.GetCompanyByOwner(userID)

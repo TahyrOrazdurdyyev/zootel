@@ -587,6 +587,12 @@ func (s *CompanyService) UpdateCompanyProfile(company models.Company) (*models.C
 	`
 	
 	updatedCompany := &models.Company{}
+	
+	// Handle NULL values for scanning
+	var logoURL, website, businessHours, apiKey, planID sql.NullString
+	var latitude, longitude sql.NullFloat64
+	var trialEndsAt, subscriptionExpiresAt sql.NullTime
+	
 	err := s.db.QueryRow(query,
 		company.ID, company.Name, company.Description, pq.Array(company.Categories),
 		company.BusinessType, company.Country, company.State, company.City,
@@ -597,19 +603,48 @@ func (s *CompanyService) UpdateCompanyProfile(company models.Company) (*models.C
 		&updatedCompany.ID, &updatedCompany.OwnerID, &updatedCompany.Name, &updatedCompany.Description,
 		pq.Array(&updatedCompany.Categories), &updatedCompany.BusinessType,
 		&updatedCompany.Country, &updatedCompany.State, &updatedCompany.City, &updatedCompany.Address,
-		&updatedCompany.Latitude, &updatedCompany.Longitude,
-		&updatedCompany.Phone, &updatedCompany.Email, &updatedCompany.Website, &updatedCompany.LogoURL,
-		pq.Array(&updatedCompany.MediaGallery), &updatedCompany.BusinessHours,
-		&updatedCompany.PlanID, &updatedCompany.TrialExpired, &updatedCompany.TrialEndsAt,
-		&updatedCompany.SubscriptionExpiresAt, &updatedCompany.SubscriptionStatus,
+		&latitude, &longitude,
+		&updatedCompany.Phone, &updatedCompany.Email, &website, &logoURL,
+		pq.Array(&updatedCompany.MediaGallery), &businessHours,
+		&planID, &updatedCompany.TrialExpired, &trialEndsAt,
+		&subscriptionExpiresAt, &updatedCompany.SubscriptionStatus,
 		&updatedCompany.SpecialPartner, &updatedCompany.ManualEnabledCRM,
 		&updatedCompany.ManualEnabledAIAgents, &updatedCompany.IsDemo, &updatedCompany.IsActive,
-		&updatedCompany.WebsiteIntegrationEnabled, &updatedCompany.APIKey, &updatedCompany.PublishToMarketplace,
+		&updatedCompany.WebsiteIntegrationEnabled, &apiKey, &updatedCompany.PublishToMarketplace,
 		&updatedCompany.CreatedAt, &updatedCompany.UpdatedAt,
 	)
 	
 	if err != nil {
 		return nil, fmt.Errorf("failed to update company profile: %w", err)
+	}
+	
+	// Handle NULL values
+	if logoURL.Valid {
+		updatedCompany.LogoURL = logoURL.String
+	}
+	if website.Valid {
+		updatedCompany.Website = website.String
+	}
+	if businessHours.Valid {
+		updatedCompany.BusinessHours = businessHours.String
+	}
+	if apiKey.Valid {
+		updatedCompany.APIKey = apiKey.String
+	}
+	if planID.Valid {
+		updatedCompany.PlanID = planID.String
+	}
+	if latitude.Valid {
+		updatedCompany.Latitude = &latitude.Float64
+	}
+	if longitude.Valid {
+		updatedCompany.Longitude = &longitude.Float64
+	}
+	if trialEndsAt.Valid {
+		updatedCompany.TrialEndsAt = &trialEndsAt.Time
+	}
+	if subscriptionExpiresAt.Valid {
+		updatedCompany.SubscriptionExpiresAt = &subscriptionExpiresAt.Time
 	}
 	
 	return updatedCompany, nil
