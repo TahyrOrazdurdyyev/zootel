@@ -434,6 +434,7 @@ func main() {
 				// companies.GET("/business-types", companyHandler.GetBusinessTypes) // Moved to public marketplace
 				companies.POST("/upload-logo", companyHandler.UploadLogo)
 				companies.POST("/upload-media", companyHandler.UploadMedia)
+				companies.POST("/upload-gallery", uploadHandler.UploadGallery)
 
 				// Services management
 				companies.GET("/services", serviceHandler.GetCompanyServices)
