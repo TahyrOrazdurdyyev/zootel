@@ -512,13 +512,16 @@ func (s *CompanyService) GetCompanyByID(companyID string) (*models.Company, erro
 	
 	fmt.Printf("🔍 GetCompanyByID: Querying company %s\n", companyID)
 	
+	// Temporary debug: scan media_gallery as interface{} to see what's in DB
+	var mediaGalleryRaw interface{}
+	
 	err := s.db.QueryRow(query, companyID).Scan(
 		&company.ID, &company.OwnerID, &company.Name, &company.Description,
 		pq.Array(&company.Categories), &company.BusinessType,
 		&company.Country, &company.State, &company.City, &company.Address,
 		&latitude, &longitude,
 		&company.Phone, &company.Email, &website, &logoURL,
-		pq.Array(&company.MediaGallery), &businessHours,
+		&mediaGalleryRaw, &businessHours,
 		&planID, &company.TrialExpired, &trialEndsAt,
 		&subscriptionExpiresAt, &company.SubscriptionStatus,
 		&company.SpecialPartner, &company.ManualEnabledCRM,
@@ -530,6 +533,34 @@ func (s *CompanyService) GetCompanyByID(companyID string) (*models.Company, erro
 	if err != nil {
 		fmt.Printf("❌ GetCompanyByID scan error: %v\n", err)
 		return nil, fmt.Errorf("failed to get company: %w", err)
+	}
+	
+	fmt.Printf("🔍 MediaGallery raw data: %+v (type: %T)\n", mediaGalleryRaw, mediaGalleryRaw)
+	
+	// Try to convert mediaGalleryRaw to []string
+	if mediaGalleryRaw != nil {
+		if mediaArray, ok := mediaGalleryRaw.([]interface{}); ok {
+			fmt.Printf("🔍 MediaGallery is array with %d elements\n", len(mediaArray))
+			for i, item := range mediaArray {
+				fmt.Printf("🔍 MediaGallery[%d]: %+v (type: %T)\n", i, item, item)
+			}
+			// Convert to []string
+			company.MediaGallery = make([]string, len(mediaArray))
+			for i, item := range mediaArray {
+				if str, ok := item.(string); ok {
+					company.MediaGallery[i] = str
+				} else {
+					fmt.Printf("❌ MediaGallery[%d] is not string: %+v\n", i, item)
+					company.MediaGallery[i] = fmt.Sprintf("%v", item)
+				}
+			}
+		} else {
+			fmt.Printf("❌ MediaGallery is not array: %+v\n", mediaGalleryRaw)
+			company.MediaGallery = []string{}
+		}
+	} else {
+		fmt.Printf("🔍 MediaGallery is NULL\n")
+		company.MediaGallery = []string{}
 	}
 	
 	fmt.Printf("✅ GetCompanyByID success for company: %s\n", company.Name)
