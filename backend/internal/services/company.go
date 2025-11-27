@@ -574,7 +574,7 @@ func (s *CompanyService) UpdateCompanyProfile(company models.Company) (*models.C
 			latitude = $10, longitude = $11, phone = $12, email = $13, 
 			website = $14, logo_url = $15, media_gallery = $16, 
 			business_hours = $17, publish_to_marketplace = $18,
-			updated_at = CURRENT_TIMESTAMP
+			website_integration_enabled = $19, updated_at = CURRENT_TIMESTAMP
 		WHERE id = $1
 		RETURNING id, owner_id, name, description, categories, business_type, 
 		          country, state, city, address, latitude, longitude, 
@@ -598,7 +598,7 @@ func (s *CompanyService) UpdateCompanyProfile(company models.Company) (*models.C
 		company.BusinessType, company.Country, company.State, company.City,
 		company.Address, company.Latitude, company.Longitude, company.Phone,
 		company.Email, company.Website, company.LogoURL, pq.Array(company.MediaGallery),
-		company.BusinessHours, company.PublishToMarketplace,
+		company.BusinessHours, company.PublishToMarketplace, company.WebsiteIntegrationEnabled,
 	).Scan(
 		&updatedCompany.ID, &updatedCompany.OwnerID, &updatedCompany.Name, &updatedCompany.Description,
 		pq.Array(&updatedCompany.Categories), &updatedCompany.BusinessType,
