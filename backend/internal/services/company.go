@@ -506,7 +506,7 @@ func (s *CompanyService) GetCompanyByID(companyID string) (*models.Company, erro
 		WHERE id = $1
 	`
 	
-	var logoURL, website, businessHours, apiKey sql.NullString
+	var logoURL, website, businessHours, apiKey, planID sql.NullString
 	var latitude, longitude sql.NullFloat64
 	var trialEndsAt, subscriptionExpiresAt sql.NullTime
 	
@@ -517,7 +517,7 @@ func (s *CompanyService) GetCompanyByID(companyID string) (*models.Company, erro
 		&latitude, &longitude,
 		&company.Phone, &company.Email, &website, &logoURL,
 		pq.Array(&company.MediaGallery), &businessHours,
-		&company.PlanID, &company.TrialExpired, &trialEndsAt,
+		&planID, &company.TrialExpired, &trialEndsAt,
 		&subscriptionExpiresAt, &company.SubscriptionStatus,
 		&company.SpecialPartner, &company.ManualEnabledCRM,
 		&company.ManualEnabledAIAgents, &company.IsDemo, &company.IsActive,
@@ -541,6 +541,9 @@ func (s *CompanyService) GetCompanyByID(companyID string) (*models.Company, erro
 	}
 	if apiKey.Valid {
 		company.APIKey = apiKey.String
+	}
+	if planID.Valid {
+		company.PlanID = planID.String
 	}
 	if latitude.Valid {
 		company.Latitude = &latitude.Float64

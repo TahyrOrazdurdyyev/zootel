@@ -319,20 +319,40 @@ func (h *CompanyHandler) UpdateBusinessType(c *gin.Context) {
 
 	fmt.Printf("📋 Business type request: %+v\n", request)
 
-	// Validate business type
-	validTypes := []string{"veterinary", "grooming", "boarding", "training", "walking", "sitting", "pet_taxi", "retail", "general"}
-	isValid := false
-	for _, validType := range validTypes {
-		if request.BusinessType == validType {
-			isValid = true
-			break
+	// Map display names to internal values
+	businessTypeMap := map[string]string{
+		"Veterinary Clinic":  "veterinary",
+		"Grooming Salon":     "grooming", 
+		"Pet Hotel":          "boarding",
+		"Pet Training":       "training",
+		"Dog Walking":        "walking",
+		"Pet Sitting":        "sitting",
+		"Pet Transportation": "pet_taxi",
+		"Pet Store":          "retail",
+		"General Services":   "general",
+	}
+	
+	// Convert display name to internal value
+	internalType, exists := businessTypeMap[request.BusinessType]
+	if !exists {
+		// Try direct match with internal values
+		validTypes := []string{"veterinary", "grooming", "boarding", "training", "walking", "sitting", "pet_taxi", "retail", "general"}
+		isValid := false
+		for _, validType := range validTypes {
+			if request.BusinessType == validType {
+				internalType = request.BusinessType
+				isValid = true
+				break
+			}
+		}
+		if !isValid {
+			fmt.Printf("❌ Invalid business type: %s\n", request.BusinessType)
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid business type"})
+			return
 		}
 	}
-
-	if !isValid {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid business type"})
-		return
-	}
+	
+	fmt.Printf("🔄 Converting '%s' to '%s'\n", request.BusinessType, internalType)
 
 	company, err := h.userService.GetCompanyByOwner(userID)
 	if err != nil {
@@ -340,7 +360,7 @@ func (h *CompanyHandler) UpdateBusinessType(c *gin.Context) {
 		return
 	}
 
-	err = h.companyService.UpdateBusinessType(company.ID, request.BusinessType)
+	err = h.companyService.UpdateBusinessType(company.ID, internalType)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -349,7 +369,7 @@ func (h *CompanyHandler) UpdateBusinessType(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success":       true,
 		"message":       "Business type updated successfully",
-		"business_type": request.BusinessType,
+		"business_type": internalType,
 	})
 }
 
