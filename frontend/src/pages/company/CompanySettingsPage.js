@@ -16,6 +16,8 @@ const CompanySettingsPage = () => {
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('business-type');
+  const [error, setError] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchCompanyProfile();
@@ -24,23 +26,35 @@ const CompanySettingsPage = () => {
   const fetchCompanyProfile = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await apiCall('/companies/profile');
+      console.log('📋 Company profile response:', response);
       if (response.success) {
+        console.log('📋 Company data:', response.company);
+        console.log('📋 Business type:', response.company?.business_type);
         setCompany(response.company);
+      } else {
+        setError('Failed to load company profile');
       }
     } catch (error) {
       console.error('Failed to fetch company profile:', error);
+      setError('Failed to load company profile');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleBusinessTypeUpdate = (newType) => {
+  const handleBusinessTypeUpdate = async (newType) => {
     setCompany(prev => ({ ...prev, business_type: newType }));
+    // Refresh company data to ensure consistency
+    await fetchCompanyProfile();
   };
 
   const handleProfileUpdate = async (updatedData) => {
     try {
+      setSaving(true);
+      setError(null);
+      
       const response = await apiCall('/companies/profile', {
         method: 'PUT',
         body: JSON.stringify(updatedData)
@@ -48,11 +62,23 @@ const CompanySettingsPage = () => {
       
       if (response.success) {
         setCompany(response.company);
-        alert('Profile updated successfully!');
+        // Refresh company data to ensure consistency
+        await fetchCompanyProfile();
+        
+        // Show success message
+        const successDiv = document.createElement('div');
+        successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+        successDiv.textContent = 'Profile updated successfully!';
+        document.body.appendChild(successDiv);
+        setTimeout(() => document.body.removeChild(successDiv), 3000);
+      } else {
+        setError('Failed to update profile');
       }
     } catch (error) {
       console.error('Failed to update profile:', error);
-      alert('Failed to update profile');
+      setError('Failed to update profile');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -124,6 +150,39 @@ const CompanySettingsPage = () => {
           <p className="mt-2 text-gray-600">
             Manage your company profile and settings
           </p>
+          
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 bg-red-50 border border-red-200 rounded-md p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-red-800">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Saving Indicator */}
+          {saving && (
+            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-md p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="animate-spin h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-blue-800">Saving changes...</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Tab Navigation */}

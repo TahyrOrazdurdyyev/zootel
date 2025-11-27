@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPinIcon, CameraIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import LocationMap from '../ui/LocationMap';
+import { auth } from '../../config/firebase';
 
 const CompanyProfileForm = ({ 
   company, 
@@ -129,11 +130,11 @@ const CompanyProfileForm = ({
         formDataUpload.append('file', file);
         formDataUpload.append('purpose', 'company_gallery');
 
-        const response = await fetch('/api/uploads/gallery', {
+        const response = await fetch('/api/v1/uploads/gallery', {
           method: 'POST',
           body: formDataUpload,
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
           }
         });
 
@@ -164,8 +165,44 @@ const CompanyProfileForm = ({
     }));
   };
 
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.name.trim()) {
+      errors.name = 'Company name is required';
+    }
+    
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'Email is invalid';
+    }
+    
+    if (!formData.phone.trim()) {
+      errors.phone = 'Phone number is required';
+    }
+    
+    if (!formData.address.trim()) {
+      errors.address = 'Address is required';
+    }
+    
+    if (!formData.city.trim()) {
+      errors.city = 'City is required';
+    }
+    
+    return errors;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      console.error('Form validation errors:', validationErrors);
+      alert('Please fill in all required fields correctly');
+      return;
+    }
+    
     onSave(formData);
   };
 

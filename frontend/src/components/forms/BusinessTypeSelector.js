@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../../utils/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const BusinessTypeSelector = ({ currentType, onUpdate, isEditable = true }) => {
+  const { apiCall } = useAuth();
   const [businessTypes, setBusinessTypes] = useState([]);
   const [selectedType, setSelectedType] = useState(currentType || 'general');
   const [loading, setLoading] = useState(false);
@@ -12,15 +13,16 @@ const BusinessTypeSelector = ({ currentType, onUpdate, isEditable = true }) => {
   }, []);
 
   useEffect(() => {
+    console.log('BusinessTypeSelector - currentType changed:', currentType);
     setSelectedType(currentType || 'general');
   }, [currentType]);
 
   const fetchBusinessTypes = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/marketplace/business-types');
-      if (response.data.success) {
-        setBusinessTypes(response.data.business_types);
+      const response = await apiCall('/marketplace/business-types');
+      if (response.success) {
+        setBusinessTypes(response.business_types);
       }
     } catch (error) {
       console.error('Failed to fetch business types:', error);
@@ -34,20 +36,23 @@ const BusinessTypeSelector = ({ currentType, onUpdate, isEditable = true }) => {
 
     try {
       setSaving(true);
-      const response = await api.put('/companies/business-type', {
-        business_type: newType
+      const response = await apiCall('/companies/business-type', {
+        method: 'PUT',
+        body: JSON.stringify({
+          business_type: newType
+        })
       });
 
-      if (response.data.success) {
+      if (response.success) {
         setSelectedType(newType);
         if (onUpdate) {
           onUpdate(newType);
         }
       }
-          } catch (error) {
-        console.error('Failed to update business type:', error);
-        alert('Failed to update business type');
-      } finally {
+    } catch (error) {
+      console.error('Failed to update business type:', error);
+      alert('Failed to update business type');
+    } finally {
       setSaving(false);
     }
   };
