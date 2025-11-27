@@ -327,11 +327,16 @@ func (s *NotificationService) sendPushNotification(payload *NotificationPayload)
 
 // sendEmailNotification sends an email notification
 func (s *NotificationService) sendEmailNotification(payload *NotificationPayload) error {
+	// Validate UserID
+	if payload.UserID == "" {
+		return fmt.Errorf("user ID is empty")
+	}
+	
 	// Get user email
 	var email string
 	err := s.db.QueryRow(`SELECT email FROM users WHERE id = $1`, payload.UserID).Scan(&email)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get user email: %w", err)
 	}
 
 	if s.emailService != nil {
@@ -345,6 +350,11 @@ func (s *NotificationService) sendEmailNotification(payload *NotificationPayload
 
 // sendSMSNotification sends an SMS notification
 func (s *NotificationService) sendSMSNotification(payload *NotificationPayload) error {
+	// Validate UserID
+	if payload.UserID == "" {
+		return fmt.Errorf("user ID is empty")
+	}
+	
 	// Get user phone
 	var phone string
 	err := s.db.QueryRow(`SELECT phone FROM users WHERE id = $1`, payload.UserID).Scan(&phone)
@@ -376,14 +386,16 @@ func (s *NotificationService) markNotificationSent(notificationID string) {
 
 // handleNotificationFailure handles failed notification attempts
 func (s *NotificationService) handleNotificationFailure(notificationID string) {
+	maxRetries := 3 // Default max retries
+	
 	// Increment retry count and set next retry time
 	_, err := s.db.Exec(`
 		UPDATE notification_schedule 
 		SET retry_count = retry_count + 1,
 			next_retry_at = NOW() + INTERVAL '5 minutes',
 			updated_at = NOW()
-		WHERE id = $1 AND retry_count < max_retries
-	`, notificationID)
+		WHERE id = $1 AND retry_count < $2
+	`, notificationID, maxRetries)
 
 	if err != nil {
 		log.Printf("Error updating notification retry: %v", err)
@@ -393,8 +405,8 @@ func (s *NotificationService) handleNotificationFailure(notificationID string) {
 	_, err = s.db.Exec(`
 		UPDATE notification_schedule 
 		SET sent = true, status = 'failed', updated_at = NOW()
-		WHERE id = $1 AND retry_count >= max_retries
-	`, notificationID)
+		WHERE id = $1 AND retry_count >= $2
+	`, notificationID, maxRetries)
 
 	if err != nil {
 		log.Printf("Error marking notification as failed: %v", err)

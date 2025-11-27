@@ -259,57 +259,6 @@ func (h *CompanyHandler) Search(c *gin.Context) {
 	})
 }
 
-// Company profile management
-func (h *CompanyHandler) GetCompanyProfile(c *gin.Context) {
-	userID := c.GetString("user_id")
-	if userID == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
-		return
-	}
-
-	company, err := h.userService.GetCompanyByOwner(userID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Company not found"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"company": company,
-	})
-}
-
-func (h *CompanyHandler) UpdateCompanyProfile(c *gin.Context) {
-	userID := c.GetString("user_id")
-	if userID == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
-		return
-	}
-
-	var updateData map[string]interface{}
-	if err := c.ShouldBindJSON(&updateData); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	company, err := h.userService.GetCompanyByOwner(userID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Company not found"})
-		return
-	}
-
-	err = h.companyService.UpdateCompanyProfile(company.ID, updateData)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "Company profile updated successfully",
-	})
-}
-
 func (h *CompanyHandler) UploadLogo(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Upload logo endpoint"})
 }
@@ -388,11 +337,7 @@ func (h *CompanyHandler) UpdateBusinessType(c *gin.Context) {
 		return
 	}
 
-	updateData := map[string]interface{}{
-		"business_type": request.BusinessType,
-	}
-
-	err = h.companyService.UpdateCompanyProfile(company.ID, updateData)
+	err = h.companyService.UpdateBusinessType(company.ID, request.BusinessType)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -495,5 +440,57 @@ func (h *CompanyHandler) RegisterCompany(c *gin.Context) {
 		"success": true,
 		"message": "Company registered successfully",
 		"data":    company,
+	})
+}
+
+// GetCompanyProfile returns the company profile for editing
+func (h *CompanyHandler) GetCompanyProfile(c *gin.Context) {
+	companyID := c.GetString("company_id")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	company, err := h.companyService.GetCompanyByID(companyID)
+	if err != nil {
+		fmt.Printf("Error getting company profile: %v\n", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "Company not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"company": company,
+	})
+}
+
+// UpdateCompanyProfile updates the company profile
+func (h *CompanyHandler) UpdateCompanyProfile(c *gin.Context) {
+	companyID := c.GetString("company_id")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	var updateData models.Company
+	if err := c.ShouldBindJSON(&updateData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data", "details": err.Error()})
+		return
+	}
+
+	// Set the company ID from context
+	updateData.ID = companyID
+
+	updatedCompany, err := h.companyService.UpdateCompanyProfile(updateData)
+	if err != nil {
+		fmt.Printf("Error updating company profile: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update company profile"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Company profile updated successfully",
+		"company": updatedCompany,
 	})
 }

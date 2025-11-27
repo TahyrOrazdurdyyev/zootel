@@ -425,64 +425,6 @@ func (s *CompanyService) searchProducts(pattern string, limit int) ([]map[string
 	return products, nil
 }
 
-// UpdateCompanyProfile updates company profile data
-func (s *CompanyService) UpdateCompanyProfile(companyID string, updateData map[string]interface{}) error {
-	// Build dynamic update query
-	var setParts []string
-	var args []interface{}
-	argIndex := 1
-
-	allowedFields := map[string]string{
-		"name":           "name",
-		"description":    "description",
-		"business_type":  "business_type",
-		"address":        "address",
-		"city":           "city",
-		"state":          "state",
-		"country":        "country",
-		"latitude":       "latitude",
-		"longitude":      "longitude",
-		"phone":          "phone",
-		"email":          "email",
-		"website":        "website",
-		"business_hours": "business_hours",
-		"categories":     "categories",
-	}
-
-	for field, value := range updateData {
-		if dbField, allowed := allowedFields[field]; allowed {
-			setParts = append(setParts, fmt.Sprintf("%s = $%d", dbField, argIndex))
-			args = append(args, value)
-			argIndex++
-		}
-	}
-
-	if len(setParts) == 0 {
-		return fmt.Errorf("no valid fields to update")
-	}
-
-	// Add updated_at
-	setParts = append(setParts, fmt.Sprintf("updated_at = $%d", argIndex))
-	args = append(args, time.Now())
-	argIndex++
-
-	// Add company ID for WHERE clause
-	args = append(args, companyID)
-
-	query := fmt.Sprintf(`
-		UPDATE companies 
-		SET %s 
-		WHERE id = $%d`,
-		strings.Join(setParts, ", "), argIndex)
-
-	_, err := s.db.Exec(query, args...)
-	if err != nil {
-		return fmt.Errorf("failed to update company: %w", err)
-	}
-
-	return nil
-}
-
 // CreateCompany creates a new company
 func (s *CompanyService) CreateCompany(ownerID string, companyData map[string]interface{}) (*models.Company, error) {
 	company := &models.Company{
@@ -545,4 +487,103 @@ func (s *CompanyService) CreateCompany(ownerID string, companyData map[string]in
 	}
 
 	return company, nil
+}
+
+// GetCompanyByID gets a company by ID
+func (s *CompanyService) GetCompanyByID(companyID string) (*models.Company, error) {
+	company := &models.Company{}
+	
+	query := `
+		SELECT id, owner_id, name, description, categories, business_type, 
+		       country, state, city, address, latitude, longitude, 
+		       phone, email, website, logo_url, media_gallery, business_hours,
+		       plan_id, trial_expired, trial_ends_at, subscription_expires_at, 
+		       subscription_status, special_partner, manual_enabled_crm, 
+		       manual_enabled_ai_agents, is_demo, is_active, 
+		       website_integration_enabled, api_key, publish_to_marketplace,
+		       created_at, updated_at
+		FROM companies 
+		WHERE id = $1
+	`
+	
+	err := s.db.QueryRow(query, companyID).Scan(
+		&company.ID, &company.OwnerID, &company.Name, &company.Description,
+		pq.Array(&company.Categories), &company.BusinessType,
+		&company.Country, &company.State, &company.City, &company.Address,
+		&company.Latitude, &company.Longitude,
+		&company.Phone, &company.Email, &company.Website, &company.LogoURL,
+		pq.Array(&company.MediaGallery), &company.BusinessHours,
+		&company.PlanID, &company.TrialExpired, &company.TrialEndsAt,
+		&company.SubscriptionExpiresAt, &company.SubscriptionStatus,
+		&company.SpecialPartner, &company.ManualEnabledCRM,
+		&company.ManualEnabledAIAgents, &company.IsDemo, &company.IsActive,
+		&company.WebsiteIntegrationEnabled, &company.APIKey, &company.PublishToMarketplace,
+		&company.CreatedAt, &company.UpdatedAt,
+	)
+	
+	if err != nil {
+		return nil, fmt.Errorf("failed to get company: %w", err)
+	}
+	
+	return company, nil
+}
+
+// UpdateCompanyProfile updates company profile information
+func (s *CompanyService) UpdateCompanyProfile(company models.Company) (*models.Company, error) {
+	query := `
+		UPDATE companies SET 
+			name = $2, description = $3, categories = $4, business_type = $5,
+			country = $6, state = $7, city = $8, address = $9, 
+			latitude = $10, longitude = $11, phone = $12, email = $13, 
+			website = $14, logo_url = $15, media_gallery = $16, 
+			business_hours = $17, publish_to_marketplace = $18,
+			updated_at = CURRENT_TIMESTAMP
+		WHERE id = $1
+		RETURNING id, owner_id, name, description, categories, business_type, 
+		          country, state, city, address, latitude, longitude, 
+		          phone, email, website, logo_url, media_gallery, business_hours,
+		          plan_id, trial_expired, trial_ends_at, subscription_expires_at, 
+		          subscription_status, special_partner, manual_enabled_crm, 
+		          manual_enabled_ai_agents, is_demo, is_active, 
+		          website_integration_enabled, api_key, publish_to_marketplace,
+		          created_at, updated_at
+	`
+	
+	updatedCompany := &models.Company{}
+	err := s.db.QueryRow(query,
+		company.ID, company.Name, company.Description, pq.Array(company.Categories),
+		company.BusinessType, company.Country, company.State, company.City,
+		company.Address, company.Latitude, company.Longitude, company.Phone,
+		company.Email, company.Website, company.LogoURL, pq.Array(company.MediaGallery),
+		company.BusinessHours, company.PublishToMarketplace,
+	).Scan(
+		&updatedCompany.ID, &updatedCompany.OwnerID, &updatedCompany.Name, &updatedCompany.Description,
+		pq.Array(&updatedCompany.Categories), &updatedCompany.BusinessType,
+		&updatedCompany.Country, &updatedCompany.State, &updatedCompany.City, &updatedCompany.Address,
+		&updatedCompany.Latitude, &updatedCompany.Longitude,
+		&updatedCompany.Phone, &updatedCompany.Email, &updatedCompany.Website, &updatedCompany.LogoURL,
+		pq.Array(&updatedCompany.MediaGallery), &updatedCompany.BusinessHours,
+		&updatedCompany.PlanID, &updatedCompany.TrialExpired, &updatedCompany.TrialEndsAt,
+		&updatedCompany.SubscriptionExpiresAt, &updatedCompany.SubscriptionStatus,
+		&updatedCompany.SpecialPartner, &updatedCompany.ManualEnabledCRM,
+		&updatedCompany.ManualEnabledAIAgents, &updatedCompany.IsDemo, &updatedCompany.IsActive,
+		&updatedCompany.WebsiteIntegrationEnabled, &updatedCompany.APIKey, &updatedCompany.PublishToMarketplace,
+		&updatedCompany.CreatedAt, &updatedCompany.UpdatedAt,
+	)
+	
+	if err != nil {
+		return nil, fmt.Errorf("failed to update company profile: %w", err)
+	}
+	
+	return updatedCompany, nil
+}
+
+// UpdateBusinessType updates only the business type of a company
+func (s *CompanyService) UpdateBusinessType(companyID, businessType string) error {
+	query := `UPDATE companies SET business_type = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`
+	_, err := s.db.Exec(query, businessType, companyID)
+	if err != nil {
+		return fmt.Errorf("failed to update business type: %w", err)
+	}
+	return nil
 }

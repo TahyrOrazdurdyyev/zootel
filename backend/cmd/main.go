@@ -462,6 +462,10 @@ func main() {
 				// Company chats
 				companies.GET("/chats", chatHandler.GetCompanyChats)
 
+				// Company profile/settings
+				companies.GET("/profile", companyHandler.GetCompanyProfile)
+				companies.PUT("/profile", companyHandler.UpdateCompanyProfile)
+
 				// Analytics
 				companies.GET("/analytics", analyticsHandler.GetCompanyAnalytics)
 				companies.GET("/analytics/dashboard", analyticsHandler.GetCompanyDashboard)
