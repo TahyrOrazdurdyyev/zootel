@@ -7,7 +7,8 @@ const CompanyProfileForm = ({
   company, 
   onSave, 
   onCancel, 
-  loading = false 
+  loading = false,
+  section = "general" 
 }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -206,11 +207,24 @@ const CompanyProfileForm = ({
     onSave(formData);
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Basic Information */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
+  const renderSection = () => {
+    switch (section) {
+      case 'general':
+        return renderGeneralSection();
+      case 'location':
+        return renderLocationSection();
+      case 'media':
+        return renderMediaSection();
+      case 'online':
+        return renderOnlineSection();
+      default:
+        return renderGeneralSection();
+    }
+  };
+
+  const renderGeneralSection = () => (
+    <div className="bg-white rounded-lg shadow p-6">
+      <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -281,11 +295,12 @@ const CompanyProfileForm = ({
             placeholder="Describe your business..."
           />
         </div>
-      </div>
+    </div>
+  );
 
-      {/* Location */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold mb-4">Location</h3>
+  const renderLocationSection = () => (
+    <div className="bg-white rounded-lg shadow p-6">
+      <h3 className="text-lg font-semibold mb-4">Location</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div className="md:col-span-2">
@@ -412,11 +427,12 @@ const CompanyProfileForm = ({
             />
           )}
         </div>
-      </div>
+    </div>
+  );
 
-      {/* Media Gallery */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold mb-4">Photo Gallery</h3>
+  const renderMediaSection = () => (
+    <div className="bg-white rounded-lg shadow p-6">
+      <h3 className="text-lg font-semibold mb-4">Photo Gallery</h3>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           {formData.media_gallery.map((url, index) => (
@@ -455,7 +471,83 @@ const CompanyProfileForm = ({
             Uploading images...
           </div>
         )}
+    </div>
+  );
+
+  const renderOnlineSection = () => (
+    <div className="bg-white rounded-lg shadow p-6">
+      <h3 className="text-lg font-semibold mb-4">Online Presence</h3>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Website
+          </label>
+          <input
+            type="url"
+            name="website"
+            value={formData.website}
+            onChange={handleInputChange}
+            placeholder="https://"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email
+          </label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
       </div>
+
+      <div className="mt-4">
+        <label className="flex items-center">
+          <input
+            type="checkbox"
+            name="publish_to_marketplace"
+            checked={formData.publish_to_marketplace}
+            onChange={(e) => setFormData(prev => ({
+              ...prev,
+              publish_to_marketplace: e.target.checked
+            }))}
+            className="mr-2"
+          />
+          <span className="text-sm text-gray-700">
+            Publish to marketplace (make visible to customers)
+          </span>
+        </label>
+      </div>
+
+      <div className="mt-4">
+        <label className="flex items-center">
+          <input
+            type="checkbox"
+            name="website_integration_enabled"
+            checked={formData.website_integration_enabled}
+            onChange={(e) => setFormData(prev => ({
+              ...prev,
+              website_integration_enabled: e.target.checked
+            }))}
+            className="mr-2"
+          />
+          <span className="text-sm text-gray-700">
+            Enable website integration
+          </span>
+        </label>
+      </div>
+    </div>
+  );
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {renderSection()}
 
       {/* Action Buttons */}
       <div className="flex justify-end space-x-4">
