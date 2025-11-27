@@ -312,9 +312,12 @@ func (h *CompanyHandler) UpdateBusinessType(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
+		fmt.Printf("❌ Business type binding error: %v\n", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	fmt.Printf("📋 Business type request: %+v\n", request)
 
 	// Validate business type
 	validTypes := []string{"veterinary", "grooming", "boarding", "training", "walking", "sitting", "pet_taxi", "retail", "general"}

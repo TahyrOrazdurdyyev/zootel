@@ -506,20 +506,54 @@ func (s *CompanyService) GetCompanyByID(companyID string) (*models.Company, erro
 		WHERE id = $1
 	`
 	
+	var logoURL, website, businessHours, apiKey sql.NullString
+	var latitude, longitude sql.NullFloat64
+	var trialEndsAt, subscriptionExpiresAt sql.NullTime
+	
 	err := s.db.QueryRow(query, companyID).Scan(
 		&company.ID, &company.OwnerID, &company.Name, &company.Description,
 		pq.Array(&company.Categories), &company.BusinessType,
 		&company.Country, &company.State, &company.City, &company.Address,
-		&company.Latitude, &company.Longitude,
-		&company.Phone, &company.Email, &company.Website, &company.LogoURL,
-		pq.Array(&company.MediaGallery), &company.BusinessHours,
-		&company.PlanID, &company.TrialExpired, &company.TrialEndsAt,
-		&company.SubscriptionExpiresAt, &company.SubscriptionStatus,
+		&latitude, &longitude,
+		&company.Phone, &company.Email, &website, &logoURL,
+		pq.Array(&company.MediaGallery), &businessHours,
+		&company.PlanID, &company.TrialExpired, &trialEndsAt,
+		&subscriptionExpiresAt, &company.SubscriptionStatus,
 		&company.SpecialPartner, &company.ManualEnabledCRM,
 		&company.ManualEnabledAIAgents, &company.IsDemo, &company.IsActive,
-		&company.WebsiteIntegrationEnabled, &company.APIKey, &company.PublishToMarketplace,
+		&company.WebsiteIntegrationEnabled, &apiKey, &company.PublishToMarketplace,
 		&company.CreatedAt, &company.UpdatedAt,
 	)
+	
+	if err != nil {
+		return nil, fmt.Errorf("failed to get company: %w", err)
+	}
+	
+	// Handle NULL values
+	if logoURL.Valid {
+		company.LogoURL = logoURL.String
+	}
+	if website.Valid {
+		company.Website = website.String
+	}
+	if businessHours.Valid {
+		company.BusinessHours = businessHours.String
+	}
+	if apiKey.Valid {
+		company.APIKey = apiKey.String
+	}
+	if latitude.Valid {
+		company.Latitude = &latitude.Float64
+	}
+	if longitude.Valid {
+		company.Longitude = &longitude.Float64
+	}
+	if trialEndsAt.Valid {
+		company.TrialEndsAt = &trialEndsAt.Time
+	}
+	if subscriptionExpiresAt.Valid {
+		company.SubscriptionExpiresAt = &subscriptionExpiresAt.Time
+	}
 	
 	if err != nil {
 		return nil, fmt.Errorf("failed to get company: %w", err)

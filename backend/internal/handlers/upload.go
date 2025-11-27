@@ -248,16 +248,17 @@ func (h *UploadHandler) UploadCompanyLogo(c *gin.Context) {
 // UploadGallery handles gallery image upload
 func (h *UploadHandler) UploadGallery(c *gin.Context) {
 	userID := c.GetString("user_id")
-	entityType := c.PostForm("entity_type")
-	entityID := c.PostForm("entity_id")
+	companyID := c.GetString("company_id")
+	
+	fmt.Printf("📸 UploadGallery called - userID: %s, companyID: %s\n", userID, companyID)
 
 	if userID == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
 		return
 	}
 
-	if entityType == "" || entityID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Entity type and ID are required"})
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
 	}
 
@@ -272,16 +273,19 @@ func (h *UploadHandler) UploadGallery(c *gin.Context) {
 	// Upload file
 	result, err := h.uploadService.UploadImage(file, header, &services.UploadRequest{
 		Purpose:    "galleries",
-		EntityType: entityType,
-		EntityID:   entityID,
+		EntityType: "company",
+		EntityID:   companyID,
 		UserID:     userID,
+		CompanyID:  companyID,
 	})
 
 	if err != nil {
+		fmt.Printf("❌ Upload failed: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	fmt.Printf("✅ Gallery image uploaded successfully: %s\n", result.URL)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Gallery image uploaded successfully",
 		"file":    result,

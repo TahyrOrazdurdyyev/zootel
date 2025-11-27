@@ -392,8 +392,7 @@ func (s *NotificationService) handleNotificationFailure(notificationID string) {
 	_, err := s.db.Exec(`
 		UPDATE notification_schedule 
 		SET retry_count = retry_count + 1,
-			next_retry_at = NOW() + INTERVAL '5 minutes',
-			updated_at = NOW()
+			next_retry_at = NOW() + INTERVAL '5 minutes'
 		WHERE id = $1 AND retry_count < $2
 	`, notificationID, maxRetries)
 
@@ -404,7 +403,7 @@ func (s *NotificationService) handleNotificationFailure(notificationID string) {
 	// Mark as failed if max retries exceeded
 	_, err = s.db.Exec(`
 		UPDATE notification_schedule 
-		SET sent = true, status = 'failed', updated_at = NOW()
+		SET sent = true
 		WHERE id = $1 AND retry_count >= $2
 	`, notificationID, maxRetries)
 
