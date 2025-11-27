@@ -134,7 +134,7 @@ const CompanyProfileForm = ({
         formDataUpload.append('file', file);
         formDataUpload.append('purpose', 'company_gallery');
 
-        const response = await fetch('/api/v1/uploads/gallery', {
+        const response = await fetch('/api/v1/companies/upload-gallery', {
           method: 'POST',
           body: formDataUpload,
           headers: {
@@ -190,7 +190,7 @@ const CompanyProfileForm = ({
       const formDataUpload = new FormData();
       formDataUpload.append('file', file);
 
-      const response = await fetch('/api/v1/uploads/gallery', {
+      const response = await fetch('/api/v1/companies/upload-gallery', {
         method: 'POST',
         body: formDataUpload,
         headers: {
