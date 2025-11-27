@@ -535,27 +535,33 @@ func (s *CompanyService) GetCompanyByID(companyID string) (*models.Company, erro
 		return nil, fmt.Errorf("failed to get company: %w", err)
 	}
 	
-	fmt.Printf("🔍 MediaGallery raw data: %+v (type: %T)\n", mediaGalleryRaw, mediaGalleryRaw)
-	
-	// Try to convert mediaGalleryRaw to []string
+	// Parse media_gallery from PostgreSQL array format
 	if mediaGalleryRaw != nil {
-		if mediaArray, ok := mediaGalleryRaw.([]interface{}); ok {
-			fmt.Printf("🔍 MediaGallery is array with %d elements\n", len(mediaArray))
-			for i, item := range mediaArray {
-				fmt.Printf("🔍 MediaGallery[%d]: %+v (type: %T)\n", i, item, item)
-			}
-			// Convert to []string
-			company.MediaGallery = make([]string, len(mediaArray))
-			for i, item := range mediaArray {
-				if str, ok := item.(string); ok {
-					company.MediaGallery[i] = str
+		if bytes, ok := mediaGalleryRaw.([]uint8); ok {
+			// Convert bytes to string
+			arrayStr := string(bytes)
+			fmt.Printf("🔍 MediaGallery string: %s\n", arrayStr)
+			
+			// Parse PostgreSQL array format: {url1,url2,url3}
+			if len(arrayStr) >= 2 && arrayStr[0] == '{' && arrayStr[len(arrayStr)-1] == '}' {
+				// Remove braces and split by comma
+				content := arrayStr[1 : len(arrayStr)-1]
+				if content == "" {
+					company.MediaGallery = []string{}
 				} else {
-					fmt.Printf("❌ MediaGallery[%d] is not string: %+v\n", i, item)
-					company.MediaGallery[i] = fmt.Sprintf("%v", item)
+					urls := strings.Split(content, ",")
+					company.MediaGallery = make([]string, len(urls))
+					for i, url := range urls {
+						company.MediaGallery[i] = strings.TrimSpace(url)
+					}
 				}
+				fmt.Printf("✅ Parsed MediaGallery: %v\n", company.MediaGallery)
+			} else {
+				fmt.Printf("❌ Invalid PostgreSQL array format: %s\n", arrayStr)
+				company.MediaGallery = []string{}
 			}
 		} else {
-			fmt.Printf("❌ MediaGallery is not array: %+v\n", mediaGalleryRaw)
+			fmt.Printf("❌ MediaGallery is not []uint8: %+v (type: %T)\n", mediaGalleryRaw, mediaGalleryRaw)
 			company.MediaGallery = []string{}
 		}
 	} else {
