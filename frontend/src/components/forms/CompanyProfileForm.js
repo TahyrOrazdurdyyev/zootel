@@ -25,7 +25,9 @@ const CompanyProfileForm = ({
     website: '',
     business_hours: '',
     categories: [],
-    media_gallery: []
+    media_gallery: [],
+    publish_to_marketplace: false,
+    website_integration_enabled: false
   });
 
   const [uploading, setUploading] = useState(false);
@@ -49,7 +51,9 @@ const CompanyProfileForm = ({
         logo_url: company.logo_url || '',
         business_hours: company.business_hours || '',
         categories: company.categories || [],
-        media_gallery: company.media_gallery || []
+        media_gallery: company.media_gallery || [],
+        publish_to_marketplace: company.publish_to_marketplace || false,
+        website_integration_enabled: company.website_integration_enabled || false
       });
     }
   }, [company]);
