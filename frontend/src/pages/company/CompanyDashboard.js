@@ -99,7 +99,7 @@ const CompanyDashboard = () => {
           totalRevenue: analyticsData.total_revenue || 0,
           totalBookings: analyticsData.total_bookings || 0,
           newCustomers: analyticsData.total_customers || 0, // Using total_customers from dashboard
-          averageRating: 4.5, // Default rating since not in analytics
+          averageRating: analyticsData.average_rating || 0, // Use actual rating from backend
           revenueTrend: 0,
           bookingsTrend: 0
         },
