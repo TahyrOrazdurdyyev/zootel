@@ -75,11 +75,11 @@ const CompaniesPage = () => {
   };
 
   const filteredCompanies = companies.filter(company => {
-    const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         company.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = company.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         company.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || company.business_type === categoryFilter;
     const matchesLocation = locationFilter === 'all' || 
-                           company.location.toLowerCase().includes(locationFilter.toLowerCase());
+                           (company.city || company.location || '')?.toLowerCase().includes(locationFilter.toLowerCase());
     
     return matchesSearch && matchesCategory && matchesLocation;
   });
@@ -87,18 +87,18 @@ const CompaniesPage = () => {
   const sortedCompanies = [...filteredCompanies].sort((a, b) => {
     switch (sortBy) {
       case 'rating':
-        return b.rating - a.rating;
+        return (b.avg_rating || 0) - (a.avg_rating || 0);
       case 'reviews':
-        return b.reviews_count - a.reviews_count;
+        return (b.review_count || 0) - (a.review_count || 0);
       case 'name':
-        return a.name.localeCompare(b.name);
+        return (a.name || '').localeCompare(b.name || '');
       default:
         return 0;
     }
   });
 
   const formatRating = (rating) => {
-    return rating.toFixed(1);
+    return (rating || 0).toFixed(1);
   };
 
   const getBusinessTypeLabel = (type) => {
@@ -250,7 +250,7 @@ const CompaniesPage = () => {
                       <StarSolidIcon
                         key={star}
                         className={`h-4 w-4 ${
-                          star <= Math.floor(company.rating)
+                          star <= Math.floor(company.avg_rating || 0)
                             ? 'text-yellow-400'
                             : 'text-gray-300'
                         }`}
@@ -258,10 +258,10 @@ const CompaniesPage = () => {
                     ))}
                   </div>
                   <span className="ml-2 text-sm font-medium text-gray-900">
-                    {formatRating(company.rating)}
+                    {formatRating(company.avg_rating)}
                   </span>
                   <span className="ml-1 text-sm text-gray-500">
-                    ({company.reviews_count} reviews)
+                    ({company.review_count || 0} reviews)
                   </span>
                 </div>
 
