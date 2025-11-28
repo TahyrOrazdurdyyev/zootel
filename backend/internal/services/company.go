@@ -120,8 +120,8 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 		var avgRating sql.NullFloat64
 		
 		// Initialize arrays to avoid nil pointer issues
-		company.MediaGallery = []string{}
-		company.Categories = []string{}
+		company.MediaGallery = make(pq.StringArray, 0)
+		company.Categories = make(pq.StringArray, 0)
 
 		err := rows.Scan(
 			&company.ID, &company.Name, &company.Description, &company.City,
