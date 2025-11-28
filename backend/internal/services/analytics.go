@@ -883,27 +883,27 @@ func (s *AnalyticsService) GetServiceCategoryPerformance() ([]map[string]interfa
 func (s *AnalyticsService) GetCompanyAnalytics(companyID string, days int) (map[string]interface{}, error) {
 	analytics := make(map[string]interface{})
 
-	// Basic metrics
-	var totalBookings, totalOrders, totalServices, totalProducts int
+	// Basic metrics (simplified to only use existing tables)
+	var totalBookings, totalServices int
 	var totalRevenue float64
 
-	err := s.db.QueryRow(`
+	query := fmt.Sprintf(`
 		SELECT 
 			(SELECT COUNT(*) FROM bookings WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days') as bookings,
-			(SELECT COUNT(*) FROM orders WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days') as orders,
 			(SELECT COUNT(*) FROM services WHERE company_id = $1 AND is_active = true) as services,
-			(SELECT COUNT(*) FROM products WHERE company_id = $1 AND is_active = true) as products,
-			(SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE company_id = $1 AND status = 'completed' AND created_at >= NOW() - INTERVAL '%d days') as revenue
-	`, companyID, days, days, days).Scan(&totalBookings, &totalOrders, &totalServices, &totalProducts, &totalRevenue)
+			(SELECT COALESCE(SUM(price), 0) FROM bookings WHERE company_id = $1 AND status IN ('confirmed', 'completed') AND created_at >= NOW() - INTERVAL '%d days') as revenue
+	`, days, days)
+
+	err := s.db.QueryRow(query, companyID).Scan(&totalBookings, &totalServices, &totalRevenue)
 
 	if err != nil {
 		return nil, err
 	}
 
 	analytics["total_bookings"] = totalBookings
-	analytics["total_orders"] = totalOrders
+	analytics["total_orders"] = 0 // Not available in current schema
 	analytics["total_services"] = totalServices
-	analytics["total_products"] = totalProducts
+	analytics["total_products"] = 0 // Not available in current schema
 	analytics["total_revenue"] = totalRevenue
 
 	// Booking status distribution
@@ -1121,45 +1121,46 @@ func (s *AnalyticsService) GetCancellationAnalytics(companyID string, days int) 
 func (s *AnalyticsService) GetRefundAnalytics(companyID string, days int) (map[string]interface{}, error) {
 	analytics := make(map[string]interface{})
 
-	// Refund statistics
-	var totalPayments, refundedPayments int
-	var totalRefundAmount float64
+	// Simplified refund analytics using only bookings table
+	// Count cancelled bookings as "refunds"
+	var totalBookings, cancelledBookings int
+	var totalBookingAmount, cancelledAmount float64
 
 	query := fmt.Sprintf(`
 		SELECT 
-			COUNT(p.id) as total_payments,
-			COUNT(CASE WHEN p.status LIKE '%%refund%%' THEN 1 END) as refunded_payments,
-			COALESCE(SUM(r.amount), 0) as total_refund_amount
-		FROM payments p
-		LEFT JOIN refunds r ON p.id = r.payment_id
-		WHERE p.company_id = $1 AND p.created_at >= NOW() - INTERVAL '%d days'
+			COUNT(*) as total_bookings,
+			COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_bookings,
+			COALESCE(SUM(price), 0) as total_amount,
+			COALESCE(SUM(CASE WHEN status = 'cancelled' THEN price ELSE 0 END), 0) as cancelled_amount
+		FROM bookings 
+		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
 	`, days)
-	err := s.db.QueryRow(query, companyID).Scan(&totalPayments, &refundedPayments, &totalRefundAmount)
-
+	
+	err := s.db.QueryRow(query, companyID).Scan(&totalBookings, &cancelledBookings, &totalBookingAmount, &cancelledAmount)
 	if err != nil {
 		return nil, err
 	}
 
-	analytics["total_payments"] = totalPayments
-	analytics["refunded_payments"] = refundedPayments
-	analytics["total_refund_amount"] = totalRefundAmount
+	analytics["total_payments"] = totalBookings
+	analytics["refunded_payments"] = cancelledBookings
+	analytics["total_refund_amount"] = cancelledAmount
 
-	if totalPayments > 0 {
-		analytics["refund_rate"] = float64(refundedPayments) / float64(totalPayments) * 100
+	if totalBookings > 0 {
+		analytics["refund_rate"] = float64(cancelledBookings) / float64(totalBookings) * 100
 	} else {
 		analytics["refund_rate"] = 0.0
 	}
 
-	// Refund trends by day
+	// Cancellation trends by day
 	refundTrendsQuery := fmt.Sprintf(`
 		SELECT 
-			DATE(r.created_at) as date,
-			COUNT(*) as refund_count,
-			SUM(r.amount) as refund_amount
-		FROM refunds r
-		JOIN payments p ON r.payment_id = p.id
-		WHERE p.company_id = $1 AND r.created_at >= NOW() - INTERVAL '%d days'
-		GROUP BY DATE(r.created_at)
+			DATE(created_at) as date,
+			COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as refund_count,
+			COALESCE(SUM(CASE WHEN status = 'cancelled' THEN price ELSE 0 END), 0) as refund_amount
+		FROM bookings 
+		WHERE company_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+		GROUP BY DATE(created_at)
+		HAVING COUNT(CASE WHEN status = 'cancelled' THEN 1 END) > 0
 		ORDER BY date
 	`, days)
 
@@ -1377,9 +1378,9 @@ func (s *AnalyticsService) GetCustomerSegmentationAnalytics(companyID string, da
 	`, days, days, days)
 
 	var totalCustomers, newCustomers, returningCustomers int
-	var avgTransactions float64
+	var avgTransactions sql.NullFloat64
 
-	err := s.db.QueryRow(segmentationQuery, companyID, companyID).Scan(
+	err := s.db.QueryRow(segmentationQuery, companyID).Scan(
 		&totalCustomers, &newCustomers, &returningCustomers, &avgTransactions,
 	)
 
@@ -1390,7 +1391,11 @@ func (s *AnalyticsService) GetCustomerSegmentationAnalytics(companyID string, da
 	analytics["total_customers"] = totalCustomers
 	analytics["new_customers"] = newCustomers
 	analytics["returning_customers"] = returningCustomers
-	analytics["avg_transactions_per_customer"] = avgTransactions
+	if avgTransactions.Valid {
+		analytics["avg_transactions_per_customer"] = avgTransactions.Float64
+	} else {
+		analytics["avg_transactions_per_customer"] = 0.0
+	}
 
 	if totalCustomers > 0 {
 		analytics["new_customer_rate"] = float64(newCustomers) / float64(totalCustomers) * 100
