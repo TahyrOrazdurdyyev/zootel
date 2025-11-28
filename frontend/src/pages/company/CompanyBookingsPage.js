@@ -154,7 +154,7 @@ const CompanyBookingsPage = () => {
     try {
       setUpdating(true);
       
-      const response = await apiCall(`/bookings/${bookingId}/status`, {
+      const response = await apiCall(`/companies/bookings/${bookingId}/status`, {
         method: 'PUT',
         body: JSON.stringify({
           status: newStatus,
@@ -166,12 +166,14 @@ const CompanyBookingsPage = () => {
         // Refresh bookings list
         await fetchBookings();
         
-        // Update selected booking if it's open
-        if (selectedBooking && selectedBooking.id === bookingId) {
+                        // Update selected booking if it's open
+        const selectedId = selectedBooking?.id || selectedBooking?.ID;
+        if (selectedBooking && selectedId === bookingId) {
           setSelectedBooking({
             ...selectedBooking,
             status: newStatus,
-            notes: notes || selectedBooking.notes
+            Status: newStatus,
+            notes: notes || selectedBooking.notes || selectedBooking.Notes
           });
         }
 
@@ -210,13 +212,22 @@ const CompanyBookingsPage = () => {
     if (!searchTerm) return true;
     
     const searchLower = searchTerm.toLowerCase();
+    const clientName = booking.client_name || 
+                      (booking.Customer ? `${booking.Customer.FirstName} ${booking.Customer.LastName}` : '') ||
+                      (booking.customer_info ? `${booking.customer_info.first_name} ${booking.customer_info.last_name}` : '');
+    const serviceName = booking.service_name || booking.ServiceName || '';
+    const employeeName = booking.employee_name || booking.EmployeeName || '';
+    const email = booking.Customer?.Email || booking.customer_info?.email || '';
+    const phone = booking.Customer?.Phone || booking.customer_info?.phone || '';
+    const bookingId = booking.id || booking.ID || '';
+    
     return (
-      booking.client_name?.toLowerCase().includes(searchLower) ||
-      booking.service_name?.toLowerCase().includes(searchLower) ||
-      booking.employee_name?.toLowerCase().includes(searchLower) ||
-      booking.customer_info?.email?.toLowerCase().includes(searchLower) ||
-      booking.customer_info?.phone?.includes(searchTerm) ||
-      booking.id?.toLowerCase().includes(searchLower)
+      clientName.toLowerCase().includes(searchLower) ||
+      serviceName.toLowerCase().includes(searchLower) ||
+      employeeName.toLowerCase().includes(searchLower) ||
+      email.toLowerCase().includes(searchLower) ||
+      phone.includes(searchTerm) ||
+      bookingId.toLowerCase().includes(searchLower)
     );
   });
 
@@ -245,7 +256,7 @@ const CompanyBookingsPage = () => {
   const getStatusCounts = () => {
     const counts = {};
     Object.keys(statusConfig).forEach(status => {
-      counts[status] = bookings.filter(b => b.status === status).length;
+      counts[status] = bookings.filter(b => (b.status || b.Status) === status).length;
     });
     counts.all = bookings.length;
     return counts;
@@ -380,12 +391,12 @@ const CompanyBookingsPage = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredBookings.map((booking) => {
-                  const dateTime = formatDateTime(booking.date_time);
-                  const status = statusConfig[booking.status] || statusConfig.pending;
+                  const dateTime = formatDateTime(booking.date_time || booking.DateTime);
+                  const status = statusConfig[booking.status || booking.Status] || statusConfig.pending;
                   const StatusIcon = status.icon;
 
                   return (
-                    <tr key={booking.id} className="hover:bg-gray-50">
+                    <tr key={booking.id || booking.ID} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
@@ -395,14 +406,17 @@ const CompanyBookingsPage = () => {
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
-                              {booking.client_name || `${booking.customer_info?.first_name} ${booking.customer_info?.last_name}` || 'Unknown Client'}
+                              {booking.client_name || 
+                               (booking.Customer ? `${booking.Customer.FirstName} ${booking.Customer.LastName}` : '') ||
+                               (booking.customer_info ? `${booking.customer_info.first_name} ${booking.customer_info.last_name}` : '') || 
+                               'Unknown Client'}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {booking.service_name || 'Unknown Service'}
+                              {booking.service_name || booking.ServiceName || 'Unknown Service'}
                             </div>
-                            {booking.pet_info?.pet_name && (
+                            {(booking.Pet?.PetName || booking.pet_info?.pet_name) && (
                               <div className="text-xs text-gray-400">
-                                Pet: {booking.pet_info.pet_name}
+                                Pet: {booking.Pet?.PetName || booking.pet_info?.pet_name}
                               </div>
                             )}
                           </div>
@@ -411,16 +425,16 @@ const CompanyBookingsPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">{dateTime.date}</div>
                         <div className="text-sm text-gray-500">{dateTime.time}</div>
-                        <div className="text-xs text-gray-400">{booking.duration} min</div>
+                        <div className="text-xs text-gray-400">{booking.duration || booking.Duration} min</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {booking.employee_name || 'Not assigned'}
+                          {booking.employee_name || booking.EmployeeName || 'Not assigned'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          {formatCurrency(booking.price)}
+                          {formatCurrency(booking.price || booking.Price)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -451,7 +465,7 @@ const CompanyBookingsPage = () => {
                                   {status.actions.map(action => (
                                     <button
                                       key={action}
-                                      onClick={() => updateBookingStatus(booking.id, action)}
+                                      onClick={() => updateBookingStatus(booking.id || booking.ID, action)}
                                       disabled={updating}
                                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
                                     >
@@ -491,18 +505,18 @@ const CompanyBookingsPage = () => {
               {/* Status and Actions */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusConfig[selectedBooking.status]?.color}`}>
-                    {React.createElement(statusConfig[selectedBooking.status]?.icon, { className: "h-4 w-4 mr-1" })}
-                    {statusConfig[selectedBooking.status]?.label}
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusConfig[selectedBooking.status || selectedBooking.Status]?.color}`}>
+                    {React.createElement(statusConfig[selectedBooking.status || selectedBooking.Status]?.icon, { className: "h-4 w-4 mr-1" })}
+                    {statusConfig[selectedBooking.status || selectedBooking.Status]?.label}
                   </span>
                 </div>
                 
-                {statusConfig[selectedBooking.status]?.actions.length > 0 && (
+                {statusConfig[selectedBooking.status || selectedBooking.Status]?.actions.length > 0 && (
                   <div className="flex space-x-2">
-                    {statusConfig[selectedBooking.status].actions.map(action => (
+                    {statusConfig[selectedBooking.status || selectedBooking.Status].actions.map(action => (
                       <button
                         key={action}
-                        onClick={() => updateBookingStatus(selectedBooking.id, action)}
+                        onClick={() => updateBookingStatus(selectedBooking.id || selectedBooking.ID, action)}
                         disabled={updating}
                         className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
                       >
@@ -518,12 +532,12 @@ const CompanyBookingsPage = () => {
                 <div>
                   <h4 className="text-sm font-medium text-gray-900 mb-3">Booking Information</h4>
                   <div className="space-y-2 text-sm">
-                    <div><span className="text-gray-600">Service:</span> {selectedBooking.service_name}</div>
-                    <div><span className="text-gray-600">Date:</span> {formatDateTime(selectedBooking.date_time).date}</div>
-                    <div><span className="text-gray-600">Time:</span> {formatDateTime(selectedBooking.date_time).time}</div>
-                    <div><span className="text-gray-600">Duration:</span> {selectedBooking.duration} minutes</div>
-                    <div><span className="text-gray-600">Price:</span> {formatCurrency(selectedBooking.price)}</div>
-                    <div><span className="text-gray-600">Employee:</span> {selectedBooking.employee_name || 'Not assigned'}</div>
+                    <div><span className="text-gray-600">Service:</span> {selectedBooking.service_name || selectedBooking.ServiceName}</div>
+                    <div><span className="text-gray-600">Date:</span> {formatDateTime(selectedBooking.date_time || selectedBooking.DateTime).date}</div>
+                    <div><span className="text-gray-600">Time:</span> {formatDateTime(selectedBooking.date_time || selectedBooking.DateTime).time}</div>
+                    <div><span className="text-gray-600">Duration:</span> {selectedBooking.duration || selectedBooking.Duration} minutes</div>
+                    <div><span className="text-gray-600">Price:</span> {formatCurrency(selectedBooking.price || selectedBooking.Price)}</div>
+                    <div><span className="text-gray-600">Employee:</span> {selectedBooking.employee_name || selectedBooking.EmployeeName || 'Not assigned'}</div>
                   </div>
                 </div>
 
@@ -532,24 +546,26 @@ const CompanyBookingsPage = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center">
                       <UserIcon className="h-4 w-4 text-gray-400 mr-2" />
-                      {selectedBooking.client_name || `${selectedBooking.customer_info?.first_name} ${selectedBooking.customer_info?.last_name}`}
+                      {selectedBooking.client_name || 
+                       (selectedBooking.Customer ? `${selectedBooking.Customer.FirstName} ${selectedBooking.Customer.LastName}` : '') ||
+                       (selectedBooking.customer_info ? `${selectedBooking.customer_info.first_name} ${selectedBooking.customer_info.last_name}` : '')}
                     </div>
-                    {selectedBooking.customer_info?.email && (
+                    {(selectedBooking.Customer?.Email || selectedBooking.customer_info?.email) && (
                       <div className="flex items-center">
                         <EnvelopeIcon className="h-4 w-4 text-gray-400 mr-2" />
-                        {selectedBooking.customer_info.email}
+                        {selectedBooking.Customer?.Email || selectedBooking.customer_info?.email}
                       </div>
                     )}
-                    {selectedBooking.customer_info?.phone && (
+                    {(selectedBooking.Customer?.Phone || selectedBooking.customer_info?.phone) && (
                       <div className="flex items-center">
                         <PhoneIcon className="h-4 w-4 text-gray-400 mr-2" />
-                        {selectedBooking.customer_info.phone}
+                        {selectedBooking.Customer?.Phone || selectedBooking.customer_info?.phone}
                       </div>
                     )}
-                    {selectedBooking.customer_info?.address && (
+                    {(selectedBooking.Customer?.Address || selectedBooking.customer_info?.address) && (
                       <div className="flex items-center">
                         <MapPinIcon className="h-4 w-4 text-gray-400 mr-2" />
-                        {selectedBooking.customer_info.address}
+                        {selectedBooking.Customer?.Address || selectedBooking.customer_info?.address}
                       </div>
                     )}
                   </div>
@@ -557,23 +573,23 @@ const CompanyBookingsPage = () => {
               </div>
 
               {/* Pet Information */}
-              {selectedBooking.pet_info && (
+              {(selectedBooking.Pet || selectedBooking.pet_info) && (
                 <div>
                   <h4 className="text-sm font-medium text-gray-900 mb-3">Pet Information</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div><span className="text-gray-600">Name:</span> {selectedBooking.pet_info.pet_name}</div>
-                    <div><span className="text-gray-600">Type:</span> {selectedBooking.pet_info.pet_type_name}</div>
-                    <div><span className="text-gray-600">Breed:</span> {selectedBooking.pet_info.breed_name}</div>
-                    <div><span className="text-gray-600">Weight:</span> {selectedBooking.pet_info.pet_weight} kg</div>
+                    <div><span className="text-gray-600">Name:</span> {selectedBooking.Pet?.PetName || selectedBooking.pet_info?.pet_name}</div>
+                    <div><span className="text-gray-600">Type:</span> {selectedBooking.Pet?.PetTypeName || selectedBooking.pet_info?.pet_type_name}</div>
+                    <div><span className="text-gray-600">Breed:</span> {selectedBooking.Pet?.BreedName || selectedBooking.pet_info?.breed_name}</div>
+                    <div><span className="text-gray-600">Weight:</span> {selectedBooking.Pet?.Weight || selectedBooking.pet_info?.pet_weight} kg</div>
                   </div>
                 </div>
               )}
 
               {/* Notes */}
-              {selectedBooking.notes && (
+              {(selectedBooking.notes || selectedBooking.Notes) && (
                 <div>
                   <h4 className="text-sm font-medium text-gray-900 mb-3">Notes</h4>
-                  <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">{selectedBooking.notes}</p>
+                  <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">{selectedBooking.notes || selectedBooking.Notes}</p>
                 </div>
               )}
             </div>
