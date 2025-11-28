@@ -70,7 +70,7 @@ const CompanyDashboard = () => {
       
       // Load all dashboard data
       const [metricsRes, bookingsRes, servicesRes, notificationsRes] = await Promise.all([
-        apiCall(`/companies/analytics`),
+        apiCall(`/companies/analytics/dashboard?days=30`),
         apiCall(`/companies/bookings?limit=5`),
         apiCall(`/companies/services?limit=5`),
         apiCall(`/companies/notifications/unread?limit=5`)
@@ -82,7 +82,7 @@ const CompanyDashboard = () => {
       console.log('🔔 Notifications response:', notificationsRes);
 
       // Transform analytics data to match expected format
-      const analyticsData = metricsRes.success && metricsRes.data ? metricsRes.data.analytics : {};
+      const analyticsData = metricsRes.success && metricsRes.data ? metricsRes.data : {};
       console.log('📈 Transformed analytics data:', analyticsData);
       
       setDashboardData({
