@@ -39,6 +39,8 @@ func (h *CompanyHandler) SetAdminService(adminService *services.AdminService) {
 
 // GetPublicCompanies gets all active companies for marketplace
 func (h *CompanyHandler) GetPublicCompanies(c *gin.Context) {
+	fmt.Printf("🔍 GetPublicCompanies called from %s\n", c.ClientIP())
+	
 	// Parse query parameters
 	limitStr := c.DefaultQuery("limit", "20")
 	offsetStr := c.DefaultQuery("offset", "0")
@@ -54,11 +56,17 @@ func (h *CompanyHandler) GetPublicCompanies(c *gin.Context) {
 		limit = 100
 	}
 
+	fmt.Printf("📊 GetPublicCompanies params: limit=%d, offset=%d, category=%s, city=%s, country=%s, search=%s\n", 
+		limit, offset, category, city, country, search)
+
 	companies, total, err := h.companyService.GetPublicCompanies(limit, offset, category, city, country, search)
 	if err != nil {
+		fmt.Printf("❌ GetPublicCompanies error: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	fmt.Printf("✅ GetPublicCompanies success, returned %d companies (total: %d)\n", len(companies), total)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success":   true,

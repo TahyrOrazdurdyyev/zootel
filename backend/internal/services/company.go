@@ -20,12 +20,16 @@ func NewCompanyService(db *sql.DB) *CompanyService {
 
 // GetPublicCompanies gets companies for marketplace with filtering
 func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, country, search string) ([]*models.Company, int, error) {
+	fmt.Printf("🏢 GetPublicCompanies service called: limit=%d, offset=%d, category=%s, city=%s, country=%s, search=%s\n", 
+		limit, offset, category, city, country, search)
+		
 	var conditions []string
 	var args []interface{}
 	argIndex := 1
 
-	// Base condition - only active companies
+	// Base condition - only active companies that are published to marketplace
 	conditions = append(conditions, "c.is_active = true")
+	conditions = append(conditions, "c.publish_to_marketplace = true")
 
 	// Add filters
 	if category != "" {
@@ -65,11 +69,17 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 		FROM companies c 
 		%s`, whereClause)
 
+	fmt.Printf("🔢 Count query: %s\n", countQuery)
+	fmt.Printf("🔢 Count args: %v\n", args)
+
 	var total int
 	err := s.db.QueryRow(countQuery, args...).Scan(&total)
 	if err != nil {
+		fmt.Printf("❌ Failed to count companies: %v\n", err)
 		return nil, 0, fmt.Errorf("failed to count companies: %w", err)
 	}
+
+	fmt.Printf("📊 Total companies found: %d\n", total)
 
 	// Get companies with pagination
 	query := fmt.Sprintf(`
@@ -93,8 +103,12 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 
 	args = append(args, limit, offset)
 
+	fmt.Printf("🔍 Main query: %s\n", query)
+	fmt.Printf("🔍 Main args: %v\n", args)
+
 	rows, err := s.db.Query(query, args...)
 	if err != nil {
+		fmt.Printf("❌ Failed to query companies: %v\n", err)
 		return nil, 0, fmt.Errorf("failed to query companies: %w", err)
 	}
 	defer rows.Close()
