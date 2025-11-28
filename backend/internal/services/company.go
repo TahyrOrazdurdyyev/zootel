@@ -121,14 +121,14 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 		var serviceCount, productCount, reviewCount int
 		var avgRating sql.NullFloat64
 		
-		// Use temporary variables for scanning arrays
-		var mediaGallery, categories pq.StringArray
+		// Use interface{} for PostgreSQL arrays like in UpdateCompanyProfile
+		var mediaGalleryRaw, categoriesRaw interface{}
 
 		err := rows.Scan(
 			&company.ID, &company.Name, &company.Description, &company.City,
 			&company.Country, &company.Address, &company.Latitude, &company.Longitude,
 			&company.Phone, &company.Email, &company.Website, &company.LogoURL,
-			pq.Array(&mediaGallery), pq.Array(&categories),
+			&mediaGalleryRaw, &categoriesRaw,
 			&serviceCount, &productCount, &avgRating, &reviewCount,
 		)
 		if err != nil {
@@ -136,9 +136,11 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 			continue // Skip this company instead of failing completely
 		}
 		
-		// Assign scanned arrays to company
-		company.MediaGallery = mediaGallery
-		company.Categories = categories
+		// Parse MediaGallery array
+		company.MediaGallery = parsePostgreSQLArray(mediaGalleryRaw, "MediaGallery")
+		
+		// Parse Categories array  
+		company.Categories = parsePostgreSQLArray(categoriesRaw, "Categories")
 
 		// Add computed fields (you might want to add these to your Company model)
 		// company.ServiceCount = serviceCount
@@ -150,6 +152,43 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 	}
 
 	return companies, total, nil
+}
+
+// parsePostgreSQLArray parses PostgreSQL array from interface{} to []string
+func parsePostgreSQLArray(raw interface{}, fieldName string) pq.StringArray {
+	if raw == nil {
+		fmt.Printf("🔍 %s is NULL\n", fieldName)
+		return pq.StringArray{}
+	}
+	
+	if bytes, ok := raw.([]uint8); ok {
+		// Convert bytes to string
+		arrayStr := string(bytes)
+		fmt.Printf("🔍 %s string: %s\n", fieldName, arrayStr)
+		
+		// Parse PostgreSQL array format: {url1,url2,url3}
+		if len(arrayStr) >= 2 && arrayStr[0] == '{' && arrayStr[len(arrayStr)-1] == '}' {
+			// Remove braces and split by comma
+			content := arrayStr[1 : len(arrayStr)-1]
+			if content == "" {
+				return pq.StringArray{}
+			} else {
+				urls := strings.Split(content, ",")
+				result := make(pq.StringArray, len(urls))
+				for i, url := range urls {
+					result[i] = strings.TrimSpace(url)
+				}
+				fmt.Printf("✅ Parsed %s: %v\n", fieldName, result)
+				return result
+			}
+		} else {
+			fmt.Printf("❌ Invalid PostgreSQL array format for %s: %s\n", fieldName, arrayStr)
+			return pq.StringArray{}
+		}
+	} else {
+		fmt.Printf("❌ %s is not []uint8: %+v (type: %T)\n", fieldName, raw, raw)
+		return pq.StringArray{}
+	}
 }
 
 // GetPublicCompanyProfile gets detailed public profile for a company
