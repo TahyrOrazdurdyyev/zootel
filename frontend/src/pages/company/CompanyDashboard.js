@@ -85,6 +85,9 @@ const CompanyDashboard = () => {
       const analyticsData = metricsRes.success && metricsRes.data ? metricsRes.data : {};
       console.log('📈 Transformed analytics data:', analyticsData);
       
+      console.log('🔍 Analytics data received:', analyticsData);
+      console.log('🔍 total_customers value:', analyticsData.total_customers);
+      
       setDashboardData({
         metrics: {
           totalRevenue: analyticsData.total_revenue || 0,
