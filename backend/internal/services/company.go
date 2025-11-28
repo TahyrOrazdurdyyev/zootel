@@ -634,6 +634,7 @@ func (s *CompanyService) UpdateCompanyProfile(company models.Company) (*models.C
 	var logoURL, website, businessHours, apiKey, planID sql.NullString
 	var latitude, longitude sql.NullFloat64
 	var trialEndsAt, subscriptionExpiresAt sql.NullTime
+	var mediaGalleryRaw interface{}
 	
 	err := s.db.QueryRow(query,
 		company.ID, company.Name, company.Description, pq.Array(company.Categories),
@@ -647,7 +648,7 @@ func (s *CompanyService) UpdateCompanyProfile(company models.Company) (*models.C
 		&updatedCompany.Country, &updatedCompany.State, &updatedCompany.City, &updatedCompany.Address,
 		&latitude, &longitude,
 		&updatedCompany.Phone, &updatedCompany.Email, &website, &logoURL,
-		pq.Array(&updatedCompany.MediaGallery), &businessHours,
+		&mediaGalleryRaw, &businessHours,
 		&planID, &updatedCompany.TrialExpired, &trialEndsAt,
 		&subscriptionExpiresAt, &updatedCompany.SubscriptionStatus,
 		&updatedCompany.SpecialPartner, &updatedCompany.ManualEnabledCRM,
@@ -658,6 +659,40 @@ func (s *CompanyService) UpdateCompanyProfile(company models.Company) (*models.C
 	
 	if err != nil {
 		return nil, fmt.Errorf("failed to update company profile: %w", err)
+	}
+	
+	// Parse media_gallery from PostgreSQL array format
+	if mediaGalleryRaw != nil {
+		if bytes, ok := mediaGalleryRaw.([]uint8); ok {
+			// Convert bytes to string
+			arrayStr := string(bytes)
+			fmt.Printf("🔍 UpdateCompanyProfile MediaGallery string: %s\n", arrayStr)
+			
+			// Parse PostgreSQL array format: {url1,url2,url3}
+			if len(arrayStr) >= 2 && arrayStr[0] == '{' && arrayStr[len(arrayStr)-1] == '}' {
+				// Remove braces and split by comma
+				content := arrayStr[1 : len(arrayStr)-1]
+				if content == "" {
+					updatedCompany.MediaGallery = []string{}
+				} else {
+					urls := strings.Split(content, ",")
+					updatedCompany.MediaGallery = make([]string, len(urls))
+					for i, url := range urls {
+						updatedCompany.MediaGallery[i] = strings.TrimSpace(url)
+					}
+				}
+				fmt.Printf("✅ UpdateCompanyProfile Parsed MediaGallery: %v\n", updatedCompany.MediaGallery)
+			} else {
+				fmt.Printf("❌ UpdateCompanyProfile Invalid PostgreSQL array format: %s\n", arrayStr)
+				updatedCompany.MediaGallery = []string{}
+			}
+		} else {
+			fmt.Printf("❌ UpdateCompanyProfile MediaGallery is not []uint8: %+v (type: %T)\n", mediaGalleryRaw, mediaGalleryRaw)
+			updatedCompany.MediaGallery = []string{}
+		}
+	} else {
+		fmt.Printf("🔍 UpdateCompanyProfile MediaGallery is NULL\n")
+		updatedCompany.MediaGallery = []string{}
 	}
 	
 	// Handle NULL values
