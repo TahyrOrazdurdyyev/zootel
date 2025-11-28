@@ -63,9 +63,17 @@ const CompanySettingsPage = () => {
       setSaving(true);
       setError(null);
       
+      // Preserve business_type to prevent it from being overwritten
+      const dataWithBusinessType = {
+        ...updatedData,
+        business_type: company?.business_type || 'general'
+      };
+      
+      console.log('🔄 Sending profile update with business_type:', dataWithBusinessType.business_type);
+      
       const response = await apiCall('/companies/profile', {
         method: 'PUT',
-        body: JSON.stringify(updatedData)
+        body: JSON.stringify(dataWithBusinessType)
       });
       
       if (response.success) {
