@@ -718,17 +718,57 @@ func (s *BookingService) GetCompanyCustomers(companyID string) ([]models.Custome
 	var customers []models.CustomerData
 	for rows.Next() {
 		var customer models.CustomerData
+		var gender, address, apartmentNumber, country, state, city, postalCode sql.NullString
+		var emergencyContactName, emergencyContactPhone, emergencyContactRelation sql.NullString
+		var dateOfBirth sql.NullTime
+		
 		err := rows.Scan(
 			&customer.UserID, &customer.FirstName, &customer.LastName,
-			&customer.Email, &customer.Phone, &customer.Gender, &customer.DateOfBirth,
-			&customer.Address, &customer.ApartmentNumber, &customer.Country,
-			&customer.State, &customer.City, &customer.PostalCode,
-			&customer.EmergencyContactName, &customer.EmergencyContactPhone,
-			&customer.EmergencyContactRelation,
+			&customer.Email, &customer.Phone, &gender, &dateOfBirth,
+			&address, &apartmentNumber, &country,
+			&state, &city, &postalCode,
+			&emergencyContactName, &emergencyContactPhone,
+			&emergencyContactRelation,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan customer: %w", err)
 		}
+		
+		// Handle NULL values
+		if gender.Valid {
+			customer.Gender = gender.String
+		}
+		if dateOfBirth.Valid {
+			customer.DateOfBirth = &dateOfBirth.Time
+		}
+		if address.Valid {
+			customer.Address = address.String
+		}
+		if apartmentNumber.Valid {
+			customer.ApartmentNumber = apartmentNumber.String
+		}
+		if country.Valid {
+			customer.Country = country.String
+		}
+		if state.Valid {
+			customer.State = state.String
+		}
+		if city.Valid {
+			customer.City = city.String
+		}
+		if postalCode.Valid {
+			customer.PostalCode = postalCode.String
+		}
+		if emergencyContactName.Valid {
+			customer.EmergencyContactName = emergencyContactName.String
+		}
+		if emergencyContactPhone.Valid {
+			customer.EmergencyContactPhone = emergencyContactPhone.String
+		}
+		if emergencyContactRelation.Valid {
+			customer.EmergencyContactRelation = emergencyContactRelation.String
+		}
+		
 		customers = append(customers, customer)
 	}
 
