@@ -570,6 +570,7 @@ func (s *CompanyService) GetCompanyByID(companyID string) (*models.Company, erro
 	}
 	
 	fmt.Printf("✅ GetCompanyByID success for company: %s\n", company.Name)
+	fmt.Printf("🔍 GetCompanyByID returning business_type: '%s'\n", company.BusinessType)
 	
 	// Handle NULL values
 	if logoURL.Valid {
