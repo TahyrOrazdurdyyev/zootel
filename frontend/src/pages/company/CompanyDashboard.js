@@ -68,21 +68,27 @@ const CompanyDashboard = () => {
       setLoading(true);
       console.log('🔄 Loading dashboard data for company:', companyId);
       
-      // Load all dashboard data
-      const [metricsRes, bookingsRes, servicesRes, notificationsRes] = await Promise.all([
+      // Load all dashboard data with error handling
+      const [metricsRes, bookingsRes, servicesRes, notificationsRes] = await Promise.allSettled([
         apiCall(`/companies/analytics/dashboard?days=30`),
         apiCall(`/companies/bookings?limit=5`),
         apiCall(`/companies/services?limit=5`),
-        apiCall(`/companies/notifications/unread?limit=5`)
+        apiCall(`/companies/notifications/unread?limit=5`).catch(() => ({ success: false, data: [] }))
       ]);
 
-      console.log('📊 Analytics response:', metricsRes);
-      console.log('📅 Bookings response:', bookingsRes);
-      console.log('🔧 Services response:', servicesRes);
-      console.log('🔔 Notifications response:', notificationsRes);
+      // Extract values from settled promises
+      const metricsData = metricsRes.status === 'fulfilled' ? metricsRes.value : { success: false };
+      const bookingsData = bookingsRes.status === 'fulfilled' ? bookingsRes.value : { success: false };
+      const servicesData = servicesRes.status === 'fulfilled' ? servicesRes.value : { success: false };
+      const notificationsData = notificationsRes.status === 'fulfilled' ? notificationsRes.value : { success: false };
+
+      console.log('📊 Analytics response:', metricsData);
+      console.log('📅 Bookings response:', bookingsData);
+      console.log('🔧 Services response:', servicesData);
+      console.log('🔔 Notifications response:', notificationsData);
 
       // Transform analytics data to match expected format
-      const analyticsData = metricsRes.success && metricsRes.data ? metricsRes.data : {};
+      const analyticsData = metricsData.success && metricsData.data ? metricsData.data : {};
       console.log('📈 Transformed analytics data:', analyticsData);
       
       console.log('🔍 Analytics data received:', analyticsData);
@@ -97,9 +103,9 @@ const CompanyDashboard = () => {
           revenueTrend: 0,
           bookingsTrend: 0
         },
-        recentBookings: bookingsRes.success ? (bookingsRes.bookings || bookingsRes.data || []) : [],
-        topServices: servicesRes.success ? (servicesRes.services || servicesRes.data || []) : [],
-        notifications: notificationsRes.success ? (notificationsRes.data || []) : [],
+        recentBookings: bookingsData.success ? (bookingsData.bookings || bookingsData.data || []) : [],
+        topServices: servicesData.success ? (servicesData.services || servicesData.data || []) : [],
+        notifications: notificationsData.success ? (notificationsData.data || []) : [],
         upcomingBookings: []
       });
 
