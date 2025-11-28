@@ -98,7 +98,7 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 		GROUP BY c.id, c.name, c.description, c.city, c.country, c.address,
 				 c.latitude, c.longitude, c.phone, c.email, c.website,
 				 c.logo_url, c.media_gallery, c.categories
-		ORDER BY avg_rating DESC NULLS LAST, service_count + product_count DESC
+		ORDER BY AVG(r.rating) DESC NULLS LAST, COUNT(DISTINCT s.id) + COUNT(DISTINCT p.id) DESC
 		LIMIT $%d OFFSET $%d`, whereClause, argIndex, argIndex+1)
 
 	args = append(args, limit, offset)
