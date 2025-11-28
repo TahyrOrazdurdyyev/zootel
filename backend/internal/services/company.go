@@ -85,7 +85,9 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 	query := fmt.Sprintf(`
 		SELECT c.id, c.name, c.description, c.city, c.country, c.address,
 			   c.latitude, c.longitude, c.phone, c.email, c.website,
-			   c.logo_url, c.media_gallery, c.categories,
+			   c.logo_url, 
+			   COALESCE(c.media_gallery, '{}') as media_gallery, 
+			   COALESCE(c.categories, '{}') as categories,
 			   COUNT(DISTINCT s.id) as service_count,
 			   COUNT(DISTINCT p.id) as product_count,
 			   AVG(r.rating) as avg_rating,
