@@ -75,12 +75,15 @@ const BusinessTypeSelector = ({ currentType, onUpdate, isEditable = true }) => {
       });
 
       if (response.success) {
+        console.log('✅ Business type update successful, setting selectedType to:', newType);
         setSelectedType(newType);
         if (onUpdate) {
           // Send internal value to parent component
           const internalValue = displayToInternalMap[newType] || newType;
-          console.log('Updating parent with internal value:', internalValue);
+          console.log('✅ Updating parent with internal value:', internalValue);
           onUpdate(internalValue);
+        } else {
+          console.log('⚠️ No onUpdate callback provided');
         }
       }
     } catch (error) {

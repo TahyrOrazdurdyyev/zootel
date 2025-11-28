@@ -31,7 +31,8 @@ const CompanySettingsPage = () => {
       console.log('📋 Company profile response:', response);
       if (response.success) {
         console.log('📋 Company data:', response.company);
-        console.log('📋 Business type:', response.company?.business_type);
+        console.log('📋 Business type from API:', response.company?.business_type);
+        console.log('📋 Business type type:', typeof response.company?.business_type);
         setCompany(response.company);
       } else {
         setError('Failed to load company profile');
@@ -45,8 +46,15 @@ const CompanySettingsPage = () => {
   };
 
   const handleBusinessTypeUpdate = async (newType) => {
-    setCompany(prev => ({ ...prev, business_type: newType }));
+    console.log('🔄 handleBusinessTypeUpdate called with:', newType);
+    setCompany(prev => {
+      console.log('🔄 Previous company business_type:', prev?.business_type);
+      const updated = { ...prev, business_type: newType };
+      console.log('🔄 Updated company business_type:', updated.business_type);
+      return updated;
+    });
     // Refresh company data to ensure consistency
+    console.log('🔄 Refreshing company profile...');
     await fetchCompanyProfile();
   };
 
