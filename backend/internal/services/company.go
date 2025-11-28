@@ -104,6 +104,10 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 		company := &models.Company{}
 		var serviceCount, productCount, reviewCount int
 		var avgRating sql.NullFloat64
+		
+		// Initialize arrays to avoid nil pointer issues
+		company.MediaGallery = []string{}
+		company.Categories = []string{}
 
 		err := rows.Scan(
 			&company.ID, &company.Name, &company.Description, &company.City,
@@ -113,7 +117,8 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 			&serviceCount, &productCount, &avgRating, &reviewCount,
 		)
 		if err != nil {
-			return nil, 0, fmt.Errorf("failed to scan company: %w", err)
+			fmt.Printf("❌ Failed to scan company %s: %v\n", company.ID, err)
+			continue // Skip this company instead of failing completely
 		}
 
 		// Add computed fields (you might want to add these to your Company model)

@@ -239,6 +239,12 @@ func (s *ServiceService) GetPublicServices(filters map[string]interface{}) ([]*m
 	var services []*models.Service
 	for rows.Next() {
 		service := &models.Service{}
+		
+		// Initialize arrays to avoid nil pointer issues
+		service.PetTypes = pq.StringArray{}
+		service.AvailableDays = pq.StringArray{}
+		service.AssignedEmployees = pq.StringArray{}
+		
 		err := rows.Scan(
 			&service.ID, &service.CompanyID, &service.CategoryID, &service.Name,
 			&service.Description, &service.Price, &service.OriginalPrice,
@@ -250,7 +256,8 @@ func (s *ServiceService) GetPublicServices(filters map[string]interface{}) ([]*m
 			&service.CancellationPolicy, &service.IsActive, &service.CreatedAt, &service.UpdatedAt,
 		)
 		if err != nil {
-			return nil, 0, fmt.Errorf("failed to scan service: %w", err)
+			fmt.Printf("❌ Failed to scan service %s: %v\n", service.ID, err)
+			continue // Skip this service instead of failing completely
 		}
 		services = append(services, service)
 	}
