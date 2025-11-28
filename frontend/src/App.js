@@ -57,6 +57,7 @@ import EmployeesManagementPage from './pages/company/EmployeesManagementPage';
 import CalendarPage from './pages/company/CalendarPage';
 import CompanySettingsPage from './pages/company/CompanySettingsPage';
 import CompanyCustomersPage from './pages/company/CompanyCustomersPage';
+import CompanyBookingsPage from './pages/company/CompanyBookingsPage';
 
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -130,6 +131,7 @@ function App() {
                     <Route path="/" element={<CompanyDashboard />} />
                     <Route path="/analytics" element={<CompanyAnalyticsPage />} />
                     <Route path="/calendar" element={<CalendarPage />} />
+                    <Route path="/bookings" element={<CompanyBookingsPage />} />
                     <Route path="/chat" element={<EmployeeChatPage />} />
                     <Route path="/services" element={<ServicesManagementPage />} />
                     <Route path="/employees" element={<EmployeesManagementPage />} />

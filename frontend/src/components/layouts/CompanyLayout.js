@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import {
   HomeIcon,
   CalendarIcon,
+  CalendarDaysIcon,
   ChartBarIcon,
   CogIcon,
   UsersIcon,
@@ -19,6 +20,7 @@ const CompanyLayout = ({ children }) => {
     { name: 'Dashboard', href: '/company', icon: HomeIcon },
     { name: 'Services', href: '/company/services', icon: CogIcon },
     { name: 'Calendar', href: '/company/calendar', icon: CalendarIcon },
+    { name: 'Bookings', href: '/company/bookings', icon: CalendarDaysIcon },
     { name: 'Employees', href: '/company/employees', icon: UsersIcon },
     { name: 'Customers', href: '/company/customers', icon: UsersIcon },
     { name: 'Chat', href: '/company/chat', icon: ChatBubbleLeftIcon },
