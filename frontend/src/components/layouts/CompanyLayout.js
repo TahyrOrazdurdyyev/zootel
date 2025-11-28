@@ -20,6 +20,7 @@ const CompanyLayout = ({ children }) => {
     { name: 'Services', href: '/company/services', icon: CogIcon },
     { name: 'Calendar', href: '/company/calendar', icon: CalendarIcon },
     { name: 'Employees', href: '/company/employees', icon: UsersIcon },
+    { name: 'Customers', href: '/company/customers', icon: UsersIcon },
     { name: 'Chat', href: '/company/chat', icon: ChatBubbleLeftIcon },
     { name: 'Analytics', href: '/company/analytics', icon: ChartBarIcon },
     { name: 'AI Prompts', href: '/company/ai-prompts', icon: SparklesIcon }

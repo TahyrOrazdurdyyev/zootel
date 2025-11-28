@@ -56,6 +56,7 @@ import InventoryPage from './pages/company/InventoryPage';
 import EmployeesManagementPage from './pages/company/EmployeesManagementPage';
 import CalendarPage from './pages/company/CalendarPage';
 import CompanySettingsPage from './pages/company/CompanySettingsPage';
+import CompanyCustomersPage from './pages/company/CompanyCustomersPage';
 
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -136,6 +137,7 @@ function App() {
                     <Route path="/ai-prompts" element={<AIPromptsCustomization />} />
                     <Route path="/inventory" element={<InventoryPage />} />
                     <Route path="/settings" element={<CompanySettingsPage />} />
+                    <Route path="/customers" element={<CompanyCustomersPage />} />
                   </Routes>
                 </ProtectedRoute>
               } />

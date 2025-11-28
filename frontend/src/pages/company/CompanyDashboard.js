@@ -144,6 +144,13 @@ const CompanyDashboard = () => {
       color: 'bg-green-500'
     },
     {
+      title: 'View Customers',
+      description: 'Manage customer database',
+      icon: UsersIcon,
+      href: '/company/customers',
+      color: 'bg-indigo-500'
+    },
+    {
       title: 'Company Settings',
       description: 'Configure profile and settings',
       icon: CogIcon,

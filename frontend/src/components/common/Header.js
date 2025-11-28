@@ -296,6 +296,13 @@ const Header = () => {
                       Employees
                     </Link>
                     <Link 
+                      to="/company/customers" 
+                      className="text-gray-700 hover:text-orange-500 px-3 py-2 text-sm font-medium block"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Customers
+                    </Link>
+                    <Link 
                       to="/company/chat" 
                       className="text-gray-700 hover:text-orange-500 px-3 py-2 text-sm font-medium block"
                       onClick={() => setIsMenuOpen(false)}
