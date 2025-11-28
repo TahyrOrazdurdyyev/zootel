@@ -96,7 +96,7 @@ const CompanyAnalyticsPage = () => {
           setMetrics({
             totalBookings: dashboardData.total_bookings || 0,
             totalRevenue: dashboardData.total_revenue || 0,
-            newCustomers: dashboardData.new_customers || 0,
+            newCustomers: dashboardData.total_customers || 0, // Use total_customers from backend
             averageRating: dashboardData.average_rating || 0,
             bookingsTrend: dashboardData.bookings_trend || 0,
             revenueTrend: dashboardData.revenue_trend || 0
