@@ -203,9 +203,9 @@ const CompaniesPage = () => {
             <div key={company.id} className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
               {/* Cover Image */}
               <div className="relative h-48 bg-gray-200 rounded-t-lg overflow-hidden">
-                {company.cover_image ? (
+                {(company.media_gallery && company.media_gallery.length > 0) ? (
                   <img
-                    src={company.cover_image}
+                    src={company.media_gallery[0]}
                     alt={company.name}
                     className="w-full h-full object-cover"
                   />

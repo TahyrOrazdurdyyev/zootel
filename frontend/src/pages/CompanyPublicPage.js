@@ -35,7 +35,7 @@ const CompanyPublicPage = () => {
     console.log('🔍 CompanyPublicPage fetchCompanyData - companyId:', companyId);
     try {
       // Fetch company profile
-      const companyResponse = await fetch(`/api/public/companies/${companyId}`);
+      const companyResponse = await fetch(`/api/v1/public/companies/${companyId}`);
       const companyData = await companyResponse.json();
       
       if (companyData.success) {
@@ -43,7 +43,7 @@ const CompanyPublicPage = () => {
       }
 
       // Fetch services
-      const servicesResponse = await fetch(`/api/public/companies/${companyId}/services`);
+      const servicesResponse = await fetch(`/api/v1/public/companies/${companyId}/services`);
       const servicesData = await servicesResponse.json();
       
       if (servicesData.success) {
@@ -51,7 +51,7 @@ const CompanyPublicPage = () => {
       }
 
       // Fetch products
-      const productsResponse = await fetch(`/api/public/companies/${companyId}/products`);
+      const productsResponse = await fetch(`/api/v1/public/companies/${companyId}/products`);
       const productsData = await productsResponse.json();
       
       if (productsData.success) {
