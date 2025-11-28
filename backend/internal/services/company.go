@@ -206,7 +206,7 @@ func (s *CompanyService) GetPublicCompanyProfile(companyID string) (map[string]i
 		LEFT JOIN services s ON c.id = s.company_id AND s.is_active = true
 		LEFT JOIN products p ON c.id = p.company_id AND p.is_active = true
 		LEFT JOIN reviews r ON c.id = r.company_id
-		WHERE c.id = $1 AND c.is_active = true
+		WHERE c.id = $1 AND c.is_active = true AND c.publish_to_marketplace = true
 		GROUP BY c.id`
 
 	row := s.db.QueryRow(query, companyID)
@@ -214,12 +214,15 @@ func (s *CompanyService) GetPublicCompanyProfile(companyID string) (map[string]i
 	var company models.Company
 	var serviceCount, productCount, reviewCount int
 	var avgRating sql.NullFloat64
+	
+	// Use interface{} for PostgreSQL arrays like in GetPublicCompanies
+	var mediaGalleryRaw, categoriesRaw interface{}
 
 	err := row.Scan(
 		&company.ID, &company.Name, &company.Description, &company.City,
 		&company.Country, &company.State, &company.Address, &company.Latitude,
 		&company.Longitude, &company.Phone, &company.Email, &company.Website,
-		&company.LogoURL, pq.Array(&company.MediaGallery), pq.Array(&company.Categories),
+		&company.LogoURL, &mediaGalleryRaw, &categoriesRaw,
 		&company.BusinessHours, &serviceCount, &productCount, &avgRating,
 		&reviewCount, &company.CreatedAt,
 	)
@@ -230,6 +233,10 @@ func (s *CompanyService) GetPublicCompanyProfile(companyID string) (map[string]i
 		}
 		return nil, fmt.Errorf("failed to get company: %w", err)
 	}
+	
+	// Parse PostgreSQL arrays
+	company.MediaGallery = parsePostgreSQLArray(mediaGalleryRaw, "MediaGallery")
+	company.Categories = parsePostgreSQLArray(categoriesRaw, "Categories")
 
 	// Get recent reviews
 	recentReviews, _ := s.getRecentReviews(companyID, 5)

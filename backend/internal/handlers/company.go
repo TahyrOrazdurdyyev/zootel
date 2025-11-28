@@ -88,11 +88,16 @@ func (h *CompanyHandler) GetPublicCompany(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("🔍 GetPublicCompany called for companyID: %s\n", companyID)
+
 	company, err := h.companyService.GetPublicCompanyProfile(companyID)
 	if err != nil {
+		fmt.Printf("❌ GetPublicCompany error: %v\n", err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "Company not found"})
 		return
 	}
+
+	fmt.Printf("✅ GetPublicCompany success for company: %s\n", companyID)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -108,6 +113,8 @@ func (h *CompanyHandler) GetPublicServices(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("🔍 GetPublicServices called for companyID: %s\n", companyID)
+
 	limitStr := c.DefaultQuery("limit", "20")
 	offsetStr := c.DefaultQuery("offset", "0")
 	categoryID := c.Query("category_id")
@@ -121,9 +128,12 @@ func (h *CompanyHandler) GetPublicServices(c *gin.Context) {
 
 	services, total, err := h.serviceService.GetCompanyPublicServices(companyID, limit, offset, categoryID)
 	if err != nil {
+		fmt.Printf("❌ GetPublicServices error: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	fmt.Printf("✅ GetPublicServices success: %d services for company %s\n", len(services), companyID)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success":  true,
