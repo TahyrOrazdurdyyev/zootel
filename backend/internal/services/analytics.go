@@ -1405,35 +1405,28 @@ func (s *AnalyticsService) GetCustomerSegmentationAnalytics(companyID string, da
 		analytics["returning_customer_rate"] = 0.0
 	}
 
-	// Customer lifetime value segments
+	// Customer lifetime value segments (simplified to use only bookings)
 	clvQuery := `
 		WITH customer_value AS (
 			SELECT 
 				user_id,
-				COALESCE(SUM(b.price), 0) + COALESCE(SUM(o.total_amount), 0) as lifetime_value
-			FROM (
-				SELECT DISTINCT user_id FROM (
-					SELECT user_id FROM bookings WHERE company_id = $1
-					UNION 
-					SELECT user_id FROM orders WHERE company_id = $1
-				) all_customers
-			) customers
-			LEFT JOIN bookings b ON customers.user_id = b.user_id AND b.company_id = $1 AND b.status = 'completed'
-			LEFT JOIN orders o ON customers.user_id = o.user_id AND o.company_id = $1 AND o.status = 'completed'
+				COALESCE(SUM(CASE WHEN status IN ('completed', 'confirmed') THEN price ELSE 0 END), 0) as lifetime_value
+			FROM bookings 
+			WHERE company_id = $1
 			GROUP BY user_id
 		)
 		SELECT 
-			COUNT(CASE WHEN lifetime_value >= 10000 THEN 1 END) as high_value_customers,
-			COUNT(CASE WHEN lifetime_value >= 5000 AND lifetime_value < 10000 THEN 1 END) as medium_value_customers,
-			COUNT(CASE WHEN lifetime_value < 5000 THEN 1 END) as low_value_customers,
+			COUNT(CASE WHEN lifetime_value >= 1000 THEN 1 END) as high_value_customers,
+			COUNT(CASE WHEN lifetime_value >= 500 AND lifetime_value < 1000 THEN 1 END) as medium_value_customers,
+			COUNT(CASE WHEN lifetime_value < 500 THEN 1 END) as low_value_customers,
 			AVG(lifetime_value) as avg_customer_lifetime_value
 		FROM customer_value
 	`
 
 	var highValue, mediumValue, lowValue int
-	var avgCLV float64
+	var avgCLV sql.NullFloat64
 
-	err = s.db.QueryRow(clvQuery, companyID, companyID, companyID, companyID).Scan(&highValue, &mediumValue, &lowValue, &avgCLV)
+	err = s.db.QueryRow(clvQuery, companyID).Scan(&highValue, &mediumValue, &lowValue, &avgCLV)
 	if err != nil {
 		return nil, err
 	}
@@ -1441,7 +1434,11 @@ func (s *AnalyticsService) GetCustomerSegmentationAnalytics(companyID string, da
 	analytics["high_value_customers"] = highValue
 	analytics["medium_value_customers"] = mediumValue
 	analytics["low_value_customers"] = lowValue
-	analytics["avg_customer_lifetime_value"] = avgCLV
+	if avgCLV.Valid {
+		analytics["avg_customer_lifetime_value"] = avgCLV.Float64
+	} else {
+		analytics["avg_customer_lifetime_value"] = 0.0
+	}
 
 	return analytics, nil
 }
