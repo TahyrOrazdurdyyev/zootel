@@ -46,7 +46,10 @@ const MarketplacePage = () => {
       const listingsResponse = await fetch('/api/v1/public/marketplace');
       const listingsData = await listingsResponse.json();
 
+      console.log('🔍 Marketplace API response:', listingsData);
       if (listingsData.success) {
+        console.log('✅ Listings received:', listingsData.listings);
+        console.log('📊 Listings count:', listingsData.listings?.length || 0);
         setListings(listingsData.listings || []);
       } else {
         console.error('Failed to fetch listings:', listingsData.error);
@@ -112,12 +115,27 @@ const MarketplacePage = () => {
   };
 
   const filteredListings = listings.filter(item => {
-    if (filters.category !== 'all' && item.category !== filters.category) return false;
-    if (filters.type !== 'all' && item.type !== filters.type) return false;
+    console.log('🔍 Filtering item:', item);
+    console.log('🎯 Current filters:', filters);
+    
+    if (filters.category !== 'all' && item.category !== filters.category) {
+      console.log('❌ Category filter failed:', item.category, 'vs', filters.category);
+      return false;
+    }
+    if (filters.type !== 'all' && item.type !== filters.type) {
+      console.log('❌ Type filter failed:', item.type, 'vs', filters.type);
+      return false;
+    }
     if (filters.search && !item.name.toLowerCase().includes(filters.search.toLowerCase()) && 
-        !item.description.toLowerCase().includes(filters.search.toLowerCase())) return false;
+        !item.description.toLowerCase().includes(filters.search.toLowerCase())) {
+      console.log('❌ Search filter failed');
+      return false;
+    }
+    console.log('✅ Item passed filters');
     return true;
   });
+  
+  console.log('📊 Filtered listings count:', filteredListings.length);
 
   // Loading state
   if (loading) {
