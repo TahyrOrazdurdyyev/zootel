@@ -1713,6 +1713,8 @@ func (s *AdminService) logAdminAction(adminID, action, resourceType, resourceID 
 
 // GetCompanyFeatureStatus получает статус функций компании с разделением на оплаченные и бесплатные
 func (s *AdminService) GetCompanyFeatureStatus(companyID string) (*models.CompanyFeatureStatus, error) {
+	log.Printf("🔍 GetCompanyFeatureStatus called for company: %s", companyID)
+	
 	query := `
 		SELECT 
 			c.id, c.name, 
@@ -1737,6 +1739,8 @@ func (s *AdminService) GetCompanyFeatureStatus(companyID string) (*models.Compan
 		WHERE c.id = $1
 	`
 
+	log.Printf("🔍 Executing GetCompanyFeatureStatus query...")
+	
 	var status models.CompanyFeatureStatus
 	var includedAgents pq.StringArray
 	var planID sql.NullString
@@ -1748,6 +1752,7 @@ func (s *AdminService) GetCompanyFeatureStatus(companyID string) (*models.Compan
 		&status.HasPaidCRM, &status.HasPaidAI,
 	)
 	if err != nil {
+		log.Printf("❌ GetCompanyFeatureStatus scan error: %v", err)
 		return nil, fmt.Errorf("failed to get company feature status: %w", err)
 	}
 
@@ -1756,6 +1761,8 @@ func (s *AdminService) GetCompanyFeatureStatus(companyID string) (*models.Compan
 	}
 
 	status.IncludedAIAgents = []string(includedAgents)
+	
+	log.Printf("✅ GetCompanyFeatureStatus success for company: %s", companyID)
 
 	// Получаем список активных addon агентов
 	addonQuery := `
