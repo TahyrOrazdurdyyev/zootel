@@ -81,7 +81,11 @@ const CompaniesPage = () => {
       const response = await fetch(url);
       const data = await response.json();
       
+      console.log('📦 Companies API response:', data);
+      console.log('📊 Companies count:', data.companies?.length || 0);
+      
       if (data.success) {
+        console.log('✅ Setting companies:', data.companies);
         setCompanies(data.companies || []);
       } else {
         console.error('Failed to fetch companies:', data.error);
@@ -96,14 +100,25 @@ const CompaniesPage = () => {
   };
 
   const filteredCompanies = companies.filter(company => {
+    console.log('🔍 Filtering company:', company.name);
+    console.log('🏢 Company business_type:', company.business_type);
+    console.log('🎯 Category filter:', categoryFilter);
+    
     const matchesSearch = company.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          company.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || company.business_type === categoryFilter;
     const matchesLocation = locationFilter === 'all' || 
                            (company.city || company.location || '')?.toLowerCase().includes(locationFilter.toLowerCase());
     
+    console.log('✅ Matches search:', matchesSearch);
+    console.log('✅ Matches category:', matchesCategory);
+    console.log('✅ Matches location:', matchesLocation);
+    console.log('🎯 Final result:', matchesSearch && matchesCategory && matchesLocation);
+    
     return matchesSearch && matchesCategory && matchesLocation;
   });
+  
+  console.log('📊 Filtered companies count:', filteredCompanies.length);
 
   const sortedCompanies = [...filteredCompanies].sort((a, b) => {
     switch (sortBy) {
