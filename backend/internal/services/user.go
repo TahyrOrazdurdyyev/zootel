@@ -383,8 +383,8 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 		       COALESCE(os.total_spent * 0.1, 0) as zootel_commission,
 		       COALESCE(os.cancelled_orders, 0) as cancelled_orders,
 		       COALESCE(os.refunded_orders, 0) as refunded_orders,
-		       COALESCE(cs.favorite_category, '') as favorite_category,
-		       COALESCE(cs.favorite_company, '') as favorite_company,
+		       '' as favorite_category,
+		       '' as favorite_company,
 		       COALESCE(ps.preferred_payment, '') as preferred_payment
 		FROM users u
 		LEFT JOIN (
@@ -405,17 +405,6 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 			FROM orders
 			GROUP BY user_id
 		) os ON u.id = os.user_id
-		LEFT JOIN (
-			SELECT user_id,
-				COALESCE(MODE() WITHIN GROUP (ORDER BY s.category_id), '') as favorite_category,
-				COALESCE(MODE() WITHIN GROUP (ORDER BY c.name), '') as favorite_company
-			FROM bookings b
-			JOIN services s ON b.service_id = s.id
-			JOIN companies c ON s.company_id = c.id
-			WHERE b.status IN ('confirmed', 'completed') 
-			AND s.category_id IS NOT NULL
-			GROUP BY user_id
-		) cs ON u.id = cs.user_id
 		LEFT JOIN (
 			SELECT user_id,
 				MODE() WITHIN GROUP (ORDER BY payment_method) as preferred_payment
