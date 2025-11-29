@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -55,6 +56,8 @@ func (s *CurrencyService) GetActiveCurrencies() ([]models.Currency, error) {
 
 // GetAllCurrencies returns all currencies (for admin)
 func (s *CurrencyService) GetAllCurrencies() ([]models.Currency, error) {
+	log.Printf("🔍 GetAllCurrencies: Starting query...")
+	
 	query := `
 		SELECT id, code, name, symbol, flag_emoji, is_active, is_base, 
 		       exchange_rate, last_updated, created_at, updated_at
@@ -64,6 +67,7 @@ func (s *CurrencyService) GetAllCurrencies() ([]models.Currency, error) {
 
 	rows, err := s.db.Query(query)
 	if err != nil {
+		log.Printf("❌ GetAllCurrencies: Query failed: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -77,11 +81,13 @@ func (s *CurrencyService) GetAllCurrencies() ([]models.Currency, error) {
 			&currency.ExchangeRate, &currency.LastUpdated, &currency.CreatedAt, &currency.UpdatedAt,
 		)
 		if err != nil {
+			log.Printf("❌ GetAllCurrencies: Scan failed: %v", err)
 			return nil, err
 		}
 		currencies = append(currencies, currency)
 	}
 
+	log.Printf("✅ GetAllCurrencies: Successfully retrieved %d currencies", len(currencies))
 	return currencies, nil
 }
 

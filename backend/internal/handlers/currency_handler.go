@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/models"
@@ -37,14 +38,18 @@ func (h *CurrencyHandler) GetCurrencies(c *gin.Context) {
 
 // GetAllCurrencies returns all currencies (admin only)
 func (h *CurrencyHandler) GetAllCurrencies(c *gin.Context) {
+	log.Printf("🔍 GetAllCurrencies called from %s", c.ClientIP())
+	
 	currencies, err := h.currencyService.GetAllCurrencies()
 	if err != nil {
+		log.Printf("❌ GetAllCurrencies failed: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to fetch currencies",
 		})
 		return
 	}
 
+	log.Printf("✅ GetAllCurrencies success, returned %d currencies", len(currencies))
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    currencies,
