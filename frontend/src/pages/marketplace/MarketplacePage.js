@@ -122,8 +122,13 @@ const MarketplacePage = () => {
       console.log('❌ Category filter failed:', item.category, 'vs', filters.category);
       return false;
     }
-    if (filters.type !== 'all' && item.type !== filters.type) {
+    if (filters.type !== 'all' && filters.type !== 'products' && item.type !== filters.type) {
       console.log('❌ Type filter failed:', item.type, 'vs', filters.type);
+      return false;
+    }
+    // Special case: if type=products, show both services and products for now
+    if (filters.type === 'products' && item.type !== 'service' && item.type !== 'product') {
+      console.log('❌ Products filter failed:', item.type);
       return false;
     }
     if (filters.search && !item.name.toLowerCase().includes(filters.search.toLowerCase()) && 

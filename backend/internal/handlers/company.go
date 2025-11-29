@@ -226,9 +226,39 @@ func (h *CompanyHandler) GetMarketplaceData(c *gin.Context) {
 	// Combine services and products into listings
 	var listings []interface{}
 
-	// Add services to listings (convert to interface{} slice)
+	// Add services to listings with type field
 	for _, service := range services {
-		listings = append(listings, service)
+		serviceMap := map[string]interface{}{
+			"id":                    service.ID,
+			"company_id":           service.CompanyID,
+			"category_id":          service.CategoryID,
+			"name":                 service.Name,
+			"description":          service.Description,
+			"price":                service.Price,
+			"original_price":       service.OriginalPrice,
+			"discount_percentage":  service.DiscountPercentage,
+			"is_on_sale":          service.IsOnSale,
+			"sale_start_date":     service.SaleStartDate,
+			"sale_end_date":       service.SaleEndDate,
+			"duration":            service.Duration,
+			"image_url":           service.ImageURL,
+			"image_id":            service.ImageID,
+			"pet_types":           service.PetTypes,
+			"available_days":      service.AvailableDays,
+			"start_time":          service.StartTime,
+			"end_time":            service.EndTime,
+			"assigned_employees":  service.AssignedEmployees,
+			"max_bookings_per_slot": service.MaxBookingsPerSlot,
+			"buffer_time_before":  service.BufferTimeBefore,
+			"buffer_time_after":   service.BufferTimeAfter,
+			"advance_booking_days": service.AdvanceBookingDays,
+			"cancellation_policy": service.CancellationPolicy,
+			"is_active":           service.IsActive,
+			"created_at":          service.CreatedAt,
+			"updated_at":          service.UpdatedAt,
+			"type":                "service", // Add type field for frontend filtering
+		}
+		listings = append(listings, serviceMap)
 	}
 
 	// Add products to listings
