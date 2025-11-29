@@ -842,17 +842,22 @@ func (h *AdminHandler) GetCompanies(c *gin.Context) {
 // GetCompanyFeatureStatus получает статус функций компании
 func (h *AdminHandler) GetCompanyFeatureStatus(c *gin.Context) {
 	companyID := c.Param("companyId")
+	log.Printf("🔍 GetCompanyFeatureStatus handler called for company: %s", companyID)
+	
 	if companyID == "" {
+		log.Printf("❌ GetCompanyFeatureStatus: Company ID is empty")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
 	}
 
 	status, err := h.adminService.GetCompanyFeatureStatus(companyID)
 	if err != nil {
+		log.Printf("❌ GetCompanyFeatureStatus service error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get company feature status"})
 		return
 	}
 
+	log.Printf("✅ GetCompanyFeatureStatus handler success for company: %s", companyID)
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    status,
@@ -943,8 +948,10 @@ func (h *AdminHandler) GetAvailablePlans(c *gin.Context) {
 func (h *AdminHandler) CheckCRMTogglePermission(c *gin.Context) {
 	companyID := c.Param("companyId")
 	enableStr := c.Query("enable")
+	log.Printf("🔍 CheckCRMTogglePermission handler called for company: %s, enable: %s", companyID, enableStr)
 
 	if companyID == "" {
+		log.Printf("❌ CheckCRMTogglePermission: Company ID is empty")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
 	}
@@ -952,10 +959,12 @@ func (h *AdminHandler) CheckCRMTogglePermission(c *gin.Context) {
 	enable := enableStr == "true"
 	canToggle, reason, err := h.adminService.CanToggleCRM(companyID, enable)
 	if err != nil {
+		log.Printf("❌ CheckCRMTogglePermission service error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check CRM toggle permission"})
 		return
 	}
 
+	log.Printf("✅ CheckCRMTogglePermission handler success for company: %s", companyID)
 	c.JSON(http.StatusOK, gin.H{
 		"success":    true,
 		"can_toggle": canToggle,
@@ -967,8 +976,10 @@ func (h *AdminHandler) CheckCRMTogglePermission(c *gin.Context) {
 func (h *AdminHandler) CheckAITogglePermission(c *gin.Context) {
 	companyID := c.Param("companyId")
 	enableStr := c.Query("enable")
+	log.Printf("🔍 CheckAITogglePermission handler called for company: %s, enable: %s", companyID, enableStr)
 
 	if companyID == "" {
+		log.Printf("❌ CheckAITogglePermission: Company ID is empty")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
 	}
@@ -976,10 +987,12 @@ func (h *AdminHandler) CheckAITogglePermission(c *gin.Context) {
 	enable := enableStr == "true"
 	canToggle, reason, err := h.adminService.CanToggleAI(companyID, enable)
 	if err != nil {
+		log.Printf("❌ CheckAITogglePermission service error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check AI toggle permission"})
 		return
 	}
 
+	log.Printf("✅ CheckAITogglePermission handler success for company: %s", companyID)
 	c.JSON(http.StatusOK, gin.H{
 		"success":    true,
 		"can_toggle": canToggle,
