@@ -723,7 +723,7 @@ func (h *AdminHandler) GetDemoCompanies(c *gin.Context) {
 }
 
 func (h *AdminHandler) DeleteDemoCompany(c *gin.Context) {
-	companyID := c.Param("id")
+	companyID := c.Param("companyId")
 	if companyID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
@@ -841,7 +841,7 @@ func (h *AdminHandler) GetCompanies(c *gin.Context) {
 
 // GetCompanyFeatureStatus получает статус функций компании
 func (h *AdminHandler) GetCompanyFeatureStatus(c *gin.Context) {
-	companyID := c.Param("id")
+	companyID := c.Param("companyId")
 	if companyID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
@@ -941,7 +941,7 @@ func (h *AdminHandler) GetAvailablePlans(c *gin.Context) {
 
 // CheckCRMTogglePermission проверяет можно ли переключить CRM
 func (h *AdminHandler) CheckCRMTogglePermission(c *gin.Context) {
-	companyID := c.Param("id")
+	companyID := c.Param("companyId")
 	enableStr := c.Query("enable")
 
 	if companyID == "" {
@@ -965,7 +965,7 @@ func (h *AdminHandler) CheckCRMTogglePermission(c *gin.Context) {
 
 // CheckAITogglePermission проверяет можно ли переключить AI агентов
 func (h *AdminHandler) CheckAITogglePermission(c *gin.Context) {
-	companyID := c.Param("id")
+	companyID := c.Param("companyId")
 	enableStr := c.Query("enable")
 
 	if companyID == "" {
@@ -989,7 +989,7 @@ func (h *AdminHandler) CheckAITogglePermission(c *gin.Context) {
 
 // CheckAgentDeactivatePermission проверяет можно ли деактивировать конкретного агента
 func (h *AdminHandler) CheckAgentDeactivatePermission(c *gin.Context) {
-	companyID := c.Param("id")
+	companyID := c.Param("companyId")
 	agentKey := c.Param("agentKey")
 
 	if companyID == "" || agentKey == "" {
