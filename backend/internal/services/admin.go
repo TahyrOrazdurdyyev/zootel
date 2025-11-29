@@ -943,9 +943,9 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			0 as total_revenue,
 			0 as employee_count,
 			-- Extended analytics
-			COALESCE(c.instagram, '') as instagram,
-			COALESCE(c.facebook, '') as facebook,
-			c.subscription_activated_at,
+			'' as instagram,
+			'' as facebook,
+			NULL as subscription_activated_at,
 			0 as average_check,
 			0 as zootel_earnings,
 			0 as cancelled_orders,
