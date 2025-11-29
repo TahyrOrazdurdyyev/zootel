@@ -202,6 +202,7 @@ func main() {
 			publicCompanies := public.Group("/companies")
 			{
 				publicCompanies.GET("/", companyHandler.GetPublicCompanies)
+				publicCompanies.GET("/cities", companyHandler.GetCompanyCities)
 				publicCompanies.GET("/:companyId", companyHandler.GetPublicCompany)
 				publicCompanies.GET("/:companyId/services", companyHandler.GetPublicServices)
 				publicCompanies.GET("/:companyId/products", companyHandler.GetPublicProducts)

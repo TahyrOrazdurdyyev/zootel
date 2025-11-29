@@ -284,6 +284,27 @@ func (h *CompanyHandler) GetMarketplaceData(c *gin.Context) {
 	})
 }
 
+// GetCompanyCities gets unique cities for location filter
+func (h *CompanyHandler) GetCompanyCities(c *gin.Context) {
+	fmt.Printf("🔍 GetCompanyCities called from %s\n", c.ClientIP())
+
+	cities, err := h.companyService.GetCompanyCities()
+	if err != nil {
+		fmt.Printf("❌ Failed to get cities: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to get cities",
+		})
+		return
+	}
+
+	fmt.Printf("✅ GetCompanyCities success, returned %d cities\n", len(cities))
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"cities":  cities,
+	})
+}
+
 // Search performs global search across companies, services, and products
 func (h *CompanyHandler) Search(c *gin.Context) {
 	query := c.Query("q")

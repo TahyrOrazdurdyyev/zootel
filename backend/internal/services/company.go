@@ -155,6 +155,33 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 	return companies, total, nil
 }
 
+// GetCompanyCities gets unique cities from companies for location filter
+func (s *CompanyService) GetCompanyCities() ([]string, error) {
+	query := `
+		SELECT DISTINCT city 
+		FROM companies 
+		WHERE city IS NOT NULL AND city != '' AND is_active = true AND publish_to_marketplace = true
+		ORDER BY city ASC
+	`
+	
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query cities: %w", err)
+	}
+	defer rows.Close()
+	
+	var cities []string
+	for rows.Next() {
+		var city string
+		if err := rows.Scan(&city); err != nil {
+			continue // Skip invalid cities
+		}
+		cities = append(cities, city)
+	}
+	
+	return cities, nil
+}
+
 // parsePostgreSQLArray parses PostgreSQL array from interface{} to []string
 func parsePostgreSQLArray(raw interface{}, fieldName string) pq.StringArray {
 	if raw == nil {

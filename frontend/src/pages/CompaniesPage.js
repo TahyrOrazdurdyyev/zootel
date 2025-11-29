@@ -22,18 +22,14 @@ const CompaniesPage = () => {
   const [businessTypes, setBusinessTypes] = useState([
     { value: 'all', label: 'All Types' }
   ]);
-
-  const locations = [
-    { value: 'all', label: 'All Locations' },
-    { value: 'moscow', label: 'Moscow' },
-    { value: 'spb', label: 'St. Petersburg' },
-    { value: 'kazan', label: 'Kazan' },
-    { value: 'ekaterinburg', label: 'Ekaterinburg' }
-  ];
+  const [locations, setLocations] = useState([
+    { value: 'all', label: 'All Locations' }
+  ]);
 
   useEffect(() => {
     fetchCompanies();
     fetchCategories();
+    fetchCities();
   }, []);
 
   // Refetch companies when filters change
@@ -56,6 +52,28 @@ const CompaniesPage = () => {
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchCities = async () => {
+    try {
+      console.log('🔍 Fetching cities from /api/v1/public/companies/cities');
+      const response = await fetch('/api/v1/public/companies/cities');
+      const data = await response.json();
+      
+      console.log('📦 Cities API response:', data);
+      if (data.success && data.cities) {
+        setLocations([
+          { value: 'all', label: 'All Locations' },
+          ...data.cities.map(city => ({ 
+            value: city.toLowerCase(), 
+            label: city 
+          }))
+        ]);
+        console.log('✅ Cities loaded:', data.cities);
+      }
+    } catch (error) {
+      console.error('Error fetching cities:', error);
     }
   };
 
