@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ImageCarousel from '../components/ui/ImageCarousel';
-import LocationMap from '../components/ui/LocationMap';
+import GoogleMap from '../components/ui/GoogleMap';
 import { 
   MapPinIcon, 
   PhoneIcon, 
@@ -293,13 +293,22 @@ const CompanyPublicPage = () => {
               {/* Map */}
               <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="text-xl font-semibold mb-4">Location</h3>
-                <LocationMap
-                  latitude={company.latitude}
-                  longitude={company.longitude}
-                  companyName={company.name}
+                <GoogleMap
                   address={company.address}
-                  className="h-48"
+                  coordinates={company.latitude && company.longitude ? {
+                    lat: parseFloat(company.latitude),
+                    lng: parseFloat(company.longitude)
+                  } : null}
+                  height="300px"
+                  className="rounded-lg"
+                  markerTitle={company.name}
                 />
+                <div className="mt-4 text-sm text-gray-600">
+                  <div className="flex items-center">
+                    <MapPinIcon className="h-4 w-4 mr-2" />
+                    {company.address}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

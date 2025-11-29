@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { MapPinIcon, CameraIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import LocationMap from '../ui/LocationMap';
+import GooglePlacesAutocomplete from '../ui/GooglePlacesAutocomplete';
+import GoogleMap from '../ui/GoogleMap';
 import { auth } from '../../config/firebase';
 import { toast } from 'react-hot-toast';
 
@@ -64,6 +66,23 @@ const CompanyProfileForm = ({
       ...prev,
       [name]: value
     }));
+  };
+
+  const handlePlaceSelect = (placeData) => {
+    console.log('🔍 Place selected:', placeData);
+    
+    // Update form data with address components
+    setFormData(prev => ({
+      ...prev,
+      address: placeData.formatted_address,
+      city: placeData.address_components.city || prev.city,
+      state: placeData.address_components.state || prev.state,
+      country: placeData.address_components.country || prev.country,
+      latitude: placeData.coordinates?.lat || prev.latitude,
+      longitude: placeData.coordinates?.lng || prev.longitude
+    }));
+
+    toast.success('Address updated with location details');
   };
 
   const handleLocationFromAddress = async () => {
@@ -404,11 +423,11 @@ const CompanyProfileForm = ({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Address
             </label>
-            <input
-              type="text"
-              name="address"
+            <GooglePlacesAutocomplete
               value={formData.address}
-              onChange={handleInputChange}
+              onChange={(value) => setFormData(prev => ({ ...prev, address: value }))}
+              onPlaceSelect={handlePlaceSelect}
+              placeholder="Start typing your address..."
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -514,15 +533,21 @@ const CompanyProfileForm = ({
           </div>
 
           {/* Map Preview */}
-          {formData.latitude && formData.longitude && (
-            <LocationMap
-              latitude={formData.latitude}
-              longitude={formData.longitude}
-              companyName={formData.name}
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Location Preview
+            </label>
+            <GoogleMap
               address={formData.address}
-              className="h-48"
+              coordinates={formData.latitude && formData.longitude ? {
+                lat: parseFloat(formData.latitude),
+                lng: parseFloat(formData.longitude)
+              } : null}
+              height="300px"
+              className="border border-gray-300 rounded-md"
+              markerTitle={formData.name || 'Company Location'}
             />
-          )}
+          </div>
         </div>
     </div>
   );

@@ -31,6 +31,16 @@
     <meta name="twitter:image" content="/images/icons/Logo_orange.png" />
     
     <title>Zootel - Pet Care Services Platform</title>
+    
+    <!-- Google Maps API -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5b813RD2bwP51bcLP-N8bvX2PM9Sp24M&libraries=places&callback=initGoogleMaps"></script>
+    <script>
+      // Initialize Google Maps callback
+      window.initGoogleMaps = function() {
+        window.googleMapsLoaded = true;
+        window.dispatchEvent(new Event('google-maps-loaded'));
+      };
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
