@@ -36,6 +36,11 @@ const CompaniesPage = () => {
     fetchCategories();
   }, []);
 
+  // Refetch companies when filters change
+  useEffect(() => {
+    fetchCompanies();
+  }, [categoryFilter, locationFilter, searchTerm, sortBy]);
+
   const fetchCategories = async () => {
     try {
       const response = await fetch('/api/v1/marketplace/categories');
@@ -57,7 +62,23 @@ const CompaniesPage = () => {
   const fetchCompanies = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/v1/public/companies');
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (categoryFilter && categoryFilter !== 'all') {
+        params.append('category', categoryFilter);
+      }
+      if (locationFilter && locationFilter !== 'all') {
+        params.append('city', locationFilter);
+      }
+      if (searchTerm) {
+        params.append('search', searchTerm);
+      }
+      
+      const queryString = params.toString();
+      const url = `/api/v1/public/companies${queryString ? `?${queryString}` : ''}`;
+      
+      console.log('🔍 Fetching companies with URL:', url);
+      const response = await fetch(url);
       const data = await response.json();
       
       if (data.success) {

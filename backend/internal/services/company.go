@@ -33,7 +33,8 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 
 	// Add filters
 	if category != "" {
-		conditions = append(conditions, fmt.Sprintf("$%d = ANY(c.categories)", argIndex))
+		// Filter by business_type instead of categories array
+		conditions = append(conditions, fmt.Sprintf("LOWER(c.business_type) = LOWER($%d)", argIndex))
 		args = append(args, category)
 		argIndex++
 	}
