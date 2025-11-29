@@ -942,9 +942,9 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			0 as total_customers,
 			0 as total_revenue,
 			0 as employee_count,
-			-- Extended analytics
-			'' as instagram,
-			'' as facebook,
+		-- Extended analytics
+			COALESCE(c.social_media_links->>'instagram', '') as instagram,
+			COALESCE(c.social_media_links->>'facebook', '') as facebook,
 			NULL as subscription_activated_at,
 			0 as average_check,
 			0 as zootel_earnings,
@@ -954,6 +954,7 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			0 as company_rating,
 			0 as total_reviews,
 			0 as total_chats,
+			0 as customer_requests,
 			NULL as last_login_at,
 			0 as profile_completeness,
 			0 as weekly_orders,
@@ -1005,6 +1006,9 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 		}
 		if subscriptionExpiresAt.Valid {
 			company.TrialStartDate = &subscriptionExpiresAt.Time // используем как start date
+		}
+		if subscriptionActivatedAt.Valid {
+			company.SubscriptionActivatedAt = &subscriptionActivatedAt.Time
 		}
 		if subscriptionActivatedAt.Valid {
 			company.SubscriptionActivatedAt = &subscriptionActivatedAt.Time
