@@ -606,16 +606,16 @@ func main() {
 
 				// Company management
 				admin.GET("/companies", adminHandler.GetAllCompanies)
-				admin.PUT("/companies/:id/toggle-special-partner", adminHandler.ToggleSpecialPartner)
-				admin.PUT("/companies/:id/toggle-manual-crm", adminHandler.ToggleManualCRM)
-				admin.PUT("/companies/:id/toggle-manual-ai", adminHandler.ToggleManualAI)
-				admin.PUT("/companies/:id/block", adminHandler.BlockCompany)
-				admin.PUT("/companies/:id/unblock", adminHandler.UnblockCompany)
+				admin.PUT("/companies/:companyId/toggle-special-partner", adminHandler.ToggleSpecialPartner)
+				admin.PUT("/companies/:companyId/toggle-manual-crm", adminHandler.ToggleManualCRM)
+				admin.PUT("/companies/:companyId/toggle-manual-ai", adminHandler.ToggleManualAI)
+				admin.PUT("/companies/:companyId/block", adminHandler.BlockCompany)
+				admin.PUT("/companies/:companyId/unblock", adminHandler.UnblockCompany)
 				
 				// Plan management
 				admin.GET("/plans", adminHandler.GetAvailablePlans)
-				admin.POST("/companies/:id/assign-plan", adminHandler.AssignPlanToCompany)
-				admin.DELETE("/companies/:id/remove-plan", adminHandler.RemovePlanFromCompany)
+				admin.POST("/companies/:companyId/assign-plan", adminHandler.AssignPlanToCompany)
+				admin.DELETE("/companies/:companyId/remove-plan", adminHandler.RemovePlanFromCompany)
 
 				// Company feature status and permissions
 				admin.GET("/companies/:companyId/feature-status", adminHandler.GetCompanyFeatureStatus)

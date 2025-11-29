@@ -537,7 +537,7 @@ func (h *AdminHandler) GetAllCompanies(c *gin.Context) {
 }
 
 func (h *AdminHandler) ToggleSpecialPartner(c *gin.Context) {
-	companyID := c.Param("id")
+	companyID := c.Param("companyId")
 	if companyID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
@@ -555,7 +555,7 @@ func (h *AdminHandler) ToggleSpecialPartner(c *gin.Context) {
 }
 
 func (h *AdminHandler) ToggleManualCRM(c *gin.Context) {
-	companyID := c.Param("id")
+	companyID := c.Param("companyId")
 	if companyID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
@@ -573,7 +573,7 @@ func (h *AdminHandler) ToggleManualCRM(c *gin.Context) {
 }
 
 func (h *AdminHandler) ToggleManualAI(c *gin.Context) {
-	companyID := c.Param("id")
+	companyID := c.Param("companyId")
 	if companyID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
@@ -591,7 +591,7 @@ func (h *AdminHandler) ToggleManualAI(c *gin.Context) {
 }
 
 func (h *AdminHandler) BlockCompany(c *gin.Context) {
-	companyID := c.Param("id")
+	companyID := c.Param("companyId")
 	if companyID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
@@ -609,7 +609,7 @@ func (h *AdminHandler) BlockCompany(c *gin.Context) {
 }
 
 func (h *AdminHandler) UnblockCompany(c *gin.Context) {
-	companyID := c.Param("id")
+	companyID := c.Param("companyId")
 	if companyID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
@@ -863,7 +863,7 @@ func (h *AdminHandler) GetCompanyFeatureStatus(c *gin.Context) {
 
 // AssignPlanToCompany manually assigns a plan to a company
 func (h *AdminHandler) AssignPlanToCompany(c *gin.Context) {
-	companyID := c.Param("id")
+	companyID := c.Param("companyId")
 	if companyID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
@@ -898,7 +898,7 @@ func (h *AdminHandler) AssignPlanToCompany(c *gin.Context) {
 
 // RemovePlanFromCompany removes plan from company
 func (h *AdminHandler) RemovePlanFromCompany(c *gin.Context) {
-	companyID := c.Param("id")
+	companyID := c.Param("companyId")
 	if companyID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
 		return
