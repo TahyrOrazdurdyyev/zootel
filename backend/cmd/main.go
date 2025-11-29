@@ -612,8 +612,8 @@ func main() {
 				admin.PUT("/companies/:companyId/block", adminHandler.BlockCompany)
 				admin.PUT("/companies/:companyId/unblock", adminHandler.UnblockCompany)
 				
-				// Plan management
-				admin.GET("/plans", adminHandler.GetAvailablePlans)
+				// Company plan assignment
+				admin.GET("/companies/available-plans", adminHandler.GetAvailablePlans)
 				admin.POST("/companies/:companyId/assign-plan", adminHandler.AssignPlanToCompany)
 				admin.DELETE("/companies/:companyId/remove-plan", adminHandler.RemovePlanFromCompany)
 
