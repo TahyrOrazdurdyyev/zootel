@@ -45,7 +45,7 @@ const CompaniesManagement = () => {
   const loadCompanies = async () => {
     try {
       setLoading(true);
-      const response = await apiCall('/admin/companies', 'GET');
+      const response = await apiCall('/admin/companies');
       if (response.success) {
         setCompanies(response.data || []);
       }
@@ -61,14 +61,14 @@ const CompaniesManagement = () => {
       const enable = !currentStatus;
       
       // Check permission
-      const checkResponse = await apiCall(`/admin/companies/${companyId}/check-crm-toggle?enable=${enable}`, 'GET');
+      const checkResponse = await apiCall(`/admin/companies/${companyId}/check-crm-toggle?enable=${enable}`);
       
       if (!checkResponse.can_toggle) {
         alert(`Cannot ${enable ? 'enable' : 'disable'} CRM: ${checkResponse.reason}`);
         return;
       }
 
-      const response = await apiCall(`/admin/companies/${companyId}/toggle-manual-crm`, 'PUT');
+      const response = await apiCall(`/admin/companies/${companyId}/toggle-manual-crm`, { method: 'PUT' });
       if (response.success) {
         await loadCompanies(); // Reload list
         alert(`CRM ${enable ? 'enabled' : 'disabled'} for company`);
@@ -84,14 +84,14 @@ const CompaniesManagement = () => {
       const enable = !currentStatus;
       
       // Check permission
-      const checkResponse = await apiCall(`/admin/companies/${companyId}/check-ai-toggle?enable=${enable}`, 'GET');
+      const checkResponse = await apiCall(`/admin/companies/${companyId}/check-ai-toggle?enable=${enable}`);
       
       if (!checkResponse.can_toggle) {
         alert(`Cannot ${enable ? 'enable' : 'disable'} AI agents: ${checkResponse.reason}`);
         return;
       }
 
-      const response = await apiCall(`/admin/companies/${companyId}/toggle-manual-ai`, 'PUT');
+      const response = await apiCall(`/admin/companies/${companyId}/toggle-manual-ai`, { method: 'PUT' });
       if (response.success) {
         await loadCompanies(); // Reload list
         alert(`AI agents ${enable ? 'enabled' : 'disabled'} for company`);
@@ -104,7 +104,7 @@ const CompaniesManagement = () => {
 
   const showFeatureDetails = async (companyId) => {
     try {
-      const response = await apiCall(`/admin/companies/${companyId}/feature-status`, 'GET');
+      const response = await apiCall(`/admin/companies/${companyId}/feature-status`);
       if (response.success) {
         setFeatureStatus(response.data);
         setSelectedCompany(companies.find(c => c.id === companyId));
@@ -119,7 +119,7 @@ const CompaniesManagement = () => {
     try {
       setLoadingPlans(true);
       console.log('🔍 Loading available plans...');
-      const response = await apiCall('/admin/companies/available-plans', 'GET');
+      const response = await apiCall('/admin/companies/available-plans');
       console.log('📋 Plans response:', response);
       console.log('📋 Response success:', response.success);
       console.log('📋 Response data:', response.data);
@@ -143,9 +143,12 @@ const CompaniesManagement = () => {
 
   const assignPlan = async (planId, billingCycle) => {
     try {
-      const response = await apiCall(`/admin/companies/${selectedCompany.id}/assign-plan`, 'POST', {
-        plan_id: planId,
-        billing_cycle: billingCycle
+      const response = await apiCall(`/admin/companies/${selectedCompany.id}/assign-plan`, {
+        method: 'POST',
+        body: JSON.stringify({
+          plan_id: planId,
+          billing_cycle: billingCycle
+        })
       });
       
       if (response.success) {
