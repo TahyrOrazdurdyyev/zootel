@@ -924,6 +924,9 @@ func (s *AdminService) GetTrialExpiringCompanies(daysBeforeExpiry int) ([]models
 
 // GetCompanies получает список всех компаний с подробной информацией
 func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
+	log.Printf("🔍 Starting GetCompanies query...")
+	
+	// Простой запрос для тестирования
 	query := `
 		SELECT 
 			c.id, c.name, c.business_type, COALESCE(c.description, '') as description, 
@@ -931,105 +934,33 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			c.website, c.logo_url, c.is_active, c.subscription_status,
 			c.trial_ends_at, c.subscription_expires_at, c.trial_expired,
 			c.created_at, c.updated_at,
-			c.plan_id, COALESCE(p.name, '') as plan_name, COALESCE(p.price, 0) as plan_price,
-			COALESCE(u.id::text, '') as owner_id, COALESCE(u.first_name, '') as owner_first_name, 
-			COALESCE(u.last_name, '') as owner_last_name, COALESCE(u.email, '') as owner_email,
-			COALESCE(cs.total_bookings, 0) as total_bookings,
-			COALESCE(cs.total_customers, 0) as total_customers,
-			COALESCE(cs.total_revenue, 0) as total_revenue,
-			COALESCE(es.employee_count, 0) as employee_count,
+			c.plan_id, '' as plan_name, 0 as plan_price,
+			'' as owner_id, '' as owner_first_name, 
+			'' as owner_last_name, '' as owner_email,
+			0 as total_bookings,
+			0 as total_customers,
+			0 as total_revenue,
+			0 as employee_count,
 			-- Extended analytics
 			COALESCE(c.instagram, '') as instagram,
 			COALESCE(c.facebook, '') as facebook,
 			c.subscription_activated_at,
-			COALESCE(cs.average_check, 0) as average_check,
-			COALESCE(cs.total_revenue * 0.1 + COALESCE(p.price, 0), 0) as zootel_earnings,
-			COALESCE(os.cancelled_orders, 0) as cancelled_orders,
-			COALESCE(os.refunded_orders, 0) as refunded_orders,
-			COALESCE(rt.avg_response_time, 0) as average_response_time,
-			COALESCE(rv.rating, 0) as company_rating,
-			COALESCE(rv.total_reviews, 0) as total_reviews,
-			COALESCE(ch.total_chats, 0) as total_chats,
-			u.last_login_at,
-			COALESCE(pf.completeness, 0) as profile_completeness,
-			COALESCE(time_orders.weekly_orders, 0) as weekly_orders,
-			COALESCE(time_orders.monthly_orders, 0) as monthly_orders,
-			COALESCE(time_orders.quarterly_orders, 0) as quarterly_orders,
-			COALESCE(time_orders.half_year_orders, 0) as half_year_orders,
-			COALESCE(time_orders.yearly_orders, 0) as yearly_orders
+			0 as average_check,
+			0 as zootel_earnings,
+			0 as cancelled_orders,
+			0 as refunded_orders,
+			0 as average_response_time,
+			0 as company_rating,
+			0 as total_reviews,
+			0 as total_chats,
+			NULL as last_login_at,
+			0 as profile_completeness,
+			0 as weekly_orders,
+			0 as monthly_orders,
+			0 as quarterly_orders,
+			0 as half_year_orders,
+			0 as yearly_orders
 		FROM companies c
-		LEFT JOIN plans p ON c.plan_id = p.id
-		LEFT JOIN users u ON c.owner_id = u.id
-		LEFT JOIN (
-			SELECT company_id, 
-				COUNT(*) as total_bookings,
-				COUNT(DISTINCT user_id) as total_customers,
-				COALESCE(SUM(price), 0) as total_revenue,
-				ROUND(AVG(price), 2) as average_check
-			FROM bookings 
-			WHERE status IN ('confirmed', 'completed')
-			GROUP BY company_id
-		) cs ON c.id = cs.company_id
-		LEFT JOIN (
-			SELECT company_id, COUNT(*) as employee_count
-			FROM employees
-			WHERE is_active = true
-			GROUP BY company_id
-		) es ON c.id = es.company_id
-		LEFT JOIN (
-			SELECT company_id,
-				COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_orders,
-				COUNT(CASE WHEN status = 'refunded' THEN 1 END) as refunded_orders
-			FROM bookings
-			GROUP BY company_id
-		) os ON c.id = os.company_id
-		LEFT JOIN (
-			SELECT company_id,
-				ROUND(AVG(EXTRACT(EPOCH FROM (updated_at - created_at)) / 60), 2) as avg_response_time
-			FROM chats
-			WHERE updated_at > created_at
-			GROUP BY company_id
-		) rt ON c.id = rt.company_id
-		LEFT JOIN (
-			SELECT company_id,
-				ROUND(AVG(rating), 2) as rating,
-				COUNT(*) as total_reviews
-			FROM reviews
-			WHERE rating IS NOT NULL
-			GROUP BY company_id
-		) rv ON c.id = rv.company_id
-		LEFT JOIN (
-			SELECT company_id, COUNT(*) as total_chats
-			FROM chats
-			GROUP BY company_id
-		) ch ON c.id = ch.company_id
-		LEFT JOIN (
-			SELECT company_id,
-				ROUND(
-					(CASE WHEN name IS NOT NULL AND name != '' THEN 10 ELSE 0 END +
-					 CASE WHEN description IS NOT NULL AND description != '' THEN 10 ELSE 0 END +
-					 CASE WHEN phone IS NOT NULL AND phone != '' THEN 10 ELSE 0 END +
-					 CASE WHEN website IS NOT NULL AND website != '' THEN 10 ELSE 0 END +
-					 CASE WHEN logo_url IS NOT NULL AND logo_url != '' THEN 10 ELSE 0 END +
-					 CASE WHEN address IS NOT NULL AND address != '' THEN 10 ELSE 0 END +
-					 CASE WHEN instagram IS NOT NULL AND instagram != '' THEN 10 ELSE 0 END +
-					 CASE WHEN facebook IS NOT NULL AND facebook != '' THEN 10 ELSE 0 END +
-					 CASE WHEN business_type IS NOT NULL AND business_type != '' THEN 10 ELSE 0 END +
-					 CASE WHEN email IS NOT NULL AND email != '' THEN 10 ELSE 0 END), 2
-				) as completeness
-			FROM companies
-		) pf ON c.id = pf.company_id
-		LEFT JOIN (
-			SELECT company_id,
-				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '7 days' THEN 1 END) as weekly_orders,
-				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '30 days' THEN 1 END) as monthly_orders,
-				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '90 days' THEN 1 END) as quarterly_orders,
-				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '180 days' THEN 1 END) as half_year_orders,
-				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '365 days' THEN 1 END) as yearly_orders
-			FROM bookings
-			WHERE status IN ('confirmed', 'completed')
-			GROUP BY company_id
-		) time_orders ON c.id = time_orders.company_id
 		ORDER BY c.created_at DESC`
 
 	rows, err := s.db.Query(query)
