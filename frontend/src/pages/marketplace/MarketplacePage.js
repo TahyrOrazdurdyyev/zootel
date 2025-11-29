@@ -122,14 +122,14 @@ const MarketplacePage = () => {
       console.log('❌ Category filter failed:', item.category, 'vs', filters.category);
       return false;
     }
-    if (filters.type !== 'all' && filters.type !== 'products' && item.type !== filters.type) {
-      console.log('❌ Type filter failed:', item.type, 'vs', filters.type);
-      return false;
-    }
-    // Special case: if type=products, show both services and products for now
-    if (filters.type === 'products' && item.type !== 'service' && item.type !== 'product') {
-      console.log('❌ Products filter failed:', item.type);
-      return false;
+    // For now, show all items regardless of type filter since we only have services
+    // TODO: Implement proper type filtering when products are added
+    if (filters.type !== 'all' && filters.type !== 'products' && filters.type !== 'services') {
+      // Only filter out if it's a specific type that's not services or products
+      if (item.type && item.type !== filters.type) {
+        console.log('❌ Type filter failed:', item.type, 'vs', filters.type);
+        return false;
+      }
     }
     if (filters.search && !item.name.toLowerCase().includes(filters.search.toLowerCase()) && 
         !item.description.toLowerCase().includes(filters.search.toLowerCase())) {
