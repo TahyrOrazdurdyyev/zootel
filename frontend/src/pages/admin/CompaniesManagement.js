@@ -34,6 +34,9 @@ const CompaniesManagement = () => {
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [showFeatureModal, setShowFeatureModal] = useState(false);
   const [featureStatus, setFeatureStatus] = useState(null);
+  const [showPlanModal, setShowPlanModal] = useState(false);
+  const [availablePlans, setAvailablePlans] = useState([]);
+  const [loadingPlans, setLoadingPlans] = useState(false);
 
   useEffect(() => {
     loadCompanies();
@@ -109,6 +112,67 @@ const CompaniesManagement = () => {
       }
     } catch (error) {
       console.error('Error loading feature status:', error);
+    }
+  };
+
+  const loadAvailablePlans = async () => {
+    try {
+      setLoadingPlans(true);
+      const response = await apiCall('/api/v1/admin/companies/available-plans', 'GET');
+      if (response.success) {
+        setAvailablePlans(response.data || []);
+      }
+    } catch (error) {
+      console.error('Error loading plans:', error);
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
+
+  const showPlanManagement = async (company) => {
+    setSelectedCompany(company);
+    await loadAvailablePlans();
+    setShowPlanModal(true);
+  };
+
+  const assignPlan = async (planId, billingCycle) => {
+    try {
+      const response = await apiCall(`/api/v1/admin/companies/${selectedCompany.id}/assign-plan`, 'POST', {
+        plan_id: planId,
+        billing_cycle: billingCycle
+      });
+      
+      if (response.success) {
+        alert('Plan assigned successfully!');
+        setShowPlanModal(false);
+        loadCompanies(); // Reload companies to show updated data
+      } else {
+        alert('Error assigning plan: ' + (response.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error assigning plan:', error);
+      alert('Error assigning plan: ' + error.message);
+    }
+  };
+
+  const removePlan = async () => {
+    if (!confirm('Are you sure you want to remove the current plan from this company?')) {
+      return;
+    }
+
+    try {
+      const response = await apiCall(`/api/v1/admin/companies/${selectedCompany.id}/remove-plan`, 'DELETE');
+      
+      if (response.success) {
+        alert('Plan removed successfully!');
+        setShowPlanModal(false);
+        loadCompanies(); // Reload companies to show updated data
+      } else {
+        alert('Error removing plan: ' + (response.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error removing plan:', error);
+      alert('Error removing plan: ' + error.message);
     }
   };
 
@@ -422,6 +486,29 @@ const CompaniesManagement = () => {
                   </div>
                 )}
 
+                {/* Plan Info */}
+                <div className="p-3 bg-blue-50 rounded-lg mb-4">
+                  <h4 className="text-sm font-medium text-blue-700 mb-2 flex items-center">
+                    <CreditCardIcon className="h-4 w-4 mr-1" />
+                    Subscription Plan
+                  </h4>
+                  {company.plan_name ? (
+                    <div>
+                      <p className="text-sm font-semibold text-blue-900">{company.plan_name}</p>
+                      <p className="text-xs text-blue-600">${company.plan_price}/month</p>
+                      <p className="text-xs text-blue-600">Status: {company.status}</p>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-blue-600">No active plan</p>
+                  )}
+                  <button
+                    onClick={() => showPlanManagement(company)}
+                    className="mt-2 px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 border border-blue-200 rounded-full hover:bg-blue-200 transition-colors"
+                  >
+                    Manage Plan
+                  </button>
+                </div>
+
                 {/* Footer */}
                 <div className="pt-4 border-t border-gray-200">
                   <div className="flex flex-wrap gap-2 mb-3">
@@ -620,6 +707,102 @@ const CompaniesManagement = () => {
                 >
                   Close
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Plan Management Modal */}
+      {showPlanModal && selectedCompany && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Plan Management: {selectedCompany.name}
+                </h3>
+                <button
+                  onClick={() => setShowPlanModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </div>
+
+              {/* Current Plan */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Current Plan</h4>
+                {selectedCompany.plan_name ? (
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-semibold text-gray-900">{selectedCompany.plan_name}</p>
+                      <p className="text-sm text-gray-600">${selectedCompany.plan_price}/month</p>
+                      <p className="text-sm text-gray-600">Status: {selectedCompany.status}</p>
+                    </div>
+                    <button
+                      onClick={removePlan}
+                      className="px-3 py-1 text-sm font-medium text-red-700 bg-red-100 border border-red-200 rounded hover:bg-red-200 transition-colors"
+                    >
+                      Remove Plan
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-gray-600">No active plan</p>
+                )}
+              </div>
+
+              {/* Available Plans */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Assign New Plan</h4>
+                {loadingPlans ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="text-sm text-gray-600 mt-2">Loading plans...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {availablePlans.map((plan) => (
+                      <div key={plan.id} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <h5 className="font-semibold text-gray-900">{plan.name}</h5>
+                            <p className="text-sm text-gray-600">{plan.description}</p>
+                            <div className="mt-1">
+                              <span className="text-sm font-medium text-green-600">
+                                ${plan.monthly_price}/month
+                              </span>
+                              <span className="text-sm text-gray-500 ml-2">
+                                or ${plan.yearly_price}/year
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => assignPlan(plan.id, 'monthly')}
+                            className="px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 border border-blue-200 rounded hover:bg-blue-200 transition-colors"
+                          >
+                            Assign Monthly
+                          </button>
+                          <button
+                            onClick={() => assignPlan(plan.id, 'yearly')}
+                            className="px-3 py-1 text-sm font-medium text-green-700 bg-green-100 border border-green-200 rounded hover:bg-green-200 transition-colors"
+                          >
+                            Assign Yearly
+                          </button>
+                          <button
+                            onClick={() => assignPlan(plan.id, 'lifetime')}
+                            className="px-3 py-1 text-sm font-medium text-purple-700 bg-purple-100 border border-purple-200 rounded hover:bg-purple-200 transition-colors"
+                          >
+                            Assign Lifetime
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
