@@ -819,23 +819,71 @@ func (s *ServiceService) GetCompanyPublicServices(companyID string, limit, offse
 	var services []*models.Service
 	for rows.Next() {
 		service := &models.Service{}
+		
+		// Use interface{} for PostgreSQL arrays
+		var petTypesRaw, availableDaysRaw, assignedEmployeesRaw interface{}
+		
 		err := rows.Scan(
 			&service.ID, &service.CompanyID, &service.CategoryID, &service.Name,
 			&service.Description, &service.Price, &service.OriginalPrice,
 			&service.DiscountPercentage, &service.IsOnSale, &service.SaleStartDate, &service.SaleEndDate,
-			&service.Duration, &service.ImageURL, &service.ImageID, pq.Array(&service.PetTypes),
-			pq.Array(&service.AvailableDays), &service.StartTime, &service.EndTime,
-			pq.Array(&service.AssignedEmployees), &service.MaxBookingsPerSlot,
+			&service.Duration, &service.ImageURL, &service.ImageID, &petTypesRaw,
+			&availableDaysRaw, &service.StartTime, &service.EndTime,
+			&assignedEmployeesRaw, &service.MaxBookingsPerSlot,
 			&service.BufferTimeBefore, &service.BufferTimeAfter, &service.AdvanceBookingDays,
 			&service.CancellationPolicy, &service.IsActive, &service.CreatedAt, &service.UpdatedAt,
 		)
 		if err != nil {
-			return nil, 0, fmt.Errorf("failed to scan service: %w", err)
+			fmt.Printf("❌ Failed to scan service %s: %v\n", service.ID, err)
+			continue // Skip this service instead of failing completely
 		}
+		
+		// Parse PostgreSQL arrays
+		service.PetTypes = parseServicePostgreSQLArray(petTypesRaw, "PetTypes")
+		service.AvailableDays = parseServicePostgreSQLArray(availableDaysRaw, "AvailableDays")
+		service.AssignedEmployees = parseServicePostgreSQLArray(assignedEmployeesRaw, "AssignedEmployees")
+		
 		services = append(services, service)
 	}
 
 	return services, total, nil
+}
+
+// parseServicePostgreSQLArray parses PostgreSQL array from interface{} to pq.StringArray for services
+func parseServicePostgreSQLArray(raw interface{}, fieldName string) pq.StringArray {
+	if raw == nil {
+		fmt.Printf("🔍 Service %s is NULL\n", fieldName)
+		return pq.StringArray{}
+	}
+	
+	if bytes, ok := raw.([]uint8); ok {
+		// Convert bytes to string
+		arrayStr := string(bytes)
+		fmt.Printf("🔍 Service %s string: %s\n", fieldName, arrayStr)
+		
+		// Parse PostgreSQL array format: {item1,item2,item3}
+		if len(arrayStr) >= 2 && arrayStr[0] == '{' && arrayStr[len(arrayStr)-1] == '}' {
+			// Remove braces and split by comma
+			content := arrayStr[1 : len(arrayStr)-1]
+			if content == "" {
+				return pq.StringArray{}
+			} else {
+				items := strings.Split(content, ",")
+				result := make(pq.StringArray, len(items))
+				for i, item := range items {
+					result[i] = strings.TrimSpace(item)
+				}
+				fmt.Printf("✅ Parsed Service %s: %v\n", fieldName, result)
+				return result
+			}
+		} else {
+			fmt.Printf("❌ Invalid PostgreSQL array format for Service %s: %s\n", fieldName, arrayStr)
+			return pq.StringArray{}
+		}
+	} else {
+		fmt.Printf("❌ Service %s is not []uint8: %+v (type: %T)\n", fieldName, raw, raw)
+		return pq.StringArray{}
+	}
 }
 
 // GetAllCategories gets all service categories
