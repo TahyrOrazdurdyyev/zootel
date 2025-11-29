@@ -3,6 +3,7 @@
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -811,12 +812,22 @@ func (h *AdminHandler) GetTrialExpiringCompanies(w http.ResponseWriter, r *http.
 
 // Company management
 func (h *AdminHandler) GetCompanies(c *gin.Context) {
+	log.Printf("🔍 AdminHandler.GetCompanies called from %s", c.ClientIP())
+	
 	companies, err := h.adminService.GetCompanies()
 	if err != nil {
+		log.Printf("❌ AdminHandler.GetCompanies error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to fetch companies: " + err.Error(),
 		})
 		return
+	}
+
+	log.Printf("✅ AdminHandler.GetCompanies success: returning %d companies", len(companies))
+	
+	// Log first company for debugging
+	if len(companies) > 0 {
+		log.Printf("🔍 First company: ID=%s, Name=%s, Status=%s", companies[0].ID, companies[0].Name, companies[0].Status)
 	}
 
 	c.JSON(http.StatusOK, gin.H{

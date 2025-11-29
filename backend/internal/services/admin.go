@@ -967,11 +967,13 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 
 	rows, err := s.db.Query(query)
 	if err != nil {
+		log.Printf("❌ GetCompanies query error: %v", err)
 		return nil, fmt.Errorf("failed to query companies: %w", err)
 	}
 	defer rows.Close()
 
 	var companies []models.CompanyDetails
+	log.Printf("🔍 GetCompanies: Starting to scan rows...")
 	for rows.Next() {
 		var company models.CompanyDetails
 		var trialEndsAt, subscriptionExpiresAt, subscriptionActivatedAt, lastLoginAt sql.NullTime
@@ -997,8 +999,10 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			&company.YearlyOrders,
 		)
 		if err != nil {
+			log.Printf("❌ GetCompanies scan error: %v", err)
 			continue
 		}
+		log.Printf("✅ GetCompanies: Successfully scanned company %s (%s)", company.Name, company.ID)
 
 		// Обрабатываем nullable поля
 		if trialEndsAt.Valid {
@@ -1038,6 +1042,7 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 		companies = append(companies, company)
 	}
 
+	log.Printf("✅ GetCompanies: Returning %d companies", len(companies))
 	return companies, nil
 }
 
