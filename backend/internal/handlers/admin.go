@@ -859,6 +859,86 @@ func (h *AdminHandler) GetCompanyFeatureStatus(c *gin.Context) {
 	})
 }
 
+// Plan Management
+
+// AssignPlanToCompany manually assigns a plan to a company
+func (h *AdminHandler) AssignPlanToCompany(c *gin.Context) {
+	companyID := c.Param("id")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	var req struct {
+		PlanID       string `json:"plan_id" binding:"required"`
+		BillingCycle string `json:"billing_cycle" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	log.Printf("🔍 AdminHandler.AssignPlanToCompany: companyID=%s, planID=%s, billingCycle=%s", 
+		companyID, req.PlanID, req.BillingCycle)
+
+	err := h.adminService.AssignPlanToCompany(companyID, req.PlanID, req.BillingCycle)
+	if err != nil {
+		log.Printf("❌ AdminHandler.AssignPlanToCompany error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	log.Printf("✅ AdminHandler.AssignPlanToCompany success for company %s", companyID)
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Plan assigned successfully",
+	})
+}
+
+// RemovePlanFromCompany removes plan from company
+func (h *AdminHandler) RemovePlanFromCompany(c *gin.Context) {
+	companyID := c.Param("id")
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Company ID is required"})
+		return
+	}
+
+	log.Printf("🔍 AdminHandler.RemovePlanFromCompany: companyID=%s", companyID)
+
+	err := h.adminService.RemovePlanFromCompany(companyID)
+	if err != nil {
+		log.Printf("❌ AdminHandler.RemovePlanFromCompany error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	log.Printf("✅ AdminHandler.RemovePlanFromCompany success for company %s", companyID)
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Plan removed successfully",
+	})
+}
+
+// GetAvailablePlans returns all available plans
+func (h *AdminHandler) GetAvailablePlans(c *gin.Context) {
+	log.Printf("🔍 AdminHandler.GetAvailablePlans called from %s", c.ClientIP())
+
+	plans, err := h.adminService.GetAvailablePlans()
+	if err != nil {
+		log.Printf("❌ AdminHandler.GetAvailablePlans error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	log.Printf("✅ AdminHandler.GetAvailablePlans success: returning %d plans", len(plans))
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    plans,
+		"count":   len(plans),
+	})
+}
+
 // CheckCRMTogglePermission проверяет можно ли переключить CRM
 func (h *AdminHandler) CheckCRMTogglePermission(c *gin.Context) {
 	companyID := c.Param("id")

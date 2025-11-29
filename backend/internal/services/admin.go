@@ -927,7 +927,7 @@ func (s *AdminService) GetTrialExpiringCompanies(daysBeforeExpiry int) ([]models
 func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 	log.Printf("🔍 Starting GetCompanies query...")
 	
-	// Простой запрос для тестирования
+	// Полный запрос с реальными данными
 	query := `
 		SELECT 
 			c.id, c.name, c.business_type, COALESCE(c.description, '') as description, 
@@ -935,34 +935,81 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			c.website, c.logo_url, c.is_active, c.subscription_status,
 			c.trial_ends_at, c.subscription_expires_at, c.trial_expired,
 			c.created_at, c.updated_at,
-			c.plan_id, '' as plan_name, 0 as plan_price,
-			'' as owner_id, '' as owner_first_name, 
-			'' as owner_last_name, '' as owner_email,
-			0 as total_bookings,
-			0 as total_customers,
-			0 as total_revenue,
-			0 as employee_count,
+			c.plan_id, COALESCE(p.name, '') as plan_name, COALESCE(p.monthly_price, 0) as plan_price,
+			c.owner_id, COALESCE(u.first_name, '') as owner_first_name, 
+			COALESCE(u.last_name, '') as owner_last_name, COALESCE(u.email, '') as owner_email,
+			COALESCE(booking_stats.total_bookings, 0) as total_bookings,
+			COALESCE(customer_stats.total_customers, 0) as total_customers,
+			COALESCE(booking_stats.total_revenue, 0) as total_revenue,
+			COALESCE(employee_stats.employee_count, 0) as employee_count,
 		-- Extended analytics
 			COALESCE(c.social_media_links->>'instagram', '') as instagram,
 			COALESCE(c.social_media_links->>'facebook', '') as facebook,
 			NULL as subscription_activated_at,
-			0 as average_check,
-			0 as zootel_earnings,
-			0 as cancelled_orders,
+			COALESCE(booking_stats.average_check, 0) as average_check,
+			COALESCE(booking_stats.total_revenue * 0.1, 0) as zootel_earnings,
+			COALESCE(booking_stats.cancelled_orders, 0) as cancelled_orders,
 			0 as refunded_orders,
 			0 as average_response_time,
-			0 as company_rating,
-			0 as total_reviews,
+			COALESCE(review_stats.company_rating, 0) as company_rating,
+			COALESCE(review_stats.total_reviews, 0) as total_reviews,
 			0 as total_chats,
 			0 as customer_requests,
 			NULL as last_login_at,
 			0 as profile_completeness,
-			0 as weekly_orders,
-			0 as monthly_orders,
-			0 as quarterly_orders,
-			0 as half_year_orders,
-			0 as yearly_orders
+			COALESCE(time_stats.weekly_orders, 0) as weekly_orders,
+			COALESCE(time_stats.monthly_orders, 0) as monthly_orders,
+			COALESCE(time_stats.quarterly_orders, 0) as quarterly_orders,
+			COALESCE(time_stats.half_year_orders, 0) as half_year_orders,
+			COALESCE(time_stats.yearly_orders, 0) as yearly_orders
 		FROM companies c
+		LEFT JOIN plans p ON c.plan_id = p.id
+		LEFT JOIN users u ON c.owner_id = u.id
+		LEFT JOIN (
+			SELECT 
+				company_id,
+				COUNT(*) as total_bookings,
+				COUNT(DISTINCT user_id) as total_customers,
+				SUM(CASE WHEN status IN ('confirmed', 'completed') THEN price ELSE 0 END) as total_revenue,
+				AVG(CASE WHEN status IN ('confirmed', 'completed') THEN price ELSE NULL END) as average_check,
+				COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_orders
+			FROM bookings 
+			GROUP BY company_id
+		) booking_stats ON c.id = booking_stats.company_id
+		LEFT JOIN (
+			SELECT 
+				company_id,
+				COUNT(DISTINCT user_id) as total_customers
+			FROM bookings 
+			GROUP BY company_id
+		) customer_stats ON c.id = customer_stats.company_id
+		LEFT JOIN (
+			SELECT 
+				company_id,
+				COUNT(*) as employee_count
+			FROM employees 
+			GROUP BY company_id
+		) employee_stats ON c.id = employee_stats.company_id
+		LEFT JOIN (
+			SELECT 
+				b.company_id,
+				AVG(r.rating) as company_rating,
+				COUNT(r.id) as total_reviews
+			FROM reviews r
+			JOIN bookings b ON r.booking_id = b.id
+			GROUP BY b.company_id
+		) review_stats ON c.id = review_stats.company_id
+		LEFT JOIN (
+			SELECT 
+				company_id,
+				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '7 days' THEN 1 END) as weekly_orders,
+				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '30 days' THEN 1 END) as monthly_orders,
+				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '90 days' THEN 1 END) as quarterly_orders,
+				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '180 days' THEN 1 END) as half_year_orders,
+				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '365 days' THEN 1 END) as yearly_orders
+			FROM bookings 
+			GROUP BY company_id
+		) time_stats ON c.id = time_stats.company_id
 		ORDER BY c.created_at DESC`
 
 	rows, err := s.db.Query(query)
@@ -1085,6 +1132,124 @@ func (s *AdminService) determineCompanyStatus(company *models.CompanyDetails) st
 	}
 
 	return "active"
+}
+
+// AssignPlanToCompany manually assigns a plan to a company (admin action)
+func (s *AdminService) AssignPlanToCompany(companyID, planID string, billingCycle string) error {
+	log.Printf("🔍 AssignPlanToCompany: companyID=%s, planID=%s, billingCycle=%s", companyID, planID, billingCycle)
+	
+	// Validate plan exists
+	var planExists bool
+	err := s.db.QueryRow("SELECT EXISTS(SELECT 1 FROM plans WHERE id = $1)", planID).Scan(&planExists)
+	if err != nil {
+		return fmt.Errorf("failed to check plan existence: %w", err)
+	}
+	if !planExists {
+		return fmt.Errorf("plan with ID %s does not exist", planID)
+	}
+
+	// Calculate subscription end date based on billing cycle
+	var expiresAt time.Time
+	switch billingCycle {
+	case "monthly":
+		expiresAt = time.Now().AddDate(0, 1, 0)
+	case "yearly":
+		expiresAt = time.Now().AddDate(1, 0, 0)
+	case "lifetime":
+		expiresAt = time.Now().AddDate(100, 0, 0) // 100 years from now
+	default:
+		return fmt.Errorf("invalid billing cycle: %s", billingCycle)
+	}
+
+	// Update company with new plan
+	query := `
+		UPDATE companies 
+		SET plan_id = $2, 
+			trial_expired = false,
+			trial_ends_at = NULL,
+			subscription_expires_at = $3,
+			subscription_status = 'active',
+			updated_at = $4
+		WHERE id = $1`
+
+	result, err := s.db.Exec(query, companyID, planID, expiresAt, time.Now())
+	if err != nil {
+		return fmt.Errorf("failed to assign plan to company: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to check affected rows: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("company with ID %s not found", companyID)
+	}
+
+	log.Printf("✅ AssignPlanToCompany: Successfully assigned plan %s to company %s", planID, companyID)
+	return nil
+}
+
+// RemovePlanFromCompany removes plan from company (admin action)
+func (s *AdminService) RemovePlanFromCompany(companyID string) error {
+	log.Printf("🔍 RemovePlanFromCompany: companyID=%s", companyID)
+	
+	query := `
+		UPDATE companies 
+		SET plan_id = NULL, 
+			subscription_expires_at = NULL,
+			subscription_status = 'trial',
+			updated_at = $2
+		WHERE id = $1`
+
+	result, err := s.db.Exec(query, companyID, time.Now())
+	if err != nil {
+		return fmt.Errorf("failed to remove plan from company: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to check affected rows: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("company with ID %s not found", companyID)
+	}
+
+	log.Printf("✅ RemovePlanFromCompany: Successfully removed plan from company %s", companyID)
+	return nil
+}
+
+// GetAvailablePlans returns all available plans for assignment
+func (s *AdminService) GetAvailablePlans() ([]models.Plan, error) {
+	query := `SELECT id, name, description, monthly_price, yearly_price, features, 
+			  free_trial_enabled, free_trial_days, max_employees, templates_access, 
+			  demo_mode_access, included_ai_agents, ai_agent_addons, is_active,
+			  created_at, updated_at 
+			  FROM plans WHERE is_active = true ORDER BY monthly_price ASC`
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query plans: %w", err)
+	}
+	defer rows.Close()
+
+	var plans []models.Plan
+	for rows.Next() {
+		var plan models.Plan
+		err := rows.Scan(
+			&plan.ID, &plan.Name, &plan.Description, &plan.MonthlyPrice, &plan.YearlyPrice,
+			&plan.Features, &plan.FreeTrialEnabled, &plan.FreeTrialDays, &plan.MaxEmployees,
+			&plan.TemplatesAccess, &plan.DemoModeAccess, &plan.IncludedAIAgents, 
+			&plan.AIAgentAddons, &plan.IsActive, &plan.CreatedAt, &plan.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan plan: %w", err)
+		}
+		plans = append(plans, plan)
+	}
+
+	return plans, nil
 }
 
 // AI Agents Management
