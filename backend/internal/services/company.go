@@ -85,22 +85,22 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 	// Get companies with pagination
 	query := fmt.Sprintf(`
 		SELECT c.id, c.name, c.description, c.city, c.country, c.address,
-			   c.latitude, c.longitude, c.phone, c.email, c.website,
-			   c.logo_url, 
-			   COALESCE(c.media_gallery, '{}') as media_gallery, 
-			   COALESCE(c.categories, '{}') as categories,
-			   COUNT(DISTINCT s.id) as service_count,
-			   COUNT(DISTINCT p.id) as product_count,
-			   AVG(r.rating) as avg_rating,
-			   COUNT(DISTINCT r.id) as review_count
+		       c.latitude, c.longitude, c.phone, c.email, c.website,
+		       c.logo_url, c.business_type,
+		       COALESCE(c.media_gallery, '{}') as media_gallery, 
+		       COALESCE(c.categories, '{}') as categories,
+		       COUNT(DISTINCT s.id) as service_count,
+		       COUNT(DISTINCT p.id) as product_count,
+		       AVG(r.rating) as avg_rating,
+		       COUNT(DISTINCT r.id) as review_count
 		FROM companies c
 		LEFT JOIN services s ON c.id = s.company_id AND s.is_active = true
 		LEFT JOIN products p ON c.id = p.company_id AND p.is_active = true
 		LEFT JOIN reviews r ON c.id = r.company_id
 		%s
 		GROUP BY c.id, c.name, c.description, c.city, c.country, c.address,
-				 c.latitude, c.longitude, c.phone, c.email, c.website,
-				 c.logo_url, c.media_gallery, c.categories
+		         c.latitude, c.longitude, c.phone, c.email, c.website,
+		         c.logo_url, c.business_type, c.media_gallery, c.categories
 		ORDER BY AVG(r.rating) DESC NULLS LAST, COUNT(DISTINCT s.id) + COUNT(DISTINCT p.id) DESC
 		LIMIT $%d OFFSET $%d`, whereClause, argIndex, argIndex+1)
 
@@ -128,7 +128,7 @@ func (s *CompanyService) GetPublicCompanies(limit, offset int, category, city, c
 		err := rows.Scan(
 			&company.ID, &company.Name, &company.Description, &company.City,
 			&company.Country, &company.Address, &company.Latitude, &company.Longitude,
-			&company.Phone, &company.Email, &company.Website, &company.LogoURL,
+			&company.Phone, &company.Email, &company.Website, &company.LogoURL, &company.BusinessType,
 			&mediaGalleryRaw, &categoriesRaw,
 			&serviceCount, &productCount, &avgRating, &reviewCount,
 		)
