@@ -950,7 +950,6 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			COALESCE(rv.rating, 0) as company_rating,
 			COALESCE(rv.total_reviews, 0) as total_reviews,
 			COALESCE(ch.total_chats, 0) as total_chats,
-			COALESCE(rq.customer_requests, 0) as customer_requests,
 			u.last_login_at,
 			COALESCE(pf.completeness, 0) as profile_completeness,
 			COALESCE(time_orders.weekly_orders, 0) as weekly_orders,
@@ -1004,11 +1003,6 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			FROM chats
 			GROUP BY company_id
 		) ch ON c.id = ch.company_id
-		LEFT JOIN (
-			SELECT company_id, COUNT(*) as customer_requests
-			FROM support_tickets
-			GROUP BY company_id
-		) rq ON c.id = rq.company_id
 		LEFT JOIN (
 			SELECT company_id,
 				ROUND(

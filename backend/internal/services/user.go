@@ -407,7 +407,7 @@ func (s *UserService) GetAllUsers(page, limit int, role string) ([]models.User, 
 		) os ON u.id = os.user_id
 		LEFT JOIN (
 			SELECT user_id,
-				MODE() WITHIN GROUP (ORDER BY s.category) as favorite_category,
+				MODE() WITHIN GROUP (ORDER BY s.category_id) as favorite_category,
 				MODE() WITHIN GROUP (ORDER BY c.name) as favorite_company
 			FROM bookings b
 			JOIN services s ON b.service_id = s.id
