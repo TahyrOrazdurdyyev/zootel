@@ -118,9 +118,15 @@ const CompaniesManagement = () => {
   const loadAvailablePlans = async () => {
     try {
       setLoadingPlans(true);
+      console.log('🔍 Loading available plans...');
       const response = await apiCall('/admin/companies/available-plans', 'GET');
+      console.log('📋 Plans response:', response);
+      console.log('📋 Response success:', response.success);
+      console.log('📋 Response data:', response.data);
+      console.log('📋 Plans count:', response.data?.length || 0);
       if (response.success) {
         setAvailablePlans(response.data || []);
+        console.log('✅ Plans set to state:', response.data?.length || 0);
       }
     } catch (error) {
       console.error('Error loading plans:', error);
