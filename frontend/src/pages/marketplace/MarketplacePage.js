@@ -296,6 +296,22 @@ const MarketplacePage = () => {
                 Categories
               </h3>
               <nav className="space-y-2">
+                {/* All Categories Button */}
+                <button
+                  onClick={() => handleFilterChange('category', 'all')}
+                  className={`w-full text-left px-3 py-2 rounded-md text-sm ${
+                    filters.category === 'all'
+                      ? 'bg-primary-50 text-primary-700 font-medium'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex justify-between">
+                    <span>All Categories</span>
+                    <span className="text-gray-400">({listings.length})</span>
+                  </div>
+                </button>
+                
+                {/* Individual Categories */}
                 {categories.map((category) => (
                   <button
                     key={category.id}
@@ -308,7 +324,7 @@ const MarketplacePage = () => {
                   >
                     <div className="flex justify-between">
                       <span>{category.name}</span>
-                      <span className="text-gray-400">({category.count})</span>
+                      <span className="text-gray-400">({category.service_count || 0})</span>
                     </div>
                   </button>
                 ))}
