@@ -226,8 +226,16 @@ func (h *CompanyHandler) GetMarketplaceData(c *gin.Context) {
 	// Combine services and products into listings
 	var listings []interface{}
 
-	// Add services to listings with type field
+	// Add services to listings with type field and company info
 	for _, service := range services {
+		// Get company info for this service
+		company, err := h.companyService.GetCompanyByID(service.CompanyID)
+		var companyName, companyCity string
+		if err == nil && company != nil {
+			companyName = company.Name
+			companyCity = company.City
+		}
+
 		serviceMap := map[string]interface{}{
 			"id":                    service.ID,
 			"company_id":           service.CompanyID,
@@ -257,6 +265,8 @@ func (h *CompanyHandler) GetMarketplaceData(c *gin.Context) {
 			"created_at":          service.CreatedAt,
 			"updated_at":          service.UpdatedAt,
 			"type":                "service", // Add type field for frontend filtering
+			"company":             companyName, // Add company name
+			"location":            companyCity, // Add company location
 		}
 		listings = append(listings, serviceMap)
 	}

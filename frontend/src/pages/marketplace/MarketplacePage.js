@@ -108,9 +108,9 @@ const MarketplacePage = () => {
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('ru-RU', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'RUB'
+      currency: 'USD'
     }).format(price);
   };
 
@@ -396,12 +396,14 @@ const MarketplacePage = () => {
                       {item.name}
                     </h3>
                     
-                    <Link 
-                      to={`/companies/${item.companyId || 'demo-company'}`}
-                      className="text-sm text-blue-600 hover:text-blue-800 mb-2 inline-block"
-                    >
-                      {item.company}
-                    </Link>
+                    {item.company && (
+                      <Link 
+                        to={`/companies/${item.company_id}`}
+                        className="text-sm text-blue-600 hover:text-blue-800 mb-2 inline-block"
+                      >
+                        {item.company}
+                      </Link>
+                    )}
                     
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                       {item.description}
@@ -429,7 +431,7 @@ const MarketplacePage = () => {
                     <div className="flex items-center justify-between mb-3 text-sm text-gray-600">
                       <div className="flex items-center">
                         <StarIcon className="h-4 w-4 text-yellow-400 fill-current" />
-                        <span className="ml-1 font-medium">{item.rating || '5.0'}</span>
+                        <span className="ml-1 font-medium">{item.rating || 'No rating'}</span>
                         <span className="ml-1">({item.reviews || '0'})</span>
                       </div>
                       <div className="flex items-center">
