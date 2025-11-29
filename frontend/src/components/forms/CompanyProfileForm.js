@@ -86,42 +86,47 @@ const CompanyProfileForm = ({
   };
 
   const handleLocationFromAddress = async () => {
-    if (!formData.address || !formData.city) {
-      alert('Please enter address and city first');
+    if (!formData.address) {
+      alert('Please enter address first');
+      return;
+    }
+
+    if (!window.google || !window.google.maps) {
+      alert('Google Maps is not loaded yet. Please wait and try again.');
       return;
     }
 
     setGettingLocation(true);
     try {
-      // Use a geocoding service to get coordinates
-      const query = `${formData.address}, ${formData.city}, ${formData.country}`.trim();
+      const geocoder = new window.google.maps.Geocoder();
       
-      // For demo purposes, we'll use a mock geocoding
-      // In production, use Google Geocoding API, Mapbox, or similar
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=YOUR_MAPBOX_TOKEN`
-      );
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.features && data.features.length > 0) {
-          const [longitude, latitude] = data.features[0].center;
+      geocoder.geocode({ address: formData.address }, (results, status) => {
+        setGettingLocation(false);
+        
+        if (status === 'OK' && results[0]) {
+          const location = results[0].geometry.location;
+          const coords = {
+            lat: location.lat(),
+            lng: location.lng()
+          };
+          
           setFormData(prev => ({
             ...prev,
-            latitude,
-            longitude
+            latitude: coords.lat,
+            longitude: coords.lng
           }));
+          
+          toast.success('Coordinates updated from address');
+          console.log('✅ Address geocoded:', formData.address, coords);
         } else {
-          alert('Location not found. Please check your address.');
+          console.error('❌ Geocoding failed:', status);
+          alert('Could not find coordinates for this address');
         }
-      } else {
-        throw new Error('Geocoding failed');
-      }
+      });
     } catch (error) {
-      console.error('Geocoding error:', error);
-      alert('Could not get location from address. You can set it manually.');
-    } finally {
       setGettingLocation(false);
+      console.error('❌ Geocoding error:', error);
+      alert('Error getting coordinates from address');
     }
   };
 
