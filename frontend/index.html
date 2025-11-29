@@ -64,6 +64,27 @@
     </script>
     
     <title>Zootel - Pet Care Services Platform</title>
+    
+    <script>
+      // Log when script starts loading
+      console.log('🔄 Loading Google Maps API...');
+      
+      // Initialize Google Maps callback
+      window.initGoogleMaps = function() {
+        console.log('✅ Google Maps API loaded successfully');
+        window.googleMapsLoaded = true;
+        window.dispatchEvent(new Event('google-maps-loaded'));
+      };
+      
+      // Handle Google Maps API errors
+      window.gm_authFailure = function() {
+        console.error('❌ Google Maps API authentication failed');
+        alert('Google Maps API authentication failed. Please check the API key.');
+      };
+    </script>
+    
+    <!-- Google Maps API -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5b813RD2bwP51bcLP-N8bvX2PM9Sp24M&libraries=places&callback=initGoogleMaps"></script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
