@@ -37,9 +37,19 @@
     <script>
       // Initialize Google Maps callback
       window.initGoogleMaps = function() {
+        console.log('✅ Google Maps API loaded successfully');
         window.googleMapsLoaded = true;
         window.dispatchEvent(new Event('google-maps-loaded'));
       };
+      
+      // Handle Google Maps API errors
+      window.gm_authFailure = function() {
+        console.error('❌ Google Maps API authentication failed');
+        alert('Google Maps API authentication failed. Please check the API key.');
+      };
+      
+      // Log when script starts loading
+      console.log('🔄 Loading Google Maps API...');
     </script>
   </head>
   <body>
