@@ -1715,16 +1715,20 @@ func (s *AdminService) logAdminAction(adminID, action, resourceType, resourceID 
 func (s *AdminService) GetCompanyFeatureStatus(companyID string) (*models.CompanyFeatureStatus, error) {
 	query := `
 		SELECT 
-			c.id, c.name, c.manual_enabled_crm, c.manual_enabled_ai_agents,
-			c.subscription_status, c.plan_id,
-			p.templates_access, p.included_ai_agents,
+			c.id, c.name, 
+			COALESCE(c.manual_enabled_crm, false) as manual_enabled_crm, 
+			COALESCE(c.manual_enabled_ai_agents, false) as manual_enabled_ai_agents,
+			COALESCE(c.subscription_status, 'inactive') as subscription_status, 
+			c.plan_id,
+			COALESCE(p.templates_access, false) as templates_access, 
+			COALESCE(p.included_ai_agents, '{}') as included_ai_agents,
 			CASE 
-				WHEN c.subscription_status = 'active' AND p.templates_access = true 
+				WHEN c.subscription_status = 'active' AND COALESCE(p.templates_access, false) = true 
 				THEN true 
 				ELSE false 
 			END as has_paid_crm,
 			CASE 
-				WHEN c.subscription_status = 'active' AND array_length(p.included_ai_agents, 1) > 0 
+				WHEN c.subscription_status = 'active' AND array_length(COALESCE(p.included_ai_agents, '{}'), 1) > 0 
 				THEN true 
 				ELSE false 
 			END as has_paid_ai
@@ -1735,15 +1739,20 @@ func (s *AdminService) GetCompanyFeatureStatus(companyID string) (*models.Compan
 
 	var status models.CompanyFeatureStatus
 	var includedAgents pq.StringArray
+	var planID sql.NullString
 
 	err := s.db.QueryRow(query, companyID).Scan(
 		&status.CompanyID, &status.CompanyName, &status.ManualCRM, &status.ManualAI,
-		&status.SubscriptionStatus, &status.PlanID,
+		&status.SubscriptionStatus, &planID,
 		&status.PaidCRM, &includedAgents,
 		&status.HasPaidCRM, &status.HasPaidAI,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get company feature status: %w", err)
+	}
+
+	if planID.Valid {
+		status.PlanID = planID.String
 	}
 
 	status.IncludedAIAgents = []string(includedAgents)
