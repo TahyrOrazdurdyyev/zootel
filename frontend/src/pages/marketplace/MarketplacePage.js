@@ -348,7 +348,18 @@ const MarketplacePage = () => {
                 <div key={item.id} className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
                   {/* Image */}
                   <div className="relative h-48 bg-gradient-to-br from-gray-200 to-gray-300">
-                    <div className="absolute inset-0 flex items-center justify-center">
+                    {item.image_url ? (
+                      <img 
+                        src={item.image_url} 
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className={`absolute inset-0 flex items-center justify-center ${item.image_url ? 'hidden' : ''}`}>
                       <span className="text-4xl">
                         {item.type === 'service' ? '🛍️' : '📦'}
                       </span>
@@ -375,7 +386,7 @@ const MarketplacePage = () => {
 
                     {/* Type Badge */}
                     <div className="absolute bottom-3 left-3 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
-                      {item.type === 'service' ? 'Service' : 'Product'}
+                      {item.type === 'service' || !item.type ? 'Service' : 'Product'}
                     </div>
                   </div>
 
