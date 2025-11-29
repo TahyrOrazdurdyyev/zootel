@@ -977,20 +977,23 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 	for rows.Next() {
 		var company models.CompanyDetails
 		var trialEndsAt, subscriptionExpiresAt, subscriptionActivatedAt, lastLoginAt sql.NullTime
+		var planID, planName, ownerID, ownerFirstName, ownerLastName, ownerEmail sql.NullString
+		var description, phone, address, city, state, country, website, logoURL sql.NullString
+		var instagram, facebook sql.NullString
 
 		err := rows.Scan(
-			&company.ID, &company.Name, &company.BusinessType, &company.Description,
-			&company.Email, &company.Phone, &company.Address, &company.City,
-			&company.State, &company.Country, &company.Website,
-			&company.LogoURL, &company.IsActive, &company.Status,
+			&company.ID, &company.Name, &company.BusinessType, &description,
+			&company.Email, &phone, &address, &city,
+			&state, &country, &website,
+			&logoURL, &company.IsActive, &company.Status,
 			&trialEndsAt, &subscriptionExpiresAt, &company.TrialExpired,
 			&company.CreatedAt, &company.UpdatedAt,
-			&company.PlanID, &company.PlanName, &company.PlanPrice,
-			&company.OwnerID, &company.OwnerFirstName, &company.OwnerLastName, &company.OwnerEmail,
+			&planID, &planName, &company.PlanPrice,
+			&ownerID, &ownerFirstName, &ownerLastName, &ownerEmail,
 			&company.TotalBookings, &company.TotalCustomers, &company.TotalRevenue,
 			&company.EmployeeCount,
 			// Extended analytics
-			&company.Instagram, &company.Facebook, &subscriptionActivatedAt,
+			&instagram, &facebook, &subscriptionActivatedAt,
 			&company.AverageCheck, &company.ZootelEarnings, &company.CancelledOrders,
 			&company.RefundedOrders, &company.AverageResponseTime, &company.CompanyRating,
 			&company.TotalReviews, &company.TotalChats, &company.CustomerRequests,
@@ -1005,14 +1008,28 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 		log.Printf("✅ GetCompanies: Successfully scanned company %s (%s)", company.Name, company.ID)
 
 		// Обрабатываем nullable поля
+		if description.Valid { company.Description = description.String }
+		if phone.Valid { company.Phone = phone.String }
+		if address.Valid { company.Address = address.String }
+		if city.Valid { company.City = city.String }
+		if state.Valid { company.State = state.String }
+		if country.Valid { company.Country = country.String }
+		if website.Valid { company.Website = website.String }
+		if logoURL.Valid { company.LogoURL = logoURL.String }
+		if planID.Valid { company.PlanID = planID.String }
+		if planName.Valid { company.PlanName = planName.String }
+		if ownerID.Valid { company.OwnerID = ownerID.String }
+		if ownerFirstName.Valid { company.OwnerFirstName = ownerFirstName.String }
+		if ownerLastName.Valid { company.OwnerLastName = ownerLastName.String }
+		if ownerEmail.Valid { company.OwnerEmail = ownerEmail.String }
+		if instagram.Valid { company.Instagram = instagram.String }
+		if facebook.Valid { company.Facebook = facebook.String }
+		
 		if trialEndsAt.Valid {
 			company.TrialEndDate = &trialEndsAt.Time
 		}
 		if subscriptionExpiresAt.Valid {
 			company.TrialStartDate = &subscriptionExpiresAt.Time // используем как start date
-		}
-		if subscriptionActivatedAt.Valid {
-			company.SubscriptionActivatedAt = &subscriptionActivatedAt.Time
 		}
 		if subscriptionActivatedAt.Valid {
 			company.SubscriptionActivatedAt = &subscriptionActivatedAt.Time
