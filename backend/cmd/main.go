@@ -177,7 +177,7 @@ func main() {
 			marketplace.GET("/services", companyHandler.GetPublicServices)
 			marketplace.GET("/services/discounts", serviceHandler.GetActiveDiscountServices)
 			marketplace.GET("/products", companyHandler.GetPublicProducts)
-			marketplace.GET("/categories", companyHandler.GetServiceCategories)
+			marketplace.GET("/categories", companyHandler.GetServiceCategoriesWithCounts)
 			marketplace.GET("/business-types", companyHandler.GetBusinessTypes)
 			marketplace.GET("/plans", adminHandler.GetPublicPlans)
 			marketplace.GET("/search", companyHandler.Search)

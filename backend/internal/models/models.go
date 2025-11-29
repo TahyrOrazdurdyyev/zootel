@@ -688,6 +688,7 @@ type ServiceCategory struct {
 	Icon            string    `json:"icon" db:"icon"`
 	IconName        string    `json:"icon_name" db:"icon_name"`
 	BackgroundImage string    `json:"background_image" db:"background_image"`
+	ServiceCount    int       `json:"service_count,omitempty"` // Count of services in this category
 	CreatedAt       time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at" db:"updated_at"`
 }

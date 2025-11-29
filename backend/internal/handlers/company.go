@@ -202,6 +202,27 @@ func (h *CompanyHandler) GetServiceCategories(c *gin.Context) {
 	})
 }
 
+// GetServiceCategoriesWithCounts gets service categories with service counts for marketplace
+func (h *CompanyHandler) GetServiceCategoriesWithCounts(c *gin.Context) {
+	fmt.Printf("🔍 GetServiceCategoriesWithCounts called from %s\n", c.ClientIP())
+
+	categories, err := h.serviceService.GetCategoriesWithCounts()
+	if err != nil {
+		fmt.Printf("❌ Failed to get categories with counts: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to get categories",
+		})
+		return
+	}
+
+	fmt.Printf("✅ GetServiceCategoriesWithCounts success, returned %d categories\n", len(categories))
+	c.JSON(http.StatusOK, gin.H{
+		"success":    true,
+		"categories": categories,
+	})
+}
+
 // GetMarketplaceData gets combined data for marketplace (services + products)
 func (h *CompanyHandler) GetMarketplaceData(c *gin.Context) {
 	fmt.Printf("🔍 GetMarketplaceData called from %s\n", c.ClientIP())
@@ -240,6 +261,7 @@ func (h *CompanyHandler) GetMarketplaceData(c *gin.Context) {
 			"id":                    service.ID,
 			"company_id":           service.CompanyID,
 			"category_id":          service.CategoryID,
+			"category":             service.CategoryID, // Add category field for frontend filtering
 			"name":                 service.Name,
 			"description":          service.Description,
 			"price":                service.Price,
