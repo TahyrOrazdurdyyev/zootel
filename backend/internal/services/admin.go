@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/TahyrOrazdurdyyev/zootel/backend/internal/models"
@@ -1764,26 +1765,33 @@ func (s *AdminService) GetCompanyFeatureStatus(companyID string) (*models.Compan
 	
 	log.Printf("✅ GetCompanyFeatureStatus success for company: %s", companyID)
 
-	// Получаем список активных addon агентов
+	// Получаем список активных addon агентов (с fallback если таблицы нет)
 	addonQuery := `
 		SELECT addon_key 
 		FROM company_addons 
 		WHERE company_id = $1 AND addon_type = 'ai_agent' AND status = 'active'
 	`
 
+	var addonAgents []string
 	rows, err := s.db.Query(addonQuery, companyID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get addon agents: %w", err)
-	}
-	defer rows.Close()
-
-	var addonAgents []string
-	for rows.Next() {
-		var agentKey string
-		if err := rows.Scan(&agentKey); err != nil {
-			continue
+		// Если таблица не существует, просто используем пустой список
+		if strings.Contains(err.Error(), "relation \"company_addons\" does not exist") {
+			log.Printf("⚠️ company_addons table does not exist, using empty addon list")
+			addonAgents = []string{}
+		} else {
+			log.Printf("❌ Error querying company_addons: %v", err)
+			return nil, fmt.Errorf("failed to get addon agents: %w", err)
 		}
-		addonAgents = append(addonAgents, agentKey)
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var agentKey string
+			if err := rows.Scan(&agentKey); err != nil {
+				continue
+			}
+			addonAgents = append(addonAgents, agentKey)
+		}
 	}
 	status.AddonAIAgents = addonAgents
 
