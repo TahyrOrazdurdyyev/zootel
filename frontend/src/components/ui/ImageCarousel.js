@@ -48,7 +48,7 @@ const ImageCarousel = ({ images, alt = 'Image', className = '' }) => {
       {/* Navigation arrows */}
       <button
         onClick={prevImage}
-        className="absolute left-2 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 transition-all text-white"
+        className="absolute left-2 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 transition-all text-white z-10"
         aria-label="Previous image"
       >
         <ChevronLeftIcon className="w-5 h-5" />
@@ -56,14 +56,14 @@ const ImageCarousel = ({ images, alt = 'Image', className = '' }) => {
 
       <button
         onClick={nextImage}
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 transition-all text-white"
+        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 transition-all text-white z-10"
         aria-label="Next image"
       >
         <ChevronRightIcon className="w-5 h-5" />
       </button>
 
       {/* Image indicators */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
         {images.map((_, index) => (
           <button
             key={index}
@@ -79,7 +79,7 @@ const ImageCarousel = ({ images, alt = 'Image', className = '' }) => {
       </div>
 
       {/* Image counter */}
-      <div className="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+      <div className="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm z-10">
         {currentIndex + 1} / {images.length}
       </div>
     </div>

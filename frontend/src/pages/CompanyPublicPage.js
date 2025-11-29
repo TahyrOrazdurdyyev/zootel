@@ -133,7 +133,7 @@ const CompanyPublicPage = () => {
               alt={company.name}
               className="w-full h-full"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+            <div className="absolute inset-0 bg-black bg-opacity-40 pointer-events-none"></div>
           </div>
         ) : (
           <div className="w-full h-full bg-gradient-to-r from-blue-600 to-purple-600"></div>
