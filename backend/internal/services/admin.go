@@ -980,7 +980,7 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 			SELECT company_id,
 				COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_orders,
 				COUNT(CASE WHEN status = 'refunded' THEN 1 END) as refunded_orders
-			FROM orders
+			FROM bookings
 			GROUP BY company_id
 		) os ON c.id = os.company_id
 		LEFT JOIN (
@@ -1026,7 +1026,7 @@ func (s *AdminService) GetCompanies() ([]models.CompanyDetails, error) {
 				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '90 days' THEN 1 END) as quarterly_orders,
 				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '180 days' THEN 1 END) as half_year_orders,
 				COUNT(CASE WHEN created_at >= NOW() - INTERVAL '365 days' THEN 1 END) as yearly_orders
-			FROM orders
+			FROM bookings
 			WHERE status IN ('confirmed', 'completed')
 			GROUP BY company_id
 		) time_orders ON c.id = time_orders.company_id
