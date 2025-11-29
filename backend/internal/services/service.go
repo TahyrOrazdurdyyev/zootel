@@ -240,18 +240,16 @@ func (s *ServiceService) GetPublicServices(filters map[string]interface{}) ([]*m
 	for rows.Next() {
 		service := &models.Service{}
 		
-		// Initialize arrays to avoid nil pointer issues
-		service.PetTypes = pq.StringArray{}
-		service.AvailableDays = pq.StringArray{}
-		service.AssignedEmployees = pq.StringArray{}
+		// Use interface{} for PostgreSQL arrays
+		var petTypesRaw, availableDaysRaw, assignedEmployeesRaw interface{}
 		
 		err := rows.Scan(
 			&service.ID, &service.CompanyID, &service.CategoryID, &service.Name,
 			&service.Description, &service.Price, &service.OriginalPrice,
 			&service.DiscountPercentage, &service.IsOnSale, &service.SaleStartDate, &service.SaleEndDate,
-			&service.Duration, &service.ImageURL, &service.ImageID, pq.Array(&service.PetTypes),
-			pq.Array(&service.AvailableDays), &service.StartTime, &service.EndTime,
-			pq.Array(&service.AssignedEmployees), &service.MaxBookingsPerSlot,
+			&service.Duration, &service.ImageURL, &service.ImageID, &petTypesRaw,
+			&availableDaysRaw, &service.StartTime, &service.EndTime,
+			&assignedEmployeesRaw, &service.MaxBookingsPerSlot,
 			&service.BufferTimeBefore, &service.BufferTimeAfter, &service.AdvanceBookingDays,
 			&service.CancellationPolicy, &service.IsActive, &service.CreatedAt, &service.UpdatedAt,
 		)
@@ -259,6 +257,12 @@ func (s *ServiceService) GetPublicServices(filters map[string]interface{}) ([]*m
 			fmt.Printf("❌ Failed to scan service %s: %v\n", service.ID, err)
 			continue // Skip this service instead of failing completely
 		}
+		
+		// Parse PostgreSQL arrays
+		service.PetTypes = parseServicePostgreSQLArray(petTypesRaw, "PetTypes")
+		service.AvailableDays = parseServicePostgreSQLArray(availableDaysRaw, "AvailableDays")
+		service.AssignedEmployees = parseServicePostgreSQLArray(assignedEmployeesRaw, "AssignedEmployees")
+		
 		services = append(services, service)
 	}
 
