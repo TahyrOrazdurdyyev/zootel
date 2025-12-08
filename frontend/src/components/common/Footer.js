@@ -37,10 +37,11 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { name: 'Facebook', href: '#', iconClass: 'fab fa-facebook-f' },
-    { name: 'Instagram', href: '#', iconClass: 'fab fa-instagram' },
-    { name: 'X', href: '#', iconClass: 'fab fa-x-twitter' },
-    { name: 'LinkedIn', href: '#', iconClass: 'fab fa-linkedin-in' }
+    { name: 'Facebook', href: '#', iconPath: '/images/icons/social/facebook.svg' },
+    { name: 'Instagram', href: '#', iconPath: '/images/icons/social/instagram.svg' },
+    { name: 'TikTok', href: '#', iconPath: '/images/icons/social/tiktok.svg' },
+    { name: 'X', href: '#', iconPath: '/images/icons/social/twitter.svg' },
+    { name: 'LinkedIn', href: '#', iconPath: '/images/icons/social/linkedin.svg' }
   ];
 
   return (
@@ -216,10 +217,14 @@ const Footer = () => {
                   <a
                     key={social.name}
                     href={social.href}
-                    className="w-10 h-10 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full transition-colors duration-150"
+                    className="w-10 h-10 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full transition-colors duration-150 group"
                     title={social.name}
                   >
-                    <i className={`${social.iconClass} text-white text-lg`}></i>
+                    <img 
+                      src={social.iconPath} 
+                      alt={social.name}
+                      className="w-5 h-5 filter brightness-0 invert group-hover:brightness-75 transition-all duration-150"
+                    />
                   </a>
                 ))}
               </div>
