@@ -39,7 +39,7 @@ const Footer = () => {
   const socialLinks = [
     { name: 'Facebook', href: '#', iconPath: '/images/icons/social/facebook.svg' },
     { name: 'Instagram', href: '#', iconPath: '/images/icons/social/instagram.svg' },
-    { name: 'TikTok', href: '#', iconPath: '/images/icons/social/tik-tok.svg' },
+    { name: 'TikTok', href: '#', iconPath: '/images/icons/social/tiktok.svg' },
     { name: 'X', href: '#', iconPath: '/images/icons/social/twitter.svg' },
     { name: 'LinkedIn', href: '#', iconPath: '/images/icons/social/linkedin.svg' }
   ];
