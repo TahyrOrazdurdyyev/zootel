@@ -157,24 +157,31 @@ const BusinessPage = () => {
     }
   ];
 
-  const testimonials = [
+  // How it Works steps
+  const howItWorksSteps = [
     {
-      name: 'Anna Kozlova',
-      position: 'Owner of "VetCare" Clinic',
-      content: 'Zootel helped us increase customers by 40% and optimize scheduling. Now we never lose appointments and always know when to expect clients.',
-      avatar: '👩‍⚕️'
+      step: '01',
+      title: 'Sign Up & Setup',
+      description: 'Create your account and set up your business profile in just 5 minutes. Add your services, staff, and working hours.',
+      icon: '🚀'
     },
     {
-      name: 'Dmitry Pavlov',
-      position: 'Director of "PetGroom" Chain',
-      content: 'Managing 3 salons has become much easier. Analytics shows which services are popular, and the mobile app allows control of all processes.',
-      avatar: '👨‍💼'
+      step: '02', 
+      title: 'Customize & Configure',
+      description: 'Personalize your booking system, set pricing, and configure automated notifications to match your brand.',
+      icon: '⚙️'
     },
     {
-      name: 'Elena Morozova',
-      position: 'Pet Hotel Owner',
-      content: 'Clients appreciated the online booking feature. Now they can book a place for their pet even while on vacation, which is very convenient.',
-      avatar: '👩‍💻'
+      step: '03',
+      title: 'Go Live & Get Bookings',
+      description: 'Share your booking link with customers and start receiving appointments 24/7 through our platform.',
+      icon: '📅'
+    },
+    {
+      step: '04',
+      title: 'Grow & Scale',
+      description: 'Use analytics to optimize your business, automate workflows, and watch your revenue grow month by month.',
+      icon: '📈'
     }
   ];
 
@@ -377,39 +384,60 @@ const BusinessPage = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 bg-white">
+      {/* How It Works Section */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900">
-              Client Testimonials
+              How It Works
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              Learn how Zootel helps businesses grow
+              Get started with Zootel in 4 simple steps
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-gray-50 rounded-lg p-6">
-                <p className="text-gray-700 italic mb-6">
-                  "{testimonial.content}"
-                </p>
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mr-4">
-                    <span className="text-2xl">{testimonial.avatar}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {howItWorksSteps.map((step, index) => (
+              <div key={index} className="relative">
+                {/* Step connector line - show except for last item */}
+                {index < howItWorksSteps.length - 1 && (
+                  <div className="hidden lg:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-primary-500 to-primary-300 z-0" 
+                       style={{ width: 'calc(100% - 2rem)', left: '2rem' }}>
                   </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">
-                      {testimonial.name}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {testimonial.position}
-                    </div>
+                )}
+                
+                <div className="relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300 z-10">
+                  {/* Step number */}
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-500 text-white rounded-full font-bold text-sm mb-4">
+                    {step.step}
                   </div>
+                  
+                  {/* Icon */}
+                  <div className="text-4xl mb-4">{step.icon}</div>
+                  
+                  {/* Content */}
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                    {step.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    {step.description}
+                  </p>
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Call to action */}
+          <div className="text-center mt-12">
+            <Link
+              to="/register"
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary-500 hover:bg-primary-600 transition-colors duration-300"
+            >
+              Start Your Free Trial
+              <svg className="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </Link>
           </div>
         </div>
       </section>
