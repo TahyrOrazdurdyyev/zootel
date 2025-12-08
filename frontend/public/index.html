@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css" crossorigin="anonymous" />
     
     <!-- SEO Meta Tags -->
     <meta property="og:title" content="Zootel - Pet Care Services Platform" />
@@ -51,6 +51,28 @@
         console.error('❌ Google Maps API authentication failed');
         alert('Google Maps API authentication failed. Please check the API key.');
       };
+      
+      // Check Font Awesome loading
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          const testIcon = document.createElement('i');
+          testIcon.className = 'fab fa-facebook-f';
+          testIcon.style.position = 'absolute';
+          testIcon.style.left = '-9999px';
+          document.body.appendChild(testIcon);
+          
+          const computedStyle = window.getComputedStyle(testIcon, '::before');
+          const content = computedStyle.getPropertyValue('content');
+          
+          if (content && content !== 'none' && content !== '') {
+            console.log('✅ Font Awesome loaded successfully');
+          } else {
+            console.error('❌ Font Awesome failed to load');
+          }
+          
+          document.body.removeChild(testIcon);
+        }, 1000);
+      });
     </script>
     
     <!-- Google Maps API -->
