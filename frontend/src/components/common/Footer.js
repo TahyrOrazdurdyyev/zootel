@@ -37,10 +37,10 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { name: 'Facebook', href: '#', iconClass: 'fab fa-facebook-f' },
+    { name: 'Facebook', href: '#', iconClass: 'fab fa-facebook' },
     { name: 'Instagram', href: '#', iconClass: 'fab fa-instagram' },
-    { name: 'X', href: '#', iconClass: 'fab fa-x-twitter' },
-    { name: 'LinkedIn', href: '#', iconClass: 'fab fa-linkedin-in' }
+    { name: 'X', href: '#', iconClass: 'fab fa-twitter' },
+    { name: 'LinkedIn', href: '#', iconClass: 'fab fa-linkedin' }
   ];
 
   return (
@@ -216,12 +216,21 @@ const Footer = () => {
                   <a
                     key={social.name}
                     href={social.href}
-                    className="w-10 h-10 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full transition-colors duration-150"
+                    className="w-10 h-10 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full transition-colors duration-150 relative"
                     title={social.name}
                   >
                     <i 
                       className={`${social.iconClass} text-white text-lg`}
-                    />
+                      style={{ 
+                        fontStyle: 'normal',
+                        display: 'inline-block',
+                        fontWeight: 'normal'
+                      }}
+                    ></i>
+                    {/* Debug: Show first letter if FA fails */}
+                    <span className="absolute text-xs text-gray-400 top-0 right-0 opacity-30">
+                      {social.name.charAt(0)}
+                    </span>
                   </a>
                 ))}
               </div>
