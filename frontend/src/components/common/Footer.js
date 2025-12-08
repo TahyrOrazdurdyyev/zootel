@@ -37,11 +37,10 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { name: 'Facebook', href: '#', icon: '/images/icons/social/facebook.svg' },
-    { name: 'Instagram', href: '#', icon: '/images/icons/social/instagram.svg' },
-    { name: 'Twitter', href: '#', icon: '/images/icons/social/twitter.svg' },
-    { name: 'YouTube', href: '#', icon: '/images/icons/social/youtube.svg' },
-    { name: 'LinkedIn', href: '#', icon: '/images/icons/social/linkedin.svg' }
+    { name: 'Facebook', href: '#', icon: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/facebook.svg' },
+    { name: 'Instagram', href: '#', icon: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/instagram.svg' },
+    { name: 'X', href: '#', icon: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/x.svg' },
+    { name: 'LinkedIn', href: '#', icon: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/linkedin.svg' }
   ];
 
   return (
@@ -68,7 +67,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center text-gray-300">
                 <PhoneIcon className="h-5 w-5 mr-3 text-orange-500" />
-                <span>+99365532570</span>
+                <span>+1 (636) 216-2132</span>
               </div>
               <div className="flex items-center text-gray-300">
                 <EnvelopeIcon className="h-5 w-5 mr-3 text-orange-500" />
@@ -223,7 +222,7 @@ const Footer = () => {
                     <img 
                       src={social.icon} 
                       alt={social.name}
-                      className="w-full h-full"
+                      className="w-full h-full filter brightness-0 invert hover:brightness-75 transition-all duration-150"
                     />
                   </a>
                 ))}
@@ -238,7 +237,7 @@ const Footer = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="text-gray-400 text-sm">
-              © 2024 Zootel. All rights reserved.
+              © 2025 Zootel. All rights reserved.
             </div>
             <div className="mt-2 md:mt-0 text-gray-400 text-sm">
               Made with ❤️ for animal lovers
