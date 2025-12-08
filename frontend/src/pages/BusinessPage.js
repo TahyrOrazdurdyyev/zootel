@@ -184,8 +184,8 @@ const BusinessPage = () => {
     "31% increase of recurring revenue with membership",
     "23% increase of 12-month customer retention", 
     "15% increase of revenue with upsell & cross sell",
-    "Save time 20hrs saved per week",
-    "Reviews 1.75x more reviews"
+    "20hrs saved per week",
+    "1.75x more reviews"
   ];
 
   // Add new component for trial expired banner
