@@ -178,11 +178,14 @@ const BusinessPage = () => {
     }
   ];
 
-  const stats = [
-    { value: '500+', label: 'Happy Clients' },
-    { value: '50,000+', label: 'Pets Served' },
-    { value: '99.9%', label: 'System Uptime' },
-    { value: '24/7', label: 'Technical Support' }
+  // Marquee text with business benefits
+  const businessBenefits = [
+    "35% increase of booking during non-working hours",
+    "31% increase of recurring revenue with membership",
+    "23% increase of 12-month customer retention", 
+    "15% increase of revenue with upsell & cross sell",
+    "Save time 20hrs saved per week",
+    "Reviews 1.75x more reviews"
   ];
 
   // Add new component for trial expired banner
@@ -283,19 +286,21 @@ const BusinessPage = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-primary-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
-            {stats.map((stat, index) => (
-              <div key={index}>
-                <div className="text-3xl md:text-4xl font-bold mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-primary-100">
-                  {stat.label}
-                </div>
-              </div>
+      {/* Business Benefits Marquee Section */}
+      <section className="py-8 bg-gradient-to-r from-orange-500 to-orange-600 overflow-hidden">
+        <div className="relative">
+          <div className="flex whitespace-nowrap animate-marquee">
+            {/* First set of benefits */}
+            {businessBenefits.map((benefit, index) => (
+              <span key={`first-${index}`} className="text-white text-lg font-medium mx-8 flex-shrink-0">
+                ✨ {benefit}
+              </span>
+            ))}
+            {/* Duplicate set for seamless loop */}
+            {businessBenefits.map((benefit, index) => (
+              <span key={`second-${index}`} className="text-white text-lg font-medium mx-8 flex-shrink-0">
+                ✨ {benefit}
+              </span>
             ))}
           </div>
         </div>
