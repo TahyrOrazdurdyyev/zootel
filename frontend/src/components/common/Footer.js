@@ -223,7 +223,7 @@ const Footer = () => {
                     <img 
                       src={social.iconPath} 
                       alt={social.name}
-                      className="w-5 h-5 filter brightness-0 invert group-hover:brightness-75 transition-all duration-150"
+                      className="w-5 h-5 group-hover:opacity-75 transition-opacity duration-150"
                     />
                   </a>
                 ))}
