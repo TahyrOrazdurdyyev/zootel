@@ -39,7 +39,7 @@ const Footer = () => {
   const socialLinks = [
     { name: 'Facebook', href: '#', iconPath: '/images/icons/social/facebook.svg' },
     { name: 'Instagram', href: '#', iconPath: '/images/icons/social/instagram.svg' },
-    { name: 'TikTok', href: '#', iconPath: '/images/icons/social/tiktok.svg' },
+    { name: 'TikTok', href: '#', iconPath: '/images/icons/social/tik-tok.svg' },
     { name: 'X', href: '#', iconPath: '/images/icons/social/twitter.svg' },
     { name: 'LinkedIn', href: '#', iconPath: '/images/icons/social/linkedin.svg' }
   ];
@@ -217,13 +217,13 @@ const Footer = () => {
                   <a
                     key={social.name}
                     href={social.href}
-                    className="w-10 h-10 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full transition-colors duration-150 group"
+                    className="hover:scale-110 transition-transform duration-150"
                     title={social.name}
                   >
                     <img 
                       src={social.iconPath} 
                       alt={social.name}
-                      className="w-5 h-5 group-hover:opacity-75 transition-opacity duration-150"
+                      className="w-8 h-8 hover:opacity-80 transition-opacity duration-150"
                     />
                   </a>
                 ))}
