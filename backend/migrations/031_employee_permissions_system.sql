@@ -106,53 +106,53 @@ CREATE TRIGGER trigger_update_employees_updated_at
 -- Insert predefined permissions
 INSERT INTO employee_permissions (id, name, description, category) VALUES
 -- Booking permissions
-('view_bookings', 'Просмотр записей', 'Просмотр записей клиентов', 'bookings'),
-('create_bookings', 'Создание записей', 'Создание новых записей', 'bookings'),
-('edit_bookings', 'Редактирование записей', 'Изменение существующих записей', 'bookings'),
-('cancel_bookings', 'Отмена записей', 'Отмена записей клиентов', 'bookings'),
-('view_all_bookings', 'Просмотр всех записей', 'Просмотр записей всех сотрудников', 'bookings'),
+('view_bookings', 'View Bookings', 'View client bookings', 'bookings'),
+('create_bookings', 'Create Bookings', 'Create new bookings', 'bookings'),
+('edit_bookings', 'Edit Bookings', 'Modify existing bookings', 'bookings'),
+('cancel_bookings', 'Cancel Bookings', 'Cancel client bookings', 'bookings'),
+('view_all_bookings', 'View All Bookings', 'View all employees bookings', 'bookings'),
 
 -- Customer permissions
-('view_customers', 'Просмотр клиентов', 'Просмотр списка клиентов', 'customers'),
-('edit_customers', 'Редактирование клиентов', 'Изменение данных клиентов', 'customers'),
-('view_customer_data', 'Доступ к данным клиентов', 'Доступ к персональным данным клиентов', 'customers'),
+('view_customers', 'View Customers', 'View customer list', 'customers'),
+('edit_customers', 'Edit Customers', 'Modify customer data', 'customers'),
+('view_customer_data', 'Access Customer Data', 'Access customer personal data', 'customers'),
 
 -- Analytics permissions
-('view_analytics', 'Просмотр аналитики', 'Доступ к аналитическим данным', 'analytics'),
-('view_reports', 'Просмотр отчетов', 'Генерация и просмотр отчетов', 'analytics'),
-('export_data', 'Экспорт данных', 'Экспорт данных в файлы', 'analytics'),
+('view_analytics', 'View Analytics', 'Access to analytical data', 'analytics'),
+('view_reports', 'View Reports', 'Generate and view reports', 'analytics'),
+('export_data', 'Export Data', 'Export data to files', 'analytics'),
 
 -- Financial permissions
-('view_financials', 'Просмотр финансов', 'Доступ к финансовой информации', 'financials'),
-('process_payments', 'Обработка платежей', 'Проведение платежных операций', 'financials'),
-('issue_refunds', 'Возврат средств', 'Оформление возвратов клиентам', 'financials'),
+('view_financials', 'View Financials', 'Access to financial information', 'financials'),
+('process_payments', 'Process Payments', 'Process payment operations', 'financials'),
+('issue_refunds', 'Issue Refunds', 'Process customer refunds', 'financials'),
 
 -- Employee management
-('view_employees', 'Просмотр сотрудников', 'Просмотр списка сотрудников', 'employees'),
-('manage_employees', 'Управление сотрудниками', 'Добавление и редактирование сотрудников', 'employees'),
-('view_salaries', 'Просмотр зарплат', 'Доступ к зарплатной информации', 'employees'),
+('view_employees', 'View Employees', 'View employee list', 'employees'),
+('manage_employees', 'Manage Employees', 'Add and edit employees', 'employees'),
+('view_salaries', 'View Salaries', 'Access to salary information', 'employees'),
 
 -- Service management
-('view_services', 'Просмотр услуг', 'Просмотр списка услуг', 'services'),
-('manage_services', 'Управление услугами', 'Добавление и редактирование услуг', 'services'),
-('set_prices', 'Установка цен', 'Изменение цен на услуги', 'services'),
+('view_services', 'View Services', 'View service list', 'services'),
+('manage_services', 'Manage Services', 'Add and edit services', 'services'),
+('set_prices', 'Set Prices', 'Change service prices', 'services'),
 
 -- Inventory management
-('view_inventory', 'Просмотр товаров', 'Просмотр складских остатков', 'inventory'),
-('manage_inventory', 'Управление товарами', 'Управление складскими остатками', 'inventory'),
+('view_inventory', 'View Inventory', 'View inventory stock', 'inventory'),
+('manage_inventory', 'Manage Inventory', 'Manage inventory stock', 'inventory'),
 
 -- System settings
-('view_settings', 'Просмотр настроек', 'Просмотр настроек системы', 'settings'),
-('manage_settings', 'Управление настройками', 'Изменение настроек системы', 'settings'),
-('manage_integrations', 'Управление интеграциями', 'Настройка внешних интеграций', 'settings'),
+('view_settings', 'View Settings', 'View system settings', 'settings'),
+('manage_settings', 'Manage Settings', 'Modify system settings', 'settings'),
+('manage_integrations', 'Manage Integrations', 'Configure external integrations', 'settings'),
 
 -- Reviews
-('view_reviews', 'Просмотр отзывов', 'Просмотр отзывов клиентов', 'reviews'),
-('respond_reviews', 'Ответы на отзывы', 'Ответы на отзывы клиентов', 'reviews'),
+('view_reviews', 'View Reviews', 'View customer reviews', 'reviews'),
+('respond_reviews', 'Respond to Reviews', 'Respond to customer reviews', 'reviews'),
 
 -- Special permissions
-('all', 'Полный доступ', 'Доступ ко всем функциям', 'special'),
-('read_only', 'Только чтение', 'Доступ только для чтения', 'special')
+('all', 'Full Access', 'Access to all functions', 'special'),
+('read_only', 'Read Only', 'Read-only access', 'special')
 
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
@@ -161,20 +161,20 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- Insert predefined roles
 INSERT INTO employee_roles (id, name, description, department, permissions) VALUES
-('manager', 'Менеджер', 'Полный доступ к управлению компанией', 'management', ARRAY['all']),
-('veterinarian', 'Ветеринар', 'Доступ к медицинским функциям и записям', 'medical', ARRAY[
+('manager', 'Manager', 'Full access to company management', 'management', ARRAY['all']),
+('veterinarian', 'Veterinarian', 'Access to medical functions and records', 'medical', ARRAY[
     'view_bookings', 'edit_bookings', 'view_customers', 'view_customer_data', 'view_services'
 ]),
-('groomer', 'Грумер', 'Доступ к грумингу и своим записям', 'grooming', ARRAY[
+('groomer', 'Groomer', 'Access to grooming and own records', 'grooming', ARRAY[
     'view_bookings', 'edit_bookings', 'view_customers'
 ]),
-('receptionist', 'Администратор', 'Управление записями и клиентами', 'reception', ARRAY[
+('receptionist', 'Administrator', 'Management of records and customers', 'reception', ARRAY[
     'view_bookings', 'create_bookings', 'edit_bookings', 'view_customers', 'edit_customers', 'process_payments'
 ]),
-('cashier', 'Кассир', 'Обработка платежей и продаж', 'reception', ARRAY[
+('cashier', 'Cashier', 'Processing payments and sales', 'reception', ARRAY[
     'view_bookings', 'view_customers', 'process_payments', 'view_inventory'
 ]),
-('analyst', 'Аналитик', 'Доступ к аналитике и отчетам', 'analytics', ARRAY[
+('analyst', 'Analyst', 'Access to analytics and reports', 'analytics', ARRAY[
     'view_analytics', 'view_reports', 'export_data', 'view_financials', 'view_bookings', 'view_customers'
 ])
 

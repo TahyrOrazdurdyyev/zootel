@@ -418,16 +418,16 @@ func (s *EmployeeService) GetAvailablePermissions() ([]models.EmployeePermission
 	if err != nil {
 		// Fallback to hardcoded permissions if table doesn't exist
 		return []models.EmployeePermission{
-			{ID: "view_bookings", Name: "Просмотр записей", Description: "Просмотр записей клиентов", Category: "bookings"},
-			{ID: "create_bookings", Name: "Создание записей", Description: "Создание новых записей", Category: "bookings"},
-			{ID: "edit_bookings", Name: "Редактирование записей", Description: "Изменение записей", Category: "bookings"},
-			{ID: "view_customers", Name: "Просмотр клиентов", Description: "Просмотр данных клиентов", Category: "customers"},
-			{ID: "edit_customers", Name: "Редактирование клиентов", Description: "Изменение данных клиентов", Category: "customers"},
-			{ID: "view_services", Name: "Просмотр услуг", Description: "Просмотр услуг компании", Category: "services"},
-			{ID: "manage_employees", Name: "Управление сотрудниками", Description: "Управление сотрудниками", Category: "employees"},
-			{ID: "view_analytics", Name: "Просмотр аналитики", Description: "Доступ к аналитике", Category: "analytics"},
-			{ID: "process_payments", Name: "Обработка платежей", Description: "Обработка платежей", Category: "payments"},
-			{ID: "all", Name: "Полный доступ", Description: "Доступ ко всем функциям", Category: "special"},
+			{ID: "view_bookings", Name: "View Bookings", Description: "View client bookings", Category: "bookings"},
+			{ID: "create_bookings", Name: "Create Bookings", Description: "Create new bookings", Category: "bookings"},
+			{ID: "edit_bookings", Name: "Edit Bookings", Description: "Modify bookings", Category: "bookings"},
+			{ID: "view_customers", Name: "View Customers", Description: "View customer data", Category: "customers"},
+			{ID: "edit_customers", Name: "Edit Customers", Description: "Modify customer data", Category: "customers"},
+			{ID: "view_services", Name: "View Services", Description: "View company services", Category: "services"},
+			{ID: "manage_employees", Name: "Manage Employees", Description: "Manage employees", Category: "employees"},
+			{ID: "view_analytics", Name: "View Analytics", Description: "Access to analytics", Category: "analytics"},
+			{ID: "process_payments", Name: "Process Payments", Description: "Process payments", Category: "payments"},
+			{ID: "all", Name: "Full Access", Description: "Access to all functions", Category: "special"},
 		}, nil
 	}
 	defer rows.Close()

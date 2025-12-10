@@ -91,14 +91,14 @@ const PermissionsManager = ({
   // Predefined role configurations
   const roleConfigurations = {
     manager: {
-      name: 'Менеджер',
-      description: 'Полный доступ ко всем функциям компании',
+      name: 'Manager',
+      description: 'Full access to all company functions',
       color: 'purple',
       permissions: ['all']
     },
     veterinarian: {
-      name: 'Ветеринар',
-      description: 'Доступ к медицинским функциям и записям клиентов',
+      name: 'Veterinarian',
+      description: 'Access to medical functions and client records',
       color: 'blue',
       permissions: [
         'view_bookings', 'edit_bookings', 'view_customers', 
@@ -106,16 +106,16 @@ const PermissionsManager = ({
       ]
     },
     groomer: {
-      name: 'Грумер',
-      description: 'Доступ к грумингу и своим записям',
+      name: 'Groomer',
+      description: 'Access to grooming and own records',
       color: 'green',
       permissions: [
         'view_bookings', 'edit_bookings', 'view_customers'
       ]
     },
     receptionist: {
-      name: 'Администратор',
-      description: 'Управление записями, клиентами и платежами',
+      name: 'Administrator',
+      description: 'Management of records, clients, and payments',
       color: 'yellow',
       permissions: [
         'view_bookings', 'create_bookings', 'edit_bookings',
@@ -123,16 +123,16 @@ const PermissionsManager = ({
       ]
     },
     cashier: {
-      name: 'Кассир',
-      description: 'Обработка платежей и продаж',
+      name: 'Cashier',
+      description: 'Processing payments and sales',
       color: 'orange',
       permissions: [
         'view_bookings', 'view_customers', 'process_payments', 'view_inventory'
       ]
     },
     analyst: {
-      name: 'Аналитик',
-      description: 'Доступ к аналитике и отчетам',
+      name: 'Analyst',
+      description: 'Access to analytics and reports',
       color: 'indigo',
       permissions: [
         'view_analytics', 'view_reports', 'export_data', 'view_employees'
