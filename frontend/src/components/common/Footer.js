@@ -38,9 +38,9 @@ const Footer = () => {
 
   const socialLinks = [
     { name: 'Facebook', href: '#', iconPath: '/images/icons/social/facebook.svg' },
-    { name: 'Instagram', href: '#', iconPath: '/images/icons/social/instagram.svg' },
+    { name: 'Instagram', href: 'https://www.instagram.com/zootel_inc/', iconPath: '/images/icons/social/instagram.svg' },
     { name: 'X', href: '#', iconPath: '/images/icons/social/twitter.svg' },
-    { name: 'LinkedIn', href: '#', iconPath: '/images/icons/social/linkedin.svg' }
+    { name: 'LinkedIn', href: 'https://www.linkedin.com/company/zootel-your-pets-second-home', iconPath: '/images/icons/social/linkedin.svg' }
   ];
 
   return (
@@ -216,6 +216,8 @@ const Footer = () => {
                   <a
                     key={social.name}
                     href={social.href}
+                    target={social.href !== '#' ? '_blank' : undefined}
+                    rel={social.href !== '#' ? 'noopener noreferrer' : undefined}
                     className="hover:scale-110 transition-transform duration-150"
                     title={social.name}
                   >
